@@ -287,7 +287,7 @@ export default function StudentExamsPage() {
             </span>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
-                Full Mock Test
+                Real Exam Simulation
               </p>
               <h2 className="mt-0.5 text-lg font-black text-ink">실전 모의고사</h2>
             </div>
