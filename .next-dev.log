@@ -167,3 +167,31 @@
  GET /student/exams 200 in 48ms
  GET /student/exams 200 in 188ms
  GET /student/register 200 in 34ms
+ ✓ Compiled in 2s (842 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 3s (1112 modules)
+ ✓ Compiled in 3.1s (1112 modules)
+ GET /student/exams 500 in 13190ms
+ GET /student/exams 500 in 358ms
+ GET /student/exams 500 in 1201ms
+ GET /student/exams 500 in 316ms
+ GET /student/exams 500 in 1107ms
+ GET /student/exams 500 in 319ms
+ GET /student/exams 500 in 1151ms
+ GET /student/exams 500 in 347ms
+ GET /student/exams 500 in 1299ms
+ GET /student/exams 500 in 343ms
+ ✓ Compiled in 1121ms (531 modules)
+ ✓ Compiled in 364ms (531 modules)
+ ✓ Compiled in 431ms (531 modules)
+ ✓ Compiled in 479ms (531 modules)
+ ✓ Compiled in 355ms (531 modules)
+ ✓ Compiled in 2.1s (1092 modules)
+ ✓ Compiled in 515ms (531 modules)
+ ✓ Compiled in 301ms (531 modules)
+ ✓ Compiled in 1567ms (1092 modules)
+ ✓ Compiled in 879ms (1094 modules)
+ ✓ Compiled in 578ms (1094 modules)
+ ✓ Compiled in 1259ms (1094 modules)
+ ✓ Compiled in 972ms (1094 modules)
+ ✓ Compiled in 955ms (1094 modules)

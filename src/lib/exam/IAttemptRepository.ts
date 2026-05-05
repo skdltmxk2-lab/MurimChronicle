@@ -7,4 +7,5 @@ export interface IAttemptRepository {
   getStartedAt(examId: string): Promise<number>;
   saveResult(result: AttemptResult): Promise<void>;
   loadResult(attemptId: string): Promise<AttemptResult | null>;
+  listResults(): Promise<AttemptResult[]>;
 }

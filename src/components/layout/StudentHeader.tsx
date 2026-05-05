@@ -90,6 +90,12 @@ export function StudentHeader() {
               <span className="rounded-md bg-brand-50 px-3 py-2 text-sm font-black text-brand-700">
                 {user.name}님 안녕하세요!
               </span>
+              <Link
+                href="/student/profile"
+                className="rounded-md border border-brand-200 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-50"
+              >
+                내정보
+              </Link>
               <button
                 type="button"
                 onClick={logout}

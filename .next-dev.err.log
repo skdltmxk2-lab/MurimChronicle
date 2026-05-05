@@ -4766,3 +4766,163 @@ Import trace for requested module:
  ⚠ Fast Refresh had to perform a full reload due to a runtime error.
  ⚠ Fast Refresh had to perform a full reload due to a runtime error.
  ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json',
+  page: '/student/exams'
+}
+ ⨯ [Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}
+[Error: ENOENT: no such file or directory, open 'C:\Users\yubin\MurimChronicle\.next\routes-manifest.json'] {
+  errno: -4058,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: 'C:\\Users\\yubin\\MurimChronicle\\.next\\routes-manifest.json'
+}

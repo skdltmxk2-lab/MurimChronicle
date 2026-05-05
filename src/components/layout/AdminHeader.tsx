@@ -41,6 +41,9 @@ export function AdminHeader() {
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/imports">
             대량 업로드
           </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/daily">
+            데일리 테스트
+          </Link>
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/exams">
             학생 화면
           </Link>

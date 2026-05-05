@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import type { MockUser } from "@/types/auth";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
-import { mockExams } from "@/data/mockData";
 
 const WELCOME_KEY = "cbt:welcome:pending";
 
@@ -19,18 +19,42 @@ const SUBJECTS = [
   { name: "공학수학", emoji: "⚙️", desc: "미분방정식, 푸리에 급수, 라플라스 변환" },
 ];
 
+const SUBJECT_UNIT_MAP: Record<string, string[]> = {
+  미분학: ["극한", "연속", "미분", "삼각함수", "급수", "로피탈"],
+  적분학: ["부정적분", "정적분", "치환적분", "부분적분", "넓이", "부피"],
+  선형대수학: ["행렬", "행렬식", "연립방정식", "고유값", "고유벡터"],
+  다변수함수론: ["편미분", "방향도함수", "다중적분", "선적분"],
+  공학수학: ["미분방정식", "푸리에 급수", "라플라스 변환"],
+};
+
+const COUNT_OPTIONS = [10, 15, 20];
+
 function formatStat(count: number): string {
   if (count < 100) return "-";
   return `${Math.floor(count / 10) * 10}+`;
 }
 
+function getTodayStr(): string {
+  const d = new Date();
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function getTodayParam(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 export default function StudentExamsPage() {
+  const router = useRouter();
   const [user, setUser] = useState<MockUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
+  const [dailyCount, setDailyCount] = useState(0);
   const [subjectModalOpen, setSubjectModalOpen] = useState(false);
   const [pickedSubject, setPickedSubject] = useState<string | null>(null);
+  const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
+  const [unitTestCount, setUnitTestCount] = useState(10);
 
   useEffect(() => {
     authRepo.getCurrentUser().then((u) => {
@@ -41,12 +65,44 @@ export default function StudentExamsPage() {
         if (pending === "true") setShowWelcome(true);
       }
     });
-    questionRepo.list().then((qs) => setQuestionCount(qs.length));
+    questionRepo.list().then((qs) => {
+      setQuestionCount(qs.length);
+      setDailyCount(qs.filter((q) => q.tags.includes("daily")).length);
+    });
   }, []);
 
   function dismissWelcome() {
     window.localStorage.removeItem(WELCOME_KEY);
     setShowWelcome(false);
+  }
+
+  function openSubjectModal() {
+    setPickedSubject(null);
+    setSelectedUnits([]);
+    setUnitTestCount(10);
+    setSubjectModalOpen(true);
+  }
+
+  function pickSubject(name: string) {
+    setPickedSubject(name);
+    setSelectedUnits(SUBJECT_UNIT_MAP[name] ?? []);
+  }
+
+  function toggleUnit(unit: string) {
+    setSelectedUnits((prev) =>
+      prev.includes(unit) ? prev.filter((u) => u !== unit) : [...prev, unit]
+    );
+  }
+
+  function startUnitTest() {
+    if (!pickedSubject || selectedUnits.length === 0) return;
+    const params = new URLSearchParams({
+      subject: pickedSubject,
+      units: selectedUnits.join(","),
+      count: String(unitTestCount),
+    });
+    router.push(`/student/exams/unit-test?${params.toString()}`);
+    setSubjectModalOpen(false);
   }
 
   if (!authChecked) return null;
@@ -95,18 +151,46 @@ export default function StudentExamsPage() {
           </div>
           <div className="grid grid-cols-2 gap-3 text-center">
             <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">시험</div>
-              <div className="mt-1 text-xl font-black text-ink">
-                {formatStat(mockExams.length * 50)}
-              </div>
+              <div className="text-xs font-bold text-slate-500">문항</div>
+              <div className="mt-1 text-xl font-black text-ink">{formatStat(questionCount)}</div>
             </div>
             <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">문항</div>
-              <div className="mt-1 text-xl font-black text-ink">
-                {formatStat(questionCount)}
-              </div>
+              <div className="text-xs font-bold text-slate-500">시험</div>
+              <div className="mt-1 text-xl font-black text-ink">{formatStat(questionCount * 3)}</div>
             </div>
           </div>
+        </div>
+
+        {/* 데일리 테스트 */}
+        <div className="mt-5 flex items-center justify-between rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-500">
+              Daily Test
+            </p>
+            <p className="mt-0.5 text-base font-black text-ink">
+              {getTodayStr()} 오늘의 데일리 테스트
+            </p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {dailyCount > 0 ? `${Math.min(5, dailyCount)}문항 · 매일 로테이션` : "준비 중"}
+            </p>
+          </div>
+          {dailyCount > 0 ? (
+            <button
+              type="button"
+              onClick={() =>
+                router.push(
+                  `/student/exams/unit-test?mode=daily&count=5&date=${getTodayParam()}`
+                )
+              }
+              className="shrink-0 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-black text-white hover:bg-brand-700"
+            >
+              풀기 →
+            </button>
+          ) : (
+            <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
+              준비 중
+            </span>
+          )}
         </div>
       </section>
 
@@ -160,7 +244,7 @@ export default function StudentExamsPage() {
             </div>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            과목별로 집중 학습하세요. 미분학·적분학·선형대수학·다변수함수론·공학수학 중 원하는 단원을 골라 풀어볼 수 있어요.
+            과목별로 집중 학습하세요. 원하는 단원을 골라 10·15·20문항으로 풀 수 있어요.
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {SUBJECTS.map((s) => (
@@ -175,11 +259,11 @@ export default function StudentExamsPage() {
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
             <div>
               <div className="text-xs font-bold text-slate-400">문항</div>
-              <div className="font-black text-ink">10문항</div>
+              <div className="font-black text-ink">10~20문항</div>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400">시간</div>
-              <div className="font-black text-ink">20분</div>
+              <div className="font-black text-ink">자유</div>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400">방식</div>
@@ -188,7 +272,7 @@ export default function StudentExamsPage() {
           </div>
           <button
             type="button"
-            onClick={() => { setPickedSubject(null); setSubjectModalOpen(true); }}
+            onClick={openSubjectModal}
             className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
           >
             과목 선택하기
@@ -259,21 +343,77 @@ export default function StudentExamsPage() {
           >
             {pickedSubject ? (
               <>
-                <div className="text-center">
-                  <div className="mb-3 text-4xl">
+                {/* 단원 + 문제 수 선택 */}
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="text-2xl">
                     {SUBJECTS.find((s) => s.name === pickedSubject)?.emoji}
-                  </div>
-                  <h3 className="text-xl font-black text-ink">{pickedSubject} 단원별 테스트</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-500">
-                    {SUBJECTS.find((s) => s.name === pickedSubject)?.desc}
-                  </p>
-                  <div className="mt-4 rounded-lg bg-brand-50 px-4 py-4 text-sm font-bold text-brand-700">
-                    문제를 열심히 업로드 중이에요!
-                    <br />
-                    <span className="font-black">곧 오픈됩니다 🚀</span>
+                  </span>
+                  <div>
+                    <h3 className="text-lg font-black text-ink">{pickedSubject}</h3>
+                    <p className="text-xs text-slate-500">단원을 선택하고 문제 수를 정하세요</p>
                   </div>
                 </div>
-                <div className="mt-5 flex gap-2">
+
+                {/* 단원 선택 */}
+                <div className="mb-4">
+                  <div className="mb-2 flex items-center justify-between">
+                    <p className="text-xs font-black text-slate-600">단원 선택</p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setSelectedUnits(
+                          selectedUnits.length === (SUBJECT_UNIT_MAP[pickedSubject] ?? []).length
+                            ? []
+                            : SUBJECT_UNIT_MAP[pickedSubject] ?? []
+                        )
+                      }
+                      className="text-xs font-bold text-brand-600 hover:underline"
+                    >
+                      {selectedUnits.length === (SUBJECT_UNIT_MAP[pickedSubject] ?? []).length
+                        ? "전체 해제"
+                        : "전체 선택"}
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {(SUBJECT_UNIT_MAP[pickedSubject] ?? []).map((unit) => (
+                      <button
+                        key={unit}
+                        type="button"
+                        onClick={() => toggleUnit(unit)}
+                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+                          selectedUnits.includes(unit)
+                            ? "bg-brand-600 text-white"
+                            : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                        }`}
+                      >
+                        {unit}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 문제 수 선택 */}
+                <div className="mb-5">
+                  <p className="mb-2 text-xs font-black text-slate-600">문제 수</p>
+                  <div className="flex gap-2">
+                    {COUNT_OPTIONS.map((n) => (
+                      <button
+                        key={n}
+                        type="button"
+                        onClick={() => setUnitTestCount(n)}
+                        className={`flex-1 rounded-lg py-2.5 text-sm font-black transition ${
+                          unitTestCount === n
+                            ? "bg-brand-600 text-white"
+                            : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                        }`}
+                      >
+                        {n}문항
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={() => setPickedSubject(null)}
@@ -283,10 +423,11 @@ export default function StudentExamsPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setSubjectModalOpen(false)}
-                    className="flex-1 rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
+                    onClick={startUnitTest}
+                    disabled={selectedUnits.length === 0}
+                    className="flex-1 rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    닫기
+                    시작하기 →
                   </button>
                 </div>
               </>
@@ -301,7 +442,7 @@ export default function StudentExamsPage() {
                     <button
                       key={subject.name}
                       type="button"
-                      onClick={() => setPickedSubject(subject.name)}
+                      onClick={() => pickSubject(subject.name)}
                       className="flex w-full items-center gap-4 rounded-xl border border-line px-4 py-3 text-left hover:border-brand-400 hover:bg-brand-50"
                     >
                       <span className="text-2xl">{subject.emoji}</span>

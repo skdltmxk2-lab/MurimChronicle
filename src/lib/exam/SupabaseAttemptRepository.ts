@@ -70,5 +70,18 @@ export const supabaseAttemptRepo: IAttemptRepository = {
 
     if (error || !data) return null;
     return data.result as AttemptResult;
+  },
+
+  async listResults(): Promise<AttemptResult[]> {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return [];
+
+    const { data, error } = await supabase
+      .from("exam_attempts")
+      .select("result")
+      .eq("user_id", session.user.id);
+
+    if (error || !data) return [];
+    return data.map((row) => row.result as AttemptResult);
   }
 };
