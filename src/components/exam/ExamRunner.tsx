@@ -179,6 +179,13 @@ export function ExamRunner({ exam }: { exam: MockExam }) {
               </article>
             );
           })}
+          <button
+            type="button"
+            onClick={() => void submitExam(false)}
+            className="w-full rounded-md bg-ink px-4 py-4 text-sm font-black text-white transition hover:bg-slate-700"
+          >
+            제출
+          </button>
         </section>
 
         <aside className="h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
