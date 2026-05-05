@@ -59,7 +59,7 @@ export const supabaseAuthRepo: IAuthRepository = {
     return user;
   },
 
-  async registerStudent(params: { name: string; email: string; password: string }) {
+  async registerStudent(params: { name: string; email: string; password: string; currentProgress?: string; studyMethod?: string }) {
     const name = params.name.trim();
     const email = params.email.trim();
     const password = params.password;
@@ -71,7 +71,17 @@ export const supabaseAuthRepo: IAuthRepository = {
       return { ok: false, message: "비밀번호는 6자 이상으로 입력해주세요." };
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name,
+          current_progress: params.currentProgress ?? "",
+          study_method: params.studyMethod ?? ""
+        }
+      }
+    });
     if (error) {
       if (error.message.includes("already registered")) {
         return { ok: false, message: "이미 등록된 이메일입니다." };

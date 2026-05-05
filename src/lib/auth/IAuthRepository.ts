@@ -6,6 +6,8 @@ export interface IAuthRepository {
     name: string;
     email: string;
     password: string;
+    currentProgress?: string;
+    studyMethod?: string;
   }): Promise<{ ok: true; user: MockUser } | { ok: false; message: string }>;
   loginStudent(params: {
     email: string;

@@ -60,8 +60,8 @@ export function StudentHeader() {
             CBT
           </span>
           <span>
-            <span className="block text-sm font-black text-ink">편입수학 CBT</span>
-            <span className="block text-xs text-slate-500">Mock MVP</span>
+            <span className="block text-sm font-black text-ink">루트편입 CBT</span>
+            <span className="block text-xs text-slate-500">편입수학 맞춤 학습</span>
           </span>
         </Link>
 

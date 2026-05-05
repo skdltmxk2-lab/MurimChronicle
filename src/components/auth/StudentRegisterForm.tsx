@@ -1,16 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authRepo } from "@/lib/auth/mockAuth";
 
+const PROGRESS_OPTIONS = ["미분적분학", "선형대수학", "다변수미적분학", "공업수학"];
+const STUDY_OPTIONS = ["독학", "김영편입", "해커스", "에듀윌", "기타"];
+
 export function StudentRegisterForm() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [currentProgress, setCurrentProgress] = useState("");
+  const [studyMethod, setStudyMethod] = useState("");
+  const [studyMethodOther, setStudyMethodOther] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [registered, setRegistered] = useState(false);
@@ -22,11 +26,30 @@ export function StudentRegisterForm() {
       setError("비밀번호가 서로 다릅니다.");
       return;
     }
+    if (!currentProgress) {
+      setError("현재 진도를 선택해주세요.");
+      return;
+    }
+    if (!studyMethod) {
+      setError("학습 방법을 선택해주세요.");
+      return;
+    }
+    if (studyMethod === "기타" && !studyMethodOther.trim()) {
+      setError("기타 학습 방법을 입력해주세요.");
+      return;
+    }
 
     setLoading(true);
     setError("");
 
-    const result = await authRepo.registerStudent({ name, email, password });
+    const finalStudyMethod = studyMethod === "기타" ? studyMethodOther.trim() : studyMethod;
+    const result = await authRepo.registerStudent({
+      name,
+      email,
+      password,
+      currentProgress,
+      studyMethod: finalStudyMethod
+    });
 
     setLoading(false);
 
@@ -35,6 +58,9 @@ export function StudentRegisterForm() {
       return;
     }
 
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("cbt:welcome:pending", "true");
+    }
     setRegistered(true);
   }
 
@@ -75,7 +101,7 @@ export function StudentRegisterForm() {
         </p>
         <h1 className="mt-1 text-3xl font-black text-ink">학생 회원가입</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          계정 정보는 Supabase에 저장됩니다.
+          루트편입 CBT에서 맞춤형 편입수학 공부를 시작하세요!
         </p>
 
         <form onSubmit={submit} className="mt-6 space-y-4">
@@ -121,6 +147,55 @@ export function StudentRegisterForm() {
               type="password"
             />
           </label>
+
+          <div className="rounded-md border border-line p-4">
+            <p className="text-xs font-black text-slate-600">현재 진도가 어디신가요?</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {PROGRESS_OPTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setCurrentProgress(option)}
+                  className={`rounded-full px-4 py-2 text-sm font-black transition ${
+                    currentProgress === option
+                      ? "bg-brand-600 text-white"
+                      : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-md border border-line p-4">
+            <p className="text-xs font-black text-slate-600">어떻게 공부 중이신가요?</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {STUDY_OPTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setStudyMethod(option)}
+                  className={`rounded-full px-4 py-2 text-sm font-black transition ${
+                    studyMethod === option
+                      ? "bg-brand-600 text-white"
+                      : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+            {studyMethod === "기타" && (
+              <input
+                value={studyMethodOther}
+                onChange={(event) => setStudyMethodOther(event.target.value)}
+                className="mt-3 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                placeholder="학습 방법을 입력해주세요"
+                autoFocus
+              />
+            )}
+          </div>
 
           {error ? (
             <div className="rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">

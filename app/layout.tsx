@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "편입수학 CBT",
-  description: "Mock data based transfer math CBT MVP"
+  title: "루트편입 CBT",
+  description: "편입수학 빈출 유형 및 취약 유형 맞춤 CBT"
 };
 
 export default function RootLayout({
