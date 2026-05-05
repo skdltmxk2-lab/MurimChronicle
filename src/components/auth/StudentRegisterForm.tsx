@@ -13,6 +13,7 @@ export function StudentRegisterForm() {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,7 +35,36 @@ export function StudentRegisterForm() {
       return;
     }
 
-    router.push("/student/exams");
+    setRegistered(true);
+  }
+
+  if (registered) {
+    return (
+      <main className="mx-auto max-w-6xl px-5 py-8">
+        <section className="mx-auto max-w-xl rounded-lg border border-line bg-white p-6 shadow-soft text-center">
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-brand-50 text-3xl">
+            ✉️
+          </div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+            회원가입 완료
+          </p>
+          <h1 className="mt-1 text-2xl font-black text-ink">이메일을 확인해 주세요!</h1>
+          <p className="mt-3 text-sm leading-7 text-slate-600">
+            <span className="font-bold text-ink">{email}</span> 으로 인증 메일을 보냈어요.
+            <br />
+            메일함에서 인증 링크를 클릭한 뒤,
+            <br />
+            아래 버튼을 눌러 로그인해 주세요.
+          </p>
+          <Link
+            href="/student/exams"
+            className="mt-6 inline-block w-full rounded-md bg-brand-600 px-4 py-3 text-sm font-black text-white hover:bg-brand-700"
+          >
+            로그인하러 가기
+          </Link>
+        </section>
+      </main>
+    );
   }
 
   return (
