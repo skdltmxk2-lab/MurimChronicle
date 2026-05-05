@@ -5,6 +5,29 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { authRepo, isAdminUser, type MockUser } from "@/lib/auth/mockAuth";
 
+function RouteMathIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="228 16 224 224"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="230" y="18" width="220" height="220" rx="44" fill="#0D1F3C" />
+      <rect x="236" y="24" width="208" height="208" rx="40" fill="none" stroke="#1A3458" strokeWidth="1.2" />
+      <path
+        d="M265 132 L290 163 L323 74 L400 74"
+        stroke="white"
+        strokeWidth="13"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <polygon points="398,61 418,74 398,87" fill="#00C88A" />
+    </svg>
+  );
+}
+
 export function StudentHeader() {
   const router = useRouter();
   const [user, setUser] = useState<MockUser | null>(null);
@@ -56,18 +79,19 @@ export function StudentHeader() {
     <header className="border-b border-line bg-white/85 backdrop-blur">
       <div className="mx-auto flex min-h-16 max-w-6xl flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
         <Link href="/student/exams" className="flex items-center gap-3">
-          <span className="grid size-9 place-items-center rounded-lg bg-brand-600 text-sm font-black text-white">
-            CBT
-          </span>
+          <RouteMathIcon className="size-9 shrink-0" />
           <span>
-            <span className="block text-sm font-black text-ink">루트편입 CBT</span>
+            <span className="block text-sm font-black text-ink">루트매쓰 CBT</span>
             <span className="block text-xs text-slate-500">편입수학 맞춤 학습</span>
           </span>
         </Link>
 
         <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
-          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/exams">
-            시험 목록
+          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
+            커뮤니티
+          </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
+            문제검색
           </Link>
           {isAdminUser(user) ? (
             <>

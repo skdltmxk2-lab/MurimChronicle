@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "루트편입 CBT",
+  title: "루트매쓰 CBT",
   description: "편입수학 빈출 유형 및 취약 유형 맞춤 CBT"
 };
 
