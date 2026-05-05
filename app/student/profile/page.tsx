@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { attemptRepo } from "@/lib/exam/storage";
+import { supabase } from "@/lib/supabase/client";
 import type { MockUser } from "@/types/auth";
 import type { AttemptResult } from "@/types/exam";
 
@@ -13,10 +15,13 @@ function formatDate(iso: string): string {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<MockUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [results, setResults] = useState<AttemptResult[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     authRepo.getCurrentUser().then((u) => {
@@ -32,6 +37,38 @@ export default function ProfilePage() {
       }
     });
   }, []);
+
+  async function deleteAccount() {
+    setDeleting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        alert("로그인 상태가 아닙니다.");
+        return;
+      }
+
+      const res = await fetch("/api/delete-account", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const result = await res.json() as { ok: boolean; message?: string };
+
+      if (!result.ok) {
+        alert(result.message ?? "탈퇴 처리 중 오류가 발생했습니다.");
+        return;
+      }
+
+      // 로컬 스토리지 정리
+      window.localStorage.removeItem("cbt:auth:student:v1");
+      window.localStorage.removeItem("cbt:welcome:pending");
+      await supabase.auth.signOut();
+      router.push("/student/exams");
+    } catch {
+      alert("탈퇴 처리 중 오류가 발생했습니다.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   if (!authChecked) return null;
 
@@ -102,21 +139,17 @@ export default function ProfilePage() {
                 style={{ width: `${Math.min(100, (totalAnswered / 100) * 100)}%` }}
               />
             </div>
-            <p className="mt-2 text-xs text-orange-500">
-              {totalAnswered}/100 문항 완료
-            </p>
+            <p className="mt-2 text-xs text-orange-500">{totalAnswered}/100 문항 완료</p>
           </div>
         ) : (
           <div className="mt-4 rounded-xl bg-slate-50 p-5 text-center">
-            <p className="text-sm text-slate-500">
-              단원별 취약 분석 기능을 준비 중입니다.
-            </p>
+            <p className="text-sm text-slate-500">단원별 취약 분석 기능을 준비 중입니다.</p>
           </div>
         )}
       </section>
 
       {/* 최근 응시 내역 */}
-      <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
+      <section className="mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
         <h2 className="mb-4 text-lg font-black text-ink">최근 응시 내역</h2>
         {loading ? (
           <p className="text-sm text-slate-400">불러오는 중...</p>
@@ -156,6 +189,62 @@ export default function ProfilePage() {
           </div>
         )}
       </section>
+
+      {/* 회원탈퇴 */}
+      <section className="rounded-lg border border-red-200 bg-white p-6 shadow-soft">
+        <h2 className="text-base font-black text-red-600">위험 구역</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          탈퇴하면 모든 풀이 기록이 삭제됩니다. 탈퇴 후 동일한 이메일로 재가입할 수 있습니다.
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(true)}
+          className="mt-4 rounded-md border border-red-300 px-4 py-2 text-sm font-black text-red-600 hover:bg-red-50"
+        >
+          회원탈퇴
+        </button>
+      </section>
+
+      {/* 탈퇴 확인 모달 */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4"
+          onClick={() => !deleting && setShowDeleteConfirm(false)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-soft"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="text-center">
+              <div className="text-4xl">⚠️</div>
+              <h3 className="mt-3 text-lg font-black text-ink">정말 탈퇴하시겠습니까?</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                모든 풀이 기록이 영구 삭제됩니다.
+                <br />
+                탈퇴 후 동일한 이메일로 재가입 가능합니다.
+              </p>
+            </div>
+            <div className="mt-5 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50 disabled:opacity-40"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={deleteAccount}
+                disabled={deleting}
+                className="flex-1 rounded-md bg-red-600 py-3 text-sm font-black text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? "처리 중..." : "탈퇴하기"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
