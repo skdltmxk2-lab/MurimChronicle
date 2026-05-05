@@ -165,6 +165,11 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     return records;
   },
 
+  async deleteQuestion(id: string): Promise<void> {
+    const { error } = await supabase.from("questions").delete().eq("id", id);
+    if (error) throw error;
+  },
+
   filter(questions: QuestionRecord[], filters: QuestionFilters): QuestionRecord[] {
     return questions.filter((q) => {
       if (filters.subject && q.subject !== filters.subject) return false;

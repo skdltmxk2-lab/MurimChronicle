@@ -106,6 +106,27 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
     }));
   }
 
+  function addOption() {
+    const nextId = String(draft.options.length + 1);
+    setDraft((current) => ({
+      ...current,
+      options: [
+        ...current.options,
+        { id: nextId, label: nextId, text: "", contentType: "latex" }
+      ]
+    }));
+  }
+
+  function removeLastOption() {
+    if (draft.options.length <= 2) return;
+    const lastId = String(draft.options.length);
+    setDraft((current) => ({
+      ...current,
+      options: current.options.slice(0, -1),
+      correctOptionId: current.correctOptionId === lastId ? "1" : current.correctOptionId
+    }));
+  }
+
   function removeOptionImage(index: number) {
     setDraft((current) => ({
       ...current,
@@ -301,7 +322,25 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
             </div>
 
             <div>
-              <div className="mb-2 text-xs font-black text-slate-600">보기</div>
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-xs font-black text-slate-600">보기</span>
+                <button
+                  type="button"
+                  onClick={addOption}
+                  className="rounded px-2 py-0.5 text-xs font-black text-brand-600 hover:bg-brand-50"
+                >
+                  + 추가
+                </button>
+                {draft.options.length > 4 && (
+                  <button
+                    type="button"
+                    onClick={removeLastOption}
+                    className="rounded px-2 py-0.5 text-xs font-black text-coral-600 hover:bg-coral-50"
+                  >
+                    − 제거
+                  </button>
+                )}
+              </div>
               <div className="space-y-2">
                 {draft.options.map((option, index) => (
                   <div key={option.id} className="grid gap-2 rounded-md border border-line p-2 lg:grid-cols-[40px_120px_1fr_130px]">
