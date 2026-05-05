@@ -5,7 +5,6 @@ import Link from "next/link";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import type { MockUser } from "@/types/auth";
-import { ExamCard } from "@/components/exam/ExamCard";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
 import { mockExams } from "@/data/mockData";
@@ -246,12 +245,6 @@ export default function StudentExamsPage() {
         </div>
       </section>
 
-      {/* 기존 모의고사 */}
-      <section className="grid gap-5 md:grid-cols-2">
-        {mockExams.map((exam) => (
-          <ExamCard key={exam.id} exam={exam} />
-        ))}
-      </section>
       <GeneratedExamCards />
 
       {/* 과목 선택 모달 */}
