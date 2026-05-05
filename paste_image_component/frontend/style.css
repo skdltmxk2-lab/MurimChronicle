@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+}
+
+#paste_area {
+  border: 2px dashed #6b7280;
+  border-radius: 8px;
+  box-sizing: border-box;
+  cursor: text;
+  min-height: 88px;
+  outline: none;
+  padding: 18px 20px;
+  width: 100%;
+}
+
+#paste_area:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+#label {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+#hint {
+  color: #9ca3af;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: 4px;
+}

@@ -1,0 +1,8 @@
+streamlit>=1.50
+pymupdf>=1.26
+pillow>=11.0
+numpy>=2.0
+scikit-learn>=1.6
+pytesseract>=0.3.13
+openai>=2.0
+google-genai>=1.74

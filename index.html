@@ -1,0 +1,1549 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>무림전기 (Murim Chronicle)</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #10130f;
+      color: #f5edd2;
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+    }
+    button, input { font-family: inherit; }
+    #game {
+      position: fixed;
+      left: 0;
+      top: 50px;
+      width: 100vw;
+      height: calc(100vh - 50px);
+      display: block;
+      background: #172318;
+    }
+    #hud {
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      background: linear-gradient(180deg, #21180f, #0c0d0b);
+      border-bottom: 1px solid rgba(230, 190, 100, .35);
+      color: #f7eac4;
+      font-size: clamp(11px, 1.4vw, 14px);
+      white-space: nowrap;
+    }
+    .hudName { font-weight: 800; color: #fff2b4; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
+    .hudTitle { color: #dcc071; }
+    .statChip { color: #e6d3aa; }
+    .spacer { flex: 1 1 auto; min-width: 10px; border-top: 1px solid rgba(255,255,255,.16); }
+    .barWrap {
+      width: 100px;
+      height: 12px;
+      background: #232323;
+      border: 1px solid rgba(255,255,255,.18);
+      overflow: hidden;
+      border-radius: 2px;
+    }
+    .barFill { height: 100%; width: 50%; transition: width .3s ease; }
+    #hpBar { background: linear-gradient(90deg, #861515, #ff4b4b); }
+    #mpBar { background: linear-gradient(90deg, #0c5e66, #48e2d1); }
+    #xpBar { background: linear-gradient(90deg, #8c6411, #ffd85f); }
+    .barLabel { display: flex; align-items: center; gap: 4px; }
+
+    .overlay {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(5, 6, 7, .82);
+    }
+    .overlay.show { display: flex; }
+    #intro {
+      background:
+        radial-gradient(circle at 50% 28%, rgba(201, 141, 42, .18), transparent 35%),
+        linear-gradient(180deg, #080807, #16100c 55%, #090909);
+      padding: 18px;
+    }
+    .introBox {
+      width: min(920px, 96vw);
+      max-height: 96vh;
+      overflow: auto;
+      text-align: center;
+    }
+    .hanjaTitle {
+      margin: 8px 0 0;
+      font-size: clamp(52px, 10vw, 112px);
+      line-height: .95;
+      letter-spacing: 0;
+      color: #f6d36b;
+      text-shadow: 0 0 12px #b06b18, 0 0 28px rgba(255, 201, 94, .45);
+      animation: goldGlow 2s ease-in-out infinite alternate;
+    }
+    .koTitle {
+      margin: 8px 0 12px;
+      font-size: clamp(22px, 4vw, 38px);
+      color: #fff0bd;
+      font-weight: 800;
+    }
+    .flavor {
+      margin: 0 auto 18px;
+      max-width: 720px;
+      color: #dccda5;
+      line-height: 1.7;
+      font-size: clamp(14px, 2vw, 17px);
+    }
+    .selectRow {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 18px auto;
+    }
+    .heroCard {
+      width: min(320px, 42vw);
+      min-width: 220px;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      padding: 16px;
+      border: 2px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.06);
+      color: #f6edcf;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    .heroCard.selected {
+      border-color: #f5cb5c;
+      box-shadow: 0 0 18px rgba(245, 203, 92, .45);
+    }
+    .portrait {
+      width: 96px;
+      height: 96px;
+      display: grid;
+      place-items: center;
+      border-radius: 6px;
+      background: rgba(0,0,0,.3);
+      font-size: 46px;
+      overflow: hidden;
+    }
+    .portrait img { width: 96px; height: 96px; object-fit: contain; image-rendering: pixelated; }
+    #nameInput {
+      width: min(280px, 78vw);
+      height: 42px;
+      padding: 0 12px;
+      background: #100f0d;
+      color: #ffe9a6;
+      border: 1px solid rgba(245,203,92,.6);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 18px;
+    }
+    .mainBtn {
+      min-height: 42px;
+      padding: 0 18px;
+      border: 1px solid #f5cb5c;
+      background: linear-gradient(180deg, #8f5e1e, #4b2c0c);
+      color: #fff5cf;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .mainBtn:disabled { opacity: .45; cursor: default; }
+
+    #battleOverlay {
+      z-index: 30;
+      padding: 14px;
+      background: rgba(4, 4, 5, .88);
+    }
+    #modalOverlay {
+      z-index: 40;
+    }
+    .battleBox {
+      position: relative;
+      width: min(940px, 96vw);
+      max-height: 96vh;
+      display: grid;
+      grid-template-rows: auto minmax(170px, 1fr) auto;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(180deg, #1d1714, #0e0e10);
+      border: 1px solid rgba(245,203,92,.45);
+      border-radius: 8px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.6);
+    }
+    .battleTop {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: start;
+      gap: 12px;
+    }
+    .fighter {
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+    .fighterName { font-weight: 800; color: #fff2b4; font-size: clamp(15px, 2vw, 20px); }
+    .combatantSprite {
+      width: clamp(94px, 20vw, 150px);
+      height: clamp(94px, 20vw, 150px);
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: radial-gradient(circle, rgba(255,255,255,.12), rgba(0,0,0,.25));
+      font-size: clamp(46px, 9vw, 76px);
+      image-rendering: pixelated;
+    }
+    .combatantSprite img { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+    .combatantSprite.hit { animation: hitFlash .25s ease; }
+    .enemyBossAura { box-shadow: 0 0 28px rgba(222, 20, 20, .8); }
+    .vsMark {
+      align-self: center;
+      color: #f5cb5c;
+      font-size: clamp(22px, 4vw, 40px);
+      font-weight: 900;
+    }
+    .bigBar {
+      width: min(210px, 32vw);
+      height: 14px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: #222;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .bigBar > div { height: 100%; transition: width .3s ease; }
+    #bPlayerHp { background: linear-gradient(90deg, #7d1111, #ff4d4d); }
+    #bEnemyHp { background: linear-gradient(90deg, #651c1c, #e94545); }
+    .statusRow {
+      min-height: 24px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tag {
+      padding: 3px 7px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      font-size: 12px;
+      color: #ffeab2;
+    }
+    #battleLog {
+      height: min(170px, 24vh);
+      overflow-y: auto;
+      padding: 10px;
+      background: rgba(0,0,0,.26);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #e9dcc0;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+    .actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .actions button, .panel button, .shopGrid button, .skillList button {
+      min-height: 40px;
+      border: 1px solid rgba(245,203,92,.45);
+      background: #2a2117;
+      color: #fff0c7;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .actions button:hover, .panel button:hover, .shopGrid button:hover, .skillList button:hover { background: #3b2d1d; }
+    .actions button:disabled { opacity: .5; cursor: default; }
+
+    #townPanel {
+      position: fixed;
+      z-index: 24;
+      right: 0;
+      top: 50px;
+      width: min(220px, 82vw);
+      height: calc(100vh - 50px);
+      display: none;
+      padding: 12px;
+      background: rgba(20, 15, 10, .95);
+      border-left: 1px solid rgba(245,203,92,.45);
+    }
+    #townPanel.show { display: block; }
+    .panel {
+      display: grid;
+      gap: 10px;
+    }
+    .panel h2, .modal h2 { margin: 4px 0 8px; color: #f5cb5c; font-size: 20px; }
+    .smallText { color: #d7c49b; font-size: 13px; line-height: 1.5; }
+    .modal {
+      width: min(600px, 94vw);
+      max-height: 88vh;
+      overflow: auto;
+      padding: 16px;
+      background: #15110e;
+      border: 1px solid rgba(245,203,92,.5);
+      border-radius: 8px;
+      box-shadow: 0 18px 48px rgba(0,0,0,.6);
+    }
+    .shopGrid, .skillList {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+    .skillList button { text-align: left; padding: 10px; line-height: 1.4; }
+    #levelPopup, #ending, #gameOver, #bossCutscene {
+      z-index: 45;
+      text-align: center;
+      padding: 18px;
+    }
+    .centerNotice {
+      width: min(640px, 92vw);
+      padding: 26px;
+      border: 1px solid rgba(245,203,92,.55);
+      border-radius: 8px;
+      background: rgba(13, 11, 10, .96);
+      color: #f8eac6;
+      animation: scaleIn .25s ease both;
+      line-height: 1.7;
+    }
+    .centerNotice h1 { margin: 0 0 12px; color: #f5cb5c; }
+    #bossName {
+      font-size: clamp(34px, 7vw, 76px);
+      color: #ff4d4d;
+      text-shadow: 0 0 18px rgba(255, 24, 24, .9);
+      animation: bossPulse .7s ease-in-out infinite alternate;
+    }
+    #popupLayer {
+      position: fixed;
+      pointer-events: none;
+      z-index: 60;
+      inset: 0;
+    }
+    .damagePopup {
+      position: fixed;
+      font-weight: 900;
+      text-shadow: 0 2px 3px rgba(0,0,0,.7);
+      animation: fadeUp 1s ease forwards;
+      font-size: 22px;
+    }
+    .heal { color: #63ff8d; }
+    .hurt { color: #ff5d5d; }
+    .note { color: #ffe277; }
+
+    @keyframes goldGlow { from { filter: brightness(1); } to { filter: brightness(1.22); } }
+    @keyframes hitFlash { 0%, 100% { filter: brightness(1); } 45% { filter: brightness(2); } }
+    @keyframes scaleIn { from { transform: scale(.82); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes bossPulse { from { transform: scale(.96); } to { transform: scale(1.05); } }
+    @keyframes fadeUp {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(-54px); opacity: 0; }
+    }
+
+    @media (max-width: 720px) {
+      #hud { gap: 5px; padding: 5px 6px; overflow-x: auto; }
+      .barWrap { width: 72px; }
+      .actions { grid-template-columns: repeat(2, 1fr); }
+      .battleTop { grid-template-columns: 1fr; }
+      .vsMark { display: none; }
+      #battleLog { height: 130px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <span class="hudName" id="hudName">무명</span>
+    <span class="hudTitle" id="hudTitle">Lv.1 · 낭인</span>
+    <span class="barLabel">체력 <span class="barWrap"><span class="barFill" id="hpBar"></span></span></span>
+    <span class="barLabel">내공 <span class="barWrap"><span class="barFill" id="mpBar"></span></span></span>
+    <span class="barLabel">경험 <span class="barWrap"><span class="barFill" id="xpBar"></span></span></span>
+    <span class="statChip" id="hudAtk">공 0</span>
+    <span class="statChip" id="hudDef">방 0</span>
+    <span class="statChip" id="hudAgi">민 0</span>
+    <span class="spacer"></span>
+    <span id="hudGold">은화 0냥</span>
+    <span id="hudFame">명성 0</span>
+  </div>
+
+  <canvas id="game"></canvas>
+  <div id="popupLayer"></div>
+
+  <section id="intro" class="overlay show">
+    <div class="introBox">
+      <h1 class="hanjaTitle">武林傳記</h1>
+      <div class="koTitle">무 림 전 기</div>
+      <p class="flavor">검은 산맥 너머 마교의 그림자가 번지고, 사파의 칼끝이 관도를 물들인다. 이름 없는 협객으로 시작해 무림의 전설이 되라.</p>
+      <div class="selectRow">
+        <button class="heroCard selected" data-gender="m">
+          <span class="portrait" id="introMale">⚔️</span>
+          <strong>남 협객</strong>
+          <span>공격 +2 · 묵직한 검세</span>
+        </button>
+        <button class="heroCard" data-gender="f">
+          <span class="portrait" id="introFemale">🗡️</span>
+          <strong>여 협객</strong>
+          <span>민첩 +3 · 빠른 보법</span>
+        </button>
+      </div>
+      <input id="nameInput" maxlength="8" placeholder="이름 입력" value="무명">
+      <button class="mainBtn" id="startBtn">강호로 나서기</button>
+    </div>
+  </section>
+
+  <section id="battleOverlay" class="overlay">
+    <div class="battleBox">
+      <div class="battleTop">
+        <div class="fighter">
+          <div class="fighterName" id="bPlayerName">무명</div>
+          <div class="combatantSprite" id="bPlayerSprite">⚔️</div>
+          <div class="bigBar"><div id="bPlayerHp"></div></div>
+          <div class="statusRow" id="bPlayerStatus"></div>
+        </div>
+        <div class="vsMark">對</div>
+        <div class="fighter">
+          <div class="fighterName" id="bEnemyName">도적</div>
+          <div class="combatantSprite" id="bEnemySprite">☠️</div>
+          <div class="bigBar"><div id="bEnemyHp"></div></div>
+          <div class="statusRow" id="bEnemyStatus"></div>
+        </div>
+      </div>
+      <div id="battleLog"></div>
+      <div class="actions">
+        <button data-act="attack">기본 공격</button>
+        <button data-act="defend">방어</button>
+        <button data-act="skill">무공</button>
+        <button data-act="hp">회복약</button>
+        <button data-act="mp">내공단</button>
+        <button data-act="run">도망</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="townPanel">
+    <div class="panel">
+      <h2>마을</h2>
+      <p class="smallText">객잔의 등불 아래 잠시 숨을 고른다.</p>
+      <button id="townFight">⚔ 전투</button>
+      <button id="townTrain">🧘 수련</button>
+      <button id="townShop">🏪 상점</button>
+      <button id="townInn">🍶 주막</button>
+      <button id="townExit">🚪 나가기</button>
+    </div>
+  </aside>
+
+  <section id="modalOverlay" class="overlay">
+    <div class="modal" id="modalBox"></div>
+  </section>
+
+  <section id="levelPopup" class="overlay">
+    <div class="centerNotice">
+      <h1>경지 상승!</h1>
+      <div id="levelText"></div>
+    </div>
+  </section>
+
+  <section id="bossCutscene" class="overlay">
+    <div>
+      <div id="bossName">마교 교주</div>
+      <p class="flavor">하늘이 어두워지고, 강호의 운명이 칼끝에 걸린다.</p>
+    </div>
+  </section>
+
+  <section id="ending" class="overlay">
+    <div class="centerNotice">
+      <h1>천하제일</h1>
+      <div id="endingText"></div>
+      <button class="mainBtn" onclick="location.reload()">다시 시작</button>
+    </div>
+  </section>
+
+  <section id="gameOver" class="overlay">
+    <div class="centerNotice">
+      <h1>강호의 별이 지다</h1>
+      <p>상처 입은 몸은 쓰러졌지만, 이름은 바람 속에 남았다.</p>
+      <button class="mainBtn" onclick="location.reload()">다시 도전</button>
+    </div>
+  </section>
+
+  <script>
+    // 1. SPRITES — base64 data URI object (empty strings as placeholders)
+    const SPRITES = {
+      hero_m: "",
+      hero_f: "",
+      bandit: "",
+      cultist: "",
+      general: "",
+      demon: ""
+    };
+
+    // 2. IMAGE PRELOAD — create Image objects from SPRITES
+    const IMG = {};
+    Object.entries(SPRITES).forEach(([key, src]) => {
+      IMG[key] = new Image();
+      if (src) IMG[key].src = src;
+    });
+
+    // 3. BGM — initAudio(), scheduleBGM() with melody/bass/drum layers
+    let audioCtx = null;
+    let masterGain = null;
+    let bgmTimer = null;
+    const beat = 0.42;
+    const pentatonic = [293.66, 329.63, 369.99, 440, 493.88, 587.33, 659.25, 739.99];
+    const melodyPattern = [0, 2, 3, 5, 4, 3, 2, 0, 1, 3, 5, 7, 6, 5, 3, 2];
+    const bassPattern = [0, 0, 3, 0, 4, 4, 3, 0, 0, 0, 2, 0, 4, 3, 2, 0];
+
+    function initAudio() {
+      if (audioCtx) {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        return;
+      }
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.value = 0.15;
+      masterGain.connect(audioCtx.destination);
+      scheduleBGM();
+    }
+
+    function note(freq, start, dur, type, gain, filterFreq) {
+      const osc = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      const f = audioCtx.createBiquadFilter();
+      osc.type = type;
+      osc.frequency.value = freq;
+      f.type = "lowpass";
+      f.frequency.value = filterFreq;
+      g.gain.setValueAtTime(0.0001, start);
+      g.gain.exponentialRampToValueAtTime(gain, start + 0.035);
+      g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(f);
+      f.connect(g);
+      g.connect(masterGain);
+      osc.start(start);
+      osc.stop(start + dur + 0.04);
+    }
+
+    function drum(start, kind) {
+      const len = kind === "kick" ? 0.18 : 0.05;
+      const buffer = audioCtx.createBuffer(1, audioCtx.sampleRate * len, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      const src = audioCtx.createBufferSource();
+      const filter = audioCtx.createBiquadFilter();
+      const g = audioCtx.createGain();
+      filter.type = kind === "kick" ? "lowpass" : "highpass";
+      filter.frequency.value = kind === "kick" ? 140 : 4200;
+      g.gain.value = kind === "kick" ? 0.2 : 0.06;
+      src.buffer = buffer;
+      src.connect(filter);
+      filter.connect(g);
+      g.connect(masterGain);
+      src.start(start);
+    }
+
+    function scheduleBGM() {
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime + 0.06;
+      melodyPattern.forEach((idx, i) => {
+        note(pentatonic[idx], now + i * beat, beat * 0.82, "triangle", 0.12, 1100);
+        note(pentatonic[bassPattern[i]] / 2, now + i * beat, beat * 0.92, "sine", 0.08, 500);
+        if (i % 4 === 0) drum(now + i * beat, "kick");
+        if (i % 2 === 1) drum(now + i * beat, "hat");
+      });
+      clearTimeout(bgmTimer);
+      bgmTimer = setTimeout(scheduleBGM, melodyPattern.length * beat * 1000);
+    }
+
+    // 4. GAME DATA — tile constants, map array, enemy types, skills, shop items
+    const TS = 36;
+    const MW = 32;
+    const MH = 24;
+    const T = { GRASS: 0, PATH: 1, WALL: 2, TREE: 3, WATER: 4, TOWN: 5, DOOR: 6, SPAWN: 7, BOSS: 8 };
+    const MAP = Array.from({ length: MH }, () => Array(MW).fill(T.GRASS));
+
+    function paintRect(x1, y1, x2, y2, tile) {
+      for (let y = y1; y <= y2; y++) for (let x = x1; x <= x2; x++) if (MAP[y] && MAP[y][x] !== undefined) MAP[y][x] = tile;
+    }
+    paintRect(0, 0, 9, 7, T.SPAWN);
+    paintRect(8, 8, 15, 15, T.WALL);
+    paintRect(9, 9, 14, 14, T.TOWN);
+    MAP[12][12] = T.DOOR;
+    for (let x = 0; x < MW; x++) MAP[12][x] = MAP[12][x] === T.WALL ? MAP[12][x] : T.PATH;
+    for (let y = 0; y < MH; y++) MAP[y][16] = T.PATH;
+    for (let y = 3; y < 22; y++) MAP[y][24] = T.PATH;
+    MAP[12][8] = T.PATH;
+    MAP[12][15] = T.PATH;
+    paintRect(21, 4, 31, 18, T.SPAWN);
+    paintRect(18, 20, 21, 23, T.BOSS);
+    paintRect(27, 0, 31, 4, T.WATER);
+    [[3,2],[6,5],[1,9],[10,3],[18,3],[20,9],[29,10],[25,17],[5,18],[13,18],[30,20]].forEach(([x,y]) => MAP[y][x] = T.TREE);
+    MAP[12][12] = T.DOOR;
+
+    const enemyTypes = {
+      bandit: { name: "도적", sprite: "bandit", emoji: "🪓", color: "#6b3a1f", hp: 48, atk: 9, def: 2, agi: 5, sight: 5, exp: 20, gold: 18, fame: 12, magic: false },
+      cultist: { name: "마교 신도", sprite: "cultist", emoji: "☯", color: "#3b194f", hp: 72, atk: 13, def: 4, agi: 8, sight: 7, exp: 35, gold: 30, fame: 24, magic: true },
+      general: { name: "사파 장수", sprite: "general", emoji: "🛡️", color: "#3b3a3f", hp: 120, atk: 22, def: 11, agi: 3, sight: 4, exp: 70, gold: 70, fame: 55, magic: false },
+      demon: { name: "마두", sprite: "demon", emoji: "👹", color: "#252033", hp: 180, atk: 28, def: 9, agi: 10, sight: 9, exp: 120, gold: 120, fame: 90, magic: false, drain: true }
+    };
+    const bossTypes = {
+      boss1: { ...enemyTypes.general, name: "사천당가 당주", hp: 260, hpMax: 260, atk: 30, def: 15, agi: 7, exp: 220, gold: 240, fame: 220, boss: true },
+      final: { ...enemyTypes.demon, name: "마교 교주", hp: 520, hpMax: 520, atk: 42, def: 18, agi: 13, exp: 500, gold: 700, fame: 999, boss: true, gate: true },
+      abyss: { ...enemyTypes.demon, name: "혈천마존", hp: 980, hpMax: 980, atk: 64, def: 26, agi: 18, exp: 1100, gold: 1800, fame: 1800, boss: true, finalEnding: true, drain: true }
+    };
+    const skills = [
+      { name: "삼재검법", lv: 1, mp: 10, mult: 1.8, desc: "검기로 적을 벤다." },
+      { name: "태극권", lv: 2, mp: 12, mult: 1.3, desc: "3턴 동안 방어태세.", buff: true },
+      { name: "혈풍장", lv: 4, mp: 20, mult: 2.2, desc: "출혈 3턴.", bleed: true },
+      { name: "천마신공", lv: 7, mp: 35, mult: 3.5, desc: "기절 1턴.", stun: true },
+      { name: "구음진경", lv: 10, mp: 50, mult: 4.0, desc: "방어 무시.", pierce: true }
+    ];
+    const shopItems = [
+      { name: "소환단", cost: 30, type: "hp", val: 30, text: "체력 +30" },
+      { name: "대환단", cost: 90, type: "hp", val: 80, text: "체력 +80" },
+      { name: "내공단", cost: 50, type: "mp", val: 25, text: "내공 +25" },
+      { name: "대내공단", cost: 120, type: "mp", val: 60, text: "내공 +60" },
+      { name: "무기 강화", cost: 150, type: "atk", val: 4, text: "공격 +4" },
+      { name: "갑옷 강화", cost: 150, type: "def", val: 4, text: "방어 +4" }
+    ];
+    const passable = new Set([T.GRASS, T.PATH, T.TOWN, T.DOOR, T.SPAWN, T.BOSS]);
+
+    // 5. GAME STATE — player object P, enemy object E, position variables
+    const P = {
+      name: "무명", gender: "m", sprite: "hero_m", emoji: "⚔️",
+      level: 1, exp: 0, expMax: 60,
+      hp: 120, hpMax: 120, mp: 45, mpMax: 45,
+      atk: 14, def: 6, agi: 6, fame: 0, gold: 60,
+      items: { "소환단": 3, "대환단": 0, "내공단": 2, "대내공단": 0 },
+      skills: [], defBuff: 0, defending: false
+    };
+    let E = null;
+    let B = null;
+    let enemies = [];
+    let posX = 16 * TS, posY = 12 * TS, targetX = posX, targetY = posY;
+    let cameraX = 0, cameraY = 0;
+    let keys = {};
+    let lastInput = 0;
+    let lastTime = 0;
+    let safeSteps = 8;
+    let battleGraceUntil = 0;
+    let started = false;
+    let inBattle = false;
+    let townOpen = false;
+    let boss1Defeated = false;
+    let finalDefeated = false;
+    let abyssDefeated = false;
+    let stage = 1;
+    let moveFrame = 0;
+
+    // 6. CANVAS — initCvs(), resizeCvs(), draw(ts) render loop
+    const cvs = document.getElementById("game");
+    const ctx = cvs.getContext("2d");
+
+    function initCvs() {
+      resizeCvs();
+      window.addEventListener("resize", resizeCvs);
+    }
+
+    function resizeCvs() {
+      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+      cvs.width = Math.floor(window.innerWidth * dpr);
+      cvs.height = Math.floor((window.innerHeight - 50) * dpr);
+      cvs.style.width = "100vw";
+      cvs.style.height = "calc(100vh - 50px)";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+    }
+
+    function drawSprite(key, emoji, color, x, y, size, animY = 0, scale = 1) {
+      const img = IMG[key];
+      const s = size * scale;
+      const dx = x - (s - size) / 2;
+      const dy = y - (s - size) / 2 + animY;
+      if (SPRITES[key] && img.complete && img.naturalWidth > 0) {
+        ctx.drawImage(img, dx, dy, s, s);
+        return;
+      }
+      drawProceduralSprite(ctx, key, color, dx, dy, s);
+    }
+
+    function drawProceduralSprite(g, key, color, x, y, size) {
+      const u = size / 96;
+      const r = (n) => Math.round(n * u);
+      const rect = (px, py, w, h, c) => { g.fillStyle = c; g.fillRect(x + r(px), y + r(py), r(w), r(h)); };
+      const poly = (pts, c) => {
+        g.fillStyle = c;
+        g.beginPath();
+        pts.forEach(([px, py], i) => i ? g.lineTo(x + r(px), y + r(py)) : g.moveTo(x + r(px), y + r(py)));
+        g.closePath();
+        g.fill();
+      };
+      const line = (x1, y1, x2, y2, c, w = 3) => {
+        g.strokeStyle = c;
+        g.lineWidth = Math.max(1, r(w));
+        g.lineCap = "round";
+        g.beginPath();
+        g.moveTo(x + r(x1), y + r(y1));
+        g.lineTo(x + r(x2), y + r(y2));
+        g.stroke();
+      };
+      const circle = (cx, cy, rad, c) => {
+        g.fillStyle = c;
+        g.beginPath();
+        g.arc(x + r(cx), y + r(cy), r(rad), 0, Math.PI * 2);
+        g.fill();
+      };
+
+      g.save();
+      g.imageSmoothingEnabled = false;
+      g.shadowColor = "rgba(0,0,0,.55)";
+      g.shadowBlur = r(2);
+      g.globalAlpha = 1;
+      const skin = "#d59a64";
+      const darkSkin = "#b87542";
+      const hair = "#181512";
+      const outline = "#11100e";
+      const gold = "#b78a45";
+      const red = "#82262a";
+      const navy = "#27354f";
+      const black = "#171716";
+      const purple = "#39254d";
+      const iron = "#303033";
+      const greySkin = "#8b9aa3";
+
+      if (key === "hero_f") {
+        poly([[27,74],[39,38],[57,38],[69,74],[58,88],[48,84],[38,88]], "#2a1b1f");
+        rect(38,34,20,18, skin);
+        circle(48,27,11, skin);
+        rect(34,17,29,10, hair); rect(43,8,14,14, hair); rect(41,7,20,3, "#9f2729");
+        poly([[35,41],[61,41],[68,76],[56,86],[48,68],[40,86],[28,76]], "#8e1f2b");
+        poly([[39,44],[48,58],[57,44],[55,72],[41,72]], "#b43235");
+        rect(33,50,8,20, skin); rect(55,50,8,20, skin);
+        rect(31,60,8,9, black); rect(57,60,8,9, black);
+        rect(37,77,9,16, "#242425"); rect(51,77,9,16, "#242425");
+        line(28,54,21,70, gold, 3); line(68,54,75,70, gold, 3);
+        line(28,46,19,60, "#4c3830", 4); line(68,46,77,60, "#4c3830", 4);
+        rect(43,26,4,2, outline); rect(52,26,4,2, outline);
+        line(39,58,57,58, gold, 2);
+      } else if (key === "hero_m") {
+        rect(29,74,13,19, black); rect(54,74,13,19, black);
+        poly([[24,42],[36,30],[60,30],[72,42],[63,82],[48,75],[33,82]], navy);
+        poly([[35,39],[48,65],[61,39],[58,79],[38,79]], "#1d273d");
+        rect(37,34,22,18, skin);
+        circle(48,25,12, skin);
+        rect(32,15,32,11, hair); rect(43,6,13,14, hair); line(25,20,72,70, "#5a4126", 5);
+        line(27,21,68,66, "#c0a066", 2);
+        rect(20,43,12,24, darkSkin); rect(64,43,12,24, darkSkin);
+        rect(18,58,14,8, "#cbc1aa"); rect(64,58,14,8, "#cbc1aa");
+        line(31,47,22,34, gold, 3); line(65,47,74,34, gold, 3);
+        rect(43,26,4,2, outline); rect(52,26,4,2, outline);
+        rect(38,54,20,5, "#1c1c1d"); line(34,45,62,45, gold, 2);
+      } else if (key === "bandit") {
+        rect(30,76,13,18, "#201b16"); rect(55,76,13,18, "#201b16");
+        poly([[25,38],[37,31],[60,33],[71,43],[64,78],[48,73],[32,78]], "#443321");
+        rect(35,36,25,18, darkSkin); circle(48,28,12, darkSkin);
+        rect(31,18,34,9, "#30271f"); rect(27,15,40,6, "#55402e"); line(62,17,76,12, "#55402e", 4);
+        rect(22,44,12,23, "#9c5b2d"); rect(64,44,12,23, "#9c5b2d");
+        rect(31,59,13,20, "#2b251f"); rect(53,59,13,20, "#2b251f");
+        line(18,72,7,86, "#9f8c75", 6); line(7,86,2,85, "#c8bda8", 3);
+        rect(39,29,4,2, outline); rect(52,29,4,2, outline); line(36,50,60,52, "#8d2f24", 2);
+      } else if (key === "cultist") {
+        poly([[24,86],[31,36],[65,36],[72,86],[57,92],[48,80],[39,92]], black);
+        poly([[31,35],[48,25],[65,35],[59,58],[48,52],[37,58]], purple);
+        circle(48,28,12, "#bba8a8"); rect(31,17,34,13, hair);
+        rect(24,43,13,30, "#121213"); rect(59,43,13,30, "#121213");
+        poly([[34,42],[62,42],[59,84],[48,92],[37,84]], "#171319");
+        rect(41,65,14,24, "#2a1723"); rect(43,72,10,3, "#9e252a"); rect(44,80,8,3, "#9e252a");
+        circle(48,54,11, "#a944ff"); circle(48,54,6, "#f3c8ff"); line(42,54,54,54, "#5b238d", 2); line(48,46,48,62, "#5b238d", 2);
+        rect(39,28,4,2, "#d7b9ff"); rect(53,28,4,2, "#d7b9ff"); line(40,22,44,32, "#272227", 2); line(56,22,52,32, "#272227", 2);
+      } else if (key === "general") {
+        poly([[18,36],[31,28],[65,28],[78,36],[71,82],[48,76],[25,82]], "#251716");
+        rect(28,76,15,18, "#181818"); rect(54,76,15,18, "#181818");
+        poly([[26,35],[37,28],[59,28],[70,35],[63,76],[48,82],[33,76]], iron);
+        rect(36,34,24,16, "#bf794d"); circle(48,25,12, "#c68655");
+        rect(34,13,28,14, "#1a1a1c"); line(35,13,27,4, "#73665a", 5); line(61,13,69,4, "#73665a", 5);
+        rect(23,34,16,16, red); rect(57,34,16,16, red);
+        rect(30,51,36,8, "#242426"); rect(34,61,28,9, "#222224");
+        line(20,28,79,18, "#8f8274", 7); line(20,28,79,18, "#c0b6a8", 2); line(31,58,65,36, gold, 2);
+        rect(39,27,4,2, outline); rect(53,27,4,2, outline); line(42,33,55,37, "#7d1717", 2);
+      } else if (key === "demon") {
+        rect(30,76,14,18, "#141215"); rect(55,76,14,18, "#141215");
+        poly([[21,39],[34,29],[62,29],[76,41],[66,83],[49,91],[31,83]], "#24192f");
+        rect(34,37,28,18, greySkin); circle(48,27,13, greySkin);
+        rect(31,12,34,15, hair); line(37,13,28,2, "#50453f", 5); line(59,13,68,2, "#50453f", 5);
+        rect(24,42,13,26, "#343238"); rect(60,42,13,26, "#2b1526");
+        poly([[35,46],[48,76],[61,46],[58,88],[48,93],[38,88]], purple);
+        circle(72,55,12, "#73182b"); circle(72,55,6, "#ff334e"); line(64,45,77,32, "#b51f3f", 3); line(64,62,82,73, "#b51f3f", 3);
+        rect(39,28,4,3, "#ff3333"); rect(53,28,4,3, "#ff3333"); line(38,60,58,60, gold, 2); circle(48,63,4, "#c8bd94");
+      } else {
+        circle(48, 48, 26, color);
+      }
+      g.restore();
+    }
+
+    function draw(ts) {
+      const vw = cvs.clientWidth;
+      const vh = cvs.clientHeight;
+      ctx.clearRect(0, 0, vw, vh);
+      cameraX += (posX - vw / 2 + TS / 2 - cameraX) * 0.08;
+      cameraY += (posY - vh / 2 + TS / 2 - cameraY) * 0.08;
+      cameraX = Math.max(0, Math.min(MW * TS - vw, cameraX));
+      cameraY = Math.max(0, Math.min(MH * TS - vh, cameraY));
+
+      const sx = Math.max(0, Math.floor(cameraX / TS) - 1);
+      const sy = Math.max(0, Math.floor(cameraY / TS) - 1);
+      const ex = Math.min(MW - 1, Math.ceil((cameraX + vw) / TS) + 1);
+      const ey = Math.min(MH - 1, Math.ceil((cameraY + vh) / TS) + 1);
+
+      for (let y = sy; y <= ey; y++) {
+        for (let x = sx; x <= ex; x++) {
+          const tile = MAP[y][x];
+          const px = x * TS - cameraX;
+          const py = y * TS - cameraY;
+          if (tile === T.GRASS) ctx.fillStyle = stage === 2 ? "#263548" : "#243d22";
+          if (tile === T.PATH) ctx.fillStyle = stage === 2 ? "#6c6670" : "#7b5830";
+          if (tile === T.WALL) ctx.fillStyle = stage === 2 ? "#171622" : "#201613";
+          if (tile === T.TREE) ctx.fillStyle = stage === 2 ? "#1d2935" : "#1e3520";
+          if (tile === T.WATER) {
+            const a = 0.48 + Math.sin(ts / 800 + x + y) * 0.18;
+            ctx.fillStyle = stage === 2 ? `rgba(91, 46, 138, ${a})` : `rgba(33, 121, 173, ${a})`;
+          }
+          if (tile === T.TOWN) ctx.fillStyle = stage === 2 ? "#5d4f5d" : "#7a5734";
+          if (tile === T.DOOR) ctx.fillStyle = stage === 2 ? "#6b4b7c" : "#8a5a2b";
+          if (tile === T.SPAWN) ctx.fillStyle = stage === 2 ? "#342747" : "#284528";
+          if (tile === T.BOSS) {
+            const a = 0.45 + Math.sin(ts / 600 + x) * 0.18;
+            ctx.fillStyle = stage === 2 ? `rgba(118, 11, 92, ${a})` : `rgba(104, 13, 20, ${a})`;
+          }
+          ctx.fillRect(px, py, TS, TS);
+          ctx.strokeStyle = "rgba(0,0,0,.16)";
+          ctx.strokeRect(px, py, TS, TS);
+          if (tile === T.TREE || tile === T.DOOR) {
+            ctx.font = "24px serif";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(tile === T.TREE ? "🌲" : "🚪", px + TS / 2, py + TS / 2 + 1);
+          }
+        }
+      }
+
+      enemies.forEach(en => {
+        const type = makeEnemyForStage(en.kind);
+        const x = en.fx - cameraX;
+        const y = en.fy - cameraY;
+        if (en.chasing) {
+          ctx.save();
+          const pulse = 12 + Math.sin(ts / 120) * 4;
+          ctx.strokeStyle = "rgba(255, 35, 35, .8)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x + TS / 2, y + TS / 2, pulse, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fillStyle = "rgba(255, 30, 30, .9)";
+          ctx.beginPath();
+          ctx.arc(x + TS / 2, y - 2, 4 + Math.sin(ts / 130), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        drawSprite(type.sprite, type.emoji, type.color, x, y, TS, Math.sin(ts / 400 + en.tx) * 1.4);
+        ctx.font = "11px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "#ffe7b0";
+        ctx.fillText(type.name, x + TS / 2, y + TS + 10);
+      });
+
+      const px = posX - cameraX;
+      const py = posY - cameraY;
+      const grd = ctx.createRadialGradient(px + TS / 2, py + TS / 2, 4, px + TS / 2, py + TS / 2, 36);
+      grd.addColorStop(0, "rgba(255, 218, 96, .28)");
+      grd.addColorStop(1, "rgba(255, 218, 96, 0)");
+      ctx.fillStyle = grd;
+      ctx.fillRect(px - 28, py - 28, TS + 56, TS + 56);
+      const idle = P.gender === "m" ? Math.sin(ts / 420) * 1.5 : Math.sin(ts / 360) * 2;
+      const walk = (Math.abs(posX - targetX) > 1 || Math.abs(posY - targetY) > 1) ? Math.sin(moveFrame) * 2 : idle;
+      drawSprite(P.sprite, P.emoji, P.gender === "m" ? "#233d68" : "#8a1d28", px, py, TS, walk);
+    }
+
+    // 7. ENEMY AI — initEnemies(), updateEnemies(dt)
+    function initEnemies() {
+      enemies = [];
+      const spots = [[2,3,"bandit"],[6,6,"bandit"],[22,5,"cultist"],[28,7,"cultist"],[23,14,"general"],[29,16,"demon"],[5,2,"bandit"],[26,12,"general"]];
+      spots.forEach(([tx, ty, kind]) => enemies.push({
+        tx, ty, fx: tx * TS, fy: ty * TS, kind, chasing: false,
+        moveTimer: Math.random() * 1400, interval: 1200 + Math.random() * 1600,
+        dir: [1, 0]
+      }));
+    }
+
+    function makeEnemyForStage(kind) {
+      const base = enemyTypes[kind];
+      if (stage === 1) return { ...base };
+      const names = {
+        bandit: "혈천 낭인",
+        cultist: "혈교 술사",
+        general: "흑갑 귀장",
+        demon: "혈귀 마두"
+      };
+      return {
+        ...base,
+        name: names[kind] || `혈천 ${base.name}`,
+        hp: Math.round(base.hp * 2.35),
+        atk: Math.round(base.atk * 1.85),
+        def: Math.round(base.def * 1.65 + 4),
+        agi: Math.round(base.agi * 1.25 + 3),
+        sight: base.sight + 1,
+        exp: Math.round(base.exp * 2.5),
+        gold: Math.round(base.gold * 2.3),
+        fame: Math.round(base.fame * 2.4),
+        color: kind === "bandit" ? "#4a2236" : base.color
+      };
+    }
+
+    function updateEnemies(dt) {
+      if (!started || inBattle || townOpen) return;
+      const ptx = Math.round(targetX / TS);
+      const pty = Math.round(targetY / TS);
+      const battleLocked = performance.now() < battleGraceUntil;
+      enemies.forEach((en, idx) => {
+        en.fx += (en.tx * TS - en.fx) * Math.min(1, 0.16 * dt / 16);
+        en.fy += (en.ty * TS - en.fy) * Math.min(1, 0.16 * dt / 16);
+        en.moveTimer += dt;
+        const type = enemyTypes[en.kind];
+        const dist = Math.abs(en.tx - ptx) + Math.abs(en.ty - pty);
+        en.chasing = !battleLocked && dist <= type.sight;
+        if (en.moveTimer < en.interval) return;
+        en.moveTimer = 0;
+        en.interval = 1200 + Math.random() * 1600;
+        let dx = 0, dy = 0;
+        if (en.chasing) {
+          if (Math.abs(ptx - en.tx) > Math.abs(pty - en.ty)) dx = Math.sign(ptx - en.tx);
+          else dy = Math.sign(pty - en.ty);
+        } else {
+          if (Math.random() < .25) en.dir = [[1,0],[-1,0],[0,1],[0,-1]][Math.floor(Math.random() * 4)];
+          [dx, dy] = en.dir;
+        }
+        const nx = en.tx + dx;
+        const ny = en.ty + dy;
+        if (canMove(nx, ny) && MAP[ny][nx] !== T.TOWN && MAP[ny][nx] !== T.DOOR) {
+          en.tx = nx; en.ty = ny;
+        }
+        if (!battleLocked && en.tx === ptx && en.ty === pty) {
+          const battleType = makeEnemyForStage(en.kind);
+          enemies.splice(idx, 1);
+          startBattle(battleType);
+        }
+      });
+    }
+
+    // 8. INPUT — keydown/keyup listeners, handleMove()
+    window.addEventListener("keydown", e => {
+      keys[e.key.toLowerCase()] = true;
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
+      if (e.key === "Enter" && started && !inBattle) {
+        if (nearDoor()) openTownPanel();
+      }
+    });
+    window.addEventListener("keyup", e => { keys[e.key.toLowerCase()] = false; });
+
+    function canMove(x, y) {
+      return x >= 0 && y >= 0 && x < MW && y < MH && passable.has(MAP[y][x]);
+    }
+
+    function nearDoor() {
+      const tx = Math.round(targetX / TS);
+      const ty = Math.round(targetY / TS);
+      for (let y = ty - 1; y <= ty + 1; y++) {
+        for (let x = tx - 1; x <= tx + 1; x++) if (MAP[y] && MAP[y][x] === T.DOOR && Math.abs(x - tx) + Math.abs(y - ty) <= 1) return true;
+      }
+      return false;
+    }
+
+    function handleMove(time) {
+      if (!started || inBattle || townOpen) return;
+      if (time - lastInput < 155) return;
+      if (Math.abs(posX - targetX) > 3 || Math.abs(posY - targetY) > 3) return;
+      let dx = 0, dy = 0;
+      if (keys.arrowup || keys.w) dy = -1;
+      else if (keys.arrowdown || keys.s) dy = 1;
+      else if (keys.arrowleft || keys.a) dx = -1;
+      else if (keys.arrowright || keys.d) dx = 1;
+      if (!dx && !dy) return;
+      const tx = Math.round(targetX / TS) + dx;
+      const ty = Math.round(targetY / TS) + dy;
+      if (!canMove(tx, ty)) return;
+      targetX = tx * TS;
+      targetY = ty * TS;
+      lastInput = time;
+      moveFrame += 1.7;
+      const tile = MAP[ty][tx];
+      if (safeSteps > 0) safeSteps--;
+      else if (performance.now() >= battleGraceUntil && tile === T.SPAWN && Math.random() < .32) startBattle(randomEnemy());
+      if (tile === T.BOSS) tryBoss();
+    }
+
+    // 9. GAME LOOP — requestAnimationFrame loop with dt-based lerp
+    function loop(ts) {
+      const dt = Math.min(48, ts - lastTime || 16);
+      lastTime = ts;
+      handleMove(ts);
+      posX += (targetX - posX) * Math.min(1, 0.20 * dt / 16);
+      posY += (targetY - posY) * Math.min(1, 0.20 * dt / 16);
+      updateEnemies(dt);
+      draw(ts);
+      requestAnimationFrame(loop);
+    }
+
+    // 10. COMBAT — startBattle(), doAct(), winBattle(), endBattle()
+    function randomEnemy() {
+      if (stage === 2) {
+        const pool = P.fame > 2200 ? ["cultist", "general", "demon", "demon"] : ["bandit", "cultist", "general"];
+        return makeEnemyForStage(pool[Math.floor(Math.random() * pool.length)]);
+      }
+      const pool = P.fame > 550 ? ["cultist", "general", "demon"] : P.fame > 180 ? ["bandit", "cultist", "general"] : ["bandit", "bandit", "cultist"];
+      return { ...enemyTypes[pool[Math.floor(Math.random() * pool.length)]] };
+    }
+
+    function startBattle(enemy) {
+      if (inBattle) return;
+      closeTownPanel();
+      inBattle = true;
+      E = { ...enemy, hpMax: enemy.hpMax || enemy.hp, bleed: 0, stun: 0 };
+      B = { log: [], locked: false };
+      P.defending = false;
+      logBattle(`${E.name}이(가) 길을 막아섰다!`);
+      document.getElementById("battleOverlay").classList.add("show");
+      updateBattleUI();
+    }
+
+    function logBattle(text) {
+      if (!B) return;
+      B.log.push(text);
+      if (B.log.length > 60) B.log.shift();
+      const box = document.getElementById("battleLog");
+      box.innerHTML = B.log.map(line => `<div>${line}</div>`).join("");
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function rand(min, max) { return min + Math.random() * (max - min); }
+
+    function calcDamage(attacker, defender, mult = 1, pierce = false, magic = false) {
+      const def = pierce ? 0 : Math.max(0, defender.def * (magic ? 0.45 : 1));
+      let base = Math.max(1, attacker.atk - def) * rand(.85, 1.15) * mult;
+      const crit = Math.random() < .1;
+      if (crit) base *= 1.8;
+      const dodgeChance = .05 + (defender.agi || 0) * .004;
+      const dodged = Math.random() < dodgeChance;
+      return { dmg: dodged ? 0 : Math.max(1, Math.round(base)), crit, dodged };
+    }
+
+    function flash(id) {
+      const el = document.getElementById(id);
+      el.classList.remove("hit");
+      void el.offsetWidth;
+      el.classList.add("hit");
+    }
+
+    function popup(text, cls, x, y) {
+      const el = document.createElement("div");
+      el.className = `damagePopup ${cls}`;
+      el.textContent = text;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+      document.getElementById("popupLayer").appendChild(el);
+      setTimeout(() => el.remove(), 1000);
+    }
+
+    function doAct(act, skill = null) {
+      if (!inBattle || B.locked) return;
+      B.locked = true;
+      let skipEnemy = false;
+      P.defending = false;
+
+      if (act === "attack") playerAttack(1, null);
+      if (act === "defend") {
+        P.defending = true;
+        logBattle(`${P.name}이(가) 자세를 낮추고 방어태세에 들어갔다.`);
+      }
+      if (act === "skill") {
+        B.locked = false;
+        openSkills();
+        return;
+      }
+      if (act === "useSkill" && skill) {
+        if (P.mp < skill.mp) {
+          logBattle("내공이 부족하다.");
+          B.locked = false;
+          return;
+        }
+        P.mp -= skill.mp;
+        playerAttack(skill.mult, skill);
+      }
+      if (act === "hp") {
+        if (!useItem("hp")) return;
+        skipEnemy = true;
+      }
+      if (act === "mp") {
+        if (!useItem("mp")) return;
+        skipEnemy = true;
+      }
+      if (act === "run") {
+        if (E.boss || Math.random() < .35) logBattle("도망칠 틈을 찾지 못했다!");
+        else {
+          logBattle("몸을 낮춰 전장을 빠져나왔다.");
+          setTimeout(endBattle, 500);
+          return;
+        }
+      }
+      refreshHUD();
+      updateBattleUI();
+      if (E.hp <= 0) {
+        setTimeout(winBattle, 520);
+        return;
+      }
+      setTimeout(() => {
+        if (!skipEnemy) enemyTurn();
+        if (!inBattle || !E || E.hp <= 0) return;
+        if (P.hp <= 0) gameOver();
+        else {
+          updateBattleUI();
+          refreshHUD();
+          B.locked = false;
+        }
+      }, 520);
+    }
+
+    function playerAttack(mult, skill) {
+      const result = calcDamage(P, E, mult, skill && skill.pierce, false);
+      if (result.dodged) logBattle(`${E.name}이(가) 보법으로 피했다.`);
+      else {
+        E.hp -= result.dmg;
+        logBattle(`${skill ? skill.name : "기본 공격"}! ${E.name}에게 ${result.dmg} 피해${result.crit ? " 치명타!" : "."}`);
+        flash("bEnemySprite");
+        popup(`-${result.dmg}`, "hurt", window.innerWidth * .68, window.innerHeight * .28);
+      }
+      if (skill && skill.buff) { P.defBuff = 3; logBattle("기혈이 안정되어 방어태세가 강화됐다."); }
+      if (skill && skill.bleed) { E.bleed = 3; logBattle(`${E.name}에게 출혈이 번진다.`); }
+      if (skill && skill.stun) { E.stun = 1; logBattle(`${E.name}이(가) 기세에 눌려 굳어버렸다.`); }
+    }
+
+    function useItem(kind) {
+      const names = kind === "hp" ? ["대환단", "소환단"] : ["대내공단", "내공단"];
+      const itemName = names.find(n => P.items[n] > 0);
+      if (!itemName) {
+        logBattle(kind === "hp" ? "회복약이 없다." : "내공단이 없다.");
+        B.locked = false;
+        return false;
+      }
+      const item = shopItems.find(i => i.name === itemName);
+      P.items[itemName]--;
+      if (kind === "hp") {
+        P.hp = Math.min(P.hpMax, P.hp + item.val);
+        popup(`+${item.val}`, "heal", window.innerWidth * .28, window.innerHeight * .28);
+      } else {
+        P.mp = Math.min(P.mpMax, P.mp + item.val);
+        popup(`+${item.val}`, "note", window.innerWidth * .28, window.innerHeight * .28);
+      }
+      logBattle(`${itemName}을(를) 사용했다. 적이 빈틈을 놓쳤다.`);
+      return true;
+    }
+
+    function enemyTurn() {
+      if (E.bleed > 0) {
+        const bleed = Math.max(1, Math.round(P.atk * .3));
+        E.hp -= bleed;
+        E.bleed--;
+        logBattle(`출혈로 ${E.name}이(가) ${bleed} 피해를 입었다.`);
+        if (E.hp <= 0) { winBattle(); return; }
+      }
+      if (E.stun > 0) {
+        E.stun--;
+        logBattle(`${E.name}은(는) 기절하여 움직이지 못했다.`);
+        return;
+      }
+      const defender = { ...P, def: P.def + (P.defBuff > 0 ? 5 : 0) + (P.defending ? P.def : 0) };
+      const result = calcDamage(E, defender, 1, false, E.magic);
+      if (result.dodged) logBattle(`${P.name}이(가) 공격을 흘려냈다.`);
+      else {
+        P.hp -= result.dmg;
+        logBattle(`${E.name}의 공격! ${P.name}에게 ${result.dmg} 피해${result.crit ? " 치명타!" : "."}`);
+        flash("bPlayerSprite");
+        popup(`-${result.dmg}`, "hurt", window.innerWidth * .28, window.innerHeight * .28);
+        if (E.drain) {
+          const drain = Math.min(P.mp, 8);
+          P.mp -= drain;
+          logBattle(`사악한 기운이 내공 ${drain}을(를) 빨아들였다.`);
+        }
+      }
+      if (P.defBuff > 0) P.defBuff--;
+    }
+
+    function winBattle() {
+      if (!inBattle) return;
+      logBattle(`${E.name}을(를) 쓰러뜨렸다!`);
+      P.exp += E.exp;
+      P.gold += E.gold;
+      P.fame += E.fame;
+      const drop = rollDrop();
+      if (drop) {
+        P.items[drop] = (P.items[drop] || 0) + 1;
+        logBattle(`${drop}을(를) 얻었다.`);
+      }
+      checkLevel();
+      refreshHUD();
+      if (E.finalEnding) {
+        abyssDefeated = true;
+        setTimeout(showEnding, 1100);
+      } else if (E.gate) {
+        finalDefeated = true;
+        setTimeout(enterNextStage, 1100);
+      } else {
+        if (E.name === "사천당가 당주") boss1Defeated = true;
+        setTimeout(endBattle, 1100);
+      }
+    }
+
+    function rollDrop() {
+      const r = Math.random();
+      if (r < .40) return null;
+      if (r < .68) return "소환단";
+      if (r < .85) return "내공단";
+      if (r < .97) return "대환단";
+      return "대내공단";
+    }
+
+    function checkLevel() {
+      let leveled = false;
+      while (P.exp >= P.expMax) {
+        P.exp -= P.expMax;
+        P.level++;
+        P.expMax = Math.round(P.expMax * 1.4);
+        P.hpMax += 20; P.mpMax += 10; P.atk += 3; P.def += 2; P.agi += 2;
+        P.hp = P.hpMax; P.mp = P.mpMax;
+        leveled = true;
+      }
+      unlockSkills();
+      if (leveled) showLevelPopup();
+    }
+
+    function showLevelPopup() {
+      document.getElementById("levelText").textContent = `현재 경지 Lv.${P.level}. 체력과 내공이 모두 회복되었다.`;
+      document.getElementById("levelPopup").classList.add("show");
+      setTimeout(() => document.getElementById("levelPopup").classList.remove("show"), 2000);
+    }
+
+    function enterNextStage() {
+      endBattle();
+      stage = 2;
+      P.hp = P.hpMax;
+      P.mp = P.mpMax;
+      posX = 16 * TS;
+      posY = 12 * TS;
+      targetX = posX;
+      targetY = posY;
+      safeSteps = 14;
+      battleGraceUntil = performance.now() + 12000;
+      initEnemies();
+      refreshHUD();
+      document.getElementById("levelText").innerHTML = `제2막 혈천곡이 열렸다.<br>명성 2500 이상이 되면 남동쪽 혈천 제단에서 혈천마존이 나타난다.`;
+      document.getElementById("levelPopup").classList.add("show");
+      setTimeout(() => document.getElementById("levelPopup").classList.remove("show"), 2600);
+    }
+
+    function endBattle() {
+      inBattle = false;
+      B = null;
+      E = null;
+      document.getElementById("battleOverlay").classList.remove("show");
+      initEnemiesIfSparse();
+      refreshHUD();
+    }
+
+    function initEnemiesIfSparse() {
+      if (enemies.length < 4) {
+        const kinds = ["bandit", "cultist", "general", "demon"];
+        for (let i = enemies.length; i < 7; i++) {
+          const tx = 21 + Math.floor(Math.random() * 10);
+          const ty = 4 + Math.floor(Math.random() * 14);
+          const kind = kinds[Math.min(kinds.length - 1, Math.floor(Math.random() * (P.fame > 300 ? 4 : 3)))];
+          if (canMove(tx, ty)) enemies.push({ tx, ty, fx: tx * TS, fy: ty * TS, kind, chasing: false, moveTimer: 0, interval: 1400, dir: [1,0] });
+        }
+      }
+    }
+
+    function updateBattleUI() {
+      if (!E) return;
+      document.getElementById("bPlayerName").textContent = P.name;
+      document.getElementById("bEnemyName").textContent = E.name;
+      setPortrait("bPlayerSprite", P.sprite, P.emoji);
+      setPortrait("bEnemySprite", E.sprite, E.emoji);
+      document.getElementById("bEnemySprite").classList.toggle("enemyBossAura", !!E.boss);
+      document.getElementById("bPlayerHp").style.width = `${Math.max(0, P.hp / P.hpMax * 100)}%`;
+      document.getElementById("bEnemyHp").style.width = `${Math.max(0, E.hp / E.hpMax * 100)}%`;
+      document.getElementById("bPlayerStatus").innerHTML = [
+        P.defBuff > 0 ? `<span class="tag">방어태세 ${P.defBuff}</span>` : "",
+        P.defending ? `<span class="tag">방어</span>` : ""
+      ].join("");
+      document.getElementById("bEnemyStatus").innerHTML = [
+        E.bleed > 0 ? `<span class="tag">출혈 ${E.bleed}</span>` : "",
+        E.stun > 0 ? `<span class="tag">기절</span>` : ""
+      ].join("");
+    }
+
+    function setPortrait(id, key, emoji) {
+      const el = document.getElementById(id);
+      if (SPRITES[key]) el.innerHTML = `<img src="${SPRITES[key]}" alt="">`;
+      else el.innerHTML = `<img src="${makeSpriteDataUrl(key)}" alt="${emoji}">`;
+    }
+
+    function makeSpriteDataUrl(key) {
+      const off = document.createElement("canvas");
+      off.width = 96;
+      off.height = 96;
+      const g = off.getContext("2d");
+      g.imageSmoothingEnabled = false;
+      drawProceduralSprite(g, key, "#66503a", 0, 0, 96);
+      return off.toDataURL("image/png");
+    }
+
+    function gameOver() {
+      inBattle = false;
+      document.getElementById("battleOverlay").classList.remove("show");
+      document.getElementById("gameOver").classList.add("show");
+    }
+
+    function tryBoss() {
+      if (inBattle) return;
+      if (stage === 2) {
+        if (P.fame >= 2500 && !abyssDefeated) return bossCutscene(bossTypes.abyss);
+        return;
+      }
+      if (P.fame >= 999 && !finalDefeated) return bossCutscene(bossTypes.final);
+      if (P.fame >= 200 && !boss1Defeated) return bossCutscene(bossTypes.boss1);
+    }
+
+    function bossCutscene(boss) {
+      const cut = document.getElementById("bossCutscene");
+      document.getElementById("bossName").textContent = boss.name;
+      cut.classList.add("show");
+      setTimeout(() => {
+        cut.classList.remove("show");
+        startBattle({ ...boss });
+      }, 2500);
+    }
+
+    function showEnding() {
+      endBattle();
+      document.getElementById("endingText").innerHTML = `혈천곡의 붉은 하늘이 걷히고, ${P.name}의 이름은 삼천 강호에 새겨졌다.<br>최종 경지 Lv.${P.level} · 명성 ${P.fame} · 은화 ${P.gold}냥`;
+      document.getElementById("ending").classList.add("show");
+    }
+
+    // 11. SKILLS — openSkills(), closeSkills()
+    function unlockSkills() {
+      P.skills = skills.filter(s => s.lv <= P.level).map(s => s.name);
+    }
+
+    function openSkills() {
+      const usable = skills.filter(s => P.skills.includes(s.name));
+      const html = `
+        <h2>무공</h2>
+        <p class="smallText">현재 내공 ${P.mp}/${P.mpMax}</p>
+        <div class="skillList">
+          ${usable.map(s => `<button data-skill="${s.name}"><strong>${s.name}</strong><br>내공 ${s.mp} · ${s.desc}</button>`).join("")}
+        </div>
+        <button class="mainBtn" id="skillClose">닫기</button>
+      `;
+      const box = document.getElementById("modalBox");
+      box.innerHTML = html;
+      document.getElementById("modalOverlay").classList.add("show");
+      box.querySelectorAll("[data-skill]").forEach(btn => btn.addEventListener("click", () => {
+        const skill = skills.find(s => s.name === btn.dataset.skill);
+        closeSkills();
+        doAct("useSkill", skill);
+      }));
+      document.getElementById("skillClose").addEventListener("click", closeSkills);
+    }
+
+    function closeSkills() {
+      document.getElementById("modalOverlay").classList.remove("show");
+      if (B) B.locked = false;
+    }
+
+    // 12. TOWN — openTownPanel(), shop, training, inn
+    function openTownPanel() {
+      if (inBattle) return;
+      townOpen = true;
+      document.querySelector("#townPanel h2").textContent = stage === 2 ? "은거촌" : "마을";
+      document.querySelector("#townPanel .smallText").textContent = stage === 2 ? "혈천곡의 한기가 문틈으로 스민다." : "객잔의 등불 아래 잠시 숨을 고른다.";
+      document.getElementById("townPanel").classList.add("show");
+    }
+
+    function closeTownPanel() {
+      townOpen = false;
+      document.getElementById("townPanel").classList.remove("show");
+      document.getElementById("modalOverlay").classList.remove("show");
+    }
+
+    document.getElementById("townFight").addEventListener("click", () => startBattle(randomEnemy()));
+    document.getElementById("townShop").addEventListener("click", openShop);
+    document.getElementById("townTrain").addEventListener("click", openTraining);
+    document.getElementById("townInn").addEventListener("click", inn);
+    document.getElementById("townExit").addEventListener("click", closeTownPanel);
+    document.querySelectorAll(".actions button").forEach(btn => {
+      btn.addEventListener("click", () => doAct(btn.dataset.act));
+    });
+
+    function openShop() {
+      const box = document.getElementById("modalBox");
+      box.innerHTML = `
+        <h2>상점</h2>
+        <p class="smallText">보유 은화 ${P.gold}냥</p>
+        <div class="shopGrid">
+          ${shopItems.map(i => `<button data-buy="${i.name}"><strong>${i.name}</strong><br>${i.cost}냥 · ${i.text}</button>`).join("")}
+        </div>
+        <button class="mainBtn" id="shopClose">닫기</button>
+      `;
+      document.getElementById("modalOverlay").classList.add("show");
+      box.querySelectorAll("[data-buy]").forEach(btn => btn.addEventListener("click", () => buyItem(btn.dataset.buy)));
+      document.getElementById("shopClose").addEventListener("click", () => document.getElementById("modalOverlay").classList.remove("show"));
+    }
+
+    function buyItem(name) {
+      const item = shopItems.find(i => i.name === name);
+      if (P.gold < item.cost) return toast("은화가 부족하다.");
+      P.gold -= item.cost;
+      if (item.type === "atk") P.atk += item.val;
+      else if (item.type === "def") P.def += item.val;
+      else P.items[item.name] = (P.items[item.name] || 0) + 1;
+      refreshHUD();
+      openShop();
+    }
+
+    function openTraining() {
+      const box = document.getElementById("modalBox");
+      box.innerHTML = `
+        <h2>수련</h2>
+        <p class="smallText">고통과 호흡으로 경지를 닦는다.</p>
+        <div class="shopGrid">
+          <button id="trainAtk">검격 수련<br>내공 18 소모 · 공격 +2</button>
+          <button id="trainDef">금강 수련<br>내공 18 소모 · 방어 +2</button>
+          <button id="trainMp">운기조식<br>체력 18 소모 · 최대 내공 +5</button>
+        </div>
+        <button class="mainBtn" id="trainClose">닫기</button>
+      `;
+      document.getElementById("modalOverlay").classList.add("show");
+      document.getElementById("trainAtk").onclick = () => train("atk");
+      document.getElementById("trainDef").onclick = () => train("def");
+      document.getElementById("trainMp").onclick = () => train("mp");
+      document.getElementById("trainClose").onclick = () => document.getElementById("modalOverlay").classList.remove("show");
+    }
+
+    function train(kind) {
+      if (kind === "mp") {
+        if (P.hp <= 18) return toast("체력이 부족하다.");
+        P.hp -= 18; P.mpMax += 5; P.mp += 5;
+      } else {
+        if (P.mp < 18) return toast("내공이 부족하다.");
+        P.mp -= 18;
+        if (kind === "atk") P.atk += 2;
+        if (kind === "def") P.def += 2;
+      }
+      refreshHUD();
+      toast("수련이 몸에 새겨졌다.");
+    }
+
+    function inn() {
+      if (P.gold < 20) return toast("은화가 부족하다.");
+      P.gold -= 20;
+      P.hp = P.hpMax;
+      P.mp = P.mpMax;
+      refreshHUD();
+      toast("주막에서 기력을 회복했다.");
+    }
+
+    function toast(text) {
+      popup(text, "note", window.innerWidth / 2 - 40, 88);
+    }
+
+    // 13. HUD — refreshHUD()
+    function titleByFame() {
+      if (stage === 2 && P.fame >= 2500) return "혈천도전자";
+      if (stage === 2) return "혈천행자";
+      if (P.fame >= 999) return "무림신화";
+      if (P.fame >= 500) return "일대종사";
+      if (P.fame >= 200) return "명문고수";
+      if (P.fame >= 70) return "협객";
+      return "낭인";
+    }
+
+    function refreshHUD() {
+      document.getElementById("hudName").textContent = P.name;
+      document.getElementById("hudTitle").textContent = `Lv.${P.level} · ${titleByFame()}${stage === 2 ? " · 2막" : ""}`;
+      document.getElementById("hpBar").style.width = `${Math.max(0, P.hp / P.hpMax * 100)}%`;
+      document.getElementById("mpBar").style.width = `${Math.max(0, P.mp / P.mpMax * 100)}%`;
+      document.getElementById("xpBar").style.width = `${Math.max(0, P.exp / P.expMax * 100)}%`;
+      document.getElementById("hudAtk").textContent = `공 ${P.atk}`;
+      document.getElementById("hudDef").textContent = `방 ${P.def}`;
+      document.getElementById("hudAgi").textContent = `민 ${P.agi}`;
+      document.getElementById("hudGold").textContent = `은화 ${P.gold}냥`;
+      document.getElementById("hudFame").textContent = `명성 ${P.fame}`;
+      if (inBattle) updateBattleUI();
+    }
+
+    // 14. START — startGame() called from intro button
+    document.querySelectorAll(".heroCard").forEach(card => {
+      card.addEventListener("click", () => {
+        document.querySelectorAll(".heroCard").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        P.gender = card.dataset.gender;
+      });
+    });
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      initAudio();
+      startGame();
+    });
+
+    function startGame() {
+      P.name = document.getElementById("nameInput").value.trim().slice(0, 8) || "무명";
+      inBattle = false;
+      townOpen = false;
+      B = null;
+      E = null;
+      posX = 16 * TS;
+      posY = 12 * TS;
+      targetX = posX;
+      targetY = posY;
+      safeSteps = 16;
+      battleGraceUntil = performance.now() + 15000;
+      if (P.gender === "f") {
+        P.sprite = "hero_f"; P.emoji = "🗡️"; P.agi += 3;
+      } else {
+        P.sprite = "hero_m"; P.emoji = "⚔️"; P.atk += 2;
+      }
+      unlockSkills();
+      initCvs();
+      initEnemies();
+      refreshHUD();
+      started = true;
+      document.getElementById("intro").classList.remove("show");
+      document.getElementById("battleOverlay").classList.remove("show");
+      document.getElementById("townPanel").classList.remove("show");
+      document.getElementById("modalOverlay").classList.remove("show");
+      requestAnimationFrame(loop);
+    }
+
+    setPortrait("introMale", "hero_m", "⚔️");
+    setPortrait("introFemale", "hero_f", "🗡️");
+  </script>
+</body>
+</html>

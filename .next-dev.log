@@ -1,0 +1,169 @@
+
+> murim-chronicle-cbt@0.1.0 dev
+> next dev --port 3000
+
+   ▲ Next.js 15.5.15
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.6:3000
+
+ ✓ Starting...
+ ✓ Ready in 1270ms
+ ○ Compiling /student/exams ...
+ ✓ Compiled /student/exams in 2.6s (682 modules)
+ GET /student/exams 200 in 2939ms
+ GET /student/exams 200 in 82ms
+ GET /student/exams 200 in 62ms
+ GET /student/exams 200 in 62ms
+ ○ Compiling /student/exams/[examId] ...
+ ✓ Compiled /student/exams/[examId] in 798ms (706 modules)
+ GET /student/exams 200 in 115ms
+ GET /student/exams/calc-basic-01 200 in 1406ms
+ GET /student/exams 200 in 92ms
+ ✓ Compiled /admin/imports in 383ms (651 modules)
+ GET /admin/imports 200 in 450ms
+ ✓ Compiled /admin/questions in 305ms (661 modules)
+ GET /admin/questions 200 in 389ms
+ ✓ Compiled in 197ms (327 modules)
+ GET /admin/questions 200 in 50ms
+ ✓ Compiled in 122ms (327 modules)
+ GET /admin/questions 200 in 37ms
+ ✓ Compiled in 509ms (728 modules)
+ GET /admin/questions 200 in 131ms
+ ✓ Compiled in 405ms (728 modules)
+ GET /admin/questions 200 in 92ms
+ ✓ Compiled in 109ms (327 modules)
+ GET /admin/questions 200 in 53ms
+ ✓ Compiled in 250ms (728 modules)
+ GET /admin/questions 200 in 94ms
+ ✓ Compiled in 235ms (728 modules)
+ GET /admin/questions 200 in 56ms
+ ✓ Compiled in 262ms (728 modules)
+ GET /admin/questions 200 in 77ms
+ ✓ Compiled in 208ms (728 modules)
+ GET /admin/questions 200 in 73ms
+ ✓ Compiled in 166ms (327 modules)
+ GET /admin/questions 200 in 66ms
+ ✓ Compiled in 113ms (327 modules)
+ GET /admin/questions 200 in 42ms
+ ✓ Compiled in 123ms (327 modules)
+ GET /admin/questions 200 in 37ms
+ ✓ Compiled in 94ms (327 modules)
+ GET /admin/questions 200 in 37ms
+ ✓ Compiled in 147ms (327 modules)
+ GET /admin/questions 200 in 54ms
+ ✓ Compiled in 103ms (327 modules)
+ GET /admin/questions 200 in 31ms
+ ✓ Compiled in 88ms (327 modules)
+ GET /admin/questions 200 in 35ms
+ ✓ Compiled in 123ms (327 modules)
+ GET /admin/questions 200 in 42ms
+ ✓ Compiled in 72ms (327 modules)
+ GET /admin/questions 200 in 22ms
+ GET /admin/questions 500 in 506ms
+ GET /admin/questions 500 in 270ms
+ GET /admin/questions 500 in 208ms
+ GET /admin/questions 500 in 275ms
+ GET /admin/questions 500 in 489ms
+ GET /admin/questions 200 in 133ms
+ GET /admin/questions 200 in 135ms
+ GET /admin/questions 200 in 162ms
+ GET /admin/questions 200 in 86ms
+ GET /admin/questions 200 in 66ms
+ GET /admin/questions 200 in 39ms
+ GET /admin/questions 200 in 42ms
+ GET /admin/questions 200 in 100ms
+ GET /admin/questions 200 in 98ms
+ GET /admin/questions 200 in 169ms
+ GET /admin/questions 200 in 322ms
+ GET /admin/questions 200 in 68ms
+ GET /admin/questions 200 in 58ms
+ GET /admin/questions 200 in 39ms
+ GET /admin/questions 200 in 42ms
+ GET /admin/questions 200 in 44ms
+ GET /admin/questions 200 in 43ms
+ ✓ Compiled in 317ms (728 modules)
+ ✓ Compiled in 233ms (728 modules)
+ ✓ Compiled in 199ms (728 modules)
+ ✓ Compiled in 107ms (327 modules)
+ ✓ Compiled in 98ms (327 modules)
+ ✓ Compiled /student/exams/[examId] in 429ms (410 modules)
+ GET /student/exams/calc-basic-01 200 in 550ms
+ ✓ Compiled /student/results/[attemptId] in 452ms (745 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 938ms
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 146ms
+ ✓ Compiled in 134ms (329 modules)
+ ✓ Compiled in 120ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 78ms
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 25ms
+   Reload env: .env.local
+ ✓ Compiled in 2.2s (738 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 71ms
+ ✓ Compiled in 147ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 38ms
+ ✓ Compiled in 102ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 29ms
+ ✓ Compiled in 82ms (329 modules)
+ ✓ Compiled in 95ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 90ms
+ ✓ Compiled in 136ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 27ms
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 22ms
+ ✓ Compiled in 108ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 26ms
+ ✓ Compiled in 68ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 26ms
+ ✓ Compiled in 67ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 27ms
+ ✓ Compiled in 104ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 28ms
+ ✓ Compiled in 81ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 29ms
+ ✓ Compiled in 66ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 26ms
+ ✓ Compiled in 73ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 29ms
+ ✓ Compiled in 70ms (329 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 25ms
+ ✓ Compiled in 628ms (827 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 89ms
+ ✓ Compiled in 262ms (829 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 70ms
+ ✓ Compiled in 217ms (831 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 45ms
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 121ms
+ ✓ Compiled in 191ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 168ms
+ ✓ Compiled in 79ms (377 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 65ms
+ ✓ Compiled in 321ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 120ms
+ ✓ Compiled in 212ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 138ms
+ ✓ Compiled in 221ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 135ms
+ ✓ Compiled in 82ms (377 modules)
+ ✓ Compiled in 130ms (377 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 134ms
+ ✓ Compiled in 244ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 162ms
+ ✓ Compiled in 81ms (377 modules)
+ ✓ Compiled in 104ms (377 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 103ms
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 25ms
+ ✓ Compiled in 342ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 58ms
+ ✓ Compiled in 115ms (377 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 29ms
+ ✓ Compiled in 309ms (833 modules)
+ GET /student/results/calc-basic-01-1777981096672-ni1ke8 200 in 53ms
+ ○ Compiling / ...
+ ✓ Compiled / in 810ms (846 modules)
+ GET / 307 in 1188ms
+ ✓ Compiled in 430ms (378 modules)
+ GET /student/exams 200 in 239ms
+ ✓ Compiled /student/register in 400ms (854 modules)
+ GET /student/register 200 in 492ms
+ GET /student/register 200 in 27ms
+ GET /student/exams 200 in 48ms
+ GET /student/exams 200 in 188ms
+ GET /student/register 200 in 34ms

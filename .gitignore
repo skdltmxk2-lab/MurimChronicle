@@ -1,0 +1,6 @@
+node_modules/
+.next/
+.env.local
+problem_search_data/
+streamlit.combined.log
+tsconfig.tsbuildinfo
