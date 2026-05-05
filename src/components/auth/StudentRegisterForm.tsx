@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { authRepo } from "@/lib/auth/mockAuth";
 
-const PROGRESS_OPTIONS = ["미분적분학", "선형대수학", "다변수미적분학", "공업수학"];
+const PROGRESS_OPTIONS = ["미분학", "적분학", "선형대수학", "다변수함수론", "공학수학"];
 const STUDY_OPTIONS = ["독학", "김영편입", "해커스", "에듀윌", "기타"];
 
 export function StudentRegisterForm() {
