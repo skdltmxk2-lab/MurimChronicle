@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authRepo } from "@/lib/auth/mockAuth";
 import { attemptRepo } from "@/lib/exam/storage";
 import { supabase } from "@/lib/supabase/client";
-import type { MockUser } from "@/types/auth";
+import { useAuth } from "@/lib/auth/AuthContext";
 import type { AttemptResult } from "@/types/exam";
 
 function formatDate(iso: string): string {
@@ -16,27 +15,23 @@ function formatDate(iso: string): string {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const { user, authChecked } = useAuth();
   const [results, setResults] = useState<AttemptResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    authRepo.getCurrentUser().then((u) => {
-      setUser(u);
-      setAuthChecked(true);
-      if (u?.role === "student") {
-        attemptRepo.listResults().then((r) => {
-          setResults(r.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt)));
-          setLoading(false);
-        });
-      } else {
+    if (!authChecked) return;
+    if (user?.role === "student") {
+      attemptRepo.listResults().then((r) => {
+        setResults(r.sort((a, b) => b.submittedAt.localeCompare(a.submittedAt)));
         setLoading(false);
-      }
-    });
-  }, []);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [user, authChecked]);
 
   async function deleteAccount() {
     setDeleting(true);

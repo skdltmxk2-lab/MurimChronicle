@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { authRepo } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
-import type { MockUser } from "@/types/auth";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
 
@@ -46,8 +45,7 @@ function getTodayParam(): string {
 
 export default function StudentExamsPage() {
   const router = useRouter();
-  const [user, setUser] = useState<MockUser | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const { user, authChecked } = useAuth();
   const [showWelcome, setShowWelcome] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
   const [dailyCount, setDailyCount] = useState(0);
@@ -57,19 +55,18 @@ export default function StudentExamsPage() {
   const [unitTestCount, setUnitTestCount] = useState(10);
 
   useEffect(() => {
-    authRepo.getCurrentUser().then((u) => {
-      setUser(u);
-      setAuthChecked(true);
-      if (u?.role === "student") {
-        const pending = window.localStorage.getItem(WELCOME_KEY);
-        if (pending === "true") setShowWelcome(true);
-      }
-    });
     questionRepo.list().then((qs) => {
       setQuestionCount(qs.length);
       setDailyCount(qs.filter((q) => q.tags.includes("daily")).length);
     });
   }, []);
+
+  useEffect(() => {
+    if (user?.role === "student") {
+      const pending = window.localStorage.getItem(WELCOME_KEY);
+      if (pending === "true") setShowWelcome(true);
+    }
+  }, [user]);
 
   function dismissWelcome() {
     window.localStorage.removeItem(WELCOME_KEY);

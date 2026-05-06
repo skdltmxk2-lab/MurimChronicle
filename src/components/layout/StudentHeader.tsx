@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
-import { authRepo, isAdminUser, type MockUser } from "@/lib/auth/mockAuth";
+import { FormEvent, useState } from "react";
+import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
+import { useAuth } from "@/lib/auth/AuthContext";
 
 function RouteMathIcon({ className }: { className?: string }) {
   return (
@@ -30,15 +31,11 @@ function RouteMathIcon({ className }: { className?: string }) {
 
 export function StudentHeader() {
   const router = useRouter();
-  const [user, setUser] = useState<MockUser | null>(null);
+  const { user, setUser } = useAuth();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    authRepo.getCurrentUser().then(setUser);
-  }, []);
 
   async function submitStudent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
