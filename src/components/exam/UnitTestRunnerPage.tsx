@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { questionRepo } from "@/lib/questions/questionRepository";
+import { attemptRepo } from "@/lib/exam/storage";
 import type { MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
@@ -63,7 +64,12 @@ export function UnitTestRunnerPage() {
   const retryHref = `/student/exams/unit-test?${searchParams.toString()}`;
 
   useEffect(() => {
-    questionRepo.list().then((allQuestions) => {
+    Promise.all([questionRepo.list(), attemptRepo.listResults()]).then(([allQuestions, attempts]) => {
+      const seenProblemIds = new Set<string>();
+      for (const result of attempts) {
+        for (const item of result.items) seenProblemIds.add(item.problemId);
+      }
+
       let filtered: QuestionRecord[];
       let title: string;
       let description: string;
@@ -114,18 +120,27 @@ export function UnitTestRunnerPage() {
         tags = ["실전", ...REAL_EXAM_SUBJECTS];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
-        filtered = allQuestions.filter((q) => selectedUnits.includes(q.unit));
-        if (filtered.length === 0) {
+        const pool = allQuestions.filter((q) => selectedUnits.includes(q.unit));
+        if (pool.length === 0) {
           const unitStr = selectedUnits.join(", ");
           setErrorMsg(`선택한 단원(${unitStr})의 문제가 아직 없습니다.\n문제 업로드 후 다시 시도해 주세요.`);
           return;
         }
-        const seed = Math.floor(Date.now() % 0x7fffffff);
-        filtered = seededShuffle(filtered, seed).slice(0, count);
+        const localSeed = Math.floor(Date.now() % 0x7fffffff);
+        // Push previously-seen problems to the back so unseen ones come first.
+        // Once the cycle completes (all seen), shuffled seen ones are surfaced again.
+        const unseen = pool.filter((q) => !seenProblemIds.has(q.id));
+        const seen = pool.filter((q) => seenProblemIds.has(q.id));
+        const ordered = [
+          ...seededShuffle(unseen, localSeed),
+          ...seededShuffle(seen, localSeed + 1)
+        ];
+        filtered = ordered.slice(0, count);
         const unitStr = selectedUnits.join(", ");
-        title = `${subject} 단원별 테스트`;
-        description = `${unitStr} · ${filtered.length}문항`;
-        examId = `unit-test-${seed}`;
+        const cycleNote = unseen.length === 0 ? " (한 사이클 완료, 재출제)" : "";
+        title = `${subject} 단원별 학습${cycleNote}`;
+        description = `${unitStr} · ${filtered.length}문항 · 안 본 문제 ${unseen.length}개 우선`;
+        examId = `unit-test-${localSeed}`;
         tags = [subject, ...selectedUnits].filter(Boolean);
       }
 

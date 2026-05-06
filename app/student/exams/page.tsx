@@ -15,6 +15,8 @@ const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
 const COUNT_OPTIONS = [10, 15, 20];
 
+const REAL_EXAM_THRESHOLD = 50;
+
 function formatStat(count: number): string {
   if (count <= 0) return "-";
   if (count < 10) return String(count);
@@ -37,6 +39,7 @@ export default function StudentExamsPage() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
   const [dailyCount, setDailyCount] = useState(0);
+  const [subjectCounts, setSubjectCounts] = useState<Record<string, number>>({});
   const [subjectModalOpen, setSubjectModalOpen] = useState(false);
   const [pickedSubject, setPickedSubject] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
@@ -46,8 +49,16 @@ export default function StudentExamsPage() {
     questionRepo.list().then((qs) => {
       setQuestionCount(qs.length);
       setDailyCount(qs.filter((q) => q.tags.includes("daily")).length);
+      const counts: Record<string, number> = {};
+      for (const q of qs) counts[q.subject] = (counts[q.subject] ?? 0) + 1;
+      setSubjectCounts(counts);
     });
   }, []);
+
+  const insufficientSubjects = SUBJECTS.filter(
+    (s) => (subjectCounts[s.name] ?? 0) < REAL_EXAM_THRESHOLD
+  );
+  const realExamUnlocked = insufficientSubjects.length === 0;
 
   useEffect(() => {
     if (user?.role === "student") {
@@ -214,9 +225,9 @@ export default function StudentExamsPage() {
         </div>
       </section>
 
-      {/* 단원별 테스트 + 실전 모의고사 */}
+      {/* 단원별 학습 + 실전 모의고사 */}
       <section className="mb-5 grid gap-5 md:grid-cols-2">
-        {/* 단원별 테스트 */}
+        {/* 단원별 학습 */}
         <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
           <div className="flex items-start gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-2xl">
@@ -224,13 +235,13 @@ export default function StudentExamsPage() {
             </span>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">
-                Unit Test
+                Unit Practice
               </p>
-              <h2 className="mt-0.5 text-lg font-black text-ink">단원별 테스트</h2>
+              <h2 className="mt-0.5 text-lg font-black text-ink">단원별 학습</h2>
             </div>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            과목별로 집중 학습하세요. 원하는 단원을 골라 10·15·20문항으로 풀 수 있어요.
+            과목별로 집중 학습하세요. 원하는 단원을 골라 10·15·20문항으로 풀 수 있어요. 한 번 본 문제는 뒤로 밀려요.
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {SUBJECTS.map((s) => (
@@ -282,14 +293,20 @@ export default function StudentExamsPage() {
             5개 과목에서 각 5문항씩, 총 25문항으로 구성된 실전형 모의고사예요. 편입시험과 동일한 형식으로 풀어보세요.
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {SUBJECTS.map((s) => (
-              <span
-                key={s.name}
-                className="rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-mint-600"
-              >
-                {s.name} 5문항
-              </span>
-            ))}
+            {SUBJECTS.map((s) => {
+              const count = subjectCounts[s.name] ?? 0;
+              const ok = count >= REAL_EXAM_THRESHOLD;
+              return (
+                <span
+                  key={s.name}
+                  className={`rounded-full px-2.5 py-1 text-xs font-bold ${
+                    ok ? "bg-mint-50 text-mint-600" : "bg-slate-100 text-slate-500"
+                  }`}
+                >
+                  {s.name} {count}/{REAL_EXAM_THRESHOLD}
+                </span>
+              );
+            })}
           </div>
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
             <div>
@@ -305,15 +322,30 @@ export default function StudentExamsPage() {
               <div className="font-black text-ink">실전형</div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() =>
-              router.push(`/student/exams/unit-test?mode=real&count=25&seed=${Date.now()}`)
-            }
-            className="mt-4 w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-600/90"
-          >
-            실전 모의고사 시작
-          </button>
+          {realExamUnlocked ? (
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/student/exams/unit-test?mode=real&count=25&seed=${Date.now()}`)
+              }
+              className="mt-4 w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-600/90"
+            >
+              실전 모의고사 시작
+            </button>
+          ) : (
+            <div className="mt-4 space-y-2">
+              <button
+                type="button"
+                disabled
+                className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+              >
+                🔒 5과목 각 {REAL_EXAM_THRESHOLD}문항 이상부터 활성화
+              </button>
+              <p className="text-center text-xs leading-5 text-slate-500">
+                부족한 과목: {insufficientSubjects.map((s) => `${s.name} ${REAL_EXAM_THRESHOLD - (subjectCounts[s.name] ?? 0)}↑`).join(", ")}
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -422,7 +454,7 @@ export default function StudentExamsPage() {
             ) : (
               <>
                 <div className="mb-5">
-                  <h3 className="text-xl font-black text-ink">단원별 테스트</h3>
+                  <h3 className="text-xl font-black text-ink">단원별 학습</h3>
                   <p className="mt-1 text-sm text-slate-500">학습할 과목을 선택하세요</p>
                 </div>
                 <div className="space-y-2">
