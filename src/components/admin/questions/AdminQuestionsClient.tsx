@@ -334,9 +334,9 @@ export function AdminQuestionsClient() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex flex-wrap gap-1.5">
-                      {question.tags.slice(0, 5).map((tag) => (
+                      {question.tags.slice(0, 5).map((tag, i) => (
                         <span
-                          key={tag}
+                          key={`${tag}-${i}`}
                           className="rounded-full bg-brand-50 px-2 py-1 text-xs font-bold text-brand-700"
                         >
                           {tag}
