@@ -7,24 +7,11 @@ import { questionRepo } from "@/lib/questions/questionRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
+import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
 
 const WELCOME_KEY = "cbt:welcome:pending";
 
-const SUBJECTS = [
-  { name: "미분학", emoji: "📐", desc: "극한, 연속, 미분, 평균값 정리, 로피탈" },
-  { name: "적분학", emoji: "∫", desc: "부정적분, 정적분, 치환·부분적분, 넓이·부피" },
-  { name: "선형대수학", emoji: "🔢", desc: "행렬, 행렬식, 연립방정식, 고유값·고유벡터" },
-  { name: "다변수함수론", emoji: "🗺️", desc: "편미분, 방향도함수, 다중적분, 선적분" },
-  { name: "공학수학", emoji: "⚙️", desc: "미분방정식, 푸리에 급수, 라플라스 변환" },
-];
-
-const SUBJECT_UNIT_MAP: Record<string, string[]> = {
-  미분학: ["극한", "연속", "미분", "삼각함수", "급수", "로피탈"],
-  적분학: ["부정적분", "정적분", "치환적분", "부분적분", "넓이", "부피"],
-  선형대수학: ["행렬", "행렬식", "연립방정식", "고유값", "고유벡터"],
-  다변수함수론: ["편미분", "방향도함수", "다중적분", "선적분"],
-  공학수학: ["미분방정식", "푸리에 급수", "라플라스 변환"],
-};
+const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
 const COUNT_OPTIONS = [10, 15, 20];
 
@@ -83,7 +70,7 @@ export default function StudentExamsPage() {
 
   function pickSubject(name: string) {
     setPickedSubject(name);
-    setSelectedUnits(SUBJECT_UNIT_MAP[name] ?? []);
+    setSelectedUnits([...(SUBJECT_UNIT_MAP[name] ?? [])]);
   }
 
   function toggleUnit(unit: string) {
@@ -365,7 +352,7 @@ export default function StudentExamsPage() {
                         setSelectedUnits(
                           selectedUnits.length === (SUBJECT_UNIT_MAP[pickedSubject] ?? []).length
                             ? []
-                            : SUBJECT_UNIT_MAP[pickedSubject] ?? []
+                            : [...(SUBJECT_UNIT_MAP[pickedSubject] ?? [])]
                         )
                       }
                       className="text-xs font-bold text-brand-600 hover:underline"

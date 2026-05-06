@@ -9,12 +9,12 @@ import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
-
-const difficultyLabels: Record<Difficulty, string> = {
-  easy: "하",
-  medium: "중",
-  hard: "상"
-};
+import {
+  DIFFICULTY_KEYS,
+  DIFFICULTY_LABELS,
+  SUBJECT_NAMES,
+  unitsForSubject
+} from "@/lib/taxonomy";
 
 const modeLabels: Record<AdminExamMode, string> = {
   selected: "선택모고",
@@ -44,9 +44,12 @@ export function AdminExamsClient() {
   const [subjects, setSubjects] = useState<string[]>([]);
   const [units, setUnits] = useState<string[]>([]);
   const [difficultyRatio, setDifficultyRatio] = useState<DifficultyRatio>({
-    easy: 30,
-    medium: 50,
-    hard: 20
+    easy: 15,
+    easyMedium: 20,
+    medium: 25,
+    mediumHard: 20,
+    hard: 15,
+    killer: 5
   });
   const [problemCount, setProblemCount] = useState(10);
   const [timeLimitMin, setTimeLimitMin] = useState(30);
@@ -67,17 +70,12 @@ export function AdminExamsClient() {
     });
   }, []);
 
-  const subjectOptions = useMemo(
-    () => unique(questions.map((question) => question.subject)),
-    [questions]
-  );
+  const subjectOptions = useMemo(() => SUBJECT_NAMES, []);
 
   const unitOptions = useMemo(() => {
-    const scoped = subjects.length
-      ? questions.filter((question) => subjects.includes(question.subject))
-      : questions;
-    return unique(scoped.map((question) => question.unit));
-  }, [questions, subjects]);
+    if (subjects.length === 0) return [];
+    return unique(subjects.flatMap((subject) => Array.from(unitsForSubject(subject))));
+  }, [subjects]);
 
   const matchedCount = useMemo(() => {
     return questions.filter((question) => {
@@ -279,11 +277,11 @@ export function AdminExamsClient() {
 
           <section>
             <div className="text-xs font-black text-slate-600">난이도 비율</div>
-            <div className="mt-2 grid gap-3 sm:grid-cols-3">
-              {(["easy", "medium", "hard"] as Difficulty[]).map((difficulty) => (
+            <div className="mt-2 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+              {DIFFICULTY_KEYS.map((difficulty) => (
                 <label key={difficulty} className="rounded-md border border-line p-3">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-black text-ink">{difficultyLabels[difficulty]}</span>
+                    <span className="text-sm font-black text-ink">{DIFFICULTY_LABELS[difficulty]}</span>
                     <DifficultyBadge difficulty={difficulty} />
                   </div>
                   <input
@@ -350,14 +348,14 @@ export function AdminExamsClient() {
                     {Math.floor(lastExam.timeLimitSec / 60)}분
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  {(["easy", "medium", "hard"] as Difficulty[]).map((difficulty) => (
+                <div className="grid grid-cols-3 gap-2 text-center lg:grid-cols-6">
+                  {DIFFICULTY_KEYS.map((difficulty) => (
                     <div key={difficulty} className="rounded-md border border-line p-3">
                       <div className="text-xs font-bold text-slate-500">
-                        {difficultyLabels[difficulty]}
+                        {DIFFICULTY_LABELS[difficulty]}
                       </div>
                       <div className="mt-1 text-lg font-black text-ink">
-                        {lastExam.generationSummary.difficultyCounts[difficulty]}
+                        {lastExam.generationSummary.difficultyCounts[difficulty] ?? 0}
                       </div>
                     </div>
                   ))}

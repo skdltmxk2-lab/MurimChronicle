@@ -61,9 +61,13 @@ export function parseCsv(csv: string) {
 }
 
 function parseDifficulty(value: string): Difficulty | null {
-  if (value === "easy" || value === "하") return "easy";
-  if (value === "medium" || value === "중") return "medium";
-  if (value === "hard" || value === "상") return "hard";
+  const normalized = value.trim();
+  if (normalized === "easy" || normalized === "하") return "easy";
+  if (normalized === "easyMedium" || normalized === "중하") return "easyMedium";
+  if (normalized === "medium" || normalized === "중") return "medium";
+  if (normalized === "mediumHard" || normalized === "중상") return "mediumHard";
+  if (normalized === "hard" || normalized === "상") return "hard";
+  if (normalized === "killer" || normalized === "킬러") return "killer";
   return null;
 }
 

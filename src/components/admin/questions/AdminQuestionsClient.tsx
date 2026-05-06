@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import type { Difficulty } from "@/types/exam";
 import type {
   QuestionDraft,
   QuestionFilters,
@@ -14,12 +13,12 @@ import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { QuestionModal } from "@/components/admin/questions/QuestionModal";
 import { exam1Questions } from "@/data/exam1Questions";
-
-const difficultyLabels: Record<Difficulty, string> = {
-  easy: "하",
-  medium: "중",
-  hard: "상"
-};
+import {
+  DIFFICULTY_KEYS,
+  DIFFICULTY_LABELS,
+  SUBJECT_NAMES,
+  unitsForSubject
+} from "@/lib/taxonomy";
 
 const sourceTypeStyles: Record<QuestionSourceType, string> = {
   mock: "bg-slate-100 text-slate-700",
@@ -52,7 +51,10 @@ export function AdminQuestionsClient() {
     });
   }, []);
 
-  const filterOptions = useMemo(() => questionRepo.getFilterOptions(questions), [questions]);
+  const filterUnitOptions = useMemo(
+    () => unitsForSubject(filters.subject),
+    [filters.subject]
+  );
   const visibleQuestions = useMemo(
     () => questionRepo.filter(questions, filters),
     [filters, questions]
@@ -206,11 +208,13 @@ export function AdminQuestionsClient() {
             <span className="text-xs font-black text-slate-600">과목</span>
             <select
               value={filters.subject}
-              onChange={(event) => setFilters({ ...filters, subject: event.target.value })}
+              onChange={(event) =>
+                setFilters({ ...filters, subject: event.target.value, unit: "" })
+              }
               className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
             >
               <option value="">전체</option>
-              {filterOptions.subjects.map((subject) => (
+              {SUBJECT_NAMES.map((subject) => (
                 <option key={subject} value={subject}>
                   {subject}
                 </option>
@@ -222,10 +226,11 @@ export function AdminQuestionsClient() {
             <select
               value={filters.unit}
               onChange={(event) => setFilters({ ...filters, unit: event.target.value })}
-              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+              disabled={!filters.subject}
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600 disabled:bg-slate-50 disabled:text-slate-400"
             >
               <option value="">전체</option>
-              {filterOptions.units.map((unit) => (
+              {filterUnitOptions.map((unit) => (
                 <option key={unit} value={unit}>
                   {unit}
                 </option>
@@ -245,9 +250,11 @@ export function AdminQuestionsClient() {
               className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
             >
               <option value="all">전체</option>
-              <option value="easy">하</option>
-              <option value="medium">중</option>
-              <option value="hard">상</option>
+              {DIFFICULTY_KEYS.map((key) => (
+                <option key={key} value={key}>
+                  {DIFFICULTY_LABELS[key]}
+                </option>
+              ))}
             </select>
           </label>
           <label className="block">
@@ -310,7 +317,7 @@ export function AdminQuestionsClient() {
                   </td>
                   <td className="px-4 py-4">
                     <DifficultyBadge difficulty={question.difficulty} />
-                    <div className="sr-only">{difficultyLabels[question.difficulty]}</div>
+                    <div className="sr-only">{DIFFICULTY_LABELS[question.difficulty]}</div>
                   </td>
                   <td className="px-4 py-4">
                     <div className="line-clamp-2 text-sm font-semibold leading-6 text-ink">

@@ -1,4 +1,10 @@
-export type Difficulty = "easy" | "medium" | "hard";
+export type Difficulty =
+  | "easy"
+  | "easyMedium"
+  | "medium"
+  | "mediumHard"
+  | "hard"
+  | "killer";
 
 export type ExamMode = "selected" | "random" | "adaptive" | "custom" | "daily";
 

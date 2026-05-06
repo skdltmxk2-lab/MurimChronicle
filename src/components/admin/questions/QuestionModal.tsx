@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ContentType, Difficulty, ProblemOption } from "@/types/exam";
 import type { QuestionDraft, QuestionRecord, QuestionSourceType } from "@/types/question";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { readFileAsDataUrl } from "@/lib/files/readFileAsDataUrl";
+import {
+  DIFFICULTY_KEYS,
+  DIFFICULTY_LABELS,
+  SUBJECT_NAMES,
+  unitsForSubject
+} from "@/lib/taxonomy";
 
 type QuestionModalProps = {
   mode: "create" | "edit";
@@ -22,7 +28,7 @@ const emptyOptions: ProblemOption[] = [
 
 function makeEmptyDraft(): QuestionDraft {
   return {
-    subject: "편입수학",
+    subject: SUBJECT_NAMES[0],
     unit: "",
     concept: "",
     difficulty: "medium",
@@ -64,6 +70,8 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
   );
   const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState("");
+
+  const unitOptions = useMemo(() => unitsForSubject(draft.subject), [draft.subject]);
 
   useEffect(() => {
     setDraft(question ? recordToDraft(question) : makeEmptyDraft());
@@ -215,19 +223,34 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="block">
                 <span className="text-xs font-black text-slate-600">과목</span>
-                <input
+                <select
                   value={draft.subject}
-                  onChange={(event) => setDraft({ ...draft, subject: event.target.value })}
+                  onChange={(event) =>
+                    setDraft({ ...draft, subject: event.target.value, unit: "" })
+                  }
                   className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                />
+                >
+                  {SUBJECT_NAMES.map((subject) => (
+                    <option key={subject} value={subject}>
+                      {subject}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="block">
                 <span className="text-xs font-black text-slate-600">단원</span>
-                <input
+                <select
                   value={draft.unit}
                   onChange={(event) => setDraft({ ...draft, unit: event.target.value })}
                   className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                />
+                >
+                  <option value="">선택</option>
+                  {unitOptions.map((unit) => (
+                    <option key={unit} value={unit}>
+                      {unit}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className="block">
                 <span className="text-xs font-black text-slate-600">난이도</span>
@@ -238,9 +261,11 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                   }
                   className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
                 >
-                  <option value="easy">하</option>
-                  <option value="medium">중</option>
-                  <option value="hard">상</option>
+                  {DIFFICULTY_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {DIFFICULTY_LABELS[key]}
+                    </option>
+                  ))}
                 </select>
               </label>
               <label className="block">

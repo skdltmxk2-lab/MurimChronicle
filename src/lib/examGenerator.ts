@@ -7,10 +7,27 @@ import type {
   ExamGenerationResult,
   GeneratedExam
 } from "@/types/generatedExam";
+import { DIFFICULTY_KEYS } from "@/lib/taxonomy";
 
 export type { AdminExamMode, DifficultyRatio, ExamGenerationConfig, ExamGenerationResult, GeneratedExam };
 
-const difficulties: Difficulty[] = ["easy", "medium", "hard"];
+const difficulties: Difficulty[] = DIFFICULTY_KEYS;
+
+function emptyDifficultyRatio(): DifficultyRatio {
+  return difficulties.reduce((acc, difficulty) => {
+    acc[difficulty] = 0;
+    return acc;
+  }, {} as DifficultyRatio);
+}
+
+const DEFAULT_RATIO: DifficultyRatio = {
+  easy: 15,
+  easyMedium: 20,
+  medium: 25,
+  mediumHard: 20,
+  hard: 15,
+  killer: 5
+};
 
 function questionToProblem(question: QuestionRecord): Problem {
   return {
@@ -39,22 +56,21 @@ function makeId() {
 }
 
 function normalizeRatio(ratio: DifficultyRatio): DifficultyRatio {
-  const safeRatio = {
-    easy: Math.max(0, Number(ratio.easy) || 0),
-    medium: Math.max(0, Number(ratio.medium) || 0),
-    hard: Math.max(0, Number(ratio.hard) || 0)
-  };
-  const sum = safeRatio.easy + safeRatio.medium + safeRatio.hard;
+  const safeRatio = emptyDifficultyRatio();
+  for (const difficulty of difficulties) {
+    safeRatio[difficulty] = Math.max(0, Number(ratio[difficulty]) || 0);
+  }
+  const sum = difficulties.reduce((acc, difficulty) => acc + safeRatio[difficulty], 0);
 
   if (sum === 0) {
-    return { easy: 30, medium: 50, hard: 20 };
+    return { ...DEFAULT_RATIO };
   }
 
-  return {
-    easy: (safeRatio.easy / sum) * 100,
-    medium: (safeRatio.medium / sum) * 100,
-    hard: (safeRatio.hard / sum) * 100
-  };
+  const normalized = emptyDifficultyRatio();
+  for (const difficulty of difficulties) {
+    normalized[difficulty] = (safeRatio[difficulty] / sum) * 100;
+  }
+  return normalized;
 }
 
 function allocateDifficultyCounts(problemCount: number, ratio: DifficultyRatio): DifficultyRatio {
@@ -64,11 +80,10 @@ function allocateDifficultyCounts(problemCount: number, ratio: DifficultyRatio):
     exact: (problemCount * normalized[difficulty]) / 100
   }));
 
-  const counts: DifficultyRatio = {
-    easy: Math.floor(raw[0].exact),
-    medium: Math.floor(raw[1].exact),
-    hard: Math.floor(raw[2].exact)
-  };
+  const counts = emptyDifficultyRatio();
+  for (const item of raw) {
+    counts[item.difficulty] = Math.floor(item.exact);
+  }
 
   let remainder = problemCount - difficulties.reduce((sum, difficulty) => sum + counts[difficulty], 0);
   const priority = raw
@@ -144,11 +159,12 @@ export function generateExamFromQuestionBank(
     warnings.push(`요청한 ${problemCount}문항 중 ${finalQuestions.length}문항만 생성했습니다.`);
   }
 
-  const difficultyCounts: DifficultyRatio = {
-    easy: finalQuestions.filter((question) => question.difficulty === "easy").length,
-    medium: finalQuestions.filter((question) => question.difficulty === "medium").length,
-    hard: finalQuestions.filter((question) => question.difficulty === "hard").length
-  };
+  const difficultyCounts = emptyDifficultyRatio();
+  for (const difficulty of difficulties) {
+    difficultyCounts[difficulty] = finalQuestions.filter(
+      (question) => question.difficulty === difficulty
+    ).length;
+  }
 
   const selectedSubjects = Array.from(new Set(finalQuestions.map((question) => question.subject)));
   const selectedUnits = Array.from(new Set(finalQuestions.map((question) => question.unit)));

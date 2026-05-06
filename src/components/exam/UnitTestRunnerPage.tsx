@@ -7,8 +7,9 @@ import { questionRepo } from "@/lib/questions/questionRepository";
 import type { MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
+import { SUBJECT_NAMES } from "@/lib/taxonomy";
 
-const REAL_EXAM_SUBJECTS = ["미분학", "적분학", "선형대수학", "다변수함수론", "공학수학"];
+const REAL_EXAM_SUBJECTS = SUBJECT_NAMES;
 const REAL_EXAM_PER_SUBJECT = 5;
 
 function seededShuffle<T>(arr: T[], seed: number): T[] {
