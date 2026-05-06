@@ -42,5 +42,5 @@ export function StudentExamLoader({ examId }: { examId: string }) {
     );
   }
 
-  return <ExamRunner exam={exam} />;
+  return <ExamRunner exam={exam} retryHref={`/student/exams/${exam.id}`} />;
 }

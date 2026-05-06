@@ -23,6 +23,10 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
 
   useEffect(() => {
     if (!result) return;
+    if (result.examSnapshot) {
+      setExam(result.examSnapshot);
+      return;
+    }
     examRepo.findById(result.examId).then((found) => setExam(found as MockExam | null));
   }, [result]);
 
@@ -84,12 +88,14 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
-          <Link
-            href={`/student/exams/${exam.id}`}
-            className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:bg-slate-50"
-          >
-            다시 풀기
-          </Link>
+          {result.retryHref ? (
+            <Link
+              href={result.retryHref}
+              className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:bg-slate-50"
+            >
+              다시 풀기
+            </Link>
+          ) : null}
           <Link
             href="/student/exams"
             className="rounded-md bg-ink px-4 py-2 text-sm font-black text-white hover:bg-slate-700"

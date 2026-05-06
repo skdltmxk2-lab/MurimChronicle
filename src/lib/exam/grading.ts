@@ -5,8 +5,9 @@ export function gradeExam(params: {
   answers: AnswerMap;
   attemptId: string;
   elapsedSec: number;
+  retryHref?: string;
 }): AttemptResult {
-  const { exam, answers, attemptId, elapsedSec } = params;
+  const { exam, answers, attemptId, elapsedSec, retryHref } = params;
   const items = exam.problems.map((problem) => {
     const selectedOptionId = answers[problem.id] ?? null;
     return {
@@ -23,6 +24,8 @@ export function gradeExam(params: {
     attemptId,
     examId: exam.id,
     examTitle: exam.title,
+    examSnapshot: exam,
+    retryHref,
     submittedAt: new Date().toISOString(),
     elapsedSec,
     answers,

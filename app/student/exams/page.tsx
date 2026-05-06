@@ -29,7 +29,8 @@ const SUBJECT_UNIT_MAP: Record<string, string[]> = {
 const COUNT_OPTIONS = [10, 15, 20];
 
 function formatStat(count: number): string {
-  if (count < 100) return "-";
+  if (count <= 0) return "-";
+  if (count < 10) return String(count);
   return `${Math.floor(count / 10) * 10}+`;
 }
 
@@ -97,6 +98,7 @@ export default function StudentExamsPage() {
       subject: pickedSubject,
       units: selectedUnits.join(","),
       count: String(unitTestCount),
+      seed: String(Date.now()),
     });
     router.push(`/student/exams/unit-test?${params.toString()}`);
     setSubjectModalOpen(false);
@@ -105,7 +107,7 @@ export default function StudentExamsPage() {
   if (!authChecked) return null;
   if (showWelcome && user) return <WelcomeScreen user={user} onDone={dismissWelcome} />;
 
-  if (!user || user.role === "admin") {
+  if (!user) {
     return (
       <main className="mx-auto max-w-6xl px-5 py-16">
         <section className="mx-auto max-w-lg rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
@@ -153,7 +155,7 @@ export default function StudentExamsPage() {
             </div>
             <div className="rounded-md border border-line px-4 py-3">
               <div className="text-xs font-bold text-slate-500">시험</div>
-              <div className="mt-1 text-xl font-black text-ink">{formatStat(questionCount * 3)}</div>
+              <div className="mt-1 text-xl font-black text-ink">{formatStat(Math.floor(questionCount / 10))}</div>
             </div>
           </div>
         </div>
@@ -318,10 +320,12 @@ export default function StudentExamsPage() {
           </div>
           <button
             type="button"
-            disabled
-            className="mt-4 w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+            onClick={() =>
+              router.push(`/student/exams/unit-test?mode=real&count=25&seed=${Date.now()}`)
+            }
+            className="mt-4 w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-600/90"
           >
-            문제 업데이트 후 오픈 예정
+            실전 모의고사 시작
           </button>
         </div>
       </section>

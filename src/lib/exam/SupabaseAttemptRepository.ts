@@ -7,9 +7,51 @@ import type { IAttemptRepository } from "@/lib/exam/IAttemptRepository";
 
 const ANSWER_PREFIX = "cbt:answers:";
 const STARTED_PREFIX = "cbt:started:";
+const RESULT_PREFIX = "cbt:result:";
+const RESULT_INDEX_KEY = "cbt:result:index";
 
 function canUseStorage() {
   return typeof window !== "undefined" && Boolean(window.localStorage);
+}
+
+function saveResultLocal(result: AttemptResult) {
+  if (!canUseStorage()) return;
+  try {
+    window.localStorage.setItem(`${RESULT_PREFIX}${result.attemptId}`, JSON.stringify(result));
+    const indexRaw = window.localStorage.getItem(RESULT_INDEX_KEY);
+    const index: string[] = indexRaw ? JSON.parse(indexRaw) : [];
+    if (!index.includes(result.attemptId)) {
+      index.push(result.attemptId);
+      window.localStorage.setItem(RESULT_INDEX_KEY, JSON.stringify(index));
+    }
+  } catch {
+    // localStorage may be full; silent failure is acceptable for cache.
+  }
+}
+
+function loadResultLocal(attemptId: string): AttemptResult | null {
+  if (!canUseStorage()) return null;
+  const raw = window.localStorage.getItem(`${RESULT_PREFIX}${attemptId}`);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw) as AttemptResult;
+  } catch {
+    return null;
+  }
+}
+
+function listResultsLocal(): AttemptResult[] {
+  if (!canUseStorage()) return [];
+  const indexRaw = window.localStorage.getItem(RESULT_INDEX_KEY);
+  if (!indexRaw) return [];
+  try {
+    const ids = JSON.parse(indexRaw) as string[];
+    return ids
+      .map((id) => loadResultLocal(id))
+      .filter((r): r is AttemptResult => r !== null);
+  } catch {
+    return [];
+  }
 }
 
 export const supabaseAttemptRepo: IAttemptRepository = {
@@ -49,19 +91,27 @@ export const supabaseAttemptRepo: IAttemptRepository = {
   },
 
   async saveResult(result: AttemptResult): Promise<void> {
+    saveResultLocal(result);
+
     const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return;
 
     const { error } = await supabase.from("exam_attempts").insert({
       attempt_id: result.attemptId,
-      user_id: session?.user?.id ?? null,
+      user_id: session.user.id,
       exam_id: result.examId,
       result: result
     });
 
-    if (error) throw error;
+    if (error) {
+      console.warn("[exam_attempts] Supabase insert failed; result kept in localStorage only.", error);
+    }
   },
 
   async loadResult(attemptId: string): Promise<AttemptResult | null> {
+    const local = loadResultLocal(attemptId);
+    if (local) return local;
+
     const { data, error } = await supabase
       .from("exam_attempts")
       .select("result")
@@ -74,14 +124,19 @@ export const supabaseAttemptRepo: IAttemptRepository = {
 
   async listResults(): Promise<AttemptResult[]> {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) return [];
+    if (!session?.user) return listResultsLocal();
 
     const { data, error } = await supabase
       .from("exam_attempts")
       .select("result")
       .eq("user_id", session.user.id);
 
-    if (error || !data) return [];
-    return data.map((row) => row.result as AttemptResult);
+    const remote = error || !data ? [] : data.map((row) => row.result as AttemptResult);
+    const local = listResultsLocal();
+    const seen = new Set(remote.map((r) => r.attemptId));
+    for (const r of local) {
+      if (!seen.has(r.attemptId)) remote.push(r);
+    }
+    return remote;
   }
 };

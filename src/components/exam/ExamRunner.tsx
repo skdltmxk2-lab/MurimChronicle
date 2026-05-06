@@ -8,7 +8,7 @@ import { attemptRepo, createAttemptId } from "@/lib/exam/storage";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 
-export function ExamRunner({ exam }: { exam: MockExam }) {
+export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: string }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -32,7 +32,8 @@ export function ExamRunner({ exam }: { exam: MockExam }) {
         exam,
         answers: answersRef.current,
         attemptId,
-        elapsedSec: Math.min(elapsedRef.current, exam.timeLimitSec)
+        elapsedSec: Math.min(elapsedRef.current, exam.timeLimitSec),
+        retryHref
       });
 
       await attemptRepo.saveResult(result);

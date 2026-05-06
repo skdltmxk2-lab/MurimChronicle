@@ -57,6 +57,8 @@ export type AttemptResult = {
   attemptId: string;
   examId: string;
   examTitle: string;
+  examSnapshot?: MockExam;
+  retryHref?: string;
   submittedAt: string;
   elapsedSec: number;
   answers: AnswerMap;

@@ -67,7 +67,7 @@ export default function ProfilePage() {
 
   if (!authChecked) return null;
 
-  if (!user || user.role === "admin") {
+  if (!user) {
     return (
       <main className="mx-auto max-w-6xl px-5 py-16">
         <section className="mx-auto max-w-lg rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
