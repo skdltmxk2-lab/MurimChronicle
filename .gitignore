@@ -4,3 +4,4 @@ node_modules/
 problem_search_data/
 streamlit.combined.log
 tsconfig.tsbuildinfo
+scripts/questions_dump.json
