@@ -39,6 +39,7 @@ export function AdminQuestionsClient() {
     difficulty: "all",
     sourceType: "all"
   });
+  const [view, setView] = useState<"regular" | "daily">("regular");
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<QuestionRecord | null>(null);
 
@@ -55,9 +56,18 @@ export function AdminQuestionsClient() {
     () => unitsForSubject(filters.subject),
     [filters.subject]
   );
+  const viewQuestions = useMemo(() => {
+    if (view === "daily") return questions.filter((q) => (q.tags ?? []).includes("daily"));
+    return questions.filter((q) => !(q.tags ?? []).includes("daily"));
+  }, [questions, view]);
+  const dailyCount = useMemo(
+    () => questions.filter((q) => (q.tags ?? []).includes("daily")).length,
+    [questions]
+  );
+  const regularCount = questions.length - dailyCount;
   const visibleQuestions = useMemo(
-    () => questionRepo.filter(questions, filters),
-    [filters, questions]
+    () => questionRepo.filter(viewQuestions, filters),
+    [filters, viewQuestions]
   );
 
   function openCreateModal() {
@@ -173,7 +183,7 @@ export function AdminQuestionsClient() {
             </p>
             <h1 className="mt-1 text-3xl font-black text-ink">문제 관리</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Supabase 문제은행. 데이터 접근은 repository 인터페이스로 분리되어 있습니다.
+              모의고사·일반 문제와 데일리 테스트 전용 문제를 분리해서 관리합니다.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -200,6 +210,31 @@ export function AdminQuestionsClient() {
             </button>
           </div>
         </div>
+      </section>
+
+      <section className="mb-5 flex gap-2 rounded-lg border border-line bg-white p-2 shadow-soft">
+        <button
+          type="button"
+          onClick={() => setView("regular")}
+          className={`flex-1 rounded-md px-4 py-3 text-sm font-black transition ${
+            view === "regular"
+              ? "bg-brand-600 text-white"
+              : "bg-white text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          일반 문제 <span className="ml-1 text-xs opacity-80">({regularCount})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setView("daily")}
+          className={`flex-1 rounded-md px-4 py-3 text-sm font-black transition ${
+            view === "daily"
+              ? "bg-amber-500 text-white"
+              : "bg-white text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          데일리 문제 <span className="ml-1 text-xs opacity-80">({dailyCount})</span>
+        </button>
       </section>
 
       <section className="mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
@@ -283,7 +318,7 @@ export function AdminQuestionsClient() {
         <div className="flex items-center justify-between border-b border-line px-5 py-4">
           <div className="text-sm font-black text-ink">
             문제 목록 <span className="text-brand-600">{visibleQuestions.length}</span>
-            <span className="text-slate-400"> / {questions.length}</span>
+            <span className="text-slate-400"> / {viewQuestions.length}</span>
           </div>
         </div>
 
