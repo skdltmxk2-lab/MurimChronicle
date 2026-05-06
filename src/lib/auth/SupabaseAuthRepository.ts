@@ -38,14 +38,11 @@ export const supabaseAuthRepo: IAuthRepository = {
     const admin = loadFromStorage<MockUser>(ADMIN_USER_KEY);
     if (admin) return admin;
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      removeFromStorage(STUDENT_USER_KEY);
-      return null;
-    }
-
     const cached = loadFromStorage<MockUser>(STUDENT_USER_KEY);
     if (cached) return cached;
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) return null;
 
     const { data: profile } = await supabase
       .from("profiles")
