@@ -322,30 +322,20 @@ export default function StudentExamsPage() {
               <div className="font-black text-ink">실전형</div>
             </div>
           </div>
-          {realExamUnlocked ? (
+          <div className="mt-4 space-y-2">
             <button
               type="button"
-              onClick={() =>
-                router.push(`/student/exams/unit-test?mode=real&count=25&seed=${Date.now()}`)
-              }
-              className="mt-4 w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-600/90"
+              disabled
+              className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
             >
-              실전 모의고사 시작
+              🔒 관리자 등록 모의고사만 응시 가능
             </button>
-          ) : (
-            <div className="mt-4 space-y-2">
-              <button
-                type="button"
-                disabled
-                className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
-              >
-                🔒 5과목 각 {REAL_EXAM_THRESHOLD}문항 이상부터 활성화
-              </button>
-              <p className="text-center text-xs leading-5 text-slate-500">
-                부족한 과목: {insufficientSubjects.map((s) => `${s.name} ${REAL_EXAM_THRESHOLD - (subjectCounts[s.name] ?? 0)}↑`).join(", ")}
-              </p>
-            </div>
-          )}
+            <p className="text-center text-xs leading-5 text-slate-500">
+              실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.
+              <br />
+              아래 모의고사 목록에서 선택해 주세요.
+            </p>
+          </div>
         </div>
       </section>
 

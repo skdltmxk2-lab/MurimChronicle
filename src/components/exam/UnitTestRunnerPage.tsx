@@ -151,6 +151,10 @@ export function UnitTestRunnerPage() {
         examId = `unit-daily-${dateParam}`;
         tags = ["daily"];
       } else if (mode === "real") {
+        setErrorMsg("실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.\n시험 목록 페이지의 등록 모의고사를 선택해주세요.");
+        return;
+        // 아래는 차단 전 자동 생성 코드(보존만, 실행 안 됨)
+        // eslint-disable-next-line no-unreachable
         const picked: QuestionRecord[] = [];
         for (const [index, subjectName] of REAL_EXAM_SUBJECTS.entries()) {
           const pool = allQuestions.filter((q) => q.subject === subjectName);

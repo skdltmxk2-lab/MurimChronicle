@@ -57,7 +57,8 @@ export const SUBJECT_UNITS: Record<SubjectName, readonly string[]> = {
     "복소수",
     "미분방정식",
     "Laplace변환",
-    "푸리에(Fourier) 급수"
+    "푸리에(Fourier) 급수",
+    "벡터해석"
   ]
 };
 
