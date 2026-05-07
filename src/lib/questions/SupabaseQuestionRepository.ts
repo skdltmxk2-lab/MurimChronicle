@@ -101,14 +101,22 @@ function toDb(record: QuestionRecord) {
 
 export const supabaseQuestionRepo: IQuestionRepository = {
   async list(): Promise<QuestionRecord[]> {
-    const { data, error } = await supabase
-      .from("questions")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    if (!data || data.length === 0) return this.reset();
-    return (data as DbRow[]).map(fromDb);
+    // Supabase 기본 row 한도 1000을 넘는 컬렉션을 위해 페이지 단위로 누적 조회
+    const PAGE = 1000;
+    const all: DbRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      all.push(...(data as DbRow[]));
+      if (data.length < PAGE) break;
+    }
+    if (all.length === 0) return this.reset();
+    return all.map(fromDb);
   },
 
   async create(draft: QuestionDraft): Promise<QuestionRecord> {
