@@ -324,13 +324,21 @@ export default function StudentExamsPage() {
               <div className="font-black text-ink">과목별</div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={openSubjectMockModal}
-            className="mt-4 w-full rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
-          >
-            회차 선택하기
-          </button>
+          <div className="mt-4 flex gap-2">
+            <button
+              type="button"
+              onClick={openSubjectMockModal}
+              className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
+            >
+              회차 선택하기
+            </button>
+            <Link
+              href="/student/results?type=subject_mock"
+              className="rounded-md border border-orange-300 bg-white px-4 py-3 text-sm font-black text-orange-600 hover:bg-orange-50"
+            >
+              📊 지난 성적
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -383,6 +391,12 @@ export default function StudentExamsPage() {
             >
               🔒 관리자 등록 모의고사만 응시 가능
             </button>
+            <Link
+              href="/student/results?type=real"
+              className="flex w-full items-center justify-center rounded-md border border-mint-300 bg-white px-4 py-3 text-sm font-black text-mint-600 hover:bg-mint-50"
+            >
+              📊 지난 성적 보기
+            </Link>
             <p className="text-center text-xs leading-5 text-slate-500">
               실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.
               <br />
