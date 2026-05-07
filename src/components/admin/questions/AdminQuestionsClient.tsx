@@ -27,6 +27,16 @@ const sourceTypeStyles: Record<QuestionSourceType, string> = {
   ai: "bg-mint-50 text-mint-600"
 };
 
+// 목록에서 KaTeX 렌더링은 비싸므로 본문/풀이의 LaTeX 수식을 평문 [수식]으로 치환.
+// 클릭 시 미리보기 모달에서 ContentRenderer로 정상 렌더링.
+function stripLatexForPreview(text: string): string {
+  if (!text) return "";
+  return text
+    .replace(/\$\$[\s\S]+?\$\$/g, "[수식]")
+    .replace(/\$[^$\n]+?\$/g, "[수식]")
+    .replace(/\\\\/g, " ");
+}
+
 export function AdminQuestionsClient() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -42,6 +52,7 @@ export function AdminQuestionsClient() {
   const [view, setView] = useState<"regular" | "daily">("regular");
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<QuestionRecord | null>(null);
+  const [previewQuestion, setPreviewQuestion] = useState<QuestionRecord | null>(null);
 
   useEffect(() => {
     authRepo.getCurrentUser().then((user) => {
@@ -337,7 +348,11 @@ export function AdminQuestionsClient() {
             </thead>
             <tbody className="divide-y divide-line">
               {visibleQuestions.map((question) => (
-                <tr key={question.id} className="align-top hover:bg-slate-50/70">
+                <tr
+                  key={question.id}
+                  className="align-top cursor-pointer hover:bg-slate-50/70"
+                  onClick={() => setPreviewQuestion(question)}
+                >
                   <td className="px-4 py-4">
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-black ${sourceTypeStyles[question.sourceType]}`}
@@ -356,12 +371,12 @@ export function AdminQuestionsClient() {
                   </td>
                   <td className="px-4 py-4">
                     <div className="line-clamp-2 text-sm font-semibold leading-6 text-ink">
-                      <ContentRenderer
-                        contentType={question.contentType}
-                        text={question.question}
-                        image={question.questionImage}
-                        imageAlt="문제 이미지"
-                      />
+                      {stripLatexForPreview(question.question)}
+                      {question.questionImage ? (
+                        <span className="ml-1 rounded-full bg-mint-50 px-1.5 py-0.5 text-[10px] font-black text-mint-600">
+                          🖼 그림
+                        </span>
+                      ) : null}
                     </div>
                     <div className="mt-2 text-xs font-semibold text-slate-500">
                       {question.contentType ?? "latex"} / 정답 {question.correctOptionId}번
@@ -384,7 +399,7 @@ export function AdminQuestionsClient() {
                       ) : null}
                     </div>
                   </td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                     <div className="flex gap-1.5">
                       <button
                         type="button"
@@ -423,6 +438,134 @@ export function AdminQuestionsClient() {
           onClose={closeModal}
           onSave={saveDraft}
         />
+      ) : null}
+
+      {previewQuestion ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-4 py-8"
+          onClick={() => setPreviewQuestion(null)}
+        >
+          <div
+            className="max-h-full w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-soft"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">문제 미리보기</p>
+                <h2 className="mt-1 text-base font-black text-ink">
+                  {previewQuestion.subject} · {previewQuestion.unit}
+                  {previewQuestion.concept ? ` · ${previewQuestion.concept}` : ""}
+                </h2>
+                <p className="mt-1 text-xs text-slate-400">{previewQuestion.id}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewQuestion(null)}
+                className="shrink-0 rounded-md border border-line px-3 py-1 text-xs font-black text-slate-600 hover:bg-slate-50"
+              >
+                닫기
+              </button>
+            </div>
+
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <DifficultyBadge difficulty={previewQuestion.difficulty} />
+              <span className={`rounded-full px-2 py-0.5 text-xs font-black ${sourceTypeStyles[previewQuestion.sourceType]}`}>
+                {previewQuestion.sourceType}
+              </span>
+              <span className="text-xs text-slate-500">정답 {previewQuestion.correctOptionId}번</span>
+            </div>
+
+            <div className="mb-5 rounded-lg border border-line bg-slate-50 p-4">
+              <p className="mb-2 text-xs font-black text-slate-500">문제</p>
+              <ContentRenderer
+                contentType={previewQuestion.contentType}
+                text={previewQuestion.question}
+                image={previewQuestion.questionImage}
+                imageAlt="문제 이미지"
+                className="text-sm leading-7 text-ink"
+              />
+            </div>
+
+            <div className="mb-5 space-y-2">
+              <p className="text-xs font-black text-slate-500">보기</p>
+              {previewQuestion.options.map((opt) => {
+                const isAnswer = opt.id === previewQuestion.correctOptionId;
+                return (
+                  <div
+                    key={opt.id}
+                    className={`rounded-lg border p-3 text-sm ${
+                      isAnswer
+                        ? "border-mint-200 bg-mint-50/50"
+                        : "border-line bg-white"
+                    }`}
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-black ${
+                        isAnswer ? "bg-mint-600 text-white" : "bg-slate-100 text-slate-600"
+                      }`}>
+                        {opt.label}
+                      </span>
+                      {isAnswer ? <span className="text-xs font-black text-mint-600">정답</span> : null}
+                    </div>
+                    <ContentRenderer
+                      contentType={opt.contentType}
+                      text={opt.text}
+                      image={opt.image}
+                      imageAlt={`보기 ${opt.label} 이미지`}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {previewQuestion.explanation ? (
+              <div className="mb-3 rounded-lg border border-line bg-amber-50/30 p-4">
+                <p className="mb-2 text-xs font-black text-amber-700">풀이</p>
+                <ContentRenderer
+                  contentType={previewQuestion.explanationContentType}
+                  text={previewQuestion.explanation}
+                  image={previewQuestion.explanationImage}
+                  imageAlt="풀이 이미지"
+                  className="text-sm leading-7 text-slate-700"
+                />
+              </div>
+            ) : null}
+
+            {previewQuestion.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5">
+                {previewQuestion.tags.map((t, i) => (
+                  <span
+                    key={`${t}-${i}`}
+                    className="rounded-full bg-brand-50 px-2 py-1 text-xs font-bold text-brand-700"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="mt-5 flex gap-2 border-t border-line pt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  const target = previewQuestion;
+                  setPreviewQuestion(null);
+                  openEditModal(target);
+                }}
+                className="rounded-md border border-line px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                수정하기
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewQuestion(null)}
+                className="ml-auto rounded-md bg-brand-600 px-4 py-2 text-sm font-black text-white hover:bg-brand-700"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
       ) : null}
     </main>
   );
