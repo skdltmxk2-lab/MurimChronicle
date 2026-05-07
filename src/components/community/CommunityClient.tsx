@@ -8,7 +8,7 @@ import type { MockUser } from "@/types/auth";
 import type { CommunityPost, PostCategory } from "@/types/community";
 import { CATEGORY_LABEL, CATEGORY_STYLE } from "@/types/community";
 
-type Tab = "all" | "popular" | "question" | "info";
+type Tab = "all" | "popular" | "question" | "info" | "free";
 
 function formatTimeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
@@ -62,7 +62,7 @@ export function CommunityClient() {
           .lt("created_at", today.toISOString())
           .order("like_count", { ascending: false })
           .limit(20);
-      } else if (activeTab === "question" || activeTab === "info") {
+      } else if (activeTab === "question" || activeTab === "info" || activeTab === "free") {
         query = supabase
           .from("community_posts")
           .select("*")
@@ -171,6 +171,7 @@ export function CommunityClient() {
     { key: "popular", label: "🔥 인기글" },
     { key: "question", label: "질문" },
     { key: "info", label: "정보공유" },
+    { key: "free", label: "자유게시판" },
   ];
 
   return (
@@ -290,7 +291,7 @@ export function CommunityClient() {
 
             {/* 카테고리 */}
             <div className="mb-3 flex gap-2">
-              {(["question", "info"] as PostCategory[]).map((cat) => (
+              {(["question", "info", "free"] as PostCategory[]).map((cat) => (
                 <button
                   key={cat}
                   type="button"
