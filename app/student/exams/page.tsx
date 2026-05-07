@@ -15,8 +15,6 @@ const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
 const COUNT_OPTIONS = [10, 15, 20];
 
-const REAL_EXAM_THRESHOLD = 50;
-
 function formatStat(count: number): string {
   if (count <= 0) return "-";
   if (count < 10) return String(count);
@@ -39,26 +37,18 @@ export default function StudentExamsPage() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [questionCount, setQuestionCount] = useState(0);
   const [dailyCount, setDailyCount] = useState(0);
-  const [subjectCounts, setSubjectCounts] = useState<Record<string, number>>({});
   const [subjectModalOpen, setSubjectModalOpen] = useState(false);
   const [pickedSubject, setPickedSubject] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [unitTestCount, setUnitTestCount] = useState(10);
+  const [subjectMockOpen, setSubjectMockOpen] = useState(false);
 
   useEffect(() => {
     questionRepo.list().then((qs) => {
       setQuestionCount(qs.length);
       setDailyCount(qs.filter((q) => q.tags.includes("daily")).length);
-      const counts: Record<string, number> = {};
-      for (const q of qs) counts[q.subject] = (counts[q.subject] ?? 0) + 1;
-      setSubjectCounts(counts);
     });
   }, []);
-
-  const insufficientSubjects = SUBJECTS.filter(
-    (s) => (subjectCounts[s.name] ?? 0) < REAL_EXAM_THRESHOLD
-  );
-  const realExamUnlocked = insufficientSubjects.length === 0;
 
   useEffect(() => {
     if (user?.role === "student") {
@@ -100,6 +90,17 @@ export default function StudentExamsPage() {
     });
     router.push(`/student/exams/unit-test?${params.toString()}`);
     setSubjectModalOpen(false);
+  }
+
+  function startSubjectMock(subjectName: string) {
+    const params = new URLSearchParams({
+      mode: "subject_mock",
+      subject: subjectName,
+      count: "20",
+      seed: String(Date.now()),
+    });
+    router.push(`/student/exams/unit-test?${params.toString()}`);
+    setSubjectMockOpen(false);
   }
 
   if (!authChecked) return null;
@@ -225,7 +226,7 @@ export default function StudentExamsPage() {
         </div>
       </section>
 
-      {/* 단원별 학습 + 실전 모의고사 */}
+      {/* 단원별 학습 + 단원별 모의고사 */}
       <section className="mb-5 grid gap-5 md:grid-cols-2">
         {/* 단원별 학습 */}
         <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
@@ -276,7 +277,58 @@ export default function StudentExamsPage() {
           </button>
         </div>
 
-        {/* 실전 모의고사 */}
+        {/* 단원별 모의고사 */}
+        <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
+          <div className="flex items-start gap-3">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-2xl">
+              ⏱️
+            </span>
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.15em] text-orange-600">
+                Subject Mock Exam
+              </p>
+              <h2 className="mt-0.5 text-lg font-black text-ink">단원별 모의고사</h2>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            한 과목을 골라 20문항을 50분 안에 푸는 단원별 모의고사예요. 시간 압박 속에서 실력을 점검해 보세요.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {SUBJECTS.map((s) => (
+              <span
+                key={s.name}
+                className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-600"
+              >
+                {s.name}
+              </span>
+            ))}
+          </div>
+          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
+            <div>
+              <div className="text-xs font-bold text-slate-400">문항</div>
+              <div className="font-black text-ink">20문항</div>
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-400">시간</div>
+              <div className="font-black text-ink">50분</div>
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-400">방식</div>
+              <div className="font-black text-ink">과목별</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSubjectMockOpen(true)}
+            className="mt-4 w-full rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
+          >
+            과목 선택하기
+          </button>
+        </div>
+      </section>
+
+      {/* 실전 모의고사 */}
+      <section className="mb-5">
         <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
           <div className="flex items-start gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-mint-50 text-2xl">
@@ -293,20 +345,14 @@ export default function StudentExamsPage() {
             5개 과목에서 각 5문항씩, 총 25문항으로 구성된 실전형 모의고사예요. 편입시험과 동일한 형식으로 풀어보세요.
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
-            {SUBJECTS.map((s) => {
-              const count = subjectCounts[s.name] ?? 0;
-              const ok = count >= REAL_EXAM_THRESHOLD;
-              return (
-                <span
-                  key={s.name}
-                  className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                    ok ? "bg-mint-50 text-mint-600" : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {s.name} {count}/{REAL_EXAM_THRESHOLD}
-                </span>
-              );
-            })}
+            {SUBJECTS.map((s) => (
+              <span
+                key={s.name}
+                className="rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-mint-600"
+              >
+                {s.name}
+              </span>
+            ))}
           </div>
           <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
             <div>
@@ -472,6 +518,47 @@ export default function StudentExamsPage() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 단원별 모의고사: 과목 선택 모달 */}
+      {subjectMockOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          onClick={() => setSubjectMockOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5">
+              <h3 className="text-xl font-black text-ink">단원별 모의고사</h3>
+              <p className="mt-1 text-sm text-slate-500">응시할 과목을 선택하세요 · 20문항 50분</p>
+            </div>
+            <div className="space-y-2">
+              {SUBJECTS.map((subject) => (
+                <button
+                  key={subject.name}
+                  type="button"
+                  onClick={() => startSubjectMock(subject.name)}
+                  className="flex w-full items-center gap-4 rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
+                >
+                  <span className="text-2xl">{subject.emoji}</span>
+                  <div>
+                    <div className="text-sm font-black text-ink">{subject.name}</div>
+                    <div className="text-xs text-slate-500">{subject.desc}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setSubjectMockOpen(false)}
+              className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}

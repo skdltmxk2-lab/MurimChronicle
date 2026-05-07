@@ -166,6 +166,23 @@ export function UnitTestRunnerPage() {
         description = "오늘의 엄선 문제입니다.";
         examId = `unit-daily-${dateParam}`;
         tags = ["daily"];
+      } else if (mode === "subject_mock") {
+        if (!subject) {
+          fail("과목 정보가 없습니다.\n시험 목록에서 다시 선택해 주세요.");
+          return;
+        }
+        const pool = await questionRepo.listBySubject(subject);
+        if (cancelled) return;
+        if (pool.length === 0) {
+          fail(`${subject} 과목의 문제가 아직 없습니다.\n관리자에 문의해 주세요.`);
+          return;
+        }
+        const localSeed = Math.floor(Date.now() % 0x7fffffff);
+        filtered = seededShuffle(pool, localSeed).slice(0, count);
+        title = `${subject} 단원별 모의고사`;
+        description = `${subject} 전 단원 · ${filtered.length}문항 · 50분`;
+        examId = `subject-mock-${subject}-${localSeed}`;
+        tags = [subject, "단원별 모의고사"];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
         const [pool, attempts] = await Promise.all([
@@ -207,7 +224,10 @@ export function UnitTestRunnerPage() {
         title,
         description,
         mode: mode === "daily" ? "daily" : "custom",
-        timeLimitSec: mode === "real" ? 60 * 60 : filtered.length * 3 * 60,
+        timeLimitSec:
+          mode === "real" ? 60 * 60
+          : mode === "subject_mock" ? 50 * 60
+          : filtered.length * 3 * 60,
         tags,
         problems,
       });
