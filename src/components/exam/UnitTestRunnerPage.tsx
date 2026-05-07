@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { attemptRepo } from "@/lib/exam/storage";
+import { supabase } from "@/lib/supabase/client";
 import type { MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
@@ -64,7 +65,8 @@ export function UnitTestRunnerPage() {
   const retryHref = `/student/exams/unit-test?${searchParams.toString()}`;
 
   useEffect(() => {
-    Promise.all([questionRepo.list(), attemptRepo.listResults()]).then(([allQuestions, attempts]) => {
+    (async () => {
+      const [allQuestions, attempts] = await Promise.all([questionRepo.list(), attemptRepo.listResults()]);
       const seenProblemIds = new Set<string>();
       for (const result of attempts) {
         for (const item of result.items) seenProblemIds.add(item.problemId);
@@ -77,18 +79,75 @@ export function UnitTestRunnerPage() {
       let tags: string[];
 
       if (mode === "daily") {
-        filtered = allQuestions.filter((q) => q.tags.includes("daily"));
+        const dailyPool = allQuestions.filter((q) => q.tags.includes("daily"));
+        if (dailyPool.length === 0) {
+          setErrorMsg("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
+          return;
+        }
+        const dailyCount = Math.min(5, dailyPool.length);
+        const dailyById = new Map(dailyPool.map((q) => [q.id, q]));
+
+        // 1) 관리자가 지정한 오늘의 assignment 우선
+        let pickedIds: string[] | null = null;
+        try {
+          const { data: assignment } = await supabase
+            .from("daily_assignments")
+            .select("question_ids")
+            .eq("date", dateParam)
+            .maybeSingle();
+          if (assignment?.question_ids && Array.isArray(assignment.question_ids) && assignment.question_ids.length > 0) {
+            pickedIds = (assignment.question_ids as string[]).filter((id) => dailyById.has(id));
+          }
+        } catch {
+          // 네트워크 오류 시 폴백 알고리즘으로 진행
+        }
+
+        // 2) assignment 없으면 라운드 로빈 (use_count 적은 문제 우선)
+        if (!pickedIds || pickedIds.length === 0) {
+          let usageMap = new Map<string, { useCount: number; lastUsedDate: string }>();
+          try {
+            const { data: usageRows } = await supabase
+              .from("daily_usage")
+              .select("question_id, last_used_date, use_count")
+              .in("question_id", dailyPool.map((q) => q.id));
+            for (const row of usageRows ?? []) {
+              usageMap.set(row.question_id as string, {
+                useCount: (row.use_count as number) ?? 0,
+                lastUsedDate: (row.last_used_date as string) ?? "0000-00-00",
+              });
+            }
+          } catch {
+            usageMap = new Map();
+          }
+          // 폴백: 사용 이력 정보가 모두 비어있으면 기존 날짜 시드 알고리즘 유지
+          if (usageMap.size === 0) {
+            const sorted = [...dailyPool].sort((a, b) => a.id.localeCompare(b.id));
+            const dayIndex = Math.floor(new Date(`${dateParam}T00:00:00`).getTime() / 86400000);
+            const start = (dayIndex * dailyCount) % sorted.length;
+            pickedIds = [...sorted.slice(start), ...sorted.slice(0, start)].slice(0, dailyCount).map((q) => q.id);
+          } else {
+            const sortedPool = [...dailyPool].sort((a, b) => {
+              const ua = usageMap.get(a.id);
+              const ub = usageMap.get(b.id);
+              const ca = ua?.useCount ?? 0;
+              const cb = ub?.useCount ?? 0;
+              if (ca !== cb) return ca - cb;
+              const da = ua?.lastUsedDate ?? "0000-00-00";
+              const db = ub?.lastUsedDate ?? "0000-00-00";
+              if (da !== db) return da < db ? -1 : 1;
+              return a.id.localeCompare(b.id);
+            });
+            pickedIds = sortedPool.slice(0, dailyCount).map((q) => q.id);
+          }
+        }
+
+        filtered = pickedIds.map((id) => dailyById.get(id)!).filter(Boolean);
         if (filtered.length === 0) {
           setErrorMsg("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
           return;
         }
-        filtered.sort((a, b) => a.id.localeCompare(b.id));
-        const dailyCount = Math.min(5, filtered.length);
-        const dayIndex = Math.floor(new Date(`${dateParam}T00:00:00`).getTime() / 86400000);
-        const start = (dayIndex * dailyCount) % filtered.length;
-        filtered = [...filtered.slice(start), ...filtered.slice(0, start)].slice(0, dailyCount);
         title = `데일리 테스트 · ${dateParam}`;
-        description = "오늘의 엄선 문제입니다. 매일 새 문제가 로테이션됩니다.";
+        description = "오늘의 엄선 문제입니다.";
         examId = `unit-daily-${dateParam}`;
         tags = ["daily"];
       } else if (mode === "real") {
@@ -154,7 +213,7 @@ export function UnitTestRunnerPage() {
         tags,
         problems,
       });
-    });
+    })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
