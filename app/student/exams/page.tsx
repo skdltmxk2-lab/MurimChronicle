@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
@@ -43,6 +44,11 @@ export default function StudentExamsPage() {
   const [unitTestCount, setUnitTestCount] = useState(10);
   const [subjectMockOpen, setSubjectMockOpen] = useState(false);
   const [mockSubject, setMockSubject] = useState<string | null>(null);
+  const [realExamOpen, setRealExamOpen] = useState(false);
+
+  const canDaily = canUseTier(user, "go");
+  const canSubjectMock = canUseTier(user, "go");
+  const canUnitPractice = canUseTier(user, "plus");
 
   useEffect(() => {
     questionRepo.list().then((qs) => {
@@ -179,7 +185,11 @@ export default function StudentExamsPage() {
               {dailyCount > 0 ? `${Math.min(5, dailyCount)}문항 · 매일 로테이션` : "준비 중"}
             </p>
           </div>
-          {dailyCount > 0 ? (
+          {dailyCount === 0 ? (
+            <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
+              준비 중
+            </span>
+          ) : canDaily ? (
             <button
               type="button"
               onClick={() =>
@@ -193,7 +203,7 @@ export default function StudentExamsPage() {
             </button>
           ) : (
             <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
-              준비 중
+              🔒 {tierLockMessage("go")}
             </span>
           )}
         </div>
@@ -275,13 +285,23 @@ export default function StudentExamsPage() {
               <div className="font-black text-ink">단원별</div>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={openSubjectModal}
-            className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
-          >
-            과목 선택하기
-          </button>
+          {canUnitPractice ? (
+            <button
+              type="button"
+              onClick={openSubjectModal}
+              className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
+            >
+              과목 선택하기
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="mt-4 w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+            >
+              🔒 {tierLockMessage("plus")}
+            </button>
+          )}
         </div>
 
         {/* 과목별 모의고사 */}
@@ -325,13 +345,23 @@ export default function StudentExamsPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            <button
-              type="button"
-              onClick={openSubjectMockModal}
-              className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
-            >
-              회차 선택하기
-            </button>
+            {canSubjectMock ? (
+              <button
+                type="button"
+                onClick={openSubjectMockModal}
+                className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
+              >
+                회차 선택하기
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="flex-1 cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+              >
+                🔒 {tierLockMessage("go")}
+              </button>
+            )}
             <Link
               href="/student/results?type=subject_mock"
               className="rounded-md border border-orange-300 bg-white px-4 py-3 text-sm font-black text-orange-600 hover:bg-orange-50"
@@ -386,10 +416,10 @@ export default function StudentExamsPage() {
           <div className="mt-4 space-y-2">
             <button
               type="button"
-              disabled
-              className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+              onClick={() => setRealExamOpen(true)}
+              className="w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-700"
             >
-              🔒 관리자 등록 모의고사만 응시 가능
+              종류 선택하기 →
             </button>
             <Link
               href="/student/results?type=real"
@@ -398,15 +428,15 @@ export default function StudentExamsPage() {
               📊 지난 성적 보기
             </Link>
             <p className="text-center text-xs leading-5 text-slate-500">
-              실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.
-              <br />
-              아래 모의고사 목록에서 선택해 주세요.
+              기출기반·학교별·파이널 등 4종 모의고사를 응시할 수 있습니다.
             </p>
           </div>
         </div>
       </section>
 
-      <GeneratedExamCards />
+      <div id="generated-exams" className="scroll-mt-6">
+        <GeneratedExamCards />
+      </div>
 
       {/* 과목 선택 모달 */}
       {subjectModalOpen && (
@@ -539,6 +569,80 @@ export default function StudentExamsPage() {
                 </button>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* 실전 모의고사: 종류 선택 모달 */}
+      {realExamOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          onClick={() => setRealExamOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5">
+              <h3 className="text-xl font-black text-ink">실전 모의고사</h3>
+              <p className="mt-1 text-sm text-slate-500">응시할 모의고사 종류를 선택하세요</p>
+            </div>
+            <div className="space-y-2">
+              {[
+                { key: "past", label: "기출기반 모의고사", desc: "역대 기출 문제 기반", req: "plus" as const, ready: true },
+                { key: "school", label: "학교별 모의고사", desc: "학교별 출제 경향 반영", req: "pro" as const, ready: false },
+                { key: "finalA", label: "파이널 모의고사 A", desc: "실전 난이도", req: "pro" as const, ready: false },
+                { key: "finalB", label: "파이널 모의고사 B", desc: "최고 난이도", req: "pro" as const, ready: false },
+              ].map((item) => {
+                const allowed = canUseTier(user, item.req);
+                const disabled = !allowed || !item.ready;
+                return (
+                  <div
+                    key={item.key}
+                    className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                      disabled
+                        ? "border-line bg-slate-50"
+                        : "border-line hover:border-mint-400 hover:bg-mint-50"
+                    }`}
+                  >
+                    <div className="min-w-0 pr-3">
+                      <div className={`text-sm font-black ${disabled ? "text-slate-400" : "text-ink"}`}>
+                        {item.label}
+                      </div>
+                      <div className="text-xs text-slate-500">{item.desc}</div>
+                    </div>
+                    {!allowed ? (
+                      <span className="shrink-0 rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-black text-slate-600">
+                        🔒 {tierLockMessage(item.req)}
+                      </span>
+                    ) : !item.ready ? (
+                      <span className="shrink-0 rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-black text-slate-600">
+                        준비 중
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setRealExamOpen(false);
+                          const el = document.getElementById("generated-exams");
+                          el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                        className="shrink-0 rounded-md bg-mint-600 px-3 py-1.5 text-xs font-black text-white hover:bg-mint-700"
+                      >
+                        목록 보기 →
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <button
+              type="button"
+              onClick={() => setRealExamOpen(false)}
+              className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}
