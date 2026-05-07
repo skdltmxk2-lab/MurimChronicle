@@ -1,12 +1,13 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import { ADMIN_PASSWORD } from "@/lib/auth/constants";
 import type { MockUser, UserTier } from "@/types/auth";
 import type { IAuthRepository } from "@/lib/auth/IAuthRepository";
 
 function normalizeTier(value: unknown): UserTier {
-  return value === "plus" || value === "pro" || value === "max" ? value : "go";
+  return value === "go" || value === "plus" || value === "pro" || value === "max"
+    ? value
+    : "free";
 }
 
 const ADMIN_USER_KEY = "cbt:auth:admin:v1";
@@ -113,7 +114,7 @@ export const supabaseAuthRepo: IAuthRepository = {
       id: data.user.id,
       name,
       role: "student",
-      tier: "go",
+      tier: "free",
       email,
     };
     removeFromStorage(ADMIN_USER_KEY);
@@ -155,15 +156,10 @@ export const supabaseAuthRepo: IAuthRepository = {
     return { ok: true, user };
   },
 
-  loginAdmin(password: string): MockUser | null {
-    // 1-A 임시: 마이그레이션 완료 후에도 routeroute 비번을 유지해 별도 admin
-    // localStorage 키로 진입 가능하게 둔다. 1-B에서 DB의 is_admin 기반으로
-    // 완전히 대체할 예정.
-    if (password !== ADMIN_PASSWORD) return null;
-    const user: MockUser = { name: "관리자", role: "admin", tier: "max" };
-    removeFromStorage(STUDENT_USER_KEY);
-    saveToStorage(ADMIN_USER_KEY, user);
-    return user;
+  loginAdmin(_password: string): MockUser | null {
+    // routeroute 비번 가드는 1-B에서 폐기. 관리자 권한은 본인 학생 계정으로
+    // 로그인 후 DB profiles.is_admin = true 인 경우 자동 부여된다.
+    return null;
   },
 
   async logout(): Promise<void> {

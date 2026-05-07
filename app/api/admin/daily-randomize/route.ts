@@ -1,20 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-
-const FALLBACK_ADMIN_PASSWORD = "routeroute";
-
-function checkAdmin(request: Request): boolean {
-  const expected = process.env.ADMIN_PASSWORD || FALLBACK_ADMIN_PASSWORD;
-  const provided = request.headers.get("x-admin-password");
-  return Boolean(provided) && provided === expected;
-}
-
-function adminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  );
-}
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 function todayDate(): string {
   const d = new Date();
@@ -29,9 +14,8 @@ function todayDate(): string {
  *   4. 상위 N개 추출 → daily_assignments에 저장 + daily_usage 업데이트
  */
 export async function POST(request: Request) {
-  if (!checkAdmin(request)) {
-    return NextResponse.json({ ok: false, message: "관리자 권한이 필요합니다." }, { status: 401 });
-  }
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
 
   const body = (await request.json().catch(() => ({}))) as {
     date?: string;
@@ -43,7 +27,7 @@ export async function POST(request: Request) {
   const date = body.date || todayDate();
   const count = Math.min(20, Math.max(1, body.count ?? 5));
 
-  const supabase = adminClient();
+  const supabase = auth.supabase;
 
   // 1. 데일리 풀 (subject/units 필터링)
   let query = supabase.from("questions").select("id, subject, unit").contains("tags", ["daily"]);

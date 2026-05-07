@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { isAdminUser } from "@/lib/auth/mockAuth";
-import { ADMIN_PASSWORD } from "@/lib/auth/constants";
+import { adminFetch } from "@/lib/api/adminFetch";
 
 type AdminUserRow = {
   id: string;
@@ -13,6 +13,7 @@ type AdminUserRow = {
   createdAt: string;
   lastSignInAt: string | null;
   tier: string;
+  isAdmin: boolean;
 };
 
 function formatDateTime(iso: string | null): string {
@@ -22,7 +23,8 @@ function formatDateTime(iso: string | null): string {
 }
 
 const TIER_LABEL: Record<string, string> = {
-  go: "GO · 무료",
+  free: "FREE · 무료",
+  go: "GO",
   plus: "PLUS",
   pro: "PRO",
   max: "MAX",
@@ -40,9 +42,7 @@ export function AdminUsersClient() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/admin/users", {
-        headers: { "x-admin-password": ADMIN_PASSWORD },
-      });
+      const res = await adminFetch("/api/admin/users");
       const json = (await res.json()) as { ok: boolean; users?: AdminUserRow[]; message?: string };
       if (!json.ok || !json.users) {
         setError(json.message ?? "회원 목록을 불러오지 못했습니다.");
@@ -68,10 +68,7 @@ export function AdminUsersClient() {
     if (!ok) return;
     setDeletingId(target.id);
     try {
-      const res = await fetch(`/api/admin/users/${target.id}`, {
-        method: "DELETE",
-        headers: { "x-admin-password": ADMIN_PASSWORD },
-      });
+      const res = await adminFetch(`/api/admin/users/${target.id}`, { method: "DELETE" });
       const json = (await res.json()) as { ok: boolean; message?: string };
       if (!json.ok) {
         alert(json.message ?? "삭제 중 오류가 발생했습니다.");

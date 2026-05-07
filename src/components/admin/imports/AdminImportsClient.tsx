@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { buildQuestionDraftsFromCsv, type ImportRowResult } from "@/lib/importQuestions";
@@ -10,7 +11,6 @@ import type { QuestionRecord } from "@/types/question";
 export function AdminImportsClient() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [password, setPassword] = useState("");
   const [csvText, setCsvText] = useState("");
   const [imageMap, setImageMap] = useState<Map<string, string>>(new Map());
   const [results, setResults] = useState<ImportRowResult[]>([]);
@@ -31,15 +31,6 @@ export function AdminImportsClient() {
     [results]
   );
   const invalidRows = useMemo(() => results.filter((result) => !result.ok), [results]);
-
-  async function submitAdminLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const admin = authRepo.loginAdmin(password);
-    if (!admin) return;
-    setIsAdmin(true);
-    setQuestions(await questionRepo.list());
-    setPassword("");
-  }
 
   async function loadCsv(file: File | undefined) {
     if (!file) return;
@@ -76,20 +67,15 @@ export function AdminImportsClient() {
   if (!isAdmin) {
     return (
       <main className="mx-auto max-w-7xl px-5 py-8">
-        <section className="max-w-xl rounded-lg border border-line bg-white p-6 shadow-soft">
-          <h1 className="text-2xl font-black text-ink">관리자 로그인이 필요합니다</h1>
-          <form onSubmit={submitAdminLogin} className="mt-5 flex gap-2">
-            <input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="min-w-0 flex-1 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-ink"
-              placeholder="관리자 비밀번호"
-              type="password"
-            />
-            <button className="rounded-md bg-ink px-4 py-2 text-sm font-black text-white" type="submit">
-              로그인
-            </button>
-          </form>
+        <section className="max-w-xl rounded-lg border border-line bg-white p-8 text-center shadow-soft">
+          <div className="mb-4 text-5xl">🔒</div>
+          <h1 className="text-2xl font-black text-ink">관리자만 접근할 수 있습니다</h1>
+          <Link
+            href="/student/exams"
+            className="mt-6 inline-block rounded-md bg-brand-600 px-6 py-3 text-sm font-black text-white hover:bg-brand-700"
+          >
+            시험 목록으로
+          </Link>
         </section>
       </main>
     );

@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import type {
   QuestionDraft,
   QuestionFilters,
@@ -40,8 +41,6 @@ function stripLatexForPreview(text: string): string {
 export function AdminQuestionsClient() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [password, setPassword] = useState("");
-  const [authError, setAuthError] = useState("");
   const [questions, setQuestions] = useState<QuestionRecord[]>([]);
   const [filters, setFilters] = useState<QuestionFilters>({
     subject: "",
@@ -129,19 +128,6 @@ export function AdminQuestionsClient() {
     setQuestions((current) => current.filter((q) => q.id !== id));
   }
 
-  async function submitAdminLogin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const admin = authRepo.loginAdmin(password);
-    if (!admin) {
-      setAuthError("관리자 비밀번호가 올바르지 않습니다.");
-      return;
-    }
-    setIsAdmin(true);
-    setQuestions(await questionRepo.list());
-    setPassword("");
-    setAuthError("");
-  }
-
   if (!authChecked) {
     return (
       <main className="mx-auto max-w-7xl px-5 py-8">
@@ -155,30 +141,18 @@ export function AdminQuestionsClient() {
   if (!isAdmin) {
     return (
       <main className="mx-auto max-w-7xl px-5 py-8">
-        <section className="max-w-xl rounded-lg border border-line bg-white p-6 shadow-soft">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
-            Admin Login
+        <section className="max-w-xl rounded-lg border border-line bg-white p-8 text-center shadow-soft">
+          <div className="mb-4 text-5xl">🔒</div>
+          <h1 className="text-2xl font-black text-ink">관리자만 접근할 수 있습니다</h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            관리자 권한이 부여된 계정으로 로그인해 주세요.
           </p>
-          <h1 className="mt-1 text-2xl font-black text-ink">관리자 로그인이 필요합니다</h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            학생 화면 상단의 관리자 비밀번호 입력창을 사용하거나, 여기서 비밀번호를 입력하세요.
-          </p>
-          <form onSubmit={submitAdminLogin} className="mt-5 flex gap-2">
-            <input
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="min-w-0 flex-1 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-ink"
-              placeholder="관리자 비밀번호"
-              type="password"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-ink px-4 py-2 text-sm font-black text-white hover:bg-slate-700"
-            >
-              로그인
-            </button>
-          </form>
-          {authError ? <p className="mt-3 text-sm font-bold text-coral-600">{authError}</p> : null}
+          <Link
+            href="/student/exams"
+            className="mt-6 inline-block rounded-md bg-brand-600 px-6 py-3 text-sm font-black text-white hover:bg-brand-700"
+          >
+            시험 목록으로
+          </Link>
         </section>
       </main>
     );

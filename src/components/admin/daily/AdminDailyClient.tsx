@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
-import { ADMIN_PASSWORD } from "@/lib/auth/constants";
+import { adminFetch } from "@/lib/api/adminFetch";
 import { SUBJECT_NAMES, SUBJECT_UNITS } from "@/lib/taxonomy";
 import type { QuestionRecord } from "@/types/question";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -12,8 +12,6 @@ function getTodayParam(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
-
-const ADMIN_HEADERS = { "x-admin-password": ADMIN_PASSWORD };
 
 export function AdminDailyClient() {
   const [authChecked, setAuthChecked] = useState(false);
@@ -54,7 +52,7 @@ export function AdminDailyClient() {
   async function loadAssignment() {
     setTodayLoading(true);
     try {
-      const res = await fetch(`/api/admin/daily-assignment?date=${today}`, { headers: ADMIN_HEADERS });
+      const res = await adminFetch(`/api/admin/daily-assignment?date=${today}`);
       const json = (await res.json()) as { ok: boolean; assignment?: { questionIds: string[] } | null };
       if (json.ok && json.assignment?.questionIds) {
         setTodayIds(json.assignment.questionIds);
@@ -186,9 +184,8 @@ export function AdminDailyClient() {
     setActionMsg("");
     setTodayLoading(true);
     try {
-      const res = await fetch("/api/admin/daily-randomize", {
+      const res = await adminFetch("/api/admin/daily-randomize", {
         method: "POST",
-        headers: { ...ADMIN_HEADERS, "Content-Type": "application/json" },
         body: JSON.stringify({
           date: today,
           count: 5,
@@ -220,9 +217,8 @@ export function AdminDailyClient() {
     setActionMsg("");
     setTodayLoading(true);
     try {
-      const res = await fetch("/api/admin/daily-assignment", {
+      const res = await adminFetch("/api/admin/daily-assignment", {
         method: "POST",
-        headers: { ...ADMIN_HEADERS, "Content-Type": "application/json" },
         body: JSON.stringify({ date: today, questionIds: [...manualSelected] }),
       });
       const json = (await res.json()) as { ok: boolean; questionIds?: string[]; message?: string };
@@ -247,9 +243,8 @@ export function AdminDailyClient() {
     setActionMsg("");
     setTodayLoading(true);
     try {
-      const res = await fetch(`/api/admin/daily-assignment?date=${today}`, {
+      const res = await adminFetch(`/api/admin/daily-assignment?date=${today}`, {
         method: "DELETE",
-        headers: ADMIN_HEADERS,
       });
       const json = (await res.json()) as { ok: boolean; message?: string };
       if (!json.ok) {
@@ -283,9 +278,8 @@ export function AdminDailyClient() {
 
     setTodayLoading(true);
     try {
-      const res = await fetch("/api/admin/daily-assignment", {
+      const res = await adminFetch("/api/admin/daily-assignment", {
         method: "POST",
-        headers: { ...ADMIN_HEADERS, "Content-Type": "application/json" },
         body: JSON.stringify({ date: today, questionIds: newIds }),
       });
       const json = (await res.json()) as { ok: boolean; message?: string };

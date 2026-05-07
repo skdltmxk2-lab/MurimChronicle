@@ -31,7 +31,6 @@ export function StudentHeader() {
   const { user, setUser } = useAuth();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
   const [error, setError] = useState("");
 
   async function submitStudent(event: FormEvent<HTMLFormElement>) {
@@ -50,23 +49,11 @@ export function StudentHeader() {
     setError("");
   }
 
-  function submitAdmin(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const admin = authRepo.loginAdmin(adminPassword);
-    if (!admin) {
-      setError("관리자 비밀번호가 올바르지 않습니다.");
-      return;
-    }
-    setUser(admin);
-    setAdminPassword("");
-    setError("");
-    router.push("/admin/questions");
-  }
-
   async function logout() {
     await authRepo.logout();
     setUser(null);
     setError("");
+    router.replace("/student/exams");
   }
 
   return (
@@ -127,18 +114,18 @@ export function StudentHeader() {
             </div>
           ) : (
             <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
-              <form onSubmit={submitStudent} className="flex min-w-0 gap-2">
+              <form onSubmit={submitStudent} className="flex min-w-0 flex-wrap gap-2">
                 <input
                   value={studentEmail}
                   onChange={(event) => setStudentEmail(event.target.value)}
-                  className="w-40 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                  className="min-w-0 flex-1 basis-40 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
                   placeholder="이메일"
                   type="email"
                 />
                 <input
                   value={studentPassword}
                   onChange={(event) => setStudentPassword(event.target.value)}
-                  className="w-32 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                  className="min-w-0 flex-1 basis-32 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
                   placeholder="비밀번호"
                   type="password"
                 />
@@ -154,21 +141,6 @@ export function StudentHeader() {
                 >
                   회원가입
                 </Link>
-              </form>
-              <form onSubmit={submitAdmin} className="flex min-w-0 gap-2">
-                <input
-                  value={adminPassword}
-                  onChange={(event) => setAdminPassword(event.target.value)}
-                  className="w-44 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-ink"
-                  placeholder="관리자 비밀번호"
-                  type="password"
-                />
-                <button
-                  type="submit"
-                  className="shrink-0 rounded-md bg-ink px-3 py-2 text-sm font-black text-white hover:bg-slate-700"
-                >
-                  관리자 로그인
-                </button>
               </form>
             </div>
           )}
