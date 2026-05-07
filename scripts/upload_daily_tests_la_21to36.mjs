@@ -1,0 +1,761 @@
+// Upload 선형대수 Daily TEST 21~36 (96 problems).
+// Usage: node scripts/upload_daily_tests_la_21to36.mjs
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { createClient } from "@supabase/supabase-js";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const envText = readFileSync(resolve(here, "..", ".env.local"), "utf8");
+const env = Object.fromEntries(
+  envText.split(/\r?\n/).filter((l) => l && !l.startsWith("#") && l.includes("="))
+    .map((l) => { const [k, ...r] = l.split("="); return [k.trim(), r.join("=").trim()]; })
+);
+const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+const o = (id, text) => ({ id, label: id, text, contentType: "latex", image: "" });
+function build({ testNo, num, unit, concept, difficulty, question, options, answer, explanation }) {
+  const id = `q-daily-la-r${testNo}-${num}`;
+  const tags = Array.from(new Set(["daily", `daily-test-la-${testNo}`, "선형대수", unit, concept].filter(Boolean)));
+  return {
+    id, subject: "선형대수", unit, concept, difficulty,
+    source_type: "imported", question, content_type: "latex", question_image: null,
+    options, correct_option_id: answer, explanation, explanation_content_type: "latex",
+    explanation_image: null, tags,
+    created_at: new Date().toISOString(), updated_at: new Date().toISOString()
+  };
+}
+
+const problems = [
+  // ========== DT21 고윳값/고유벡터 ==========
+  build({ testNo: 21, num: 1, unit: "고유치와 대각화", concept: "rank-nullity", difficulty: "medium",
+    question: "행렬 $A\\in R^{4\\times 5}$에 대해 $\\mathrm{rank}(A)=3$일 때 $\\mathrm{rank}(A^T)+\\dim(\\mathrm{Null}(A))+\\mathrm{rank}(AA^T)$의 값은 얼마인가?",
+    options: [o("1","$5$"),o("2","$6$"),o("3","$7$"),o("4","$8$"),o("5","$9$")],
+    answer: "4",
+    explanation: "$\\mathrm{rank}(A)=\\mathrm{rank}(A^T)=\\mathrm{rank}(AA^T)=3$, $\\mathrm{Null}(A)=5-3=2$. 합 $=3+2+3=8$." }),
+  build({ testNo: 21, num: 2, unit: "고유치와 대각화", concept: "고윳값", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}0&0&1\\\\0&1&2\\\\4&0&0\\end{pmatrix}$의 고윳값 중 가장 큰 것과 가장 작은 것의 차는?",
+    options: [o("1","$2$"),o("2","$3$"),o("3","$4$"),o("4","$5$"),o("5","$6$")],
+    answer: "3",
+    explanation: "$|\\lambda I-A|=(1-\\lambda)(-\\lambda^2+4)\\cdot$… 정리 시 $\\lambda=-2,0,2$. 차 $=4$." }),
+  build({ testNo: 21, num: 3, unit: "고유치와 대각화", concept: "고유벡터", difficulty: "medium",
+    question: "다음 벡터 중 행렬 $B=\\begin{pmatrix}5&-4&4\\\\12&-11&12\\\\4&-4&5\\end{pmatrix}$의 고유벡터(eigenvector)가 아닌 것은?",
+    options: [
+      o("1","$(2,1,0)$"),
+      o("2","$(1,0,-1)$"),
+      o("3","$(1,3,1)$"),
+      o("4","$(0,1,1)$"),
+      o("5","$(1,1,1)$")
+    ], answer: "1",
+    explanation: "$B(2,1,0)=(6,13,4)$로 $(2,1,0)$의 스칼라배가 아님." }),
+  build({ testNo: 21, num: 4, unit: "고유치와 대각화", concept: "고유벡터", difficulty: "medium",
+    question: "행렬 $B=\\begin{pmatrix}9&1&1\\\\1&9&1\\\\1&1&9\\end{pmatrix}$는 $8,8,11$을 고윳값으로 가진다. 다음 중 $B$의 고유벡터가 아닌 것은?",
+    options: [
+      o("1","$(1,1,1)$"),
+      o("2","$(-1,1,0)$"),
+      o("3","$(-1,0,1)$"),
+      o("4","$(1,1,-1)$"),
+      o("5","$(0,1,-1)$")
+    ], answer: "4",
+    explanation: "$B(1,1,-1)=(9,9,-7)$이므로 스칼라배 아님." }),
+  build({ testNo: 21, num: 5, unit: "고유치와 대각화", concept: "고윳값의 합", difficulty: "easyMedium",
+    question: "행렬 $A=\\begin{pmatrix}2&4&4\\\\0&1&-1\\\\0&1&3\\end{pmatrix}$의 고윳값들의 합은?",
+    options: [o("1","$0$"),o("2","$2$"),o("3","$4$"),o("4","$6$"),o("5","$8$")],
+    answer: "4",
+    explanation: "고윳값의 합 $=\\mathrm{tr}(A)=2+1+3=6$." }),
+  build({ testNo: 21, num: 6, unit: "고유치와 대각화", concept: "고윳값의 합", difficulty: "easyMedium",
+    question: "행렬 $\\begin{pmatrix}0&2&-1\\\\3&-1&0\\\\-3&5&-2\\end{pmatrix}$의 고유치를 $\\lambda_1,\\lambda_2,\\lambda_3$라 할 때 그 합은?",
+    options: [o("1","$-3$"),o("2","$-1$"),o("3","$0$"),o("4","$3$"),o("5","$5$")],
+    answer: "1",
+    explanation: "고윳값의 합 $=\\mathrm{tr}(A)=0-1-2=-3$." }),
+
+  // ========== DT22 ==========
+  build({ testNo: 22, num: 1, unit: "고유치와 대각화", concept: "고윳값 판별", difficulty: "medium",
+    question: "다음 행렬의 고윳값이 아닌 것은? $\\begin{pmatrix}4&-3&1\\\\2&-1&2\\\\0&0&3\\end{pmatrix}$",
+    options: [o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$"),o("5","$0$")],
+    answer: "4",
+    explanation: "$\\mathrm{tr}(A)=6$. 보기 중 합이 6인 조합: $1+2+3=6$. 따라서 고윳값은 $1,2,3$이고 4는 아님." }),
+  build({ testNo: 22, num: 2, unit: "고유치와 대각화", concept: "고윳값 판별", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&0&7\\\\0&1&0\\\\7&0&1\\end{pmatrix}$의 고윳값(eigenvalue)이 아닌 것을 고르시오.",
+    options: [o("1","$1$"),o("2","$6$"),o("3","$8$"),o("4","$-6$"),o("5","$0$")],
+    answer: "2",
+    explanation: "$\\mathrm{tr}(A)=3$. 합이 3인 조합: $1+8-6=3$. 고윳값 $1,8,-6$. 6은 아님." }),
+  build({ testNo: 22, num: 3, unit: "고유치와 대각화", concept: "trace 활용", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}-2&0&1\\\\4&a&1\\\\3&2&b\\end{pmatrix}$의 고윳값이 $3,1,5$이다. $a=b+1$일 때 $a$의 값은?",
+    options: [o("1","$4$"),o("2","$5$"),o("3","$6$"),o("4","$7$"),o("5","$8$")],
+    answer: "3",
+    explanation: "$\\mathrm{tr}(A)=-2+a+b=9\\Rightarrow a+b=11$. $a=b+1$과 함께 풀면 $a=6$." }),
+  build({ testNo: 22, num: 4, unit: "고유치와 대각화", concept: "행렬식 성질", difficulty: "easyMedium",
+    question: "$3\\times 3$ 행렬 $A$의 고유치가 $\\lambda_1=1,\\lambda_2=2,\\lambda_3=3$이다. $\\det(A^T)=a,\\det(A^{-1})=b$일 때 $\\dfrac{a}{b}$의 값은?",
+    options: [o("1","$6$"),o("2","$12$"),o("3","$18$"),o("4","$24$"),o("5","$36$")],
+    answer: "5",
+    explanation: "$a=\\det A=6,\\ b=1/6$. $a/b=36$." }),
+  build({ testNo: 22, num: 5, unit: "고유치와 대각화", concept: "행렬식 성질", difficulty: "medium",
+    question: "행렬 $A\\in M_{3\\times 3}(R)$의 고윳값이 $-2,1,2$일 때 $\\det(2A^2)$의 값은?",
+    options: [o("1","$32$"),o("2","$64$"),o("3","$128$"),o("4","$256$"),o("5","$512$")],
+    answer: "3",
+    explanation: "$\\det(2A^2)=2^3\\cdot(\\det A)^2=8\\cdot 16=128$." }),
+  build({ testNo: 22, num: 6, unit: "고유치와 대각화", concept: "특성다항식", difficulty: "medium",
+    question: "행렬 $A$의 특성다항식이 $p(\\lambda)=\\lambda^3-6\\lambda^2+9\\lambda-2$일 때 $A$의 행렬식은?",
+    options: [o("1","$-2$"),o("2","$0$"),o("3","$2$"),o("4","$6$"),o("5","$9$")],
+    answer: "3",
+    explanation: "$\\det A=(-1)^3 c_0 = -(-2)=2$." }),
+
+  // ========== DT23 ==========
+  build({ testNo: 23, num: 1, unit: "고유치와 대각화", concept: "특성다항식", difficulty: "medium",
+    question: "행렬 $\\begin{pmatrix}1&0&2\\\\3&a&4\\\\0&0&5\\end{pmatrix}$의 특성방정식이 $x^3-8x^2+bx-5a=0$일 때 $a+b$의 값은?",
+    options: [o("1","$15$"),o("2","$17$"),o("3","$19$"),o("4","$21$"),o("5","$23$")],
+    answer: "3",
+    explanation: "$\\mathrm{tr}=1+a+5=8\\Rightarrow a=2$. $\\lambda=1$ 대입: $1-8+b-10=0\\Rightarrow b=17$. $a+b=19$." }),
+  build({ testNo: 23, num: 2, unit: "고유치와 대각화", concept: "Cayley-Hamilton", difficulty: "medium",
+    question: "$3\\times 3$ 행렬 $A$가 $A\\begin{pmatrix}1\\\\-2\\\\0\\end{pmatrix}=\\begin{pmatrix}-1\\\\2\\\\0\\end{pmatrix},\\ A\\begin{pmatrix}0\\\\2\\\\-1\\end{pmatrix}=\\begin{pmatrix}0\\\\-4\\\\2\\end{pmatrix},\\ A\\begin{pmatrix}1\\\\0\\\\2\\end{pmatrix}=\\begin{pmatrix}0\\\\0\\\\0\\end{pmatrix}$를 만족할 때 $A^2-A+E$의 모든 고윳값의 합은?",
+    options: [o("1","$3$"),o("2","$7$"),o("3","$11$"),o("4","$13$"),o("5","$1$")],
+    answer: "3",
+    explanation: "$A$의 고윳값 $-1,-2,0$. $f(\\lambda)=\\lambda^2-\\lambda+1$ 적용: $3+7+1=11$." }),
+  build({ testNo: 23, num: 3, unit: "고유치와 대각화", concept: "거듭제곱의 trace", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}-3&5\\\\-2&4\\end{pmatrix}$가 주어질 때 행렬 $A^{10}$의 트레이스 $\\mathrm{tr}(A^{10})$의 값은?",
+    options: [
+      o("1","$\\dfrac{1}{3}(2^{10}+1)$"),
+      o("2","$3(2^{10}+1)$"),
+      o("3","$2^{10}+1$"),
+      o("4","$2^{10}-1$"),
+      o("5","$2^{11}$")
+    ], answer: "3",
+    explanation: "$\\lambda=-1,2$이므로 $A^{10}$의 고윳값 $1,2^{10}$. trace $=2^{10}+1$." }),
+  build({ testNo: 23, num: 4, unit: "고유치와 대각화", concept: "역행렬의 고윳값", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}6&-11&6\\\\1&0&0\\\\0&1&0\\end{pmatrix}$의 역행렬 $A^{-1}$의 고윳값은?",
+    options: [o("1","$\\dfrac{1}{2}$"),o("2","$\\dfrac{3}{2}$"),o("3","$2$"),o("4","$3$"),o("5","$\\dfrac{1}{6}$")],
+    answer: "1",
+    explanation: "특성다항식 $\\lambda^3-6\\lambda^2+11\\lambda-6=0\\Rightarrow\\lambda=1,2,3$. $A^{-1}$ 고윳값 $1,1/2,1/3$ 중 보기에 있는 것 $1/2$." }),
+  build({ testNo: 23, num: 5, unit: "고유치와 대각화", concept: "역행렬 고유벡터", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}1&-3&3\\\\0&-5&6\\\\0&-3&4\\end{pmatrix}$일 때, 역행렬 $A^{-1}$의 고유벡터가 아닌 것은?",
+    options: [
+      o("1","$(1,2,2)$"),
+      o("2","$(1,2,1)$"),
+      o("3","$(2,1,1)$"),
+      o("4","$(2,2,1)$"),
+      o("5","$(1,1,1)$")
+    ], answer: "4",
+    explanation: "$A^{-1}$의 고유벡터는 $A$의 고유벡터와 동일. ④번을 $A$에 곱하면 스칼라배가 되지 않음." }),
+  build({ testNo: 23, num: 6, unit: "고유치와 대각화", concept: "역행렬 trace", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&0&0&0\\\\0&2&5&0\\\\0&1&3&0\\\\0&0&0&4\\end{pmatrix}$의 역행렬 $A^{-1}$의 대각합 $\\mathrm{Tr}(A^{-1})$은?",
+    options: [
+      o("1","$\\dfrac{25}{4}$"),
+      o("2","$\\dfrac{13}{2}$"),
+      o("3","$\\dfrac{27}{4}$"),
+      o("4","$\\dfrac{14}{2}$"),
+      o("5","$\\dfrac{29}{4}$")
+    ], answer: "1",
+    explanation: "$2\\times 2$ 블록 $(2,5;1,3)$의 역행렬의 trace $=5/1=5$. $A^{-1}$ 전체 trace $=1+5+1/4=25/4$." }),
+
+  // ========== DT24 ==========
+  build({ testNo: 24, num: 1, unit: "고유치와 대각화", concept: "Cayley-Hamilton", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&0&0&0\\\\2&-1&0&0\\\\3&4&1&0\\\\5&6&7&-1\\end{pmatrix}$가 주어졌을 때 $A^8-4A^2+4I$를 간단히 나타내면? ($I$는 $4\\times 4$ 항등행렬)",
+    options: [o("1","$O$"),o("2","$I$"),o("3","$A$"),o("4","$2I$"),o("5","$A^2$")],
+    answer: "2",
+    explanation: "$A^2$의 고윳값은 모두 1. $(A^2-I)^2=A^4-2A^2+I=O$. 따라서 $A^8-4A^2+4I=(A^4-2A^2+I)+...$ 정리하면 $I$." }),
+  build({ testNo: 24, num: 2, unit: "고유치와 대각화", concept: "Cayley-Hamilton", difficulty: "medium",
+    question: "$K=\\begin{pmatrix}3&6&6\\\\0&2&0\\\\-3&-12&-6\\end{pmatrix}$일 때 행렬 $K^{10}+K^9-6K^8+K+3I_3$의 모든 성분들의 합은?",
+    options: [o("1","$3$"),o("2","$5$"),o("3","$7$"),o("4","$9$"),o("5","$12$")],
+    answer: "2",
+    explanation: "$K^3+K^2-6K=O$이므로 $K^7(K^3+K^2-6K)+K+3I=K+3I$. 행렬 $K+3I$의 성분합 $=5$." }),
+  build({ testNo: 24, num: 3, unit: "고유치와 대각화", concept: "특성방정식 활용", difficulty: "medium",
+    question: "$A_{3\\times 3}$의 특성방정식이 $f(\\lambda)=\\det(\\lambda I-A)=\\lambda^3+\\lambda+3$일 때 $A^5+3A^2+2A-3I$의 행렬식과 대각성분의 합은?",
+    options: [o("1","$-81,\\ 0$"),o("2","$81,\\ 0$"),o("3","$-27,\\ 3$"),o("4","$0,\\ 0$"),o("5","$-81,\\ 3$")],
+    answer: "1",
+    explanation: "$A^3+A+3I=O$. $A^5+3A^2+2A-3I=(A^2-I)(A^3+A+3I)+3A=3A$. $\\det(3A)=27\\cdot(-3)=-81,\\ \\mathrm{tr}(3A)=0$." }),
+  build({ testNo: 24, num: 4, unit: "고유치와 대각화", concept: "역행렬 특성다항식", difficulty: "medium",
+    question: "$4\\times 4$ 행렬 $A$의 특성다항식이 $\\det(A-tI)=t^4-10t^3+35t^2-50t+24$일 때 $A^{-1}$의 특성다항식을 $\\det(A^{-1}-tI)=t^4+c_3 t^3+c_2 t^2+c_1 t+c_0$이라 하면 $c_2+c_3$의 값은?",
+    options: [
+      o("1","$-\\dfrac{5}{8}$"),
+      o("2","$-\\dfrac{1}{8}$"),
+      o("3","$\\dfrac{5}{8}$"),
+      o("4","$-\\dfrac{15}{24}$"),
+      o("5","$0$")
+    ], answer: "1",
+    explanation: "고윳값 역수 활용. $c_3=-50/24,\\ c_2=35/24$. 합 $=-15/24=-5/8$." }),
+  build({ testNo: 24, num: 5, unit: "고유치와 대각화", concept: "역행렬 trace", difficulty: "medium",
+    question: "특성다항식이 $\\phi(t)=t^4-4t^3-15t^2-38t-108$인 $4\\times 4$ 행렬 $A$와 $A^{-1}$에 대하여 $\\mathrm{tr}(A)\\cdot\\mathrm{tr}(A^{-1})$은 얼마인가?",
+    options: [
+      o("1","$-\\dfrac{38}{27}$"),
+      o("2","$\\dfrac{38}{27}$"),
+      o("3","$-\\dfrac{19}{27}$"),
+      o("4","$\\dfrac{152}{108}$"),
+      o("5","$-\\dfrac{4}{27}$")
+    ], answer: "1",
+    explanation: "$\\mathrm{tr}(A)=4,\\ \\mathrm{tr}(A^{-1})=-(-38)/(-108)=-38/108$. 곱 $=-38/27$." }),
+  build({ testNo: 24, num: 6, unit: "고유치와 대각화", concept: "닮은 행렬", difficulty: "medium",
+    question: "복소수 성분을 갖는 정방행렬 $A,B$와 가역행렬 $P$가 $A=PBP^{-1}$의 관계를 만족할 때 다음 중 틀린 것은?",
+    options: [
+      o("1","$\\det(A)=\\det(B)$"),
+      o("2","$\\mathrm{tr}(A)=\\mathrm{tr}(B)$"),
+      o("3","$A,B$는 동일한 계수를 갖는다"),
+      o("4","$A,B$는 동일한 고유벡터를 갖는다"),
+      o("5","$A,B$는 동일한 고윳값을 갖는다")
+    ], answer: "4",
+    explanation: "닮은 행렬은 행렬식, 대각합, rank, 고윳값, 특성방정식이 모두 같지만 고유벡터는 일반적으로 다르다." }),
+
+  // ========== DT25 ==========
+  build({ testNo: 25, num: 1, unit: "고유치와 대각화", concept: "고유공간 차원", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}3&0&14&7\\\\0&3&-4&-2\\\\0&0&15&6\\\\0&0&-18&-6\\end{pmatrix}$는 두 고윳값 $\\lambda_1,\\lambda_2$를 가진다. 고유공간의 차원을 각각 $n_1,n_2$라 할 때 $\\lambda_1+\\lambda_2+n_1+n_2$는?",
+    options: [o("1","$11$"),o("2","$12$"),o("3","$13$"),o("4","$14$"),o("5","$15$")],
+    answer: "3",
+    explanation: "특성방정식 $(\\lambda-3)^3(\\lambda-6)=0$. $\\lambda_1=6$ (차원 1), $\\lambda_2=3$ (차원 3). 합 $=6+3+1+3=13$." }),
+  build({ testNo: 25, num: 2, unit: "고유치와 대각화", concept: "고유공간 최대 차원", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&2&3&4&5\\\\0&1&2&3&4\\\\0&0&1&2&3\\\\0&0&0&2&3\\\\0&0&0&0&3\\end{pmatrix}$의 고유공간 $V_1,\\dots,V_n$에서 $m=\\max\\{\\dim(V_i)\\}$일 때 $mn$의 값은? (단 $n$은 서로 다른 고유공간 개수)",
+    options: [o("1","$3$"),o("2","$5$"),o("3","$6$"),o("4","$9$"),o("5","$12$")],
+    answer: "1",
+    explanation: "고윳값 $1,1,1,2,3$. 서로 다른 3개($n=3$). $\\lambda=1$의 고유공간 차원 1, 즉 $m=1$. $mn=3$." }),
+  build({ testNo: 25, num: 3, unit: "고유치와 대각화", concept: "대각화 가능성", difficulty: "medium",
+    question: "다음 행렬 중 대각화가 가능하지 않은 것을 고르면?",
+    options: [
+      o("1","$\\begin{pmatrix}1&1&0\\\\0&2&0\\\\0&0&3\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}1&2&0\\\\0&1&1\\\\0&0&3\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}3&1&0\\\\0&1&0\\\\0&0&2\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}1&1&0\\\\1&1&1\\\\0&0&3\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}1&0&0\\\\0&2&0\\\\0&0&3\\end{pmatrix}$")
+    ], answer: "2",
+    explanation: "②: $\\lambda=1,1,3$. $A-I=\\begin{pmatrix}0&2&0\\\\0&0&1\\\\0&0&2\\end{pmatrix}$, rank=2, null=1. 대수적 중복도 2와 다름. 대각화 불가." }),
+  build({ testNo: 25, num: 4, unit: "고유치와 대각화", concept: "대각화 가능성", difficulty: "medium",
+    question: "다음 중 대각화가 가능한 행렬을 모두 고른 것은?\\\\$A=\\begin{pmatrix}2&0&0\\\\0&2&0\\\\0&0&2\\end{pmatrix},\\ B=\\begin{pmatrix}2&0&0\\\\0&2&1\\\\0&0&2\\end{pmatrix},\\ C=\\begin{pmatrix}2&1&0\\\\0&2&1\\\\0&0&2\\end{pmatrix}$",
+    options: [o("1","$A,B,C$"),o("2","$A$만"),o("3","$A,B$"),o("4","$A,C$"),o("5","$B,C$")],
+    answer: "2",
+    explanation: "$A$는 이미 대각. $B,C$는 모두 고윳값 2의 대수적 중복도 3이지만 기하적 중복도 1, 2로 다르므로 대각화 불가." }),
+  build({ testNo: 25, num: 5, unit: "고유치와 대각화", concept: "고유벡터", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}-1&0&1\\\\3&0&-3\\\\1&0&-1\\end{pmatrix}$에 대해 $P^{-1}AP=\\mathrm{diag}(0,0,-2)$이다. 이때 $P=\\begin{pmatrix}a&b&c\\\\d&e&f\\\\g&h&i\\end{pmatrix}$의 $3$번째 열 $(c,f,i)$가 될 수 있는 것은?",
+    options: [
+      o("1","$(1,-3,-1)$"),
+      o("2","$(1,2,-1)$"),
+      o("3","$(1,3,-1)$"),
+      o("4","$(-1,2,1)$"),
+      o("5","$(-1,0,1)$")
+    ], answer: "1",
+    explanation: "$\\lambda=-2$의 고유벡터: $(A+2I)v=0$. 풀면 $(1,-3,-1)$." }),
+  build({ testNo: 25, num: 6, unit: "고유치와 대각화", concept: "닮은 대각행렬", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}0&0&-2\\\\1&2&1\\\\1&0&3\\end{pmatrix}$와 닮은 대각행렬 $D$의 모든 성분의 합과 대각성분들의 곱은 각각 얼마인가?",
+    options: [o("1","$5,\\ 4$"),o("2","$4,\\ 5$"),o("3","$5,\\ 6$"),o("4","$6,\\ 4$"),o("5","$3,\\ 4$")],
+    answer: "1",
+    explanation: "닮은 행렬의 성분합 $=\\mathrm{tr}(A)=5$, 곱 $=\\det(A)=4$." }),
+
+  // ========== DT26 ==========
+  build({ testNo: 26, num: 1, unit: "고유치와 대각화", concept: "행렬 거듭제곱", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}1&\\dfrac{1}{27}\\\\0&1\\end{pmatrix}$이고 $A^{18}=\\begin{pmatrix}a_{11}&a_{12}\\\\a_{21}&a_{22}\\end{pmatrix}$이면 모든 성분의 합 $a_{11}+a_{12}+a_{21}+a_{22}$의 값은?",
+    options: [
+      o("1","$\\dfrac{8}{3}$"),
+      o("2","$2$"),
+      o("3","$\\dfrac{18}{27}$"),
+      o("4","$\\dfrac{20}{27}$"),
+      o("5","$3$")
+    ], answer: "1",
+    explanation: "$A^n=\\begin{pmatrix}1&n/27\\\\0&1\\end{pmatrix}$. $A^{18}=(1,18/27;0,1)$, 합 $=1+18/27+0+1=2+2/3=8/3$." }),
+  build({ testNo: 26, num: 2, unit: "고유치와 대각화", concept: "행렬 거듭제곱", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&-10\\\\0&-1\\end{pmatrix}$과 벡터 $x=\\begin{pmatrix}6\\\\1\\end{pmatrix}$일 때 $A^{10}x$는?",
+    options: [
+      o("1","$\\begin{pmatrix}6\\\\1\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}-6\\\\-1\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}6\\\\-1\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}0\\\\0\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}10\\\\1\\end{pmatrix}$")
+    ], answer: "1",
+    explanation: "특성방정식 $\\lambda^2-1=0$이므로 $A^2=I$. $A^{10}=I$, $A^{10}x=x=(6,1)$." }),
+  build({ testNo: 26, num: 3, unit: "고유치와 대각화", concept: "행렬 거듭제곱", difficulty: "medium",
+    question: "$4\\times 4$ 행렬 $A=\\begin{pmatrix}1&2&0&-3\\\\0&0&1&-1\\\\0&0&0&2\\\\0&0&0&-1\\end{pmatrix}$에 대하여 $A^{2016}$의 각 성분의 합은?",
+    options: [o("1","$3$"),o("2","$4$"),o("3","$5$"),o("4","$6$"),o("5","$8$")],
+    answer: "3",
+    explanation: "고윳값 $0,0,1,-1$. 특성으로 $A^4=A^2$이고 $A^{2016}=A^2=\\begin{pmatrix}1&2&2&-2\\\\0&0&0&-3\\\\0&0&0&-2\\\\0&0&0&1\\end{pmatrix}$. 합 $=5$." }),
+  build({ testNo: 26, num: 4, unit: "고유치와 대각화", concept: "행렬 거듭제곱", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}0&1\\\\-2&3\\end{pmatrix}$일 때 $A^{20}$는?",
+    options: [
+      o("1","$\\begin{pmatrix}-2^{20}+2&2^{20}-1\\\\-2^{21}+2&2^{21}-1\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}2^{20}&0\\\\0&1\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}1&2^{20}\\\\0&1\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}-2^{20}-2&2^{20}+1\\\\-2^{21}-2&2^{21}+1\\end{pmatrix}$"),
+      o("5","$O$")
+    ], answer: "1",
+    explanation: "$\\lambda^2-3\\lambda+2=0\\Rightarrow\\lambda=1,2$. 고유벡터를 이용한 대각화 후 $A^{20}=PD^{20}P^{-1}$." }),
+  build({ testNo: 26, num: 5, unit: "고유치와 대각화", concept: "행렬 거듭제곱", difficulty: "medium",
+    question: "행렬 $\\begin{pmatrix}1&2\\\\4&3\\end{pmatrix}^{100}$의 $(1,1)$ 원소를 구하시오.",
+    options: [
+      o("1","$\\dfrac{5^{100}+2}{3}$"),
+      o("2","$\\dfrac{5^{100}-2}{3}$"),
+      o("3","$\\dfrac{5^{100}+1}{3}$"),
+      o("4","$5^{100}$"),
+      o("5","$\\dfrac{2\\cdot 5^{100}+1}{3}$")
+    ], answer: "1",
+    explanation: "$\\lambda=5,-1$. 대각화 후 $(1,1)$ 성분 $=\\frac{1}{3}(5^{100}+2)$." }),
+  build({ testNo: 26, num: 6, unit: "고유치와 대각화", concept: "행렬 거듭제곱 극한", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}2&3\\\\-\\dfrac{1}{2}&\\dfrac{1}{2}\\end{pmatrix}$에 대하여 $\\lim_{n\\to\\infty}A^n=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}$라고 할 때 $a+b+c+d$의 값은?",
+    options: [o("1","$3$"),o("2","$4$"),o("3","$5$"),o("4","$6$"),o("5","$8$")],
+    answer: "4",
+    explanation: "$\\lambda=1,1/2$. 대각화 후 $\\lim D^n=\\mathrm{diag}(1,0)$. $\\lim A^n=\\begin{pmatrix}3&6\\\\-1&-2\\end{pmatrix}$, 합 $=6$." }),
+
+  // ========== DT27 ==========
+  build({ testNo: 27, num: 1, unit: "고유치와 대각화", concept: "확률행렬 극한", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}0.9&0.1\\\\0.4&0.6\\end{pmatrix}$이면 $\\lim_{n\\to\\infty}A^n$의 값은?",
+    options: [
+      o("1","$\\dfrac{1}{5}\\begin{pmatrix}4&1\\\\4&1\\end{pmatrix}$"),
+      o("2","$\\dfrac{1}{5}\\begin{pmatrix}1&4\\\\1&4\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}1&0\\\\0&0\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}0&0\\\\0&0\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}1&0\\\\0&1\\end{pmatrix}$")
+    ], answer: "1",
+    explanation: "$\\lambda=1,1/2$. 정상상태 $\\dfrac{1}{5}\\begin{pmatrix}4&1\\\\4&1\\end{pmatrix}$." }),
+  build({ testNo: 27, num: 2, unit: "고유치와 대각화", concept: "확률행렬 극한", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}0.8&0.2\\\\0.2&0.8\\end{pmatrix}$이고 벡터 $v_0=\\begin{pmatrix}2\\\\1\\end{pmatrix}$일 때 수열 $\\{v_k|v_k=Av_{k-1}\\}$의 극한 $\\lim_{k\\to\\infty}v_k$는?",
+    options: [
+      o("1","$\\begin{pmatrix}1.5\\\\1.5\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}2\\\\1\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}1\\\\2\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}3\\\\0\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}0\\\\3\\end{pmatrix}$")
+    ], answer: "1",
+    explanation: "확률행렬, $\\lambda=1,0.6$. 정상상태에서 두 성분이 같음. 보존량 $2+1=3$이므로 $(1.5,1.5)$." }),
+  build({ testNo: 27, num: 3, unit: "고유치와 대각화", concept: "Cayley-Hamilton", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}2&0&0&0&0\\\\0&2&1&0&0\\\\0&0&2&0&0\\\\0&0&0&3&1\\\\0&0&0&0&3\\end{pmatrix}$, $B=(A-2I)^2(A-3I)^2$일 때 행렬 $B$의 계수는?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$3$"),o("5","$4$")],
+    answer: "1",
+    explanation: "최소다항식 $(x-2)^2(x-3)^2=0$이므로 $B=O$, $\\mathrm{rank}(B)=0$." }),
+  build({ testNo: 27, num: 4, unit: "고유치와 대각화", concept: "최소다항식", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}2&0&0&0&0\\\\0&2&1&0&0\\\\0&0&2&0&0\\\\0&0&0&3&1\\\\0&0&0&0&3\\end{pmatrix}$에서 상수 $a,b,c,d$에 대하여 $A^4+aA^3+bA^2+cA+dI=0$가 만족될 때 $d$는?",
+    options: [o("1","$24$"),o("2","$30$"),o("3","$36$"),o("4","$42$"),o("5","$48$")],
+    answer: "3",
+    explanation: "최소다항식 $(x-2)^2(x-3)^2=x^4-10x^3+37x^2-60x+36$. $d=36$." }),
+  build({ testNo: 27, num: 5, unit: "고유치와 대각화", concept: "최소다항식", difficulty: "medium",
+    question: "행렬 $B$는 $A=\\begin{pmatrix}3&1&-5\\\\0&2&6\\\\0&0&a\\end{pmatrix}$의 닮은 행렬이고 $B$의 고유다항식이 $f(x)=x^3+bx^2+cx-12$이다. $B$의 최소다항식의 차수를 $d$라 할 때 $a+b+c+d$의 값은?",
+    options: [o("1","$10$"),o("2","$12$"),o("3","$14$"),o("4","$16$"),o("5","$18$")],
+    answer: "3",
+    explanation: "$\\det A=6a=12\\Rightarrow a=2$. $\\mathrm{tr}(A)=7\\Rightarrow b=-7$. $c=2\\cdot 3+2\\cdot 2+3\\cdot 2=16$. 최소다항식 차수 $d=3$. 합 $=14$." }),
+  build({ testNo: 27, num: 6, unit: "고유치와 대각화", concept: "최소다항식", difficulty: "medium",
+    question: "행렬 $A$의 최소다항식이 $(x-2)^2(x-3)^2$일 때, $A$가 $n\\times n$ 행렬이라면 $n$의 값으로 가능한 최솟값은?",
+    options: [o("1","$2$"),o("2","$3$"),o("3","$4$"),o("4","$5$"),o("5","$6$")],
+    answer: "3",
+    explanation: "최소다항식 차수 4가 최소 크기. $n_{\\min}=4$." }),
+
+  // ========== DT28 선형변환 ==========
+  build({ testNo: 28, num: 1, unit: "선형사상", concept: "선형변환 값", difficulty: "easyMedium",
+    question: "선형변환 $T:R^2\\to R^3$가 $T(1,1)=(1,0,2),\\ T(2,3)=(1,-1,4)$일 때 $T(8,11)$를 구하면?",
+    options: [
+      o("1","$(3,-8,5)$"),
+      o("2","$(1,-3,8)$"),
+      o("3","$(5,-3,16)$"),
+      o("4","$(11,3,16)$"),
+      o("5","$(0,0,0)$")
+    ], answer: "3",
+    explanation: "$(8,11)=2(1,1)+3(2,3)$. $T(8,11)=2(1,0,2)+3(1,-1,4)=(5,-3,16)$." }),
+  build({ testNo: 28, num: 2, unit: "선형사상", concept: "선형변환 값", difficulty: "easyMedium",
+    question: "$T$가 $2\\times 3$ 행렬이고 $T\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix}=\\begin{pmatrix}1\\\\-3\\end{pmatrix},\\ T\\begin{pmatrix}0\\\\1\\\\0\\end{pmatrix}=\\begin{pmatrix}2\\\\5\\end{pmatrix},\\ T\\begin{pmatrix}2\\\\3\\\\1\\end{pmatrix}=\\begin{pmatrix}8\\\\-5\\end{pmatrix}$일 때 $T\\begin{pmatrix}0\\\\0\\\\1\\end{pmatrix}$를 구하시오.",
+    options: [
+      o("1","$(0,-12)$"),
+      o("2","$(1,0)$"),
+      o("3","$(0,-14)$"),
+      o("4","$(0,1)$"),
+      o("5","$(1,12)$")
+    ], answer: "3",
+    explanation: "$T(0,0,1)=T(2,3,1)-2T(1,0,0)-3T(0,1,0)=(8,-5)-(2,-6)-(6,15)=(0,-14)$." }),
+  build({ testNo: 28, num: 3, unit: "선형사상", concept: "선형변환 값", difficulty: "medium",
+    question: "일차변환 $T:R^3\\to R^2$에 대해 $T(1,0,0)=(2,1),\\ T(2,1,0)=(2,1),\\ T(1,-1,-1)=(5,2)$가 성립한다. $T(2x_1,-x_2,x_3)$는?",
+    options: [
+      o("1","$(4x_1+2x_2,2x_1-x_2)$"),
+      o("2","$(2x_2-x_3,x_1+x_2)$"),
+      o("3","$(x_1-x_2+2,2x_3+1)$"),
+      o("4","$(4x_1-2x_2-x_3,x_1-x_3)$"),
+      o("5","$(4x_1+2x_2-x_3,2x_1+x_2)$")
+    ], answer: "5",
+    explanation: "$T(0,1,0)$, $T(0,0,1)$ 구한 후 적용. 계산 결과 $(4x_1+2x_2-x_3,2x_1+x_2)$." }),
+  build({ testNo: 28, num: 4, unit: "선형사상", concept: "좌표 표현", difficulty: "easyMedium",
+    question: "$R^3$의 순서기저 $S=\\{(1,0,2),(-1,3,1),(1,1,1)\\}$에 대한 벡터 $v=(0,1,2)$의 좌표행렬 $[v]_S$를 구하면?",
+    options: [
+      o("1","$\\begin{pmatrix}1\\\\1\\\\0\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}1\\\\1/2\\\\-1/2\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}0\\\\1/2\\\\1/2\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}0\\\\1\\\\2\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}1\\\\0\\\\1\\end{pmatrix}$")
+    ], answer: "2",
+    explanation: "연립방정식 풀이. $a=1,b=1/2,c=-1/2$." }),
+  build({ testNo: 28, num: 5, unit: "선형사상", concept: "표현행렬", difficulty: "easyMedium",
+    question: "선형변환 $F\\begin{pmatrix}x_1\\\\x_2\\\\x_3\\end{pmatrix}=\\begin{pmatrix}x_1-4x_2+2x_3\\\\x_2+x_3\\end{pmatrix}$일 때 $F(x)=Ax$가 되는 행렬 $A$는?",
+    options: [
+      o("1","$\\begin{pmatrix}1&-2\\\\0&-1\\\\1&-4\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}1&0&1\\\\-2&-1&-4\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}1&-4&2\\\\0&1&1\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}0&-2\\\\1&3\\\\1&-4\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}1&4&2\\\\0&1&-1\\end{pmatrix}$")
+    ], answer: "3",
+    explanation: "표준기저에서의 표현행렬. $A=\\begin{pmatrix}1&-4&2\\\\0&1&1\\end{pmatrix}$." }),
+  build({ testNo: 28, num: 6, unit: "선형사상", concept: "기저 변환 표현행렬", difficulty: "medium",
+    question: "선형사상 $T:R^3\\to R^2$가 $T(x,y,z)=(2x+3y-4z,x-5y+z)$로 정의된다. $E_1=\\{(1,1,1),(1,1,0),(1,0,0)\\}$와 $E_2=\\{(1,1),(0,1)\\}$에 관한 $T$의 표현행렬을 구하라.",
+    options: [
+      o("1","$\\begin{pmatrix}2&3&-4\\\\1&-5&1\\end{pmatrix}$"),
+      o("2","$\\begin{pmatrix}1&5&2\\\\-3&-4&1\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}2&3&-4\\\\1&-2&5\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}1&5&2\\\\-4&-9&-1\\end{pmatrix}$"),
+      o("5","$\\begin{pmatrix}1&2&3\\\\-4&-5&-9\\end{pmatrix}$")
+    ], answer: "4",
+    explanation: "$T(1,1,1)=(1,-3)=1(1,1)-4(0,1)$, $T(1,1,0)=(5,-4)=5(1,1)-9(0,1)$, $T(1,0,0)=(2,1)=2(1,1)-1(0,1)$." }),
+
+  // ========== DT29 ==========
+  build({ testNo: 29, num: 1, unit: "선형사상", concept: "다항식 공간 표현행렬", difficulty: "medium",
+    question: "$P_2(R)=\\{a+bx+cx^2|a,b,c\\in R\\}$, $T:P_2(R)\\to R^3$가 $T(p(x))=(p'(0),p''(1),\\int_0^1 p(x)dx)$로 정의될 때 기저 $\\{1,x,x^2\\},\\{(1,0,0),(0,1,0),(0,0,1)\\}$에 관한 $T$의 표현행렬의 $(i,j)$ 성분을 $a_{ij}$라 하자. $\\sum_{i=1}^{3}\\sum_{j=1}^{3}a_{ij}$의 값은?",
+    options: [
+      o("1","$\\dfrac{19}{6}$"),
+      o("2","$\\dfrac{23}{6}$"),
+      o("3","$\\dfrac{25}{6}$"),
+      o("4","$\\dfrac{29}{6}$"),
+      o("5","$\\dfrac{31}{6}$")
+    ], answer: "4",
+    explanation: "$T(1)=(0,0,1),T(x)=(1,0,1/2),T(x^2)=(0,2,1/3)$. 표현행렬 합 $=0+1+0+0+0+2+1+1/2+1/3=29/6$." }),
+  build({ testNo: 29, num: 2, unit: "선형사상", concept: "표현행렬 계산", difficulty: "easyMedium",
+    question: "벡터공간 $V$의 순서기저 $[b_1,b_2,b_3]$에 관한 선형변환 $T:V\\to V$의 행렬이 $A=\\begin{pmatrix}2&-1&3\\\\0&2&4\\\\5&3&6\\end{pmatrix}$일 때 $T(3b_1-2b_2)$는?",
+    options: [
+      o("1","$6b_1-7b_2+b_3$"),
+      o("2","$8b_1-4b_2+9b_3$"),
+      o("3","$7b_1+2b_2+9b_3$"),
+      o("4","$5b_1-3b_2+6b_3$"),
+      o("5","$2b_1+b_2+7b_3$")
+    ], answer: "2",
+    explanation: "$T(b_1)=2b_1+5b_3,\\ T(b_2)=-b_1+2b_2+3b_3$. $3T(b_1)-2T(b_2)=8b_1-4b_2+9b_3$." }),
+  build({ testNo: 29, num: 3, unit: "선형사상", concept: "표현행렬 적용", difficulty: "medium",
+    question: "$\\alpha=\\{(0,1,1),(1,0,1),(1,1,0)\\}$, $\\beta=\\{w_1,w_2,w_3\\}$를 $R^3$의 순서기저라 하자. 선형변환 $T:R^3\\to R^3$의 $\\alpha,\\beta$에 관한 행렬표현 $[T]_\\alpha^\\beta=\\begin{pmatrix}0&1&1\\\\1&2&7\\\\-2&6&0\\end{pmatrix}$일 때 $T(2,3,1)$의 값은?",
+    options: [
+      o("1","$4w_1+15w_2+14w_3$"),
+      o("2","$-4w_1+13w_2+w_3$"),
+      o("3","$2w_1+15w_2-2w_3$"),
+      o("4","$w_1+2w_2$"),
+      o("5","$3w_1+w_2-w_3$")
+    ], answer: "3",
+    explanation: "$(2,3,1)=1(0,1,1)+0(1,0,1)+2(1,1,0)$. $T(2,3,1)=1\\cdot T(\\alpha_1)+0\\cdot T(\\alpha_2)+2\\cdot T(\\alpha_3)=2w_1+15w_2-2w_3$." }),
+  build({ testNo: 29, num: 4, unit: "선형사상", concept: "회전변환", difficulty: "easyMedium",
+    question: "좌표평면상의 점 $(1,2)$를 원점을 중심으로 $60^\\circ$ 회전하였을 때 대응하는 점의 좌표는?",
+    options: [
+      o("1","$\\left(\\dfrac{1-2\\sqrt 3}{2},\\dfrac{2+\\sqrt 3}{2}\\right)$"),
+      o("2","$\\left(\\dfrac{1+2\\sqrt 3}{2},\\dfrac{2-\\sqrt 3}{2}\\right)$"),
+      o("3","$\\left(\\dfrac{1-\\sqrt 3}{4},\\dfrac{1+\\sqrt 3}{4}\\right)$"),
+      o("4","$\\left(\\dfrac{1+\\sqrt 3}{4},\\dfrac{1-\\sqrt 3}{4}\\right)$"),
+      o("5","$\\left(\\dfrac{1-\\sqrt 3}{2},\\dfrac{1+\\sqrt 3}{2}\\right)$")
+    ], answer: "1",
+    explanation: "$\\begin{pmatrix}\\cos 60&-\\sin 60\\\\\\sin 60&\\cos 60\\end{pmatrix}\\begin{pmatrix}1\\\\2\\end{pmatrix}=\\left(\\dfrac{1-2\\sqrt 3}{2},\\dfrac{\\sqrt 3+2}{2}\\right)$." }),
+  build({ testNo: 29, num: 5, unit: "선형사상", concept: "회전각", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}0&0&1\\\\1&0&0\\\\0&1&0\\end{pmatrix}$은 $R^3$의 원점을 지나는 직선에 대한 회전을 나타낸다. 회전각은?",
+    options: [o("1","$\\dfrac{\\pi}{3}$"),o("2","$\\dfrac{\\pi}{2}$"),o("3","$\\dfrac{2\\pi}{3}$"),o("4","$\\pi$"),o("5","$\\dfrac{\\pi}{4}$")],
+    answer: "3",
+    explanation: "$A^3=I$이므로 회전각 $2\\pi/3$." }),
+  build({ testNo: 29, num: 6, unit: "선형사상", concept: "반사변환", difficulty: "medium",
+    question: "$x$축의 양의 방향과 이루는 각이 $\\dfrac{\\pi}{6}$이며 원점을 지나는 직선에 대한 반사에 의한 벡터 $(1,1)$의 상은?",
+    options: [
+      o("1","$\\left(\\dfrac{1}{2}-\\dfrac{\\sqrt 3}{2},\\dfrac{1}{2}+\\dfrac{\\sqrt 3}{2}\\right)$"),
+      o("2","$\\left(\\dfrac{1}{2}+\\dfrac{\\sqrt 3}{2},\\dfrac{1}{2}-\\dfrac{\\sqrt 3}{2}\\right)$"),
+      o("3","$\\left(\\dfrac{1}{2}-\\dfrac{\\sqrt 3}{2},-\\dfrac{1}{2}+\\dfrac{\\sqrt 3}{2}\\right)$"),
+      o("4","$\\left(\\dfrac{1}{2}+\\dfrac{\\sqrt 3}{2},-\\dfrac{1}{2}+\\dfrac{\\sqrt 3}{2}\\right)$"),
+      o("5","$(1,1)$")
+    ], answer: "4",
+    explanation: "반사행렬 $\\begin{pmatrix}\\cos 2\\theta&\\sin 2\\theta\\\\\\sin 2\\theta&-\\cos 2\\theta\\end{pmatrix},\\theta=\\pi/6$. $(1,1)$ 적용: $\\left(\\dfrac{1+\\sqrt 3}{2},\\dfrac{\\sqrt 3-1}{2}\\right)$." }),
+
+  // ========== DT30 ==========
+  build({ testNo: 30, num: 1, unit: "선형사상", concept: "대칭 사상의 고유벡터", difficulty: "medium",
+    question: "$T:R^3\\to R^3$가 임의의 벡터를 평면 $x+2y+3z=0$에 대하여 대칭인 벡터로 보내는 선형사상이라고 하자. 다음 중 $T$의 고유벡터가 아닌 것은?",
+    options: [
+      o("1","$(1,5,1)$"),
+      o("2","$(2,2,-2)$"),
+      o("3","$(0,3,-2)$"),
+      o("4","$(1,2,3)$"),
+      o("5","$(1,-2,1)$")
+    ], answer: "1",
+    explanation: "고유벡터는 평면 위 (λ=1) 또는 법선 (λ=-1). ① $1+10+3=14\\ne 0$, $(1,2,3)$의 스칼라배도 아님." }),
+  build({ testNo: 30, num: 2, unit: "선형사상", concept: "사영변환의 행렬식", difficulty: "easyMedium",
+    question: "임의의 벡터 $v\\in R^3$을 평면 $x+y-3z=0$에 사영시키는 사영행렬(projection matrix) $A$라 할 때 $A^2$의 행렬식은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$3$"),o("4","$4$"),o("5","$9$")],
+    answer: "1",
+    explanation: "사영행렬은 rank가 평면 차원 2이므로 $\\det A=0$, $\\det A^2=0$." }),
+  build({ testNo: 30, num: 3, unit: "선형사상", concept: "사영변환의 성질", difficulty: "medium",
+    question: "$R^3$의 벡터를 평면 $x+y+z=0$ 위로의 정사영으로 보내는 선형변환 $T$. $T(v)=Av$인 행렬 $A$에 대해 옳은 것을 모두 고르면?\\\\가. $A$의 역행렬이 존재한다\\\\나. $(1,1,1)$은 $A$의 고유벡터이다\\\\다. $A$의 trace는 $2$이다\\\\라. $A$는 대각화가능하다",
+    options: [o("1","가, 라"),o("2","나, 다"),o("3","나, 라"),o("4","나, 다, 라"),o("5","가, 나, 다, 라")],
+    answer: "4",
+    explanation: "$\\det A=0$ 이므로 가 거짓. $(1,1,1)$은 법선이고 사영하면 $0$이므로 $\\lambda=0$ 고유벡터. trace=2(고윳값 1,1,0). 대칭이므로 대각화 가능." }),
+  build({ testNo: 30, num: 4, unit: "선형사상", concept: "치역", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}1&1&2\\\\0&1&1\\\\1&0&1\\end{pmatrix}$를 고려하자. $3$차원 공간상의 벡터 $x\\in R^3$에 대해 $y=Ax$라 할 때 $y$값이 될 수 없는 것은?",
+    options: [
+      o("1","$(6,3,3)$"),
+      o("2","$(5,2,3)$"),
+      o("3","$(3,3,0)$"),
+      o("4","$(3,2,2)$"),
+      o("5","$(2,1,1)$")
+    ], answer: "4",
+    explanation: "$\\mathrm{rank}(A)=2$. 치역의 평면식 $y_1-y_2-y_3=0$. ④: $3-2-2=-1\\ne 0$." }),
+  build({ testNo: 30, num: 5, unit: "선형사상", concept: "치역", difficulty: "medium",
+    question: "선형변환 $T:R^3\\to R^3$에 대하여 $T(x,y,z)=(-4y+2z,-x-9y+4z,x+y)$일 때 $T$의 치역을 구하면?",
+    options: [
+      o("1","$\\{(x,y,z):x-2y-z=0\\}$"),
+      o("2","$\\{(x,y,z):2x-y-z=0\\}$"),
+      o("3","$\\{(x,y,z):2x-y+z=0\\}$"),
+      o("4","$\\{(x,y,z):x-2y+z=0\\}$"),
+      o("5","$\\{(x,y,z):x+y+z=0\\}$")
+    ], answer: "2",
+    explanation: "행렬의 열공간. 행 연산 후 평면식 $2x-y-z=0$." }),
+  build({ testNo: 30, num: 6, unit: "선형사상", concept: "치역에 속하는 벡터", difficulty: "medium",
+    question: "$R^3$의 순서기저 $\\alpha=\\{(0,1,1),(1,0,1),(1,1,0)\\}$에 관한 선형변환 $T:R^3\\to R^3$의 행렬표현이 $[T]_\\alpha=\\begin{pmatrix}1&2&1\\\\1&1&2\\\\2&1&5\\end{pmatrix}$와 같을 때 $T$의 치역에 속하는 벡터는?",
+    options: [
+      o("1","$(1,1,2)$"),
+      o("2","$(3,3,2)$"),
+      o("3","$(1,3,3)$"),
+      o("4","$(0,1,1)$"),
+      o("5","$(2,1,3)$")
+    ], answer: "2",
+    explanation: "$T(\\alpha_i)$ 계산 후 치역 평면식 $3x-5y+3z=0$. ②: $9-15+6=0$ ✓." }),
+
+  // ========== DT31 핵, 치역 ==========
+  build({ testNo: 31, num: 1, unit: "선형사상", concept: "핵의 차원", difficulty: "easyMedium",
+    question: "일차변환 $T:R^4\\to R^2$가 $T(x_1,x_2,x_3,x_4)=(3x_1-2x_2-x_3-4x_4,x_1+x_2-2x_3-3x_4)$로 주어질 때 $T$의 핵 $\\ker T$의 차원은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$3$"),o("5","$4$")],
+    answer: "3",
+    explanation: "$\\mathrm{rank}=2$이므로 $\\dim\\ker T=4-2=2$." }),
+  build({ testNo: 31, num: 2, unit: "선형사상", concept: "핵과 치역 차원", difficulty: "medium",
+    question: "$M_{2\\times 2}(R)$ 위의 선형변환 $L:M_{2\\times 2}(R)\\to M_{2\\times 2}(R)$이 $L(A)=A+A^t$로 주어질 때 $L$의 핵과 치역의 차원은?",
+    options: [o("1","$1,3$"),o("2","$3,1$"),o("3","$1,1$"),o("4","$2,2$"),o("5","$0,4$")],
+    answer: "1",
+    explanation: "$L(A)=O\\Leftrightarrow A=-A^t$ (반대칭, 차원 1). 치역 = 대칭행렬 (차원 3)." }),
+  build({ testNo: 31, num: 3, unit: "선형사상", concept: "단사 / 차원", difficulty: "medium",
+    question: "선형사상 $T:R^2\\to R^3,\\ T(x,y)=(2y,x-y,3x)$에 대한 다음 중 옳은 것을 모두 고르면?\\\\ⓐ $T$는 단사인 선형사상이다\\\\ⓑ $U=\\{T(x,y)|(x,y)\\in R^2\\}$의 차원은 2이다\\\\ⓒ $W=\\{(x,y)\\in R^2|T(x,y)=(0,0,0)\\}$의 차원은 1이다",
+    options: [o("1","ⓐ"),o("2","ⓑ"),o("3","ⓐ, ⓑ"),o("4","ⓑ, ⓒ"),o("5","ⓐ, ⓑ, ⓒ")],
+    answer: "3",
+    explanation: "$\\mathrm{rank}=2$이므로 단사 ✓, 치역 차원 2 ✓. 핵 차원 0이므로 ⓒ 거짓." }),
+  build({ testNo: 31, num: 4, unit: "선형사상", concept: "선형변환 성질", difficulty: "medium",
+    question: "선형사상 $T:R^2\\to M_{2\\times 2}(R),\\ T(a,b)=\\begin{pmatrix}\\check{}\\check{}\\\\0&a+2b\\end{pmatrix}$에 대한 다음 성질 중 옳은 것을 모두 고르면?\\\\가. $T$는 일대일 사상이다\\\\나. $T$의 핵의 차원은 1이다\\\\다. $T(\\{(a,a-b)|a,b\\in R\\})$의 차원은 3이다",
+    options: [o("1","가"),o("2","나"),o("3","가, 나"),o("4","가, 다"),o("5","나, 다")],
+    answer: "1",
+    explanation: "$T$는 단사이므로 핵 차원 0 (나 거짓). 치역 차원 ≤ 2 (다 거짓). 가만 참." }),
+  build({ testNo: 31, num: 5, unit: "선형사상", concept: "전사 조건", difficulty: "medium",
+    question: "선형변환 $T:R^4\\to R^3$이 $T(x,y,z,w)=(x+2y+4z+5w,2x+z+3w,-x+2y+az+2w)$로 정의된다. $T$가 전사함수가 되기 위한 $a$의 값 중 틀린 것은?",
+    options: [o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$"),o("5","$5$")],
+    answer: "3",
+    explanation: "행 연산 후 $a+4\\ne 7\\Rightarrow a\\ne 3$이어야 전사. $a=3$일 때 전사 아님." }),
+  build({ testNo: 31, num: 6, unit: "선형사상", concept: "독립성 판정", difficulty: "medium",
+    question: "$M=\\begin{pmatrix}1&2&3\\\\0&1&2\\\\0&0&1\\end{pmatrix},\\ x_1=\\begin{pmatrix}1\\\\1\\\\1\\end{pmatrix},x_2=\\begin{pmatrix}1\\\\1\\\\0\\end{pmatrix},x_3=\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix}$일 때 $y_i=Mx_i$. 다음 중 참인 것을 모두 고르면?\\\\가. $\\{y_1^T,y_2^T\\}$ 일차독립\\\\나. $\\{y_2^T,y_3^T\\}$ 일차독립\\\\다. $\\{y_1^T,y_2^T,y_3^T\\}$ 일차독립\\\\라. $\\{y_1^T,y_2^T,y_3^T\\}$ 일차종속",
+    options: [o("1","가"),o("2","가, 나"),o("3","가, 나, 다"),o("4","가, 나, 라"),o("5","나, 라")],
+    answer: "3",
+    explanation: "$y_1=(6,3,1),y_2=(3,1,0),y_3=(1,0,0)$. $\\det(y_1,y_2,y_3)\\ne 0$이므로 모두 일차독립." }),
+
+  // ========== DT32 외적/내적/내적공간 ==========
+  build({ testNo: 32, num: 1, unit: "추가내용", concept: "외적/기저 명제", difficulty: "medium",
+    question: "다음 [보기]에서 항상 옳은 것만을 있는 대로 고른 것은?\\\\가. $R^3$의 두 벡터 $\\vec v,\\vec w$가 1차 독립이면 $\\vec v,\\vec w,\\vec v\\times\\vec w$는 1차 독립이다\\\\나. $R^3$의 두 벡터가 1차종속이면 $\\vec v\\times\\vec w$는 영벡터\\\\다. $R^3$의 세 벡터 $\\vec v_1,\\vec v_2,\\vec v_3$가 $R^3$의 기저이면 $\\vec v_1-\\vec v_2,\\vec v_1+\\vec v_2,\\vec v_2+\\vec v_3$는 $R^3$의 기저",
+    options: [o("1","가, 나"),o("2","나, 다"),o("3","가, 다"),o("4","가, 나, 다"),o("5","다 만")],
+    answer: "4",
+    explanation: "가, 나, 다 모두 옳음." }),
+  build({ testNo: 32, num: 2, unit: "추가내용", concept: "변환과 면적", difficulty: "medium",
+    question: "좌표평면 상의 세 점 $A(0,0),B(12,2),C(1,4)$를 꼭짓점으로 하는 삼각형이 행렬 $\\begin{pmatrix}-1&2\\\\2&4\\end{pmatrix}$로 나타내어지는 일차변환에 의해 옮겨지는 도형 $S$의 면적은?",
+    options: [o("1","$132$"),o("2","$157$"),o("3","$184$"),o("4","$375$"),o("5","$200$")],
+    answer: "3",
+    explanation: "원래 면적 $=23$. $|\\det|=8$. 새 면적 $=23\\cdot 8=184$." }),
+  build({ testNo: 32, num: 3, unit: "추가내용", concept: "변환과 부피", difficulty: "medium",
+    question: "좌표공간에서 일차변환 $f:R^3\\to R^3$을 나타내는 행렬이 $\\begin{pmatrix}2&1&2\\\\-3&3&0\\\\0&3&5\\end{pmatrix}$이다. $O(0,0,0),P(1,0,0),Q(0,2,0),R(0,0,1)$에 대하여 네 점 $f(O),f(P),f(Q),f(R)$을 꼭짓점으로 하는 사면체의 부피는?",
+    options: [o("1","$7$"),o("2","$8$"),o("3","$9$"),o("4","$10$"),o("5","$11$")],
+    answer: "3",
+    explanation: "원래 부피 $=1/3$. $|\\det|=27$. 새 부피 $=1/3\\cdot 27=9$." }),
+  build({ testNo: 32, num: 4, unit: "추가내용", concept: "함수 내적공간", difficulty: "medium",
+    question: "$C[-1,1]$에서 내적을 $\\langle f,g\\rangle=\\int_{-1}^{1}f(x)g(x)dx$로 정의할 때 두 벡터 $1,1+x$가 이루는 각은?",
+    options: [o("1","$\\dfrac{\\pi}{6}$"),o("2","$\\dfrac{\\pi}{4}$"),o("3","$\\dfrac{\\pi}{3}$"),o("4","$\\dfrac{\\pi}{2}$"),o("5","$\\dfrac{3\\pi}{4}$")],
+    answer: "1",
+    explanation: "$\\langle 1,1\\rangle=2,\\ \\langle 1+x,1+x\\rangle=8/3,\\ \\langle 1,1+x\\rangle=2$. $\\cos\\theta=\\sqrt 3/2$, $\\theta=\\pi/6$." }),
+  build({ testNo: 32, num: 5, unit: "추가내용", concept: "함수 내적 직교", difficulty: "medium",
+    question: "$C[-1,1]$의 내적을 $\\langle f,g\\rangle=\\int_{-1}^{1}f(x)g(x)dx$로 정의하자. $1,x+\\alpha,x^2+\\beta x+\\gamma$가 서로 직교할 때 $\\alpha+\\beta+\\gamma$의 값은?",
+    options: [
+      o("1","$0$"),
+      o("2","$-\\dfrac{1}{2}$"),
+      o("3","$-\\dfrac{1}{3}$"),
+      o("4","$-\\dfrac{1}{4}$"),
+      o("5","$-\\dfrac{1}{5}$")
+    ], answer: "3",
+    explanation: "$\\alpha=0,\\gamma=-1/3,\\beta=0$. 합 $=-1/3$." }),
+  build({ testNo: 32, num: 6, unit: "추가내용", concept: "직교기저 분해", difficulty: "medium",
+    question: "벡터 $u=(-2,1,3)$을 실공간 $R^3$의 직교기저 $B=\\{(1,0,1),(1,1,-1),(-1,2,1)\\}$를 정규화한 정규직교기저의 일차결합으로 나타낼 때 계수들의 곱은?",
+    options: [
+      o("1","$\\dfrac{14}{3}$"),
+      o("2","$-\\dfrac{14}{3}$"),
+      o("3","$\\dfrac{7}{18}$"),
+      o("4","$-\\dfrac{7}{18}$"),
+      o("5","$0$")
+    ], answer: "2",
+    explanation: "$a=1/\\sqrt 2,b=-4/\\sqrt 3,c=7/\\sqrt 6$. $abc=-28/6=-14/3$." }),
+
+  // ========== DT33 그램슈미트 ==========
+  build({ testNo: 33, num: 1, unit: "추가내용", concept: "그램슈미트", difficulty: "medium",
+    question: "$3$차원공간에서 세 개의 벡터 $\\vec v_1=(2,1,0),\\vec v_2=(0,2,2),\\vec v_3=(0,0,3)$로 이루어진 기저로부터 그램-슈미트 직교화 과정을 거쳐 만들어진 직교기저 $\\{\\vec w_1,\\vec w_2,\\vec w_3\\}$에 대하여 $|\\vec w_1|+|\\vec w_2|+|\\vec w_3|$의 값은?",
+    options: [
+      o("1","$\\sqrt 5+\\dfrac{6\\sqrt 5}{5}+2$"),
+      o("2","$\\sqrt 5+2\\sqrt 5+3$"),
+      o("3","$5+\\dfrac{36}{5}+4$"),
+      o("4","$2\\sqrt 5+\\sqrt{10}$"),
+      o("5","$11$")
+    ], answer: "1",
+    explanation: "$|\\vec w_1|=\\sqrt 5$. $\\vec w_2=\\vec v_2-\\frac{2}{5}\\vec v_1$, $|\\vec w_2|=\\frac{6\\sqrt 5}{5}$. $\\vec w_3=(2/3,-4/3,4/3)$, $|\\vec w_3|=2$." }),
+  build({ testNo: 33, num: 2, unit: "추가내용", concept: "직교여공간 차원", difficulty: "medium",
+    question: "세 벡터 $V_1=(1,-2,1),V_2=(1,-1,3),V_3=(1,1,7)$로 생성되는 $R^3$의 부분공간 $W$의 직교여공간 $W^\\perp$의 차원은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$3$"),o("5","$4$")],
+    answer: "2",
+    explanation: "$\\mathrm{rank}=2$이므로 $\\dim W=2$, $\\dim W^\\perp=3-2=1$." }),
+  build({ testNo: 33, num: 3, unit: "추가내용", concept: "직교여공간 기저", difficulty: "medium",
+    question: "$U=\\{(x,y,z,w)\\in R^4:y+z+w=0\\}$일 때 $U$의 직교여공간 $U^\\perp$의 기저가 될 수 있는 것은?",
+    options: [
+      o("1","$(1,-2,1,1)$"),
+      o("2","$(0,1,1,1)$"),
+      o("3","$(0,-1,1,1)$"),
+      o("4","$(1,1,-1,1)$"),
+      o("5","$(1,0,1,0)$")
+    ], answer: "2",
+    explanation: "$U$의 정의식 계수 $(0,1,1,1)$이 법선벡터." }),
+  build({ testNo: 33, num: 4, unit: "추가내용", concept: "치역 직교여공간", difficulty: "medium",
+    question: "선형변환 $T:R^3\\to R^4$가 $T(x,y,z)=(x+z,2x+2z,2y-4z,-3x+6z)$로 정의될 때 $T$의 치역 $W$의 직교여공간 $W^\\perp$에 속하는 벡터는?",
+    options: [
+      o("1","$(1,0,0,-3)$"),
+      o("2","$(2,-1,0,0)$"),
+      o("3","$(1,-1,3,-2)$"),
+      o("4","$(-4,2,-7,8)$"),
+      o("5","$(0,1,1,0)$")
+    ], answer: "2",
+    explanation: "$T$의 열들에 직교인 벡터. ②: $(2,-1,0,0)\\cdot$ 각 열 $=0$." }),
+  build({ testNo: 33, num: 5, unit: "추가내용", concept: "최소제곱해", difficulty: "medium",
+    question: "다음 연립방정식의 최소제곱 해 $(x_1,x_2)$를 구하라.\\\\$x_1-x_2=3,\\ 2x_1+x_2=1,\\ -x_1+2x_2=2$",
+    options: [
+      o("1","$(4/7,3/7)$"),
+      o("2","$(3/7,4/7)$"),
+      o("3","$(1,1)$"),
+      o("4","$(2,1)$"),
+      o("5","$(0,1)$")
+    ], answer: "1",
+    explanation: "$A^TAx=A^Tb$ 풀이. $\\begin{pmatrix}6&-1\\\\-1&6\\end{pmatrix}x=\\begin{pmatrix}3\\\\4\\end{pmatrix}\\Rightarrow x_1=4/7,x_2=3/7$." }),
+  build({ testNo: 33, num: 6, unit: "추가내용", concept: "정사영", difficulty: "medium",
+    question: "$R^3$의 부분공간 $W$는 두 벡터 $(1,1,2),(1,2,3)$의 일차결합으로 생성되는 평면이다. 벡터 $\\vec b=(1,3,-2)$를 평면 $W$로 내린 정사영을 $\\mathrm{proj}_W\\vec b=(p_1,p_2,p_3)$라 할 때 $p_1+p_2+p_3$의 값은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$-1$"),o("5","$-2$")],
+    answer: "1",
+    explanation: "법선 $\\vec n=(-1,-1,1)$. $\\mathrm{proj}_W\\vec b=\\vec b-\\mathrm{proj}_n\\vec b=(-1,1,0)$. 합 $=0$." }),
+
+  // ========== DT34 사영, 최소제곱 ==========
+  build({ testNo: 34, num: 1, unit: "추가내용", concept: "정사영", difficulty: "medium",
+    question: "벡터 $v_1=\\left(\\dfrac{1}{\\sqrt 3},-\\dfrac{1}{\\sqrt 3},\\dfrac{1}{\\sqrt 3}\\right),v_2=\\left(\\dfrac{1}{\\sqrt 2},\\dfrac{1}{\\sqrt 2},0\\right)$로 생성되는 $R^3$의 부분공간 $W$. $u=(1,-1,-2)$를 $W$에 사영시킨 벡터를 $v=(a_1,a_2,a_3)$라 할 때 $a_1-a_2+a_3$의 값은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$3$"),o("5","$4$")],
+    answer: "1",
+    explanation: "$\\langle u,v_1\\rangle=0,\\langle u,v_2\\rangle=0$. $\\mathrm{proj}=0$, $v=(0,0,0)$. $a_1-a_2+a_3=0$." }),
+  build({ testNo: 34, num: 2, unit: "추가내용", concept: "최소화 사영", difficulty: "medium",
+    question: "공간벡터 $\\vec a=(1,0,-1),\\vec b=(1,1,1),\\vec c=(1,2,0)$에 대하여 $|\\vec c-s\\vec a-t\\vec b|$가 최소가 되도록 하는 실수 $s,t$의 합은?",
+    options: [
+      o("1","$\\dfrac{1}{2}$"),
+      o("2","$1$"),
+      o("3","$\\dfrac{3}{2}$"),
+      o("4","$2$"),
+      o("5","$\\dfrac{5}{2}$")
+    ], answer: "3",
+    explanation: "정규방정식 $(2s,3t)=(1,3)\\Rightarrow s=1/2,t=1$. 합 $=3/2$." }),
+  build({ testNo: 34, num: 3, unit: "추가내용", concept: "정사영", difficulty: "medium",
+    question: "벡터 $v_1=(1,0,-1,-1),v_2=(0,2,1,2)$로 생성되는 $R^4$의 부분공간 $W$, 벡터 $(1,1,1,-1)$에 가장 가까운 $W$에 있는 벡터를 $v=(a_1,a_2,a_3,a_4)$라 하자. $a_1+a_2+a_3+a_4$은?",
+    options: [o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$"),o("5","$0$")],
+    answer: "1",
+    explanation: "정규방정식으로 사영 계산. 결과 합 $=1$." }),
+  build({ testNo: 34, num: 4, unit: "추가내용", concept: "최소제곱직선", difficulty: "medium",
+    question: "평면에 주어진 네 점 $(1,1),(2,3),(3,4),(4,3)$에 대하여 $E=\\sum_{k=1}^4[y_k-(a+bx_k)]^2$를 최소화하는 최소제곱직선 $y=a+bx$일 때 $a+b$의 값은?",
+    options: [o("1","$1.60$"),o("2","$1.64$"),o("3","$1.66$"),o("4","$1.70$"),o("5","$1.75$")],
+    answer: "4",
+    explanation: "정규방정식: $\\begin{pmatrix}4&10\\\\10&30\\end{pmatrix}\\begin{pmatrix}a\\\\b\\end{pmatrix}=\\begin{pmatrix}11\\\\31\\end{pmatrix}\\Rightarrow a=1,b=0.7$. $a+b=1.7$." }),
+  build({ testNo: 34, num: 5, unit: "추가내용", concept: "최소제곱직선", difficulty: "medium",
+    question: "두 변량 $x,y$에 대해 데이터 $(1,2),(2,3),(3,6),(4,7)$. $\\sum(y_i-mx_i-b)^2$이 최소가 되는 $m,b$에 대해 $m+b$의 값은?",
+    options: [
+      o("1","$\\dfrac{1}{5}$"),
+      o("2","$\\dfrac{3}{5}$"),
+      o("3","$1$"),
+      o("4","$\\dfrac{7}{5}$"),
+      o("5","$\\dfrac{9}{5}$")
+    ], answer: "5",
+    explanation: "정규방정식 풀이: $m=9/5,b=0$. $m+b=9/5$." }),
+  build({ testNo: 34, num: 6, unit: "추가내용", concept: "직교행렬 조건", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}\\dfrac{1}{2}&a&b\\\\d&\\dfrac{1}{\\sqrt 2}&c\\\\e&f&\\dfrac{1}{\\sqrt 2}\\end{pmatrix}$가 직교행렬일 때 $a^2+b^2+c^2+d^2+e^2+f^2$의 값은?",
+    options: [
+      o("1","$\\dfrac{3}{4}$"),
+      o("2","$\\dfrac{5}{4}$"),
+      o("3","$\\dfrac{7}{4}$"),
+      o("4","$\\dfrac{9}{4}$"),
+      o("5","$\\dfrac{11}{4}$")
+    ], answer: "3",
+    explanation: "행 노름 1: $1/4+a^2+b^2=1,\\ d^2+1/2+c^2=1,\\ e^2+f^2+1/2=1$. 합 $=3/4+1/2+1/2=7/4$." }),
+
+  // ========== DT35 직교대각화, 이차형식 ==========
+  build({ testNo: 35, num: 1, unit: "고유치와 대각화", concept: "직교행렬 노름", difficulty: "easyMedium",
+    question: "행렬 $A=\\dfrac{1}{2}\\begin{pmatrix}1&-1&1&1\\\\-1&1&1&1\\\\1&1&-1&1\\\\1&1&1&-1\\end{pmatrix}$이고 $\\vec u$는 단위벡터일 때 벡터 $A\\vec u$의 크기 $\\|A\\vec u\\|$는?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$2$"),o("4","$4$"),o("5","$\\dfrac{1}{2}$")],
+    answer: "2",
+    explanation: "$A$가 직교행렬이므로 노름 보존: $\\|A\\vec u\\|=\\|\\vec u\\|=1$." }),
+  build({ testNo: 35, num: 2, unit: "고유치와 대각화", concept: "치환행렬", difficulty: "medium",
+    question: "행렬 $A=\\begin{pmatrix}0&0&0&1\\\\1&0&0&0\\\\0&1&0&0\\\\0&0&1&0\\end{pmatrix}$에 대해 옳은 것을 모두 고른 것은?\\\\ㄱ. $A$는 직교행렬이다\\\\ㄴ. $A$의 행렬식은 1이다\\\\ㄷ. $A$의 계수는 4이다",
+    options: [o("1","ㄱ, ㄴ"),o("2","ㄱ, ㄷ"),o("3","ㄴ, ㄷ"),o("4","ㄱ, ㄴ, ㄷ"),o("5","ㄱ만")],
+    answer: "2",
+    explanation: "$|A|=-1$이므로 ㄴ 거짓. ㄱ과 ㄷ 옳음." }),
+  build({ testNo: 35, num: 3, unit: "고유치와 대각화", concept: "대칭행렬 직교성", difficulty: "medium",
+    question: "행렬 $\\begin{pmatrix}0&1&1&1\\\\1&1&0&1\\\\1&0&1&1\\\\1&1&1&0\\end{pmatrix}$에서 서로 다른 임의의 두 개의 고윳값을 $\\lambda,\\mu$라 하자. $\\lambda$의 고유벡터를 $v$, $\\mu$의 고유벡터를 $w$라 할 때 $v^Tw$의 값으로 가능한 것은?",
+    options: [o("1","$0$"),o("2","$1$"),o("3","$\\dfrac{3}{4}$"),o("4","$\\dfrac{9}{16}$"),o("5","$2$")],
+    answer: "1",
+    explanation: "대칭행렬의 다른 고윳값에 대응하는 고유벡터는 직교. $v^Tw=0$." }),
+  build({ testNo: 35, num: 4, unit: "고유치와 대각화", concept: "대칭행렬 중복도", difficulty: "medium",
+    question: "행렬 $K=\\begin{pmatrix}1&2&3&4&5\\\\2&0&0&0&0\\\\3&0&0&0&0\\\\4&0&0&0&0\\\\5&0&0&0&0\\end{pmatrix}$에 대하여 고유치 $0$의 중복도(multiplicity)는?",
+    options: [o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$"),o("5","$5$")],
+    answer: "3",
+    explanation: "$K$는 대칭, $\\mathrm{rank}=2$이므로 nullity $=3$. 대각화 가능하므로 대수적 중복도 $=$ 기하적 중복도 $=3$." }),
+  build({ testNo: 35, num: 5, unit: "고유치와 대각화", concept: "스펙트럴 분해", difficulty: "medium",
+    question: "$A=\\begin{pmatrix}0&2&-1\\\\2&3&-2\\\\-1&-2&0\\end{pmatrix}$는 직교행렬 $P$에 대해 $P^{-1}AP=\\begin{pmatrix}-1&0&0\\\\0&-1&0\\\\0&0&5\\end{pmatrix}$을 만족. $P$의 열을 순서대로 $u_1,u_2,u_3$라 할 때 $u_1u_1^T+u_2u_2^T$를 구하면?",
+    options: [
+      o("1","$\\dfrac{1}{6}\\begin{pmatrix}5&-2&1\\\\-2&2&2\\\\1&2&5\\end{pmatrix}$"),
+      o("2","$\\dfrac{1}{10}\\begin{pmatrix}13&-4&5\\\\-4&2&0\\\\5&0&5\\end{pmatrix}$"),
+      o("3","$\\begin{pmatrix}5&-2&1\\\\-2&1&0\\\\1&0&1\\end{pmatrix}$"),
+      o("4","$\\begin{pmatrix}2&-1&0\\\\-1&1&1\\\\0&1&2\\end{pmatrix}$"),
+      o("5","$I$")
+    ], answer: "1",
+    explanation: "$\\sum u_iu_i^T=I$. $u_1u_1^T+u_2u_2^T=I-u_3u_3^T=5u_3u_3^T-A$를 정리." }),
+  build({ testNo: 35, num: 6, unit: "고유치와 대각화", concept: "이차형식 행렬", difficulty: "medium",
+    question: "벡터 $X=(x,y,z)$이고 행렬 $A=\\begin{pmatrix}a_{11}&a_{12}&a_{13}\\\\a_{21}&a_{22}&a_{23}\\\\a_{31}&a_{32}&a_{33}\\end{pmatrix}$일 때 $x^2+y^2+z^2+xy+yz=XAX^T$로 나타낼 수 있다. $a_{11}+a_{12}+a_{13}=5$일 때 $a_{21}+a_{31}$의 값은?",
+    options: [o("1","$1$"),o("2","$-1$"),o("3","$-3$"),o("4","$3$"),o("5","$0$")],
+    answer: "3",
+    explanation: "조건들로부터 $a_{12}+a_{21}=1,\\ a_{13}+a_{31}=0,\\ a_{12}+a_{13}=4$. 빼고 더하면 $a_{21}+a_{31}=-3$." }),
+
+  // ========== DT36 이차형식 ==========
+  build({ testNo: 36, num: 1, unit: "추가내용", concept: "이차형식 행렬", difficulty: "medium",
+    question: "공간벡터 $x$를 전치한 벡터를 $x^T=(x_1,x_2,x_3)$라 하고 $C$는 대칭행렬이라 할 때 $x_1^2+7x_2^2+5x_3^2+6x_1x_2+5x_1x_3+4x_2x_3=x^TCx$로 나타낼 수 있다. $C$의 $i$행과 $j$열 원소를 $c_{ij}$라 할 때 $c_{23}+c_{31}$은?",
+    options: [o("1","$4$"),o("2","$4.5$"),o("3","$5$"),o("4","$5.5$"),o("5","$6$")],
+    answer: "2",
+    explanation: "대칭화: $c_{12}=c_{21}=3,\\ c_{13}=c_{31}=5/2,\\ c_{23}=c_{32}=2$. $c_{23}+c_{31}=2+2.5=4.5$." }),
+  build({ testNo: 36, num: 2, unit: "추가내용", concept: "이차형식 최댓값/최솟값", difficulty: "medium",
+    question: "이차형식 $q(x,y,z)=3x^2+2y^2+3z^2-2xy+2yz$가 반지름 $1$인 구 $x^2+y^2+z^2=1$ 위에서 가질 수 있는 최댓값과 최솟값의 합은?",
+    options: [o("1","$5$"),o("2","$6$"),o("3","$7$"),o("4","$8$"),o("5","$9$")],
+    answer: "1",
+    explanation: "행렬 $\\begin{pmatrix}3&-1&0\\\\-1&2&1\\\\0&1&3\\end{pmatrix}$의 고윳값 $1,3,4$. 최댓값 $4$ + 최솟값 $1=5$." }),
+  build({ testNo: 36, num: 3, unit: "추가내용", concept: "이차형식 최댓값/최솟값", difficulty: "medium",
+    question: "구면 $x^2+y^2+z^2=1$ 위의 점에서 함수 $f(x,y,z)=yz+zx+1$의 최댓값을 $M$, 최솟값을 $m$이라 할 때 $M+m$의 값은?",
+    options: [o("1","$1$"),o("2","$2$"),o("3","$4$"),o("4","$8$"),o("5","$16$")],
+    answer: "2",
+    explanation: "이차부분 행렬 $\\begin{pmatrix}0&0&1/2\\\\0&0&1/2\\\\1/2&1/2&0\\end{pmatrix}$ 고윳값 $0,\\pm 1/\\sqrt 2$. $M=1+1/\\sqrt 2,m=1-1/\\sqrt 2$, 합 $=2$." }),
+  build({ testNo: 36, num: 4, unit: "추가내용", concept: "원뿔곡선 장축", difficulty: "medium",
+    question: "원뿔곡선 $5x^2-4xy+8y^2-36=0$의 장축의 길이는?",
+    options: [o("1","$4$"),o("2","$6$"),o("3","$8$"),o("4","$10$"),o("5","$12$")],
+    answer: "2",
+    explanation: "행렬 $\\begin{pmatrix}5&-2\\\\-2&8\\end{pmatrix}$ 고윳값 $4,9$. $4X^2+9Y^2=36\\Leftrightarrow X^2/9+Y^2/4=1$. 장축 $=2\\cdot 3=6$." }),
+  build({ testNo: 36, num: 5, unit: "추가내용", concept: "타원체 부피", difficulty: "medium",
+    question: "입체 $S=\\{(x,y,z)|3x^2-2xy+3y^2+8z^2\\le 16\\}$의 부피는?",
+    options: [
+      o("1","$\\dfrac{30\\pi}{5}$"),
+      o("2","$\\dfrac{32\\pi}{5}$"),
+      o("3","$\\dfrac{30\\pi}{3}$"),
+      o("4","$\\dfrac{32\\pi}{3}$"),
+      o("5","$\\dfrac{16\\pi}{3}$")
+    ], answer: "4",
+    explanation: "고윳값 $2,4,8$. $2X^2+4Y^2+8Z^2\\le 16$. 반축 $2\\sqrt 2,2,\\sqrt 2$. 부피 $=\\frac{4\\pi}{3}\\cdot 2\\sqrt 2\\cdot 2\\cdot\\sqrt 2=\\frac{32\\pi}{3}$." }),
+  build({ testNo: 36, num: 6, unit: "추가내용", concept: "직교 좌표변환", difficulty: "medium",
+    question: "어떤 직교행렬 $P$에 대해 $\\begin{pmatrix}X\\\\Y\\\\Z\\end{pmatrix}=P\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}$이고 $2x^2+4y^2+6yz-4z^2=aX^2+bY^2+cZ^2$이 항상 성립할 때 실수 $a,b,c$ 중 가장 작은 값은?",
+    options: [o("1","$-5$"),o("2","$-3$"),o("3","$-2$"),o("4","$0$"),o("5","$2$")],
+    answer: "1",
+    explanation: "행렬 $\\begin{pmatrix}2&0&0\\\\0&4&3\\\\0&3&-4\\end{pmatrix}$ 고윳값 $2,5,-5$. 가장 작은 $-5$." }),
+];
+
+console.log(`총 ${problems.length}문항 업로드 시작...`);
+
+let success = 0, fail = 0;
+for (const p of problems) {
+  const { error } = await supabase.from("questions").upsert(p, { onConflict: "id" });
+  if (error) { console.error(`❌ ${p.id}:`, error.message); fail++; }
+  else { success++; }
+}
+console.log(`\n✅ 성공: ${success}, ❌ 실패: ${fail}`);
