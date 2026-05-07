@@ -119,6 +119,43 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     return all.map(fromDb);
   },
 
+  async listByUnits(units: string[]): Promise<QuestionRecord[]> {
+    if (units.length === 0) return [];
+    const PAGE = 1000;
+    const all: DbRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .in("unit", units)
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      all.push(...(data as DbRow[]));
+      if (data.length < PAGE) break;
+    }
+    return all.map(fromDb);
+  },
+
+  async listByTag(tag: string): Promise<QuestionRecord[]> {
+    const PAGE = 1000;
+    const all: DbRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .contains("tags", [tag])
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      all.push(...(data as DbRow[]));
+      if (data.length < PAGE) break;
+    }
+    return all.map(fromDb);
+  },
+
   async create(draft: QuestionDraft): Promise<QuestionRecord> {
     const createdAt = nowIso();
     const record: QuestionRecord = {

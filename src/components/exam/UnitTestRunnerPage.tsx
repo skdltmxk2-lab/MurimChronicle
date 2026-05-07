@@ -6,13 +6,10 @@ import Link from "next/link";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { attemptRepo } from "@/lib/exam/storage";
 import { supabase } from "@/lib/supabase/client";
+import { useAuth } from "@/lib/auth/AuthContext";
 import type { MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
-import { SUBJECT_NAMES } from "@/lib/taxonomy";
-
-const REAL_EXAM_SUBJECTS = SUBJECT_NAMES;
-const REAL_EXAM_PER_SUBJECT = 5;
 
 function seededShuffle<T>(arr: T[], seed: number): T[] {
   const result = [...arr];
@@ -53,6 +50,7 @@ function toProblems(records: QuestionRecord[]): Problem[] {
 
 export function UnitTestRunnerPage() {
   const searchParams = useSearchParams();
+  const { user, authChecked } = useAuth();
   const [exam, setExam] = useState<MockExam | null | undefined>(undefined);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -65,13 +63,30 @@ export function UnitTestRunnerPage() {
   const retryHref = `/student/exams/unit-test?${searchParams.toString()}`;
 
   useEffect(() => {
-    (async () => {
-      const [allQuestions, attempts] = await Promise.all([questionRepo.list(), attemptRepo.listResults()]);
-      const seenProblemIds = new Set<string>();
-      for (const result of attempts) {
-        for (const item of result.items) seenProblemIds.add(item.problemId);
-      }
+    if (!authChecked) return;
+    if (!user) {
+      setExam(undefined);
+      setErrorMsg(null);
+      return;
+    }
+    let cancelled = false;
 
+    setExam(undefined);
+    setErrorMsg(null);
+
+    const fail = (message: string) => {
+      if (!cancelled) setErrorMsg(message);
+    };
+
+    if (mode === "real") {
+      fail("실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.\n시험 목록 페이지의 등록 모의고사를 선택해주세요.");
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    (async () => {
+      try {
       let filtered: QuestionRecord[];
       let title: string;
       let description: string;
@@ -79,9 +94,10 @@ export function UnitTestRunnerPage() {
       let tags: string[];
 
       if (mode === "daily") {
-        const dailyPool = allQuestions.filter((q) => q.tags.includes("daily"));
+        const dailyPool = await questionRepo.listByTag("daily");
+        if (cancelled) return;
         if (dailyPool.length === 0) {
-          setErrorMsg("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
+          fail("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
           return;
         }
         const dailyCount = Math.min(5, dailyPool.length);
@@ -143,51 +159,28 @@ export function UnitTestRunnerPage() {
 
         filtered = pickedIds.map((id) => dailyById.get(id)!).filter(Boolean);
         if (filtered.length === 0) {
-          setErrorMsg("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
+          fail("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
           return;
         }
         title = `데일리 테스트 · ${dateParam}`;
         description = "오늘의 엄선 문제입니다.";
         examId = `unit-daily-${dateParam}`;
         tags = ["daily"];
-      } else if (mode === "real") {
-        setErrorMsg("실전 모의고사는 관리자가 등록한 시험만 응시할 수 있습니다.\n시험 목록 페이지의 등록 모의고사를 선택해주세요.");
-        return;
-        // 아래는 차단 전 자동 생성 코드(보존만, 실행 안 됨)
-        // eslint-disable-next-line no-unreachable
-        const picked: QuestionRecord[] = [];
-        for (const [index, subjectName] of REAL_EXAM_SUBJECTS.entries()) {
-          const pool = allQuestions.filter((q) => q.subject === subjectName);
-          picked.push(...seededShuffle(pool, seed + index + 1).slice(0, REAL_EXAM_PER_SUBJECT));
-        }
-
-        const pickedIds = new Set(picked.map((q) => q.id));
-        const fallback = seededShuffle(
-          allQuestions.filter((q) => !pickedIds.has(q.id)),
-          seed + 991
-        );
-        filtered = [...picked];
-        for (const question of fallback) {
-          if (filtered.length >= 25) break;
-          filtered.push(question);
-        }
-
-        if (filtered.length === 0) {
-          setErrorMsg("실전 모의고사로 출제할 문제가 아직 없습니다.\n문제 업로드 후 다시 시도해 주세요.");
-          return;
-        }
-
-        title = "실전 모의고사";
-        description = `${filtered.length}문항 · 60분 · 5개 과목 통합`;
-        examId = `unit-real-${seed}`;
-        tags = ["실전", ...REAL_EXAM_SUBJECTS];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
-        const pool = allQuestions.filter((q) => selectedUnits.includes(q.unit));
+        const [pool, attempts] = await Promise.all([
+          questionRepo.listByUnits(selectedUnits),
+          attemptRepo.listResults(),
+        ]);
+        if (cancelled) return;
         if (pool.length === 0) {
           const unitStr = selectedUnits.join(", ");
-          setErrorMsg(`선택한 단원(${unitStr})의 문제가 아직 없습니다.\n문제 업로드 후 다시 시도해 주세요.`);
+          fail(`선택한 단원(${unitStr})의 문제가 아직 없습니다.\n문제 업로드 후 다시 시도해 주세요.`);
           return;
+        }
+        const seenProblemIds = new Set<string>();
+        for (const result of attempts) {
+          for (const item of result.items) seenProblemIds.add(item.problemId);
         }
         const localSeed = Math.floor(Date.now() % 0x7fffffff);
         // Push previously-seen problems to the back so unseen ones come first.
@@ -208,6 +201,7 @@ export function UnitTestRunnerPage() {
       }
 
       const problems = toProblems(filtered);
+      if (cancelled) return;
       setExam({
         id: examId,
         title,
@@ -217,9 +211,44 @@ export function UnitTestRunnerPage() {
         tags,
         problems,
       });
+      } catch {
+        fail("시험을 불러오는 중 오류가 발생했습니다.\n잠시 후 다시 시도해 주세요.");
+      }
     })();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    return () => {
+      cancelled = true;
+    };
+  }, [authChecked, user, mode, subject, unitsParam, count, dateParam, seed]);
+
+  if (!authChecked) {
+    return (
+      <main className="mx-auto max-w-5xl px-5 py-10">
+        <section className="rounded-lg border border-line bg-white p-6 text-sm font-bold text-slate-600 shadow-soft">
+          로그인 상태를 확인하는 중입니다...
+        </section>
+      </main>
+    );
+  }
+
+  if (!user) {
+    return (
+      <main className="mx-auto max-w-5xl px-5 py-10">
+        <section className="rounded-lg border border-line bg-white p-8 text-center shadow-soft">
+          <div className="mb-4 text-4xl">🔒</div>
+          <h1 className="text-xl font-black text-ink">로그인이 필요합니다</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            시험을 계속 보려면 상단에서 로그인해 주세요.
+          </p>
+          <Link
+            href="/student/exams"
+            className="mt-6 inline-flex rounded-md bg-brand-600 px-4 py-3 text-sm font-black text-white hover:bg-brand-700"
+          >
+            시험 목록으로
+          </Link>
+        </section>
+      </main>
+    );
+  }
 
   if (errorMsg) {
     return (
