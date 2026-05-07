@@ -42,6 +42,7 @@ export default function StudentExamsPage() {
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [unitTestCount, setUnitTestCount] = useState(10);
   const [subjectMockOpen, setSubjectMockOpen] = useState(false);
+  const [mockSubject, setMockSubject] = useState<string | null>(null);
 
   useEffect(() => {
     questionRepo.list().then((qs) => {
@@ -92,15 +93,21 @@ export default function StudentExamsPage() {
     setSubjectModalOpen(false);
   }
 
-  function startSubjectMock(subjectName: string) {
+  function openSubjectMockModal() {
+    setMockSubject(null);
+    setSubjectMockOpen(true);
+  }
+
+  function startSubjectMockRound(subjectName: string, round: number) {
     const params = new URLSearchParams({
       mode: "subject_mock",
       subject: subjectName,
-      count: "20",
-      seed: String(Date.now()),
+      round: String(round),
+      seed: `mock-${subjectName}-${round}`,
     });
     router.push(`/student/exams/unit-test?${params.toString()}`);
     setSubjectMockOpen(false);
+    setMockSubject(null);
   }
 
   if (!authChecked) return null;
@@ -319,10 +326,10 @@ export default function StudentExamsPage() {
           </div>
           <button
             type="button"
-            onClick={() => setSubjectMockOpen(true)}
+            onClick={openSubjectMockModal}
             className="mt-4 w-full rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
           >
-            과목 선택하기
+            회차 선택하기
           </button>
         </div>
       </section>
@@ -522,43 +529,97 @@ export default function StudentExamsPage() {
         </div>
       )}
 
-      {/* 단원별 모의고사: 과목 선택 모달 */}
+      {/* 단원별 모의고사: 과목 → 회차 선택 모달 */}
       {subjectMockOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
-          onClick={() => setSubjectMockOpen(false)}
+          onClick={() => {
+            setSubjectMockOpen(false);
+            setMockSubject(null);
+          }}
         >
           <div
             className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-5">
-              <h3 className="text-xl font-black text-ink">단원별 모의고사</h3>
-              <p className="mt-1 text-sm text-slate-500">응시할 과목을 선택하세요 · 20문항 50분</p>
-            </div>
-            <div className="space-y-2">
-              {SUBJECTS.map((subject) => (
-                <button
-                  key={subject.name}
-                  type="button"
-                  onClick={() => startSubjectMock(subject.name)}
-                  className="flex w-full items-center gap-4 rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
-                >
-                  <span className="text-2xl">{subject.emoji}</span>
+            {mockSubject ? (
+              <>
+                <div className="mb-5 flex items-center gap-3">
+                  <span className="text-2xl">
+                    {SUBJECTS.find((s) => s.name === mockSubject)?.emoji}
+                  </span>
                   <div>
-                    <div className="text-sm font-black text-ink">{subject.name}</div>
-                    <div className="text-xs text-slate-500">{subject.desc}</div>
+                    <h3 className="text-lg font-black text-ink">{mockSubject} 단원별 모의고사</h3>
+                    <p className="text-xs text-slate-500">응시할 회차를 선택하세요 · 20문항 50분</p>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  {[1, 2, 3].map((round) => (
+                    <button
+                      key={round}
+                      type="button"
+                      onClick={() => startSubjectMockRound(mockSubject, round)}
+                      className="flex w-full items-center justify-between rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
+                    >
+                      <div>
+                        <div className="text-sm font-black text-ink">{round}회</div>
+                        <div className="text-xs text-slate-500">난이도 균형 출제 · 20문항</div>
+                      </div>
+                      <span className="text-xs font-black text-orange-600">시작 →</span>
+                    </button>
+                  ))}
+                </div>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setMockSubject(null)}
+                    className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  >
+                    ← 다른 과목
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubjectMockOpen(false);
+                      setMockSubject(null);
+                    }}
+                    className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mb-5">
+                  <h3 className="text-xl font-black text-ink">단원별 모의고사</h3>
+                  <p className="mt-1 text-sm text-slate-500">응시할 과목을 선택하세요 · 20문항 50분</p>
+                </div>
+                <div className="space-y-2">
+                  {SUBJECTS.map((subject) => (
+                    <button
+                      key={subject.name}
+                      type="button"
+                      onClick={() => setMockSubject(subject.name)}
+                      className="flex w-full items-center gap-4 rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
+                    >
+                      <span className="text-2xl">{subject.emoji}</span>
+                      <div>
+                        <div className="text-sm font-black text-ink">{subject.name}</div>
+                        <div className="text-xs text-slate-500">{subject.desc}</div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSubjectMockOpen(false)}
+                  className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+                >
+                  닫기
                 </button>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => setSubjectMockOpen(false)}
-              className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
-            >
-              닫기
-            </button>
+              </>
+            )}
           </div>
         </div>
       )}

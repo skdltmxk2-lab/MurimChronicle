@@ -10,6 +10,11 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import type { MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
+import { buildSubjectMockRounds } from "@/lib/exam/buildSubjectMockRounds";
+
+export const SUBJECT_MOCK_ROUNDS = 3;
+export const SUBJECT_MOCK_PER_ROUND = 20;
+export const SUBJECT_MOCK_TIME_SEC = 50 * 60;
 
 function seededShuffle<T>(arr: T[], seed: number): T[] {
   const result = [...arr];
@@ -59,6 +64,7 @@ export function UnitTestRunnerPage() {
   const unitsParam = searchParams.get("units") ?? "";
   const count = Math.min(20, Math.max(1, Number(searchParams.get("count") ?? "10")));
   const dateParam = searchParams.get("date") ?? new Date().toISOString().slice(0, 10);
+  const round = Math.max(1, Number(searchParams.get("round") ?? "1"));
   const seed = Number(searchParams.get("seed")) || hashSeed(`${mode ?? "unit"}:${subject}:${unitsParam}:${dateParam}`);
   const retryHref = `/student/exams/unit-test?${searchParams.toString()}`;
 
@@ -177,12 +183,20 @@ export function UnitTestRunnerPage() {
           fail(`${subject} 과목의 문제가 아직 없습니다.\n관리자에 문의해 주세요.`);
           return;
         }
-        const localSeed = Math.floor(Date.now() % 0x7fffffff);
-        filtered = seededShuffle(pool, localSeed).slice(0, count);
-        title = `${subject} 단원별 모의고사`;
-        description = `${subject} 전 단원 · ${filtered.length}문항 · 50분`;
-        examId = `subject-mock-${subject}-${localSeed}`;
-        tags = [subject, "단원별 모의고사"];
+        const allRounds = buildSubjectMockRounds(pool, {
+          rounds: SUBJECT_MOCK_ROUNDS,
+          perRound: SUBJECT_MOCK_PER_ROUND,
+        });
+        const roundIndex = round - 1;
+        if (roundIndex < 0 || roundIndex >= allRounds.length) {
+          fail(`${subject} ${round}회 모의고사가 아직 준비되지 않았습니다.`);
+          return;
+        }
+        filtered = allRounds[roundIndex];
+        title = `${subject} 단원별 모의고사 ${round}회`;
+        description = `${filtered.length}문항 · 50분 · 난이도 균형 출제`;
+        examId = `subject-mock:${subject}:${round}`;
+        tags = [subject, "단원별 모의고사", `${round}회`];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
         const [pool, attempts] = await Promise.all([
@@ -238,7 +252,7 @@ export function UnitTestRunnerPage() {
     return () => {
       cancelled = true;
     };
-  }, [authChecked, user, mode, subject, unitsParam, count, dateParam, seed]);
+  }, [authChecked, user, mode, subject, unitsParam, count, dateParam, round, seed]);
 
   if (!authChecked) {
     return (
