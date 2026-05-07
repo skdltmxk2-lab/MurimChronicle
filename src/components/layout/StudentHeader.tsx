@@ -9,22 +9,19 @@ import { useAuth } from "@/lib/auth/AuthContext";
 function RouteMathIcon({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="228 16 224 224"
+      viewBox="0 0 100 100"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       aria-hidden="true"
     >
-      <rect x="230" y="18" width="220" height="220" rx="44" fill="#0D1F3C" />
-      <rect x="236" y="24" width="208" height="208" rx="40" fill="none" stroke="#1A3458" strokeWidth="1.2" />
-      <path
-        d="M265 132 L290 163 L323 74 L400 74"
-        stroke="white"
-        strokeWidth="13"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      <polygon points="398,61 418,74 398,87" fill="#00C88A" />
+      <g fill="#1E3A8A">
+        {/* 가로 길쭉한 spike (좌우) */}
+        <ellipse cx="50" cy="50" rx="48" ry="7" />
+        {/* 세로 길쭉한 spike (상하) */}
+        <ellipse cx="50" cy="50" rx="7" ry="48" />
+        {/* 작은 4-point star (대각선 spike) */}
+        <polygon points="50,18 54,46 82,50 54,54 50,82 46,54 18,50 46,46" />
+      </g>
     </svg>
   );
 }
