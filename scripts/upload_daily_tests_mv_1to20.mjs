@@ -237,7 +237,7 @@ const problems = [
     answer: "2",
     explanation: "$t=x^2+y^2\\to 0$. $\\lim_{t\\to 0}\\frac{e^{-t}-1}{t}=-1$." }),
   build({ testNo: 5, num: 5, unit: "편도함수", concept: "이변수 극한", difficulty: "easyMedium",
-    question: "다음 중 극한이 존재하는 것을 모두 고르면?\\\\(a) $\\lim\\dfrac{x-y}{\\sin(x+y)}$\\\\(b) $\\lim\\dfrac{x\\sqrt{y^3}}{x^2+y^2}$\\\\(c) $\\lim\\dfrac{x\\sin(x^2+y^2)}{x^2+y^2}$",
+    question: "다음 중 극한이 존재하는 것을 모두 고르면? (a) $\\lim\\dfrac{x-y}{\\sin(x+y)}$, (b) $\\lim\\dfrac{x\\sqrt{y^3}}{x^2+y^2}$, (c) $\\lim\\dfrac{x\\sin(x^2+y^2)}{x^2+y^2}$",
     options: [o("1","(a)"),o("2","(b)"),o("3","(c)"),o("4","(a),(c)"),o("5","(b),(c)")],
     answer: "5",
     explanation: "(a) 경로 의존. (b),(c) 모두 0으로 수렴." }),
@@ -380,12 +380,12 @@ const problems = [
 
   // ========== DT9 미분가능성, 선형근사 ==========
   build({ testNo: 9, num: 1, unit: "편도함수", concept: "미분가능성", difficulty: "easyMedium",
-    question: "함수 $f(x,y)=\\begin{cases}x^2y/(x^4+y^2),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$ 중 옳은 것을 모두 고르면?\\\\가. 원점에서 연속\\\\나. 원점에서 미분가능\\\\다. $f_x(0,0)=0,f_y(0,0)=0$",
+    question: "함수 $f(x,y)=\\begin{cases}x^2y/(x^4+y^2),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$ 중 옳은 것을 모두 고르면? 가. 원점에서 연속 / 나. 원점에서 미분가능 / 다. $f_x(0,0)=0,f_y(0,0)=0$",
     options: [o("1","가"),o("2","다"),o("3","가,나"),o("4","가,다"),o("5","가,나,다")],
     answer: "2",
     explanation: "$y=mx^2$ 경로 의존이라 가 거짓, 불연속이라 나 거짓. 다만 편미분은 0,0에서 0으로 존재." }),
   build({ testNo: 9, num: 2, unit: "편도함수", concept: "편미분 / 미분가능성", difficulty: "easyMedium",
-    question: "$f(x,y)=\\begin{cases}xy^2\\sqrt{x^2+y^2}/(x^2+y^4),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$. 옳은 것을 모두 고르면?\\\\ⓐ 원점에서 $f_x$ 존재\\\\ⓑ 원점에서 $f_y$ 존재\\\\ⓒ 원점에서 미분가능",
+    question: "$f(x,y)=\\begin{cases}xy^2\\sqrt{x^2+y^2}/(x^2+y^4),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$. 옳은 것을 모두 고르면? ⓐ 원점에서 $f_x$ 존재 / ⓑ 원점에서 $f_y$ 존재 / ⓒ 원점에서 미분가능",
     options: [o("1","ⓐ"),o("2","ⓑ"),o("3","ⓐ,ⓑ"),o("4","ⓐ,ⓑ,ⓒ"),o("5","없음")],
     answer: "3",
     explanation: "원점에서 두 편미분 모두 0으로 존재. 그러나 미분가능성 정의 한계 검증 시 실패." }),
