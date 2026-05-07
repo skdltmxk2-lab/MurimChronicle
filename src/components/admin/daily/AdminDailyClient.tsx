@@ -71,26 +71,27 @@ export function AdminDailyClient() {
     }
   }
 
-  if (!authChecked) return null;
-  if (!isAdmin) {
-    return (
-      <main className="mx-auto max-w-4xl px-5 py-16 text-center">
-        <div className="text-4xl">🔒</div>
-        <h1 className="mt-4 text-xl font-black text-ink">관리자 전용 페이지입니다</h1>
-      </main>
-    );
-  }
-
-  const dailyQuestions = allQuestions.filter((q) => q.tags.includes("daily"));
-  const dailyById = useMemo(() => new Map(dailyQuestions.map((q) => [q.id, q])), [dailyQuestions]);
-  const nonDailyQuestions = allQuestions
-    .filter((q) => !q.tags.includes("daily"))
-    .filter((q) =>
-      search.trim() === "" ||
-      q.question.includes(search) ||
-      q.unit.includes(search) ||
-      q.subject.includes(search)
-    );
+  // hooks는 early return 이전에 모두 호출되어야 함 (React Hooks 규칙)
+  const dailyQuestions = useMemo(
+    () => allQuestions.filter((q) => q.tags.includes("daily")),
+    [allQuestions]
+  );
+  const dailyById = useMemo(
+    () => new Map(dailyQuestions.map((q) => [q.id, q])),
+    [dailyQuestions]
+  );
+  const nonDailyQuestions = useMemo(
+    () =>
+      allQuestions
+        .filter((q) => !q.tags.includes("daily"))
+        .filter((q) =>
+          search.trim() === "" ||
+          q.question.includes(search) ||
+          q.unit.includes(search) ||
+          q.subject.includes(search)
+        ),
+    [allQuestions, search]
+  );
 
   // 자동 모드일 때 미리보기 (assignment 없으면 라운드 로빈 추정 — 단순히 ID 정렬 후 5개)
   const autoPreview = useMemo(() => {
@@ -120,6 +121,16 @@ export function AdminDailyClient() {
   const randomUnitOptions = randomSubject
     ? (SUBJECT_UNITS[randomSubject as keyof typeof SUBJECT_UNITS] ?? [])
     : [];
+
+  if (!authChecked) return null;
+  if (!isAdmin) {
+    return (
+      <main className="mx-auto max-w-4xl px-5 py-16 text-center">
+        <div className="text-4xl">🔒</div>
+        <h1 className="mt-4 text-xl font-black text-ink">관리자 전용 페이지입니다</h1>
+      </main>
+    );
+  }
 
   async function addToDaily(q: QuestionRecord) {
     setSaving(q.id);
