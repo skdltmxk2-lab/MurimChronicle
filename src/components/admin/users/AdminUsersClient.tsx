@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { isAdminUser } from "@/lib/auth/mockAuth";
 import { adminFetch } from "@/lib/api/adminFetch";
+import { USER_TIER_ORDER, USER_TIER_LABELS, type UserTier } from "@/types/auth";
 
 type AdminUserRow = {
   id: string;
@@ -22,19 +23,12 @@ function formatDateTime(iso: string | null): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-const TIER_LABEL: Record<string, string> = {
-  free: "FREE · 무료",
-  go: "GO",
-  plus: "PLUS",
-  pro: "PRO",
-  max: "MAX",
-};
-
 export function AdminUsersClient() {
   const { user, authChecked } = useAuth();
   const [rows, setRows] = useState<AdminUserRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
@@ -63,8 +57,40 @@ export function AdminUsersClient() {
     load();
   }, [authChecked, user]);
 
+  async function patchUser(target: AdminUserRow, patch: { tier?: UserTier; isAdmin?: boolean }) {
+    setSavingId(target.id);
+    try {
+      const res = await adminFetch(`/api/admin/users/${target.id}`, {
+        method: "PATCH",
+        body: JSON.stringify(patch),
+      });
+      const json = (await res.json()) as { ok: boolean; message?: string };
+      if (!json.ok) {
+        alert(json.message ?? "변경 중 오류가 발생했습니다.");
+        return;
+      }
+      setRows((prev) =>
+        prev.map((r) =>
+          r.id === target.id
+            ? {
+                ...r,
+                tier: patch.tier ?? r.tier,
+                isAdmin: typeof patch.isAdmin === "boolean" ? patch.isAdmin : r.isAdmin,
+              }
+            : r
+        )
+      );
+    } catch {
+      alert("변경 중 오류가 발생했습니다.");
+    } finally {
+      setSavingId(null);
+    }
+  }
+
   async function deleteUser(target: AdminUserRow) {
-    const ok = window.confirm(`정말 ${target.email} 회원을 삭제하시겠습니까?\n모든 풀이 기록이 함께 삭제됩니다.`);
+    const ok = window.confirm(
+      `정말 ${target.email} 회원을 삭제하시겠습니까?\n모든 풀이 기록이 함께 삭제됩니다.`
+    );
     if (!ok) return;
     setDeletingId(target.id);
     try {
@@ -115,7 +141,8 @@ export function AdminUsersClient() {
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">관리자</p>
         <h1 className="mt-1 text-3xl font-black text-ink">회원 관리</h1>
         <p className="mt-2 text-sm text-slate-600">
-          가입된 회원 목록을 확인하고, 필요 시 회원을 삭제할 수 있습니다.
+          가입된 회원의 등급과 관리자 권한을 변경할 수 있습니다. 본인 계정의 관리자 권한 해제와
+          삭제는 자기-락아웃 방지를 위해 막혀 있습니다.
         </p>
       </section>
 
@@ -162,35 +189,80 @@ export function AdminUsersClient() {
                   <th className="px-3 py-3">이메일</th>
                   <th className="px-3 py-3">이름</th>
                   <th className="px-3 py-3">등급</th>
+                  <th className="px-3 py-3">권한</th>
                   <th className="px-3 py-3">가입일</th>
                   <th className="px-3 py-3">최근 로그인</th>
                   <th className="px-3 py-3 text-right">관리</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((row) => (
-                  <tr key={row.id} className="border-b border-line/50 hover:bg-slate-50">
-                    <td className="px-3 py-3 font-bold text-ink">{row.email || "—"}</td>
-                    <td className="px-3 py-3 text-slate-700">{row.name || "—"}</td>
-                    <td className="px-3 py-3">
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-black text-slate-700">
-                        {TIER_LABEL[row.tier] ?? row.tier}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.createdAt)}</td>
-                    <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.lastSignInAt)}</td>
-                    <td className="px-3 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => deleteUser(row)}
-                        disabled={deletingId === row.id}
-                        className="rounded-md border border-red-300 px-3 py-1 text-xs font-black text-red-600 hover:bg-red-50 disabled:opacity-50"
-                      >
-                        {deletingId === row.id ? "삭제 중..." : "삭제"}
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {filtered.map((row) => {
+                  const isSelf = row.id === user?.id;
+                  const isSaving = savingId === row.id;
+                  const isDeleting = deletingId === row.id;
+                  return (
+                    <tr key={row.id} className="border-b border-line/50 hover:bg-slate-50">
+                      <td className="px-3 py-3 font-bold text-ink">
+                        {row.email || "—"}
+                        {isSelf ? (
+                          <span className="ml-2 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-black text-brand-700">
+                            나
+                          </span>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-3 text-slate-700">{row.name || "—"}</td>
+                      <td className="px-3 py-3">
+                        <select
+                          value={row.tier}
+                          disabled={isSaving}
+                          onChange={(e) => patchUser(row, { tier: e.target.value as UserTier })}
+                          className="rounded-md border border-line bg-white px-2 py-1 text-xs font-black text-slate-700 outline-none focus:border-brand-600 disabled:opacity-50"
+                        >
+                          {USER_TIER_ORDER.map((t) => (
+                            <option key={t} value={t}>
+                              {USER_TIER_LABELS[t]}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="px-3 py-3">
+                        {row.isAdmin ? (
+                          <button
+                            type="button"
+                            disabled={isSelf || isSaving}
+                            onClick={() => patchUser(row, { isAdmin: false })}
+                            className="rounded-full bg-ink px-2.5 py-0.5 text-xs font-black text-white hover:bg-slate-700 disabled:opacity-50"
+                            title={isSelf ? "본인 권한은 해제할 수 없습니다" : "관리자 해제"}
+                          >
+                            ADMIN
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            disabled={isSaving}
+                            onClick={() => patchUser(row, { isAdmin: true })}
+                            className="rounded-full border border-line bg-white px-2.5 py-0.5 text-xs font-black text-slate-500 hover:border-ink hover:text-ink disabled:opacity-50"
+                          >
+                            임명
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.createdAt)}</td>
+                      <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.lastSignInAt)}</td>
+                      <td className="px-3 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => deleteUser(row)}
+                          disabled={isDeleting || isSelf}
+                          title={isSelf ? "본인 계정은 삭제할 수 없습니다" : "회원 삭제"}
+                          className="rounded-md border border-red-300 px-3 py-1 text-xs font-black text-red-600 hover:bg-red-50 disabled:opacity-50"
+                        >
+                          {isDeleting ? "삭제 중..." : "삭제"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
