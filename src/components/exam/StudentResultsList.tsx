@@ -99,7 +99,7 @@ export function StudentResultsList() {
       <div className="mb-4 flex gap-2 border-b border-line">
         {(
           [
-            { key: "subject_mock", label: "단원별 모의고사" },
+            { key: "subject_mock", label: "과목별 모의고사" },
             { key: "real", label: "실전 모의고사" },
           ] as { key: Tab; label: string }[]
         ).map((t) => (
@@ -126,7 +126,7 @@ export function StudentResultsList() {
           <h2 className="text-lg font-black text-ink">아직 응시 기록이 없어요</h2>
           <p className="mt-2 text-sm text-slate-500">
             {tab === "subject_mock"
-              ? "단원별 모의고사를 한 회차 풀어보면 여기에 점수가 누적돼요."
+              ? "과목별 모의고사를 한 회차 풀어보면 여기에 점수가 누적돼요."
               : "실전 모의고사를 응시하면 여기에서 다시 볼 수 있어요."}
           </p>
           <Link
@@ -141,7 +141,7 @@ export function StudentResultsList() {
           {filtered.map((r) => {
             const meta = isSubjectMock(r.examId) ? parseSubjectMockId(r.examId) : null;
             const headline = meta
-              ? `${meta.subject} 단원별 모의고사 ${meta.round}회`
+              ? `${meta.subject} 과목별 모의고사 ${meta.round}회`
               : r.examTitle || r.examId;
             return (
               <Link

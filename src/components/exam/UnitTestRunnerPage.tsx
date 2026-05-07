@@ -193,10 +193,10 @@ export function UnitTestRunnerPage() {
           return;
         }
         filtered = allRounds[roundIndex];
-        title = `${subject} 단원별 모의고사 ${round}회`;
-        description = `${filtered.length}문항 · 50분 · 난이도 균형 출제`;
+        title = `${subject} 과목별 모의고사 ${round}회`;
+        description = `${filtered.length}문항 · 50분 · 단원·난이도 균형 출제`;
         examId = `subject-mock:${subject}:${round}`;
-        tags = [subject, "단원별 모의고사", `${round}회`];
+        tags = [subject, "과목별 모의고사", `${round}회`];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
         const [pool, attempts] = await Promise.all([

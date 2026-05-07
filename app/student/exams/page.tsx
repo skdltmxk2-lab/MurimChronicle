@@ -233,7 +233,7 @@ export default function StudentExamsPage() {
         </div>
       </section>
 
-      {/* 단원별 학습 + 단원별 모의고사 */}
+      {/* 단원별 학습 + 과목별 모의고사 */}
       <section className="mb-5 grid gap-5 md:grid-cols-2">
         {/* 단원별 학습 */}
         <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
@@ -284,7 +284,7 @@ export default function StudentExamsPage() {
           </button>
         </div>
 
-        {/* 단원별 모의고사 */}
+        {/* 과목별 모의고사 */}
         <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
           <div className="flex items-start gap-3">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-2xl">
@@ -294,11 +294,11 @@ export default function StudentExamsPage() {
               <p className="text-xs font-black uppercase tracking-[0.15em] text-orange-600">
                 Subject Mock Exam
               </p>
-              <h2 className="mt-0.5 text-lg font-black text-ink">단원별 모의고사</h2>
+              <h2 className="mt-0.5 text-lg font-black text-ink">과목별 모의고사</h2>
             </div>
           </div>
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            한 과목을 골라 20문항을 50분 안에 푸는 단원별 모의고사예요. 시간 압박 속에서 실력을 점검해 보세요.
+            한 과목을 골라 20문항을 50분 안에 푸는 과목별 모의고사예요. 시간 압박 속에서 실력을 점검해 보세요.
           </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {SUBJECTS.map((s) => (
@@ -543,7 +543,7 @@ export default function StudentExamsPage() {
         </div>
       )}
 
-      {/* 단원별 모의고사: 과목 → 회차 선택 모달 */}
+      {/* 과목별 모의고사: 과목 → 회차 선택 모달 */}
       {subjectMockOpen && (
         <div
           className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
@@ -563,7 +563,7 @@ export default function StudentExamsPage() {
                     {SUBJECTS.find((s) => s.name === mockSubject)?.emoji}
                   </span>
                   <div>
-                    <h3 className="text-lg font-black text-ink">{mockSubject} 단원별 모의고사</h3>
+                    <h3 className="text-lg font-black text-ink">{mockSubject} 과목별 모의고사</h3>
                     <p className="text-xs text-slate-500">응시할 회차를 선택하세요 · 20문항 50분</p>
                   </div>
                 </div>
@@ -577,7 +577,7 @@ export default function StudentExamsPage() {
                     >
                       <div>
                         <div className="text-sm font-black text-ink">{round}회</div>
-                        <div className="text-xs text-slate-500">난이도 균형 출제 · 20문항</div>
+                        <div className="text-xs text-slate-500">단원·난이도 균형 출제 · 20문항</div>
                       </div>
                       <span className="text-xs font-black text-orange-600">시작 →</span>
                     </button>
@@ -606,7 +606,7 @@ export default function StudentExamsPage() {
             ) : (
               <>
                 <div className="mb-5">
-                  <h3 className="text-xl font-black text-ink">단원별 모의고사</h3>
+                  <h3 className="text-xl font-black text-ink">과목별 모의고사</h3>
                   <p className="mt-1 text-sm text-slate-500">응시할 과목을 선택하세요 · 20문항 50분</p>
                 </div>
                 <div className="space-y-2">
