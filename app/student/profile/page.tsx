@@ -94,6 +94,23 @@ export default function ProfilePage() {
       <section className="mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">내 정보</p>
         <h1 className="mt-1 text-3xl font-black text-ink">{user.name}님의 학습 현황</h1>
+        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+          <div className="flex items-center gap-2">
+            <dt className="w-20 shrink-0 text-xs font-black text-slate-500">이메일</dt>
+            <dd className="font-bold text-ink">{user.email ?? "—"}</dd>
+          </div>
+          <div className="flex items-center gap-2">
+            <dt className="w-20 shrink-0 text-xs font-black text-slate-500">회원등급</dt>
+            <dd>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
+                GO · 무료
+              </span>
+            </dd>
+          </div>
+        </dl>
+        <p className="mt-3 text-xs text-slate-400">
+          비밀번호는 보안상 표시되지 않습니다. 분실 시 회원탈퇴 후 재가입해주세요.
+        </p>
       </section>
 
       {/* 통계 카드 */}

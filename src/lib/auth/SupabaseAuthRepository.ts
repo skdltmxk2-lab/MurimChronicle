@@ -80,13 +80,16 @@ export const supabaseAuthRepo: IAuthRepository = {
       }
     });
     if (error) {
-      if (error.message.includes("already registered")) {
-        return { ok: false, message: "이미 등록된 이메일입니다." };
+      if (error.message.includes("already registered") || error.message.includes("already been registered")) {
+        return { ok: false, message: "이미 가입된 이메일입니다." };
       }
       return { ok: false, message: error.message };
     }
     if (!data.user) {
       return { ok: false, message: "회원가입 중 오류가 발생했습니다." };
+    }
+    if (data.user.identities && data.user.identities.length === 0) {
+      return { ok: false, message: "이미 가입된 이메일입니다." };
     }
 
     await supabase.from("profiles").upsert({ id: data.user.id, name });

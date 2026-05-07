@@ -101,6 +101,9 @@ export function StudentHeader() {
               <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/imports">
                 대량 업로드
               </Link>
+              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/users">
+                회원 관리
+              </Link>
             </>
           ) : null}
         </nav>
