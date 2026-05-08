@@ -74,6 +74,8 @@ export function SubscriptionInquiryModal() {
     const tier = (user.tier ?? "free") as UserTier;
     const isAdmin = user.role === "admin";
     if (isAdmin || tier === "pro" || tier === "max") {
+      // 이미 열려 있으면 즉시 닫기. (등급 변경/새 코드 배포 직후 케이스)
+      setOpen(false);
       try {
         window.sessionStorage.removeItem(SHOW_FLAG_KEY);
       } catch {
