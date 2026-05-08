@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { attemptRepo } from "@/lib/exam/storage";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { USER_TIER_LABELS } from "@/types/auth";
 import type { AttemptResult } from "@/types/exam";
 
 function formatDate(iso: string): string {
@@ -101,10 +102,15 @@ export default function ProfilePage() {
           </div>
           <div className="flex items-center gap-2">
             <dt className="w-20 shrink-0 text-xs font-black text-slate-500">회원등급</dt>
-            <dd>
+            <dd className="flex flex-wrap items-center gap-2">
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">
-                GO · 무료
+                {USER_TIER_LABELS[user.tier]}
               </span>
+              {user.role === "admin" ? (
+                <span className="rounded-full bg-ink px-2.5 py-1 text-xs font-black text-white">
+                  ADMIN
+                </span>
+              ) : null}
             </dd>
           </div>
         </dl>
