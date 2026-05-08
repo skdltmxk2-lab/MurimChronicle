@@ -239,25 +239,32 @@ export default function StudentExamsPage() {
         </div>
 
         {/* Pro 복습: 최근 7일 틀린 문제 */}
-        <div className="mt-3 flex items-center justify-between rounded-xl border border-mint-200 bg-mint-50 px-5 py-4">
+        <div
+          className="mt-3 flex items-center justify-between rounded-xl px-5 py-4 shadow-soft"
+          style={{
+            backgroundColor: "#dcfce7",
+            border: "2px solid #0b8a61",
+          }}
+        >
           <div>
             <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
               Pro · 복습
             </p>
             <p className="mt-0.5 text-base font-black text-ink">최근 틀린 문제 다시 보기</p>
-            <p className="mt-0.5 text-xs text-slate-500">
+            <p className="mt-0.5 text-xs text-slate-700">
               지난 7일 동안 틀린 문제만 모아 복습 (Pro 등급)
             </p>
           </div>
           {canUseTier(user, "pro") ? (
             <Link
               href="/student/wrong-questions"
-              className="shrink-0 rounded-lg bg-mint-600 px-5 py-2.5 text-sm font-black text-white hover:bg-mint-700"
+              className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-black text-white hover:opacity-90"
+              style={{ backgroundColor: "#0b8a61" }}
             >
               열람 →
             </Link>
           ) : (
-            <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
+            <span className="shrink-0 rounded-lg bg-slate-200 px-5 py-2.5 text-sm font-black text-slate-500">
               🔒 {tierLockMessage("pro")}
             </span>
           )}
