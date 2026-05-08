@@ -38,7 +38,12 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
       await attemptRepo.saveResult(result);
       await attemptRepo.clearAnswers(exam.id);
-      router.push(`/student/results/${attemptId}`);
+      // 취약유형 모의고사는 별도 리포트 페이지로 진입
+      if (exam.id.startsWith("weakness-")) {
+        router.push(`/student/exams/weakness/report/${attemptId}`);
+      } else {
+        router.push(`/student/results/${attemptId}`);
+      }
     },
     [exam, router]
   );

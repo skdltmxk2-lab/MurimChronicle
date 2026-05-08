@@ -628,7 +628,7 @@ def suggest_metadata(text: str, latex: str, source_filename: str) -> dict[str, A
             "difficulty_reason": "OCR/파일명에서 분류 키워드를 충분히 찾지 못했습니다.",
             "reason": "자동 추천 근거가 부족합니다. 사용자가 직접 선택해야 합니다.",
             "confidence": 0.0,
-            "needs_review": True,
+            "needs_review" : True,
         }
 
     ranked = sorted(scores.items(), key=lambda item: item[1], reverse=True)

@@ -283,25 +283,19 @@ export default function StudentExamsPage() {
                 {user.name}님의 취약유형 모의고사
               </h2>
               <p className="mt-2 text-sm leading-6 text-orange-100">
-                {user.name}님이 자주 틀리는 유형을 분석해 만든 맞춤형 모의고사예요.
+                {user.name}님이 자주 틀리는 유형을 분석해 만든 25문항 맞춤형 모의고사예요.
                 <br />
-                더 많은 문제를 풀수록 더 정밀해집니다!
+                약점 보강 + 미체험 유형 + 오답 복습 + 강점 심화 4단계로 출제됩니다.
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-black text-white">
-                  데이터 수집 중
-                </span>
-              </div>
             </div>
             <span className="shrink-0 text-5xl">🎯</span>
           </div>
-          <button
-            type="button"
-            disabled
-            className="mt-4 w-full cursor-not-allowed rounded-lg bg-white/20 py-3 text-sm font-black text-white/60"
+          <Link
+            href="/student/exams/weakness/analysis"
+            className="mt-4 flex w-full items-center justify-center rounded-lg bg-white py-3 text-sm font-black text-orange-600 transition hover:brightness-95"
           >
-            문제를 더 풀면 활성화됩니다
-          </button>
+            분석 보기 / 응시하기 →
+          </Link>
         </div>
       </section>
 
