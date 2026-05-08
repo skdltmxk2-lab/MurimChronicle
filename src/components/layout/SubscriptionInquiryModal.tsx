@@ -69,9 +69,11 @@ export function SubscriptionInquiryModal() {
       return;
     }
     if (typeof window === "undefined") return;
-    // pro/max 등급은 팝업 노출 안 함. 플래그가 set돼 있어도 그대로 비움.
+    // 관리자, 그리고 pro/max 등급은 팝업 노출 안 함.
+    // 플래그가 set돼 있어도 그대로 비움.
     const tier = (user.tier ?? "free") as UserTier;
-    if (tier === "pro" || tier === "max") {
+    const isAdmin = user.role === "admin";
+    if (isAdmin || tier === "pro" || tier === "max") {
       try {
         window.sessionStorage.removeItem(SHOW_FLAG_KEY);
       } catch {
@@ -102,6 +104,7 @@ export function SubscriptionInquiryModal() {
   }
 
   if (!open || !user) return null;
+  if (user.role === "admin") return null;
   const tier = (user.tier ?? "free") as UserTier;
   const content = contentForTier(tier);
   if (!content) return null;
