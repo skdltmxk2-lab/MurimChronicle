@@ -19,7 +19,10 @@ const config: Config = {
         },
         mint: {
           50: "#eefbf5",
-          600: "#0b8a61"
+          200: "#bbeed6",
+          500: "#10a376",
+          600: "#0b8a61",
+          700: "#076a4a"
         },
         coral: {
           50: "#fff1ee",
