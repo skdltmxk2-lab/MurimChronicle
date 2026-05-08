@@ -32,28 +32,43 @@ export function StudentHeader() {
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   async function submitStudent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = await authRepo.loginStudent({
-      email: studentEmail,
-      password: studentPassword
-    });
-    if (!result.ok) {
-      setError(result.message);
-      return;
-    }
-    setUser(result.user);
-    setStudentEmail("");
-    setStudentPassword("");
+    if (submitting) return;
+    setSubmitting(true);
     setError("");
+    try {
+      const result = await authRepo.loginStudent({
+        email: studentEmail,
+        password: studentPassword
+      });
+      if (!result.ok) {
+        setError(result.message);
+        return;
+      }
+      setUser(result.user);
+      setStudentEmail("");
+      setStudentPassword("");
+    } catch (e) {
+      console.error("[auth] loginStudent threw", e);
+      setError("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   async function logout() {
-    await authRepo.logout();
-    setUser(null);
-    setError("");
-    router.replace("/student/exams");
+    try {
+      await authRepo.logout();
+    } catch (e) {
+      console.error("[auth] logout threw", e);
+    } finally {
+      setUser(null);
+      setError("");
+      router.replace("/student/exams");
+    }
   }
 
   return (
@@ -131,9 +146,10 @@ export function StudentHeader() {
                 />
                 <button
                   type="submit"
-                  className="shrink-0 rounded-md border border-brand-600 px-3 py-2 text-sm font-black text-brand-700 hover:bg-brand-50"
+                  disabled={submitting}
+                  className="shrink-0 rounded-md border border-brand-600 px-3 py-2 text-sm font-black text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  로그인
+                  {submitting ? "로그인 중..." : "로그인"}
                 </button>
                 <Link
                   href="/student/register"
