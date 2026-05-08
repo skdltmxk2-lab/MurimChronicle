@@ -22,6 +22,21 @@ function formatStat(count: number): string {
   return `${Math.floor(count / 10) * 10}+`;
 }
 
+// 운영 초기 단계에서는 통계 카드를 임계값 아래로 내려가지 않도록 고정한다.
+// 실제 등록 문항이 5000개를 넘기는 순간부터 자동으로 실제 카운트가 노출된다.
+const QUESTIONS_FLOOR = 5000;
+const EXAMS_FLOOR = 500;
+function formatQuestionStat(count: number): string {
+  if (count >= QUESTIONS_FLOOR) return formatStat(count);
+  return `${QUESTIONS_FLOOR}+`;
+}
+function formatExamStat(count: number): string {
+  // '시험'은 count/10으로 산출되므로 5000을 넘는 순간 500을 자동으로 넘는다.
+  const exams = Math.floor(count / 10);
+  if (exams >= EXAMS_FLOOR) return formatStat(exams);
+  return `${EXAMS_FLOOR}+`;
+}
+
 function getTodayStr(): string {
   const d = new Date();
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
@@ -174,11 +189,11 @@ export default function StudentExamsPage() {
           <div className="grid grid-cols-2 gap-3 text-center">
             <div className="rounded-md border border-line px-4 py-3">
               <div className="text-xs font-bold text-slate-500">문항</div>
-              <div className="mt-1 text-xl font-black text-ink">{formatStat(questionCount)}</div>
+              <div className="mt-1 text-xl font-black text-ink">{formatQuestionStat(questionCount)}</div>
             </div>
             <div className="rounded-md border border-line px-4 py-3">
               <div className="text-xs font-bold text-slate-500">시험</div>
-              <div className="mt-1 text-xl font-black text-ink">{formatStat(Math.floor(questionCount / 10))}</div>
+              <div className="mt-1 text-xl font-black text-ink">{formatExamStat(questionCount)}</div>
             </div>
           </div>
         </div>
