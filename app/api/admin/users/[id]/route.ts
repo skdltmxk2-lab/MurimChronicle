@@ -13,7 +13,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { tier?: string; isAdmin?: boolean }
+    | { tier?: string; tierMonths?: number | null; isAdmin?: boolean }
     | null;
   if (!body) {
     return NextResponse.json({ ok: false, message: "잘못된 요청입니다." }, { status: 400 });
@@ -28,6 +28,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       );
     }
     updates.tier = body.tier;
+    // tierMonths 정책:
+    //  - body.tierMonths가 양수: 지금부터 그 개월 수만큼 만료일을 설정.
+    //  - 0 / null / 미전달이면서 tier가 free: 만료일 NULL (의미 없음).
+    //  - 0 / null / 미전달이면서 tier가 free 외: 영구(만료 없음) → NULL.
+    if (body.tier === "free") {
+      updates.tier_expires_at = null;
+    } else if (typeof body.tierMonths === "number" && body.tierMonths > 0) {
+      const months = Math.min(120, Math.floor(body.tierMonths));
+      const d = new Date();
+      d.setMonth(d.getMonth() + months);
+      updates.tier_expires_at = d.toISOString();
+    } else {
+      updates.tier_expires_at = null;
+    }
   }
   if (typeof body.isAdmin === "boolean") {
     // 본인이 본인 admin 권한을 해제하는 것은 금지(자기-락아웃 방지)

@@ -13,7 +13,10 @@ type AdminUserRow = {
   name: string;
   createdAt: string;
   lastSignInAt: string | null;
-  tier: string;
+  tier: string;             // effective tier (만료 반영)
+  tierRaw: string;          // DB의 원본 등급
+  tierExpiresAt: string | null;
+  tierExpired: boolean;
   isAdmin: boolean;
 };
 
@@ -23,6 +26,26 @@ function formatDateTime(iso: string | null): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
+function formatDate(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function daysUntil(iso: string | null): number | null {
+  if (!iso) return null;
+  const diffMs = Date.parse(iso) - Date.now();
+  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+}
+
+const PRESET_MONTHS: Array<{ label: string; value: number | null }> = [
+  { label: "영구", value: null },
+  { label: "1개월", value: 1 },
+  { label: "3개월", value: 3 },
+  { label: "6개월", value: 6 },
+  { label: "12개월", value: 12 },
+];
+
 export function AdminUsersClient() {
   const { user, authChecked } = useAuth();
   const [rows, setRows] = useState<AdminUserRow[]>([]);
@@ -31,6 +54,7 @@ export function AdminUsersClient() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [editingTier, setEditingTier] = useState<AdminUserRow | null>(null);
 
   async function load() {
     setLoading(true);
@@ -57,7 +81,10 @@ export function AdminUsersClient() {
     load();
   }, [authChecked, user]);
 
-  async function patchUser(target: AdminUserRow, patch: { tier?: UserTier; isAdmin?: boolean }) {
+  async function patchUser(
+    target: AdminUserRow,
+    patch: { tier?: UserTier; tierMonths?: number | null; isAdmin?: boolean }
+  ) {
     setSavingId(target.id);
     try {
       const res = await adminFetch(`/api/admin/users/${target.id}`, {
@@ -69,17 +96,8 @@ export function AdminUsersClient() {
         alert(json.message ?? "변경 중 오류가 발생했습니다.");
         return;
       }
-      setRows((prev) =>
-        prev.map((r) =>
-          r.id === target.id
-            ? {
-                ...r,
-                tier: patch.tier ?? r.tier,
-                isAdmin: typeof patch.isAdmin === "boolean" ? patch.isAdmin : r.isAdmin,
-              }
-            : r
-        )
-      );
+      // 변경 성공 → 화면 상태 동기화
+      await load();
     } catch {
       alert("변경 중 오류가 발생했습니다.");
     } finally {
@@ -141,8 +159,8 @@ export function AdminUsersClient() {
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">관리자</p>
         <h1 className="mt-1 text-3xl font-black text-ink">회원 관리</h1>
         <p className="mt-2 text-sm text-slate-600">
-          가입된 회원의 등급과 관리자 권한을 변경할 수 있습니다. 본인 계정의 관리자 권한 해제와
-          삭제는 자기-락아웃 방지를 위해 막혀 있습니다.
+          가입된 회원의 등급(개월 수 포함)과 관리자 권한을 변경할 수 있습니다. 만료일이 지난
+          유료 등급은 자동으로 Free로 회귀됩니다.
         </p>
       </section>
 
@@ -189,6 +207,7 @@ export function AdminUsersClient() {
                   <th className="px-3 py-3">이메일</th>
                   <th className="px-3 py-3">이름</th>
                   <th className="px-3 py-3">등급</th>
+                  <th className="px-3 py-3">만료</th>
                   <th className="px-3 py-3">권한</th>
                   <th className="px-3 py-3">가입일</th>
                   <th className="px-3 py-3">최근 로그인</th>
@@ -200,6 +219,7 @@ export function AdminUsersClient() {
                   const isSelf = row.id === user?.id;
                   const isSaving = savingId === row.id;
                   const isDeleting = deletingId === row.id;
+                  const remaining = daysUntil(row.tierExpiresAt);
                   return (
                     <tr key={row.id} className="border-b border-line/50 hover:bg-slate-50">
                       <td className="px-3 py-3 font-bold text-ink">
@@ -212,18 +232,42 @@ export function AdminUsersClient() {
                       </td>
                       <td className="px-3 py-3 text-slate-700">{row.name || "—"}</td>
                       <td className="px-3 py-3">
-                        <select
-                          value={row.tier}
-                          disabled={isSaving}
-                          onChange={(e) => patchUser(row, { tier: e.target.value as UserTier })}
-                          className="rounded-md border border-line bg-white px-2 py-1 text-xs font-black text-slate-700 outline-none focus:border-brand-600 disabled:opacity-50"
-                        >
-                          {USER_TIER_ORDER.map((t) => (
-                            <option key={t} value={t}>
-                              {USER_TIER_LABELS[t]}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
+                              row.tier === "free"
+                                ? "bg-slate-100 text-slate-600"
+                                : "bg-brand-50 text-brand-700"
+                            }`}
+                          >
+                            {USER_TIER_LABELS[row.tier as UserTier] ?? row.tier}
+                          </span>
+                          {row.tierExpired && row.tierRaw !== "free" ? (
+                            <span className="rounded-full bg-coral-50 px-2 py-0.5 text-[10px] font-black text-coral-600">
+                              만료됨
+                            </span>
+                          ) : null}
+                          <button
+                            type="button"
+                            disabled={isSaving}
+                            onClick={() => setEditingTier(row)}
+                            className="rounded-md border border-line px-2 py-0.5 text-[11px] font-black text-slate-500 hover:border-brand-600 hover:text-brand-700 disabled:opacity-50"
+                          >
+                            변경
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-3 py-3 text-xs">
+                        {row.tierRaw === "free" || !row.tierExpiresAt ? (
+                          <span className="text-slate-400">영구</span>
+                        ) : remaining !== null && remaining > 0 ? (
+                          <span className="text-slate-700">
+                            {formatDate(row.tierExpiresAt)}
+                            <span className="ml-1 text-slate-400">({remaining}일 남음)</span>
+                          </span>
+                        ) : (
+                          <span className="text-coral-600">{formatDate(row.tierExpiresAt)} 지남</span>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         {row.isAdmin ? (
@@ -268,6 +312,164 @@ export function AdminUsersClient() {
           </div>
         )}
       </section>
+
+      {editingTier ? (
+        <TierEditModal
+          row={editingTier}
+          onClose={() => setEditingTier(null)}
+          onSave={async (tier, months) => {
+            await patchUser(editingTier, { tier, tierMonths: months });
+            setEditingTier(null);
+          }}
+        />
+      ) : null}
     </main>
   );
+}
+
+function TierEditModal({
+  row,
+  onClose,
+  onSave,
+}: {
+  row: AdminUserRow;
+  onClose: () => void;
+  onSave: (tier: UserTier, months: number | null) => Promise<void>;
+}) {
+  const [tier, setTier] = useState<UserTier>((row.tierRaw as UserTier) ?? "free");
+  // 현재 row의 잔여 개월에 가장 가까운 preset을 초기값으로.
+  const [months, setMonths] = useState<number | null>(() => {
+    if (row.tierRaw === "free" || !row.tierExpiresAt) return null;
+    const d = daysUntil(row.tierExpiresAt);
+    if (d === null || d <= 0) return 1;
+    if (d <= 35) return 1;
+    if (d <= 100) return 3;
+    if (d <= 200) return 6;
+    return 12;
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const isFree = tier === "free";
+
+  async function submit() {
+    setSubmitting(true);
+    try {
+      await onSave(tier, isFree ? null : months);
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="border-b border-line px-6 py-4">
+          <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">등급 변경</p>
+          <h2 className="mt-1 truncate text-lg font-black text-ink">{row.email || row.name}</h2>
+        </div>
+
+        <div className="space-y-5 px-6 py-5">
+          <div>
+            <label className="mb-2 block text-xs font-black text-slate-500">등급</label>
+            <div className="flex flex-wrap gap-2">
+              {USER_TIER_ORDER.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTier(t)}
+                  className={`rounded-md border px-3 py-1.5 text-sm font-black transition ${
+                    tier === t
+                      ? "border-brand-600 bg-brand-600 text-white"
+                      : "border-line bg-white text-slate-600 hover:border-brand-600 hover:text-brand-700"
+                  }`}
+                >
+                  {USER_TIER_LABELS[t]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-black text-slate-500">기간</label>
+            <div className={`flex flex-wrap gap-2 ${isFree ? "opacity-50" : ""}`}>
+              {PRESET_MONTHS.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  disabled={isFree}
+                  onClick={() => setMonths(p.value)}
+                  className={`rounded-md border px-3 py-1.5 text-sm font-black transition ${
+                    months === p.value && !isFree
+                      ? "border-brand-600 bg-brand-50 text-brand-700"
+                      : "border-line bg-white text-slate-600 hover:border-brand-600"
+                  } disabled:cursor-not-allowed`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+              <span>또는 직접 입력 (개월):</span>
+              <input
+                type="number"
+                min={1}
+                max={120}
+                disabled={isFree}
+                value={months ?? ""}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (!Number.isFinite(v) || v <= 0) setMonths(null);
+                  else setMonths(Math.min(120, v));
+                }}
+                placeholder="영구"
+                className="w-20 rounded-md border border-line px-2 py-1 text-center text-xs font-bold text-ink outline-none focus:border-brand-600 disabled:bg-slate-50"
+              />
+            </div>
+            {!isFree ? (
+              <p className="mt-2 text-xs text-slate-500">
+                {months === null
+                  ? "→ 만료일 없음(영구). 관리자가 다시 변경하기 전까지 유지됩니다."
+                  : `→ 약 ${months}개월 후(${formatDate(addMonthsIso(months))})에 자동으로 Free로 회귀합니다.`}
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-slate-500">→ Free 등급은 만료 개념이 없습니다.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 border-t border-line bg-slate-50 px-6 py-4">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            className="rounded-md px-4 py-2 text-sm font-black text-slate-500 hover:text-slate-700 disabled:opacity-50"
+          >
+            취소
+          </button>
+          <button
+            type="button"
+            onClick={submit}
+            disabled={submitting}
+            className="rounded-md bg-brand-600 px-5 py-2 text-sm font-black text-white hover:bg-brand-700 disabled:opacity-60"
+          >
+            {submitting ? "저장 중..." : "저장"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function addMonthsIso(months: number): string {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString();
 }

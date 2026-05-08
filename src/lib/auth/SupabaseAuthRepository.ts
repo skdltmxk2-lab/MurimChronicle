@@ -38,13 +38,17 @@ async function loadProfile(userId: string): Promise<{ name: string; tier: string
   // .single()은 row 없으면 throw 하므로 .maybeSingle()로 안전하게.
   const { data } = await supabase
     .from("profiles")
-    .select("name, tier, is_admin")
+    .select("name, tier, is_admin, tier_expires_at")
     .eq("id", userId)
     .maybeSingle();
   if (!data) return null;
+  const rawTier = (data.tier as string) ?? "free";
+  const expiresAt = (data.tier_expires_at as string | null) ?? null;
+  // 만료가 지났다면 free로 회귀시킨다 (DB는 그대로 두고 effective만 free).
+  const expired = expiresAt !== null && Date.parse(expiresAt) <= Date.now();
   return {
     name: (data.name as string) ?? "",
-    tier: (data.tier as string) ?? "free",
+    tier: expired ? "free" : rawTier,
     is_admin: Boolean(data.is_admin),
   };
 }
