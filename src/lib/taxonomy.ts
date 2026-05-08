@@ -15,6 +15,7 @@ export const SUBJECT_UNITS: Record<SubjectName, readonly string[]> = {
     "함수",
     "극한과 연속",
     "미분",
+    "도함수의 응용",
     "접선의 방정식",
     "평균값의 정리 및 로피탈 정리",
     "Taylor급수",
@@ -30,8 +31,10 @@ export const SUBJECT_UNITS: Record<SubjectName, readonly string[]> = {
     "정적분의 성질",
     "특이적분",
     "Maclaurin급수의 응용",
+    "급수의 수렴/발산",
     "정적분의 응용",
-    "극좌표와 응용"
+    "극좌표와 응용",
+    "추가내용"
   ],
   선형대수: [
     "행렬",
@@ -58,7 +61,8 @@ export const SUBJECT_UNITS: Record<SubjectName, readonly string[]> = {
     "미분방정식",
     "Laplace변환",
     "푸리에(Fourier) 급수",
-    "벡터해석"
+    "벡터해석",
+    "추가내용"
   ]
 };
 
