@@ -3,18 +3,19 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 
-// 사용자 단위로 한 번 X 누르면 끝나는 영구 플래그.
-// 키에 user.id를 붙여 계정마다 따로 추적한다.
-const DISMISS_KEY_PREFIX = "cbt:promo:inquiry:dismissed:";
+// 로그인/가입 액션이 set 하는 1회용 플래그. 모달이 뜨면 즉시 clear되어
+// 같은 세션 동안 페이지 이동/새로고침으로는 다시 뜨지 않고,
+// 로그아웃 후 다시 로그인하면 또 set되어 다시 뜬다.
+const SHOW_FLAG_KEY = "cbt:promo:inquiry:show";
 const KAKAO_OPEN_CHAT_URL = "https://open.kakao.com/o/sBAS3Yti";
 
-function dismissKey(userId: string) {
-  return `${DISMISS_KEY_PREFIX}${userId}`;
-}
-
-function userKey(user: { id?: string; email?: string }): string | null {
-  // id가 있으면 id, 없으면 email로 사용자 단위 키를 만든다.
-  return user.id ?? user.email ?? null;
+export function setSubscriptionInquiryPending() {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(SHOW_FLAG_KEY, "1");
+  } catch {
+    // sessionStorage 쓰기 실패는 무시.
+  }
 }
 
 export function SubscriptionInquiryModal() {
@@ -27,27 +28,26 @@ export function SubscriptionInquiryModal() {
       return;
     }
     if (typeof window === "undefined") return;
-    const key = userKey(user);
-    if (!key) return;
-    let dismissed: string | null = null;
+    let pending: string | null = null;
     try {
-      dismissed = window.localStorage.getItem(dismissKey(key));
+      pending = window.sessionStorage.getItem(SHOW_FLAG_KEY);
     } catch {
-      dismissed = null;
+      pending = null;
     }
-    if (dismissed !== "1") setOpen(true);
+    if (pending === "1") {
+      setOpen(true);
+      // 모달이 마운트되어 보이는 순간 플래그를 비워, 같은 세션 동안
+      // 페이지 이동마다 다시 뜨지 않게 한다.
+      try {
+        window.sessionStorage.removeItem(SHOW_FLAG_KEY);
+      } catch {
+        // 무시.
+      }
+    }
   }, [user]);
 
   function close() {
     setOpen(false);
-    if (!user) return;
-    const key = userKey(user);
-    if (!key) return;
-    try {
-      window.localStorage.setItem(dismissKey(key), "1");
-    } catch {
-      // 무시.
-    }
   }
 
   if (!open) return null;
