@@ -20,7 +20,8 @@ function build({ num, subject, unit, concept, difficulty, question, options, ans
   const tags = Array.from(new Set([SCHOOL, YEAR, subject, unit, concept].filter(Boolean)));
   return {
     id, subject, unit, concept, difficulty,
-    source_type: "imported", question, content_type: "latex",
+    source_type: "imported", question,
+    content_type: questionImage ? "mixed" : "latex",
     question_image: questionImage ?? null,
     options, correct_option_id: String(answer), explanation,
     explanation_content_type: "latex", explanation_image: null, tags,
