@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import type { UserTier } from "@/types/auth";
 
 // 로그인/가입 액션이 set 하는 1회용 플래그. 모달이 뜨면 즉시 clear되어
 // 같은 세션 동안 페이지 이동/새로고침으로는 다시 뜨지 않고,
@@ -18,6 +19,46 @@ export function setSubscriptionInquiryPending() {
   }
 }
 
+type ModalContent = {
+  title: string;
+  description: React.ReactNode;
+  ctaLabel: string;
+};
+
+// 등급별 모달 문구. pro/max는 모달 자체를 띄우지 않으므로 여기 포함 안 됨.
+function contentForTier(tier: UserTier): ModalContent | null {
+  if (tier === "free") {
+    return {
+      title: "요금제 가입 문의",
+      description: (
+        <>
+          Go · Plus · Pro · Max 요금제 가입은
+          <br />
+          아래 오픈채팅으로 편하게 문의해 주세요.
+        </>
+      ),
+      ctaLabel: "카카오톡 오픈채팅으로 문의하기",
+    };
+  }
+  if (tier === "go" || tier === "plus") {
+    return {
+      title: "Pro 등급으로 성적 향상하세요",
+      description: (
+        <>
+          성적 향상의 핵심,{" "}
+          <span className="font-black text-brand-600">취약유형 모의고사</span>로
+          <br />
+          자주 틀리는 유형을 집중 공략해 보세요.
+          <br />
+          업그레이드는 아래 오픈채팅으로 문의해 주세요.
+        </>
+      ),
+      ctaLabel: "Pro 업그레이드 문의하기",
+    };
+  }
+  return null;
+}
+
 export function SubscriptionInquiryModal() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -28,6 +69,16 @@ export function SubscriptionInquiryModal() {
       return;
     }
     if (typeof window === "undefined") return;
+    // pro/max 등급은 팝업 노출 안 함. 플래그가 set돼 있어도 그대로 비움.
+    const tier = (user.tier ?? "free") as UserTier;
+    if (tier === "pro" || tier === "max") {
+      try {
+        window.sessionStorage.removeItem(SHOW_FLAG_KEY);
+      } catch {
+        // 무시.
+      }
+      return;
+    }
     let pending: string | null = null;
     try {
       pending = window.sessionStorage.getItem(SHOW_FLAG_KEY);
@@ -50,7 +101,10 @@ export function SubscriptionInquiryModal() {
     setOpen(false);
   }
 
-  if (!open) return null;
+  if (!open || !user) return null;
+  const tier = (user.tier ?? "free") as UserTier;
+  const content = contentForTier(tier);
+  if (!content) return null;
 
   return (
     <div
@@ -95,12 +149,10 @@ export function SubscriptionInquiryModal() {
             id="subscription-inquiry-title"
             className="text-xl font-black tracking-tight text-ink"
           >
-            요금제 가입 문의
+            {content.title}
           </h2>
           <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-slate-500">
-            Go · Plus · Pro · Max 요금제 가입은
-            <br />
-            아래 오픈채팅으로 편하게 문의해 주세요.
+            {content.description}
           </p>
         </div>
 
@@ -120,7 +172,7 @@ export function SubscriptionInquiryModal() {
             >
               <path d="M12 3C6.5 3 2 6.58 2 11c0 2.62 1.6 4.95 4.07 6.42-.18.66-.65 2.4-.74 2.78-.12.47.17.46.36.34.15-.1 2.4-1.63 3.37-2.29.95.13 1.93.2 2.94.2 5.5 0 10-3.58 10-8s-4.5-7.45-10-7.45Z" />
             </svg>
-            카카오톡 오픈채팅으로 문의하기
+            {content.ctaLabel}
           </a>
           <button
             type="button"
