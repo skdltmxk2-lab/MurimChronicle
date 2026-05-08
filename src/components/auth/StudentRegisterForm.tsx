@@ -61,11 +61,6 @@ export function StudentRegisterForm() {
 
     if (typeof window !== "undefined") {
       window.localStorage.setItem("cbt:welcome:pending", "true");
-      try {
-        window.sessionStorage.setItem("cbt:promo:inquiry:show", "1");
-      } catch {
-        // 무시.
-      }
     }
     setRegistered(true);
   }
