@@ -51,10 +51,21 @@ export default function StudentExamsPage() {
   const canUnitPractice = canUseTier(user, "plus");
 
   useEffect(() => {
-    questionRepo.list().then((qs) => {
-      setQuestionCount(qs.length);
-      setDailyCount(qs.filter((q) => q.tags.includes("daily")).length);
-    });
+    let cancelled = false;
+    Promise.all([questionRepo.countAll(), questionRepo.countByTag("daily")])
+      .then(([total, daily]) => {
+        if (cancelled) return;
+        setQuestionCount(total);
+        setDailyCount(daily);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setQuestionCount(0);
+        setDailyCount(0);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {

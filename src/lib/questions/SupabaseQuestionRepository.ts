@@ -175,6 +175,23 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     return all.map(fromDb);
   },
 
+  async countAll(): Promise<number> {
+    const { count, error } = await supabase
+      .from("questions")
+      .select("id", { count: "exact", head: true });
+    if (error) throw error;
+    return count ?? 0;
+  },
+
+  async countByTag(tag: string): Promise<number> {
+    const { count, error } = await supabase
+      .from("questions")
+      .select("id", { count: "exact", head: true })
+      .contains("tags", [tag]);
+    if (error) throw error;
+    return count ?? 0;
+  },
+
   async create(draft: QuestionDraft): Promise<QuestionRecord> {
     const createdAt = nowIso();
     const record: QuestionRecord = {
