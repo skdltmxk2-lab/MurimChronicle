@@ -119,17 +119,19 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     return all.map(fromDb);
   },
 
-  async listByUnits(units: string[]): Promise<QuestionRecord[]> {
+  async listByUnits(subject: string, units: string[]): Promise<QuestionRecord[]> {
     if (units.length === 0) return [];
     const PAGE = 1000;
     const all: DbRow[] = [];
     for (let from = 0; ; from += PAGE) {
-      const { data, error } = await supabase
+      let query = supabase
         .from("questions")
         .select("*")
         .in("unit", units)
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
+      if (subject) query = query.eq("subject", subject);
+      const { data, error } = await query;
       if (error) throw error;
       if (!data || data.length === 0) break;
       all.push(...(data as DbRow[]));

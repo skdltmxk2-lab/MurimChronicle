@@ -2,7 +2,7 @@ import type { QuestionDraft, QuestionFilters, QuestionRecord } from "@/types/que
 
 export interface IQuestionRepository {
   list(): Promise<QuestionRecord[]>;
-  listByUnits(units: string[]): Promise<QuestionRecord[]>;
+  listByUnits(subject: string, units: string[]): Promise<QuestionRecord[]>;
   listBySubject(subject: string): Promise<QuestionRecord[]>;
   listByTag(tag: string): Promise<QuestionRecord[]>;
   countAll(): Promise<number>;

@@ -155,6 +155,9 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                   <span className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-black text-white">
                     {index + 1}
                   </span>
+                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-black text-brand-700">
+                    {problem.subject}
+                  </span>
                   <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
                     {problem.unit}
                   </span>

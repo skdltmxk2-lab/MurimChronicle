@@ -200,7 +200,7 @@ export function UnitTestRunnerPage() {
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
         const [pool, attempts] = await Promise.all([
-          questionRepo.listByUnits(selectedUnits),
+          questionRepo.listByUnits(subject, selectedUnits),
           attemptRepo.listResults(),
         ]);
         if (cancelled) return;

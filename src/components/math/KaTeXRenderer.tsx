@@ -90,7 +90,17 @@ export function KaTeXRenderer({ content, className }: KaTeXRendererProps) {
           );
         }
 
-        return <Fragment key={index}>{segment.text}</Fragment>;
+        const lines = segment.text.split("\n");
+        return (
+          <Fragment key={index}>
+            {lines.map((line, lineIndex) => (
+              <Fragment key={lineIndex}>
+                {lineIndex > 0 ? <br /> : null}
+                {line}
+              </Fragment>
+            ))}
+          </Fragment>
+        );
       })}
     </span>
   );
