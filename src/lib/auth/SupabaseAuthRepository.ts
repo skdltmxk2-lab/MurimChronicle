@@ -10,22 +10,17 @@ function normalizeTier(value: unknown): UserTier {
     : "free";
 }
 
-const ADMIN_USER_KEY = "cbt:auth:admin:v1";
+// 1-B에서 폐기된 routeroute 모드의 잔재 키. 한 번씩 청소만 한다.
+const LEGACY_ADMIN_USER_KEY = "cbt:auth:admin:v1";
 const STUDENT_USER_KEY = "cbt:auth:student:v1";
 
 function canUseStorage() {
   return typeof window !== "undefined" && Boolean(window.localStorage);
 }
 
-function loadFromStorage<T>(key: string): T | null {
-  if (!canUseStorage()) return null;
-  const raw = window.localStorage.getItem(key);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as T;
-  } catch {
-    return null;
-  }
+function clearLegacyAdminKey() {
+  if (!canUseStorage()) return;
+  window.localStorage.removeItem(LEGACY_ADMIN_USER_KEY);
 }
 
 function saveToStorage(key: string, value: unknown) {
@@ -38,35 +33,54 @@ function removeFromStorage(key: string) {
   window.localStorage.removeItem(key);
 }
 
+async function loadProfile(userId: string): Promise<{ name: string; tier: string; is_admin: boolean } | null> {
+  // 일부 사용자(ex. 마이그레이션 직전 가입)는 profiles row가 없을 수 있다.
+  // .single()은 row 없으면 throw 하므로 .maybeSingle()로 안전하게.
+  const { data } = await supabase
+    .from("profiles")
+    .select("name, tier, is_admin")
+    .eq("id", userId)
+    .maybeSingle();
+  if (!data) return null;
+  return {
+    name: (data.name as string) ?? "",
+    tier: (data.tier as string) ?? "free",
+    is_admin: Boolean(data.is_admin),
+  };
+}
+
+function buildUser(authUser: { id: string; email?: string | null }, profile: { name: string; tier: string; is_admin: boolean } | null): MockUser {
+  const name = profile?.name || authUser.email?.split("@")[0] || "학생";
+  const tier = normalizeTier(profile?.tier);
+  const role: "student" | "admin" = profile?.is_admin ? "admin" : "student";
+  return {
+    id: authUser.id,
+    name,
+    role,
+    tier,
+    email: authUser.email ?? undefined,
+  };
+}
+
 export const supabaseAuthRepo: IAuthRepository = {
   async getCurrentUser(): Promise<MockUser | null> {
-    const admin = loadFromStorage<MockUser>(ADMIN_USER_KEY);
-    if (admin) return admin;
+    // legacy routeroute 모드의 잔재 키가 있으면 청소만 하고 무시.
+    clearLegacyAdminKey();
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      removeFromStorage(STUDENT_USER_KEY);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        removeFromStorage(STUDENT_USER_KEY);
+        return null;
+      }
+      const profile = await loadProfile(session.user.id);
+      const user = buildUser(session.user, profile);
+      saveToStorage(STUDENT_USER_KEY, user);
+      return user;
+    } catch (e) {
+      console.error("[auth] getCurrentUser failed", e);
       return null;
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("name, tier, is_admin")
-      .eq("id", session.user.id)
-      .single();
-
-    const name = profile?.name ?? session.user.email?.split("@")[0] ?? "학생";
-    const tier = normalizeTier(profile?.tier);
-    const role: "student" | "admin" = profile?.is_admin ? "admin" : "student";
-    const user: MockUser = {
-      id: session.user.id,
-      name,
-      role,
-      tier,
-      email: session.user.email,
-    };
-    saveToStorage(STUDENT_USER_KEY, user);
-    return user;
   },
 
   async registerStudent(params: { name: string; email: string; password: string; currentProgress?: string; studyMethod?: string }) {
@@ -81,7 +95,7 @@ export const supabaseAuthRepo: IAuthRepository = {
       return { ok: false, message: "비밀번호는 6자 이상으로 입력해주세요." };
     }
 
-    removeFromStorage(ADMIN_USER_KEY);
+    clearLegacyAdminKey();
     removeFromStorage(STUDENT_USER_KEY);
 
     const { data, error } = await supabase.auth.signUp({
@@ -117,13 +131,12 @@ export const supabaseAuthRepo: IAuthRepository = {
       tier: "free",
       email,
     };
-    removeFromStorage(ADMIN_USER_KEY);
     saveToStorage(STUDENT_USER_KEY, user);
     return { ok: true, user };
   },
 
   async loginStudent(params: { email: string; password: string }) {
-    removeFromStorage(ADMIN_USER_KEY);
+    clearLegacyAdminKey();
     removeFromStorage(STUDENT_USER_KEY);
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -132,26 +145,14 @@ export const supabaseAuthRepo: IAuthRepository = {
     });
 
     if (error || !data.user) {
-      return { ok: false, message: "이메일 또는 비밀번호가 올바르지 않습니다." };
+      const msg = error?.message?.includes("Email not confirmed")
+        ? "이메일 인증이 완료되지 않았습니다. 가입 시 받은 메일의 인증 링크를 클릭해 주세요."
+        : "이메일 또는 비밀번호가 올바르지 않습니다.";
+      return { ok: false, message: msg };
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("name, tier, is_admin")
-      .eq("id", data.user.id)
-      .single();
-
-    const name = profile?.name ?? data.user.email?.split("@")[0] ?? "학생";
-    const tier = normalizeTier(profile?.tier);
-    const role: "student" | "admin" = profile?.is_admin ? "admin" : "student";
-    const user: MockUser = {
-      id: data.user.id,
-      name,
-      role,
-      tier,
-      email: data.user.email,
-    };
-    removeFromStorage(ADMIN_USER_KEY);
+    const profile = await loadProfile(data.user.id);
+    const user = buildUser(data.user, profile);
     saveToStorage(STUDENT_USER_KEY, user);
     return { ok: true, user };
   },
@@ -163,7 +164,7 @@ export const supabaseAuthRepo: IAuthRepository = {
   },
 
   async logout(): Promise<void> {
-    removeFromStorage(ADMIN_USER_KEY);
+    clearLegacyAdminKey();
     removeFromStorage(STUDENT_USER_KEY);
     await supabase.auth.signOut();
   }

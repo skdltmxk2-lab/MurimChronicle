@@ -22,15 +22,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    authRepo.getCurrentUser().then((u) => {
-      setUser(u);
-      setAuthChecked(true);
-    });
+    let cancelled = false;
+    authRepo
+      .getCurrentUser()
+      .then((u) => {
+        if (cancelled) return;
+        setUser(u);
+      })
+      .catch((e) => {
+        console.error("[auth] initial getCurrentUser failed", e);
+        if (cancelled) return;
+        setUser(null);
+      })
+      .finally(() => {
+        if (cancelled) return;
+        setAuthChecked(true);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        const u = await authRepo.getCurrentUser();
-        setUser(u);
+        try {
+          const u = await authRepo.getCurrentUser();
+          setUser(u);
+        } catch (e) {
+          console.error("[auth] onAuthStateChange getCurrentUser failed", e);
+          setUser(null);
+        }
         setAuthChecked(true);
       } else if (event === "SIGNED_OUT") {
         setUser(null);
@@ -38,7 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return (
