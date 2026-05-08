@@ -83,6 +83,21 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     }));
   }
 
+  async function exitWithoutSubmit() {
+    const ok = window.confirm(
+      "정말 학습을 종료하시겠습니까?\n데이터로 저장되지 않습니다."
+    );
+    if (!ok) return;
+    // 임시로 저장된 답안/시작시각도 같이 비워서 실제로 기록을 남기지 않는다.
+    submittedRef.current = true;
+    try {
+      await attemptRepo.clearAnswers(exam.id);
+    } catch {
+      // 무시.
+    }
+    router.push("/student/exams");
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-5 py-6">
       <section className="mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
@@ -92,7 +107,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
             <h1 className="mt-1 text-2xl font-black text-ink">{exam.title}</h1>
             <p className="mt-2 text-sm text-slate-600">{exam.description}</p>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
             <div className="rounded-md border border-line px-4 py-3">
               <div className="text-xs font-bold text-slate-500">남은 시간</div>
               <div className="mt-1 text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
@@ -105,8 +120,15 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
             </div>
             <button
               type="button"
+              onClick={exitWithoutSubmit}
+              className="col-span-1 rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+            >
+              나가기
+            </button>
+            <button
+              type="button"
               onClick={() => void submitExam(false)}
-              className="col-span-2 rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700 sm:col-span-1"
+              className="col-span-1 rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
             >
               제출
             </button>
@@ -180,13 +202,22 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               </article>
             );
           })}
-          <button
-            type="button"
-            onClick={() => void submitExam(false)}
-            className="w-full rounded-md bg-ink px-4 py-4 text-sm font-black text-white transition hover:bg-slate-700"
-          >
-            제출
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <button
+              type="button"
+              onClick={exitWithoutSubmit}
+              className="w-full rounded-md border border-line bg-white px-4 py-4 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 sm:w-1/3"
+            >
+              학습 종료
+            </button>
+            <button
+              type="button"
+              onClick={() => void submitExam(false)}
+              className="w-full rounded-md bg-ink px-4 py-4 text-sm font-black text-white transition hover:bg-slate-700 sm:flex-1"
+            >
+              제출하고 채점하기
+            </button>
+          </div>
         </section>
 
         <aside className="h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
