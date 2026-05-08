@@ -61,9 +61,13 @@ export default function StudentExamsPage() {
   const [mockSubject, setMockSubject] = useState<string | null>(null);
   const [realExamOpen, setRealExamOpen] = useState(false);
 
-  const canDaily = canUseTier(user, "go");
+  // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
+  const canDaily = true;
   const canSubjectMock = canUseTier(user, "go");
   const canUnitPractice = canUseTier(user, "plus");
+  // 실전 모의고사 카드 자체는 plus 이상에서만 클릭 가능
+  // (모달 안의 가장 낮은 카테고리=기출기반이 plus).
+  const canRealExam = canUseTier(user, "plus");
 
   useEffect(() => {
     let cancelled = false;
@@ -440,13 +444,23 @@ export default function StudentExamsPage() {
             </div>
           </div>
           <div className="mt-4 space-y-2">
-            <button
-              type="button"
-              onClick={() => setRealExamOpen(true)}
-              className="w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-700"
-            >
-              종류 선택하기 →
-            </button>
+            {canRealExam ? (
+              <button
+                type="button"
+                onClick={() => setRealExamOpen(true)}
+                className="w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-700"
+              >
+                종류 선택하기 →
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+              >
+                🔒 {tierLockMessage("plus")}
+              </button>
+            )}
             <Link
               href="/student/results?type=real"
               className="flex w-full items-center justify-center rounded-md border border-mint-300 bg-white px-4 py-3 text-sm font-black text-mint-600 hover:bg-mint-50"
