@@ -23,6 +23,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+
+    // SupabaseAuthRepository 안에서도 타임아웃을 걸지만,
+    // repo 자체가 어떤 이유로 응답을 안 줘도 화면이 멈추지 않게
+    // AuthContext에서 한 번 더 강제 안전망을 둔다 (5초).
+    const safety = setTimeout(() => {
+      if (cancelled) return;
+      setAuthChecked((prev) => (prev ? prev : true));
+    }, 5000);
+
     authRepo
       .getCurrentUser()
       .then((u) => {
@@ -36,20 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .finally(() => {
         if (cancelled) return;
+        clearTimeout(safety);
         setAuthChecked(true);
       });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        try {
-          const u = await authRepo.getCurrentUser();
-          setUser(u);
-        } catch (e) {
-          console.error("[auth] onAuthStateChange getCurrentUser failed", e);
-          setUser(null);
-        }
-        setAuthChecked(true);
-      } else if (event === "SIGNED_OUT") {
+    // SIGNED_IN/TOKEN_REFRESHED 처리는 loginStudent 호출자가 setUser로 직접
+    // 채우므로 굳이 또 fetch하지 않는다 (중복 query로 로그인 체감속도가 느려짐).
+    // 여기서는 SIGNED_OUT만 책임지고 user/authChecked를 정리한다.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") {
         setUser(null);
         setAuthChecked(true);
       }

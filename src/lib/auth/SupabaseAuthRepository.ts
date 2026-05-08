@@ -49,6 +49,33 @@ async function loadProfile(userId: string): Promise<{ name: string; tier: string
   };
 }
 
+// 어떤 promise든 timeoutMs를 넘기면 fallback으로 resolve.
+// 네트워크 hiccup으로 supabase 호출이 영영 안 끝나는 경우의 안전장치.
+function withTimeout<T>(p: Promise<T>, timeoutMs: number, fallback: T): Promise<T> {
+  return new Promise<T>((resolve) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      resolve(fallback);
+    }, timeoutMs);
+    p.then(
+      (v) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(v);
+      },
+      () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(fallback);
+      }
+    );
+  });
+}
+
 function buildUser(authUser: { id: string; email?: string | null }, profile: { name: string; tier: string; is_admin: boolean } | null): MockUser {
   const name = profile?.name || authUser.email?.split("@")[0] || "학생";
   const tier = normalizeTier(profile?.tier);
@@ -68,12 +95,20 @@ export const supabaseAuthRepo: IAuthRepository = {
     clearLegacyAdminKey();
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      // getSession이 토큰 갱신 등으로 hang하면 페이지가 영영 빈 채 멈춘다.
+      // 3초 타임아웃을 걸어 그 이상 걸리면 '세션 없음'으로 간주하고 진행.
+      const sessionResult = await withTimeout(
+        supabase.auth.getSession(),
+        3000,
+        { data: { session: null } } as Awaited<ReturnType<typeof supabase.auth.getSession>>
+      );
+      const session = sessionResult.data.session;
       if (!session?.user) {
         removeFromStorage(STUDENT_USER_KEY);
         return null;
       }
-      const profile = await loadProfile(session.user.id);
+      // profile 조회도 마찬가지. 실패/지연 시 cached/이메일-기반 fallback로 진행.
+      const profile = await withTimeout(loadProfile(session.user.id), 3000, null);
       const user = buildUser(session.user, profile);
       saveToStorage(STUDENT_USER_KEY, user);
       return user;
