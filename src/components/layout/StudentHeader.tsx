@@ -7,6 +7,8 @@ import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
 
+// ROUTE 편입 — Logo Concept A (SPARK).
+// 8-point spike: 카디널 4방향(상/하/좌/우) 긴 spike + 대각 4방향 짧은 spike.
 function RouteMathIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -16,12 +18,12 @@ function RouteMathIcon({ className }: { className?: string }) {
       aria-hidden="true"
     >
       <g fill="#1E3A8A">
-        {/* 가로 길쭉한 spike (좌우) */}
-        <ellipse cx="50" cy="50" rx="48" ry="7" />
-        {/* 세로 길쭉한 spike (상하) */}
-        <ellipse cx="50" cy="50" rx="7" ry="48" />
-        {/* 작은 4-point star (대각선 spike) */}
-        <polygon points="50,18 54,46 82,50 54,54 50,82 46,54 18,50 46,46" />
+        {/* 카디널 spike — 길쭉한 첨예형 4방향 */}
+        <ellipse cx="50" cy="50" rx="48" ry="6" />
+        <ellipse cx="50" cy="50" rx="6" ry="48" />
+        {/* 대각 spike — 카디널의 약 65% 길이 */}
+        <ellipse cx="50" cy="50" rx="5" ry="32" transform="rotate(45 50 50)" />
+        <ellipse cx="50" cy="50" rx="5" ry="32" transform="rotate(-45 50 50)" />
       </g>
     </svg>
   );
