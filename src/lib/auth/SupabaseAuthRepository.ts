@@ -36,20 +36,36 @@ function removeFromStorage(key: string) {
 async function loadProfile(userId: string): Promise<{ name: string; tier: string; is_admin: boolean } | null> {
   // 일부 사용자(ex. 마이그레이션 직전 가입)는 profiles row가 없을 수 있다.
   // .single()은 row 없으면 throw 하므로 .maybeSingle()로 안전하게.
-  const { data } = await supabase
+  // 또한 tier_expires_at 컬럼이 아직 추가되지 않은 환경(=마이그레이션 미실행)에서는
+  // 새 컬럼 SELECT가 실패해 admin 권한이 사라져 보일 수 있으므로,
+  // 실패 시 옛 컬럼 셋으로 한 번 더 fallback 한다.
+  let row: Record<string, unknown> | null = null;
+  const newQuery = await supabase
     .from("profiles")
     .select("name, tier, is_admin, tier_expires_at")
     .eq("id", userId)
     .maybeSingle();
-  if (!data) return null;
-  const rawTier = (data.tier as string) ?? "free";
-  const expiresAt = (data.tier_expires_at as string | null) ?? null;
+  if (newQuery.error) {
+    const fallback = await supabase
+      .from("profiles")
+      .select("name, tier, is_admin")
+      .eq("id", userId)
+      .maybeSingle();
+    if (fallback.error || !fallback.data) return null;
+    row = fallback.data as Record<string, unknown>;
+  } else if (!newQuery.data) {
+    return null;
+  } else {
+    row = newQuery.data as Record<string, unknown>;
+  }
+  const rawTier = (row.tier as string) ?? "free";
+  const expiresAt = (row.tier_expires_at as string | null | undefined) ?? null;
   // 만료가 지났다면 free로 회귀시킨다 (DB는 그대로 두고 effective만 free).
   const expired = expiresAt !== null && Date.parse(expiresAt) <= Date.now();
   return {
-    name: (data.name as string) ?? "",
+    name: (row.name as string) ?? "",
     tier: expired ? "free" : rawTier,
-    is_admin: Boolean(data.is_admin),
+    is_admin: Boolean(row.is_admin),
   };
 }
 

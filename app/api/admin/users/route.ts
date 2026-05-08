@@ -15,10 +15,22 @@ export async function GET(request: Request) {
   }
 
   const ids = usersPage.users.map((u) => u.id);
-  const { data: profiles } = await supabase
+  // tier_expires_at 컬럼이 아직 없는 환경에서도 admin이 박탈돼 보이지 않도록
+  // 새 컬럼 SELECT가 실패하면 옛 컬럼 셋으로 한 번 더 조회한다.
+  let profiles: Array<Record<string, unknown>> | null = null;
+  const newQuery = await supabase
     .from("profiles")
     .select("id, name, tier, is_admin, tier_expires_at")
     .in("id", ids);
+  if (newQuery.error) {
+    const fallback = await supabase
+      .from("profiles")
+      .select("id, name, tier, is_admin")
+      .in("id", ids);
+    profiles = (fallback.data as Array<Record<string, unknown>> | null) ?? [];
+  } else {
+    profiles = (newQuery.data as Array<Record<string, unknown>> | null) ?? [];
+  }
   const profileById = new Map<
     string,
     { name: string; tier: string; isAdmin: boolean; tierExpiresAt: string | null }
@@ -28,7 +40,7 @@ export async function GET(request: Request) {
       name: (p.name as string) ?? "",
       tier: (p.tier as string) ?? "go",
       isAdmin: Boolean(p.is_admin),
-      tierExpiresAt: (p.tier_expires_at as string | null) ?? null,
+      tierExpiresAt: (p.tier_expires_at as string | null | undefined) ?? null,
     });
   }
 
