@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
 
 function RouteMathIcon({ className }: { className?: string }) {
   return (
@@ -51,6 +52,7 @@ export function StudentHeader() {
       setUser(result.user);
       setStudentEmail("");
       setStudentPassword("");
+      setSubscriptionInquiryPending();
     } catch (e) {
       console.error("[auth] loginStudent threw", e);
       setError("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
