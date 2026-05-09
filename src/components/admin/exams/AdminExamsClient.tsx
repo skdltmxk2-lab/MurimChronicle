@@ -17,12 +17,24 @@ import {
   unitsForSubject
 } from "@/lib/taxonomy";
 
+type ExamCategory = "subject" | "real";
+type RealExamType = "past_exam";
+
 const modeLabels: Record<AdminExamMode, string> = {
   selected: "선택모고",
   random: "랜덤모고",
   adaptive: "맞춤모고",
   daily: "데일리테스트"
 };
+
+// 한글 학교명 후보 (questions.tags 안에 있는 것 기준).
+// 새 학교 추가 시 이 리스트에 추가하거나, 옵션을 questions에서 동적으로 추출하도록 바꿀 수 있음.
+const PAST_EXAM_SCHOOLS = [
+  "가천대","건국대","경기대","경희대","광운대","국민대","단국대","동국대",
+  "명지대","서강대","서울과기대","서울시립대","성균관대","세종대","숙명여대","숭실대",
+  "아주대","인하대","중앙대","한성대","한양대","항공대","홍익대"
+];
+const PAST_EXAM_YEARS = ["2025","2024","2023","2022","2021","2020","2019","2018"];
 
 function unique(values: string[]) {
   return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b, "ko"));
@@ -39,6 +51,10 @@ export function AdminExamsClient() {
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   const [title, setTitle] = useState("");
+  const [examCategory, setExamCategory] = useState<ExamCategory>("subject");
+  const [realExamType, setRealExamType] = useState<RealExamType>("past_exam");
+  const [pastSchool, setPastSchool] = useState<string>("");
+  const [pastYear, setPastYear] = useState<string>("");
   const [mode, setMode] = useState<AdminExamMode>("selected");
   const [subjects, setSubjects] = useState<string[]>([]);
   const [units, setUnits] = useState<string[]>([]);
@@ -76,13 +92,27 @@ export function AdminExamsClient() {
     return unique(subjects.flatMap((subject) => Array.from(unitsForSubject(subject))));
   }, [subjects]);
 
+  // 실전 모의고사 (기출유형) 필터: id가 q-{year}-{school}-* 패턴이고
+  // 학교/년도가 선택되어 있으면 그것까지 매칭.
+  const isPastExamId = (id: string) => /^q-\d{4}-[a-z-]+?-/.test(id);
+  function matchesPastExam(question: QuestionRecord) {
+    if (!isPastExamId(question.id)) return false;
+    if (pastSchool && !(question.tags ?? []).includes(pastSchool)) return false;
+    if (pastYear && !(question.tags ?? []).includes(pastYear)) return false;
+    return true;
+  }
+
   const matchedCount = useMemo(() => {
     return questions.filter((question) => {
+      if (examCategory === "real" && realExamType === "past_exam") {
+        return matchesPastExam(question);
+      }
       const subjectOk = subjects.length === 0 || subjects.includes(question.subject);
       const unitOk = units.length === 0 || units.includes(question.unit);
       return subjectOk && unitOk;
     }).length;
-  }, [questions, subjects, units]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [questions, subjects, units, examCategory, realExamType, pastSchool, pastYear]);
 
   function updateRatio(difficulty: Difficulty, value: number) {
     setDifficultyRatio((current) => ({
@@ -93,11 +123,20 @@ export function AdminExamsClient() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = generateExamFromQuestionBank(questions, {
+
+    // 카테고리에 따라 사용할 문제 풀과 mode 결정
+    const isReal = examCategory === "real";
+    const pool = isReal ? questions.filter(matchesPastExam) : questions;
+    const effectiveMode: AdminExamMode = isReal ? "random" : mode;
+    // 실전(기출유형)은 학교/년도가 곧 필터이므로 subjects/units는 비워서 전달.
+    const effectiveSubjects = isReal ? [] : subjects;
+    const effectiveUnits = isReal ? [] : units;
+
+    const result = generateExamFromQuestionBank(pool, {
       title,
-      mode,
-      subjects,
-      units,
+      mode: effectiveMode,
+      subjects: effectiveSubjects,
+      units: effectiveUnits,
       difficultyRatio,
       problemCount,
       timeLimitSec: timeLimitMin * 60
@@ -171,81 +210,197 @@ export function AdminExamsClient() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
         <form onSubmit={submit} className="space-y-5 rounded-lg border border-line bg-white p-5 shadow-soft">
+          {/* 1단계: 큰 카테고리 */}
+          <section>
+            <div className="text-xs font-black text-slate-600">모의고사 종류</div>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setExamCategory("subject")}
+                className={`rounded-md border px-4 py-3 text-left ${
+                  examCategory === "subject"
+                    ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                    : "border-line bg-white hover:border-brand-500"
+                }`}
+              >
+                <div className="text-sm font-black text-ink">📚 과목별 모의고사</div>
+                <div className="mt-1 text-xs text-slate-500">과목·단원·난이도로 직접 구성</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setExamCategory("real")}
+                className={`rounded-md border px-4 py-3 text-left ${
+                  examCategory === "real"
+                    ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                    : "border-line bg-white hover:border-brand-500"
+                }`}
+              >
+                <div className="text-sm font-black text-ink">🎯 실전 모의고사</div>
+                <div className="mt-1 text-xs text-slate-500">기출 또는 실전형 풀로 구성</div>
+              </button>
+            </div>
+          </section>
+
           <label className="block">
             <span className="text-xs font-black text-slate-600">시험 제목</span>
             <input
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
-              placeholder="예: 미분학 약점 보완 20문항"
+              placeholder={
+                examCategory === "real"
+                  ? "예: 2025년 가천대 기출 모의고사"
+                  : "예: 미분학 약점 보완 20문항"
+              }
             />
           </label>
 
-          <label className="block">
-            <span className="text-xs font-black text-slate-600">시험 유형</span>
-            <select
-              value={mode}
-              onChange={(event) => setMode(event.target.value as AdminExamMode)}
-              className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
-            >
-              <option value="selected">selected - 선택모고</option>
-              <option value="random">random - 랜덤모고</option>
-              <option value="adaptive">adaptive - 맞춤모고</option>
-              <option value="daily">daily - 데일리테스트</option>
-            </select>
-          </label>
-
-          <section>
-            <div className="text-xs font-black text-slate-600">과목 다중 선택</div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {subjectOptions.map((subject) => (
-                <button
-                  key={subject}
-                  type="button"
-                  onClick={() => {
-                    const nextSubjects = toggleValue(subjects, subject);
-                    setSubjects(nextSubjects);
-                    setUnits((current) =>
-                      current.filter((unit) =>
-                        questions.some(
-                          (question) =>
-                            question.unit === unit &&
-                            (nextSubjects.length === 0 || nextSubjects.includes(question.subject))
-                        )
-                      )
-                    );
-                  }}
-                  className={`rounded-full px-3 py-2 text-sm font-black ${
-                    subjects.includes(subject)
-                      ? "bg-brand-600 text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-brand-50"
-                  }`}
+          {examCategory === "subject" ? (
+            <>
+              <label className="block">
+                <span className="text-xs font-black text-slate-600">시험 유형</span>
+                <select
+                  value={mode}
+                  onChange={(event) => setMode(event.target.value as AdminExamMode)}
+                  className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
                 >
-                  {subject}
-                </button>
-              ))}
-            </div>
-          </section>
+                  <option value="selected">selected - 선택모고</option>
+                  <option value="random">random - 랜덤모고</option>
+                  <option value="adaptive">adaptive - 맞춤모고</option>
+                  <option value="daily">daily - 데일리테스트</option>
+                </select>
+              </label>
 
-          <section>
-            <div className="text-xs font-black text-slate-600">단원 다중 선택</div>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {unitOptions.map((unit) => (
-                <button
-                  key={unit}
-                  type="button"
-                  onClick={() => setUnits((current) => toggleValue(current, unit))}
-                  className={`rounded-full px-3 py-2 text-sm font-black ${
-                    units.includes(unit)
-                      ? "bg-ink text-white"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  }`}
-                >
-                  {unit}
-                </button>
-              ))}
-            </div>
-          </section>
+              <section>
+                <div className="text-xs font-black text-slate-600">과목 다중 선택</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {subjectOptions.map((subject) => (
+                    <button
+                      key={subject}
+                      type="button"
+                      onClick={() => {
+                        const nextSubjects = toggleValue(subjects, subject);
+                        setSubjects(nextSubjects);
+                        setUnits((current) =>
+                          current.filter((unit) =>
+                            questions.some(
+                              (question) =>
+                                question.unit === unit &&
+                                (nextSubjects.length === 0 || nextSubjects.includes(question.subject))
+                            )
+                          )
+                        );
+                      }}
+                      className={`rounded-full px-3 py-2 text-sm font-black ${
+                        subjects.includes(subject)
+                          ? "bg-brand-600 text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-brand-50"
+                      }`}
+                    >
+                      {subject}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <section>
+                <div className="text-xs font-black text-slate-600">단원 다중 선택</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {unitOptions.map((unit) => (
+                    <button
+                      key={unit}
+                      type="button"
+                      onClick={() => setUnits((current) => toggleValue(current, unit))}
+                      className={`rounded-full px-3 py-2 text-sm font-black ${
+                        units.includes(unit)
+                          ? "bg-ink text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      }`}
+                    >
+                      {unit}
+                    </button>
+                  ))}
+                </div>
+              </section>
+            </>
+          ) : (
+            <>
+              {/* 2단계: 실전 하위 유형 */}
+              <section>
+                <div className="text-xs font-black text-slate-600">실전 모의고사 종류</div>
+                <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setRealExamType("past_exam")}
+                    className={`rounded-md border px-3 py-2 text-left ${
+                      realExamType === "past_exam"
+                        ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                        : "border-line bg-white hover:border-brand-500"
+                    }`}
+                  >
+                    <div className="text-sm font-black text-ink">기출유형 모의고사</div>
+                    <div className="mt-0.5 text-xs text-slate-500">학교·년도별 기출 문제</div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    title="향후 추가될 유형입니다"
+                    className="cursor-not-allowed rounded-md border border-dashed border-line bg-slate-50 px-3 py-2 text-left opacity-60"
+                  >
+                    <div className="text-sm font-black text-slate-400">자체 모의고사</div>
+                    <div className="mt-0.5 text-xs text-slate-400">준비 중 (별도 풀 분리 예정)</div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    className="cursor-not-allowed rounded-md border border-dashed border-line bg-slate-50 px-3 py-2 text-left opacity-60"
+                  >
+                    <div className="text-sm font-black text-slate-400">유형 3</div>
+                    <div className="mt-0.5 text-xs text-slate-400">준비 중</div>
+                  </button>
+                  <button
+                    type="button"
+                    disabled
+                    className="cursor-not-allowed rounded-md border border-dashed border-line bg-slate-50 px-3 py-2 text-left opacity-60"
+                  >
+                    <div className="text-sm font-black text-slate-400">유형 4</div>
+                    <div className="mt-0.5 text-xs text-slate-400">준비 중</div>
+                  </button>
+                </div>
+              </section>
+
+              {realExamType === "past_exam" ? (
+                <section className="grid gap-3 sm:grid-cols-2">
+                  <label className="block">
+                    <span className="text-xs font-black text-slate-600">학교 (선택)</span>
+                    <select
+                      value={pastSchool}
+                      onChange={(e) => setPastSchool(e.target.value)}
+                      className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
+                    >
+                      <option value="">전체 학교</option>
+                      {PAST_EXAM_SCHOOLS.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block">
+                    <span className="text-xs font-black text-slate-600">년도 (선택)</span>
+                    <select
+                      value={pastYear}
+                      onChange={(e) => setPastYear(e.target.value)}
+                      className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
+                    >
+                      <option value="">전체 년도</option>
+                      {PAST_EXAM_YEARS.map((y) => (
+                        <option key={y} value={y}>{y}년</option>
+                      ))}
+                    </select>
+                  </label>
+                </section>
+              ) : null}
+            </>
+          )}
 
           <section>
             <div className="text-xs font-black text-slate-600">난이도 비율</div>
