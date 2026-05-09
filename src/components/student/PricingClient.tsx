@@ -132,7 +132,7 @@ export function PricingClient() {
               {isCurrent ? (
                 <span
                   className={`absolute whitespace-nowrap rounded-full bg-brand-600 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md ${
-                    t.badge ? "left-3 top-3" : "-top-3 right-3"
+                    t.badge ? "right-3 top-3" : "-top-3 right-3"
                   }`}
                 >
                   ✓ 이용 중

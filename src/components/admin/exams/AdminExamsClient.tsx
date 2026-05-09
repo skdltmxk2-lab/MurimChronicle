@@ -159,6 +159,15 @@ export function AdminExamsClient() {
       return;
     }
 
+    // 학생 측에서 sub-type별 등급 게이트를 걸기 위해 카테고리 마커 태그를 부여.
+    let categoryTag: string | null = null;
+    if (isReal && realExamType === "past_exam") categoryTag = "기출유형";
+    else if (isReal && realExamType === "self_mock") categoryTag = "자체모고";
+    else if (!isReal) categoryTag = "과목별모의고사";
+    if (categoryTag && !result.exam.tags.includes(categoryTag)) {
+      result.exam.tags = [categoryTag, ...result.exam.tags];
+    }
+
     await examRepo.addGenerated(result.exam);
     setGeneratedExams(await examRepo.listGenerated());
     setLastExam(result.exam);
