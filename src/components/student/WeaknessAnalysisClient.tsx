@@ -309,10 +309,10 @@ function CTASection({
   if (eligibility.tierGate === "requires_pro") {
     return (
       <section className="rounded-2xl border border-orange-200 bg-orange-50 p-6 shadow-soft">
-        <h2 className="text-xl font-black text-ink">Pro 등급부터 응시 가능합니다</h2>
+        <h2 className="text-xl font-black text-ink">Pro 이상 등급부터 응시 가능합니다</h2>
         <p className="mt-2 text-sm leading-6 text-slate-700">
           위 분석은 모든 등급에서 보실 수 있어요. 25문항 맞춤 모의고사 응시는
-          Pro 등급부터 가능합니다.
+          Pro 이상 등급부터 가능합니다.
         </p>
         <button
           type="button"

@@ -114,7 +114,7 @@ export function WrongQuestionsClient() {
           <div className="mb-4 text-5xl">🔒</div>
           <h1 className="text-2xl font-black text-ink">{tierLockMessage("pro")}</h1>
           <p className="mt-3 text-sm text-slate-600">
-            최근 7일 동안 틀린 문제 다시 보기는 Pro 등급부터 제공됩니다.
+            최근 7일 동안 틀린 문제 다시 보기는 Pro 이상 등급부터 제공됩니다.
           </p>
           <Link
             href="/student/exams"

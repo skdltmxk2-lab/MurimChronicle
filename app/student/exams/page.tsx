@@ -248,11 +248,11 @@ export default function StudentExamsPage() {
         >
           <div>
             <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
-              Pro · 복습
+              PRO+ · 복습
             </p>
             <p className="mt-0.5 text-base font-black text-ink">최근 틀린 문제 다시 보기</p>
             <p className="mt-0.5 text-xs text-slate-700">
-              지난 7일 동안 틀린 문제만 모아 복습 (Pro 등급)
+              지난 7일 동안 틀린 문제만 모아 복습 (Pro 이상)
             </p>
           </div>
           {canUseTier(user, "pro") ? (
