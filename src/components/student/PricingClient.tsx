@@ -32,13 +32,13 @@ type FeatureRow = {
 
 const FEATURES: FeatureRow[] = [
   { label: "커뮤니티",          values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
-  { label: "문제 검색",         values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
   { label: "데일리 테스트 (5문항/일)", values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
-  { label: "단원별 학습",        values: { free: false, go: true,  plus: true,  pro: true,  max: true } },
+  { label: "단원별 학습",        values: { free: "주1회·10문항", go: true,  plus: true,  pro: true,  max: true } },
   { label: "과목별 모의고사",     values: { free: false, go: false, plus: true,  pro: true,  max: true } },
   { label: "실전 모의고사",      values: { free: false, go: false, plus: true,  pro: true,  max: true } },
   { label: "취약유형 모의고사",   values: { free: false, go: false, plus: false, pro: true,  max: true } },
   { label: "최근 7일 틀린 문제 다시 보기", values: { free: false, go: false, plus: false, pro: true,  max: true } },
+  { label: "문제 검색 (캡쳐 검색·출제 분석)", values: { free: false, go: false, plus: false, pro: false, max: true } },
   { label: "1:1 문의 우선 답변",  values: { free: false, go: false, plus: false, pro: false, max: true } },
   { label: "신규 기능 우선 체험", values: { free: false, go: false, plus: false, pro: false, max: true } },
 ];

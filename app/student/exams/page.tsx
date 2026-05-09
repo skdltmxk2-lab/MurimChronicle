@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { questionRepo } from "@/lib/questions/questionRepository";
+import { attemptRepo } from "@/lib/exam/storage";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { GeneratedExamCards } from "@/components/exam/GeneratedExamCards";
@@ -64,7 +65,38 @@ export default function StudentExamsPage() {
   // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
   const canDaily = true;
   const canSubjectMock = canUseTier(user, "go");
-  const canUnitPractice = canUseTier(user, "plus");
+  // 단원별 학습: 모든 등급 가능. 단 Free는 주1회·10문항 제한.
+  const canUnitPractice = !!user;
+  const isFreeRestricted = !!user && user.role !== "admin" && user.tier === "free";
+
+  // Free 사용자: 마지막 단원별 학습 응시 시각 (주1회 제한 검사)
+  const [lastUnitTestAt, setLastUnitTestAt] = useState<number | null>(null);
+  useEffect(() => {
+    if (!user || !isFreeRestricted) {
+      setLastUnitTestAt(null);
+      return;
+    }
+    let cancelled = false;
+    attemptRepo.listResults().then((rows) => {
+      if (cancelled) return;
+      const unit = rows.filter((r) => r.examId?.startsWith("unit-test-"));
+      if (unit.length === 0) {
+        setLastUnitTestAt(null);
+        return;
+      }
+      const latest = Math.max(...unit.map((r) => Date.parse(r.submittedAt)));
+      setLastUnitTestAt(Number.isFinite(latest) ? latest : null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, isFreeRestricted]);
+
+  const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+  const freeBlockedUntil =
+    isFreeRestricted && lastUnitTestAt !== null && Date.now() - lastUnitTestAt < ONE_WEEK_MS
+      ? new Date(lastUnitTestAt + ONE_WEEK_MS)
+      : null;
   // 실전 모의고사 카드 자체는 plus 이상에서만 클릭 가능
   // (모달 안의 가장 낮은 카테고리=기출기반이 plus).
   const canRealExam = canUseTier(user, "plus");
@@ -119,10 +151,16 @@ export default function StudentExamsPage() {
 
   function startUnitTest() {
     if (!pickedSubject || selectedUnits.length === 0) return;
+    if (freeBlockedUntil) {
+      const ts = freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+      window.alert(`Free 등급은 단원별 학습을 주 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Go 이상 등급에서 가능합니다.`);
+      return;
+    }
+    const enforcedCount = isFreeRestricted ? 10 : unitTestCount;
     const params = new URLSearchParams({
       subject: pickedSubject,
       units: selectedUnits.join(","),
-      count: String(unitTestCount),
+      count: String(enforcedCount),
       seed: String(Date.now()),
     });
     router.push(`/student/exams/unit-test?${params.toString()}`);
@@ -569,21 +607,39 @@ export default function StudentExamsPage() {
                 <div className="mb-5">
                   <p className="mb-2 text-xs font-black text-slate-600">문제 수</p>
                   <div className="flex gap-2">
-                    {COUNT_OPTIONS.map((n) => (
-                      <button
-                        key={n}
-                        type="button"
-                        onClick={() => setUnitTestCount(n)}
-                        className={`flex-1 rounded-lg py-2.5 text-sm font-black transition ${
-                          unitTestCount === n
-                            ? "bg-brand-600 text-white"
-                            : "border border-line bg-white text-slate-600 hover:border-brand-400"
-                        }`}
-                      >
-                        {n}문항
-                      </button>
-                    ))}
+                    {COUNT_OPTIONS.map((n) => {
+                      const locked = isFreeRestricted && n !== 10;
+                      const active = (isFreeRestricted ? 10 : unitTestCount) === n;
+                      return (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => !locked && setUnitTestCount(n)}
+                          disabled={locked}
+                          title={locked ? "Free 등급은 10문항만 가능합니다" : undefined}
+                          className={`flex-1 rounded-lg py-2.5 text-sm font-black transition ${
+                            active
+                              ? "bg-brand-600 text-white"
+                              : locked
+                                ? "cursor-not-allowed border border-dashed border-line bg-slate-50 text-slate-400"
+                                : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                          }`}
+                        >
+                          {n}문항{locked ? " 🔒" : ""}
+                        </button>
+                      );
+                    })}
                   </div>
+                  {isFreeRestricted ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Free 등급은 주 1회 · 10문항만 가능합니다.
+                      {freeBlockedUntil ? (
+                        <span className="ml-1 font-black text-coral-600">
+                          다음 가능: {freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      ) : null}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="flex gap-2">
