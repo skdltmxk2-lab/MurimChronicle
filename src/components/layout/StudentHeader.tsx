@@ -86,6 +86,9 @@ export function StudentHeader() {
       setStudentEmail("");
       setStudentPassword("");
       setSubscriptionInquiryPending();
+      if (isAdminUser(result.user)) {
+        router.replace("/admin");
+      }
     } catch (e) {
       console.error("[auth] loginStudent threw", e);
       setError("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -125,26 +128,12 @@ export function StudentHeader() {
             문제검색
           </Link>
           {isAdminUser(user) ? (
-            <>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/questions">
-                문제 관리
-              </Link>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/exams">
-                모의고사 생성
-              </Link>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/imports">
-                대량 업로드
-              </Link>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/users">
-                회원 관리
-              </Link>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/inquiries">
-                문의 관리
-              </Link>
-              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/messages">
-                공지/메시지
-              </Link>
-            </>
+            <Link
+              className="rounded-md border border-ink bg-ink px-3 py-2 text-xs font-black text-white hover:bg-slate-700"
+              href="/admin"
+            >
+              관리자 모드 →
+            </Link>
           ) : null}
         </nav>
 
