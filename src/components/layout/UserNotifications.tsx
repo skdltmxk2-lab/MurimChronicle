@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { adminFetch } from "@/lib/api/adminFetch";
 
@@ -79,11 +80,12 @@ export function UserNotifications() {
   }
 
   if (!authChecked || !user) return null;
+  if (typeof document === "undefined") return null;
 
   const currentAnnouncement = announcements[0] ?? null;
   const currentMessage = messages[0] ?? null;
 
-  return (
+  const node = (
     <>
       {currentAnnouncement ? (
         <AnnouncementModal
@@ -99,6 +101,7 @@ export function UserNotifications() {
       ) : null}
     </>
   );
+  return createPortal(node, document.body);
 }
 
 function AnnouncementModal({
@@ -150,10 +153,40 @@ function DirectMessageToast({
   message: DirectMessage;
   onRead: () => void;
 }) {
+  const [replyOpen, setReplyOpen] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState("");
+
+  async function sendReply() {
+    if (!replyText.trim()) return;
+    setSending(true);
+    setError("");
+    try {
+      const res = await adminFetch(`/api/messages/${message.id}/reply`, {
+        method: "POST",
+        body: JSON.stringify({ content: replyText.trim() }),
+      });
+      const json = (await res.json()) as { ok: boolean; message?: string };
+      if (!json.ok) {
+        setError(json.message ?? "답장 전송에 실패했습니다.");
+        return;
+      }
+      setDone(true);
+      // 답장 보내면 서버가 read_at도 같이 찍어줌. 잠시 후 토스트 닫기.
+      window.setTimeout(() => onRead(), 1500);
+    } catch {
+      setError("답장 전송 중 오류가 발생했습니다.");
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <div
       role="status"
-      className="fixed bottom-5 right-5 z-40 w-[340px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border border-line bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
+      className="fixed bottom-5 right-5 z-40 w-[360px] max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border border-line bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
     >
       <div className="flex items-center justify-between border-b border-line bg-brand-50 px-4 py-2">
         <div className="flex items-center gap-2">
@@ -175,15 +208,63 @@ function DirectMessageToast({
           {message.content}
         </p>
       </div>
-      <div className="border-t border-line bg-slate-50 px-4 py-2 text-right">
-        <button
-          type="button"
-          onClick={onRead}
-          className="rounded-md bg-brand-600 px-3 py-1 text-xs font-black text-white hover:bg-brand-700"
-        >
-          확인
-        </button>
-      </div>
+      {done ? (
+        <div className="border-t border-line bg-mint-50 px-4 py-3 text-center text-xs font-black text-mint-700">
+          ✅ 답장이 관리자에게 전달되었습니다.
+        </div>
+      ) : replyOpen ? (
+        <div className="border-t border-line px-4 py-3">
+          <textarea
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            placeholder="관리자에게 보낼 답장"
+            rows={3}
+            maxLength={5000}
+            disabled={sending}
+            className="w-full resize-y rounded-md border border-line px-2 py-1.5 text-xs outline-none focus:border-brand-600 disabled:opacity-50"
+          />
+          {error ? <p className="mt-1 text-xs font-bold text-coral-600">{error}</p> : null}
+          <div className="mt-2 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setReplyOpen(false);
+                setReplyText("");
+                setError("");
+              }}
+              disabled={sending}
+              className="rounded-md px-2 py-1 text-xs font-black text-slate-500 hover:text-slate-700 disabled:opacity-50"
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              onClick={sendReply}
+              disabled={sending || !replyText.trim()}
+              className="rounded-md bg-brand-600 px-3 py-1 text-xs font-black text-white hover:bg-brand-700 disabled:opacity-50"
+            >
+              {sending ? "전송 중..." : "보내기"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-end gap-2 border-t border-line bg-slate-50 px-4 py-2">
+          <button
+            type="button"
+            onClick={() => setReplyOpen(true)}
+            className="rounded-md border border-brand-300 px-3 py-1 text-xs font-black text-brand-700 hover:bg-brand-50"
+          >
+            답장
+          </button>
+          <button
+            type="button"
+            onClick={onRead}
+            className="rounded-md bg-brand-600 px-3 py-1 text-xs font-black text-white hover:bg-brand-700"
+          >
+            확인
+          </button>
+        </div>
+      )}
     </div>
   );
 }
