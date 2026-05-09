@@ -1,5 +1,7 @@
 "use client";
 
+import { useAuth } from "@/lib/auth/AuthContext";
+
 const KAKAO_OPEN_CHAT_URL = "https://open.kakao.com/o/sBAS3Yti";
 
 type Tier = {
@@ -52,8 +54,48 @@ function discounted(price: number) {
 }
 
 export function PricingClient() {
+  const { user } = useAuth();
+  const currentTierId = (user?.tier ?? "free") as Tier["id"];
+  const currentTier = TIERS.find((t) => t.id === currentTierId) ?? TIERS[0];
+  const isAdmin = user?.role === "admin";
+
   return (
     <main className="mx-auto max-w-6xl px-5 py-10">
+      {/* 현재 요금제 배지 */}
+      {user ? (
+        <section
+          className={`mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 ${currentTier.rim} ${currentTier.headerBg} px-5 py-4 shadow-soft`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{currentTier.emoji}</span>
+            <div>
+              <p className="text-sm leading-6 text-slate-700">
+                <span className="font-black text-ink">{user.name}</span>님은 현재{" "}
+                <span className={`font-black ${currentTier.priceText}`}>{currentTier.label}</span>
+                {" "}요금제입니다!
+              </p>
+              {isAdmin ? (
+                <p className="mt-0.5 text-xs font-bold text-slate-500">관리자 계정은 모든 기능을 등급과 무관하게 이용할 수 있어요.</p>
+              ) : currentTier.id === "max" ? (
+                <p className="mt-0.5 text-xs font-bold text-slate-500">최상위 등급을 이용 중입니다. 모든 기능이 열려있어요.</p>
+              ) : (
+                <p className="mt-0.5 text-xs font-bold text-slate-500">상위 등급으로 업그레이드하면 더 많은 기능을 이용할 수 있어요.</p>
+              )}
+            </div>
+          </div>
+          {!isAdmin && currentTier.id !== "max" ? (
+            <a
+              href={KAKAO_OPEN_CHAT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-lg bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-700"
+            >
+              업그레이드 문의
+            </a>
+          ) : null}
+        </section>
+      ) : null}
+
       {/* 할인 배너 */}
       <section className="mb-6 rounded-xl border-2 border-rose-300 bg-gradient-to-r from-rose-50 to-amber-50 px-6 py-5 text-center shadow-soft">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-700">Limited Offer</p>
@@ -74,13 +116,19 @@ export function PricingClient() {
         {TIERS.map((t) => {
           const off = discounted(t.price);
           const isPro = t.id === "pro";
+          const isCurrent = !isAdmin && user && t.id === currentTier.id;
           return (
             <div
               key={t.id}
               className={`relative flex flex-col rounded-2xl border-2 ${t.rim} ${t.headerBg} p-5 ${
-                isPro ? "shadow-lg ring-2 ring-amber-200" : "shadow-soft"
+                isCurrent ? "shadow-xl ring-4 ring-brand-200" : isPro ? "shadow-lg ring-2 ring-amber-200" : "shadow-soft"
               }`}
             >
+              {isCurrent ? (
+                <span className="absolute -top-3 right-3 whitespace-nowrap rounded-full bg-brand-600 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
+                  ✓ 현재 이용 중
+                </span>
+              ) : null}
               {t.badge ? (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
                   ⭐ {t.badge}
