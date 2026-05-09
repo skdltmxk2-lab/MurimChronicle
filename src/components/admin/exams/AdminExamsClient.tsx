@@ -18,7 +18,7 @@ import {
 } from "@/lib/taxonomy";
 
 type ExamCategory = "subject" | "real";
-type RealExamType = "past_exam";
+type RealExamType = "past_exam" | "self_mock";
 
 const modeLabels: Record<AdminExamMode, string> = {
   selected: "선택모고",
@@ -104,9 +104,12 @@ export function AdminExamsClient() {
 
   const matchedCount = useMemo(() => {
     return questions.filter((question) => {
-      if (examCategory === "real" && realExamType === "past_exam") {
-        return matchesPastExam(question);
+      if (examCategory === "real") {
+        if (realExamType === "past_exam") return matchesPastExam(question);
+        if (realExamType === "self_mock") return (question.pool ?? "general") === "self_mock";
       }
+      // 과목별: pool='general'에서만 + 과목/단원 필터
+      if ((question.pool ?? "general") !== "general") return false;
       const subjectOk = subjects.length === 0 || subjects.includes(question.subject);
       const unitOk = units.length === 0 || units.includes(question.unit);
       return subjectOk && unitOk;
@@ -126,9 +129,17 @@ export function AdminExamsClient() {
 
     // 카테고리에 따라 사용할 문제 풀과 mode 결정
     const isReal = examCategory === "real";
-    const pool = isReal ? questions.filter(matchesPastExam) : questions;
+    let pool: typeof questions;
+    if (isReal && realExamType === "past_exam") {
+      pool = questions.filter(matchesPastExam);
+    } else if (isReal && realExamType === "self_mock") {
+      pool = questions.filter((q) => (q.pool ?? "general") === "self_mock");
+    } else {
+      // 과목별: 일반 풀만 사용 (데일리/자체 제외)
+      pool = questions.filter((q) => (q.pool ?? "general") === "general");
+    }
     const effectiveMode: AdminExamMode = isReal ? "random" : mode;
-    // 실전(기출유형)은 학교/년도가 곧 필터이므로 subjects/units는 비워서 전달.
+    // 실전은 학교/년도/풀이 곧 필터이므로 subjects/units는 비워서 전달.
     const effectiveSubjects = isReal ? [] : subjects;
     const effectiveUnits = isReal ? [] : units;
 
@@ -343,12 +354,15 @@ export function AdminExamsClient() {
                   </button>
                   <button
                     type="button"
-                    disabled
-                    title="향후 추가될 유형입니다"
-                    className="cursor-not-allowed rounded-md border border-dashed border-line bg-slate-50 px-3 py-2 text-left opacity-60"
+                    onClick={() => setRealExamType("self_mock")}
+                    className={`rounded-md border px-3 py-2 text-left ${
+                      realExamType === "self_mock"
+                        ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                        : "border-line bg-white hover:border-brand-500"
+                    }`}
                   >
-                    <div className="text-sm font-black text-slate-400">자체 모의고사</div>
-                    <div className="mt-0.5 text-xs text-slate-400">준비 중 (별도 풀 분리 예정)</div>
+                    <div className="text-sm font-black text-ink">자체 모의고사</div>
+                    <div className="mt-0.5 text-xs text-slate-500">자체 풀에서 랜덤 출제</div>
                   </button>
                   <button
                     type="button"

@@ -33,6 +33,7 @@ function problemToRecord(problem: Problem, examTitle: string): QuestionRecord {
     concept: problem.concept,
     difficulty: problem.difficulty,
     sourceType: "mock",
+    pool: "general",
     question: problem.question,
     contentType: problem.contentType ?? "latex",
     questionImage: problem.questionImage,
@@ -63,6 +64,7 @@ function fromDb(row: DbRow): QuestionRecord {
     concept: row.concept as string,
     difficulty: row.difficulty as QuestionRecord["difficulty"],
     sourceType: row.source_type as QuestionRecord["sourceType"],
+    pool: ((row.pool as QuestionRecord["pool"] | null) ?? "general"),
     question: row.question as string,
     contentType: (row.content_type ?? undefined) as QuestionRecord["contentType"],
     questionImage: (row.question_image ?? undefined) as string | undefined,
@@ -85,6 +87,7 @@ function toDb(record: QuestionRecord) {
     concept: record.concept,
     difficulty: record.difficulty,
     source_type: record.sourceType,
+    pool: record.pool ?? "general",
     question: record.question,
     content_type: record.contentType ?? null,
     question_image: record.questionImage ?? null,
@@ -177,6 +180,24 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     return all.map(fromDb);
   },
 
+  async listByPool(pool: string): Promise<QuestionRecord[]> {
+    const PAGE = 1000;
+    const all: DbRow[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await supabase
+        .from("questions")
+        .select("*")
+        .eq("pool", pool)
+        .order("created_at", { ascending: false })
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      all.push(...(data as DbRow[]));
+      if (data.length < PAGE) break;
+    }
+    return all.map(fromDb);
+  },
+
   async countAll(): Promise<number> {
     const { count, error } = await supabase
       .from("questions")
@@ -218,6 +239,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         concept: draft.concept,
         difficulty: draft.difficulty,
         source_type: draft.sourceType,
+        pool: draft.pool ?? "general",
         question: draft.question,
         content_type: draft.contentType ?? null,
         question_image: draft.questionImage ?? null,
@@ -259,6 +281,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
       if (filters.unit && q.unit !== filters.unit) return false;
       if (filters.difficulty !== "all" && q.difficulty !== filters.difficulty) return false;
       if (filters.sourceType !== "all" && q.sourceType !== filters.sourceType) return false;
+      if (filters.pool !== "all" && (q.pool ?? "general") !== filters.pool) return false;
       return true;
     });
   },

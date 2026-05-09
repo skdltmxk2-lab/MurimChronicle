@@ -5,6 +5,7 @@ export interface IQuestionRepository {
   listByUnits(subject: string, units: string[]): Promise<QuestionRecord[]>;
   listBySubject(subject: string): Promise<QuestionRecord[]>;
   listByTag(tag: string): Promise<QuestionRecord[]>;
+  listByPool(pool: string): Promise<QuestionRecord[]>;
   countAll(): Promise<number>;
   countByTag(tag: string): Promise<number>;
   create(draft: QuestionDraft): Promise<QuestionRecord>;

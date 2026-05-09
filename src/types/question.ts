@@ -1,6 +1,13 @@
 import type { ContentType, Difficulty, ProblemOption } from "@/types/exam";
 
 export type QuestionSourceType = "mock" | "manual" | "imported" | "ai";
+export type QuestionPool = "general" | "daily" | "self_mock";
+
+export const POOL_LABELS: Record<QuestionPool, string> = {
+  general: "일반",
+  daily: "데일리",
+  self_mock: "자체 모의고사",
+};
 
 export type QuestionRecord = {
   id: string;
@@ -9,6 +16,7 @@ export type QuestionRecord = {
   concept: string;
   difficulty: Difficulty;
   sourceType: QuestionSourceType;
+  pool?: QuestionPool;
   question: string;
   contentType?: ContentType;
   questionImage?: string;
@@ -28,6 +36,7 @@ export type QuestionDraft = {
   concept: string;
   difficulty: Difficulty;
   sourceType: QuestionSourceType;
+  pool?: QuestionPool;
   question: string;
   contentType?: ContentType;
   questionImage?: string;
@@ -44,4 +53,5 @@ export type QuestionFilters = {
   unit: string;
   difficulty: "all" | Difficulty;
   sourceType: "all" | QuestionSourceType;
+  pool: "all" | QuestionPool;
 };

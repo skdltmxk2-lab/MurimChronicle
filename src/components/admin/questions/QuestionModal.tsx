@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { ContentType, Difficulty, ProblemOption } from "@/types/exam";
-import type { QuestionDraft, QuestionRecord, QuestionSourceType } from "@/types/question";
+import type { QuestionDraft, QuestionPool, QuestionRecord, QuestionSourceType } from "@/types/question";
+import { POOL_LABELS } from "@/types/question";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { readFileAsDataUrl } from "@/lib/files/readFileAsDataUrl";
 import {
@@ -33,6 +34,7 @@ function makeEmptyDraft(): QuestionDraft {
     concept: "",
     difficulty: "medium",
     sourceType: "manual",
+    pool: "general",
     question: "",
     contentType: "latex",
     questionImage: "",
@@ -52,6 +54,7 @@ function recordToDraft(question: QuestionRecord): QuestionDraft {
     concept: question.concept,
     difficulty: question.difficulty,
     sourceType: question.sourceType,
+    pool: question.pool ?? "general",
     question: question.question,
     contentType: question.contentType ?? "latex",
     questionImage: question.questionImage ?? "",
@@ -220,7 +223,7 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
 
         <div className="grid gap-5 p-5 lg:grid-cols-[1fr_360px]">
           <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
               <label className="block">
                 <span className="text-xs font-black text-slate-600">과목</span>
                 <select
@@ -281,6 +284,20 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                   <option value="manual">manual</option>
                   <option value="imported">imported</option>
                   <option value="ai">ai</option>
+                </select>
+              </label>
+              <label className="block">
+                <span className="text-xs font-black text-slate-600">문제 풀</span>
+                <select
+                  value={draft.pool ?? "general"}
+                  onChange={(event) =>
+                    setDraft({ ...draft, pool: event.target.value as QuestionPool })
+                  }
+                  className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                >
+                  <option value="general">{POOL_LABELS.general}</option>
+                  <option value="daily">{POOL_LABELS.daily}</option>
+                  <option value="self_mock">{POOL_LABELS.self_mock}</option>
                 </select>
               </label>
             </div>

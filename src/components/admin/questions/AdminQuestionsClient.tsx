@@ -5,6 +5,7 @@ import Link from "next/link";
 import type {
   QuestionDraft,
   QuestionFilters,
+  QuestionPool,
   QuestionRecord,
   QuestionSourceType
 } from "@/types/question";
@@ -46,9 +47,10 @@ export function AdminQuestionsClient() {
     subject: "",
     unit: "",
     difficulty: "all",
-    sourceType: "all"
+    sourceType: "all",
+    pool: "all"
   });
-  const [view, setView] = useState<"regular" | "daily">("regular");
+  const [view, setView] = useState<QuestionPool>("general");
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<QuestionRecord | null>(null);
   const [previewQuestion, setPreviewQuestion] = useState<QuestionRecord | null>(null);
@@ -66,15 +68,28 @@ export function AdminQuestionsClient() {
     () => unitsForSubject(filters.subject),
     [filters.subject]
   );
-  const viewQuestions = useMemo(() => {
-    if (view === "daily") return questions.filter((q) => (q.tags ?? []).includes("daily"));
-    return questions.filter((q) => !(q.tags ?? []).includes("daily"));
-  }, [questions, view]);
-  const dailyCount = useMemo(
-    () => questions.filter((q) => (q.tags ?? []).includes("daily")).length,
+  // pool 컬럼 기준으로 분류 (pool 미설정 = 'general'로 간주, daily 태그도 fallback)
+  const poolOf = (q: QuestionRecord): QuestionPool => {
+    if (q.pool) return q.pool;
+    if ((q.tags ?? []).includes("daily")) return "daily";
+    return "general";
+  };
+  const viewQuestions = useMemo(
+    () => questions.filter((q) => poolOf(q) === view),
+    [questions, view]
+  );
+  const generalCount = useMemo(
+    () => questions.filter((q) => poolOf(q) === "general").length,
     [questions]
   );
-  const regularCount = questions.length - dailyCount;
+  const dailyCount = useMemo(
+    () => questions.filter((q) => poolOf(q) === "daily").length,
+    [questions]
+  );
+  const selfMockCount = useMemo(
+    () => questions.filter((q) => poolOf(q) === "self_mock").length,
+    [questions]
+  );
   const visibleQuestions = useMemo(
     () => questionRepo.filter(viewQuestions, filters),
     [filters, viewQuestions]
@@ -112,7 +127,8 @@ export function AdminQuestionsClient() {
       subject: "",
       unit: "",
       difficulty: "all",
-      sourceType: "all"
+      sourceType: "all",
+      pool: "all"
     });
   }
 
@@ -200,14 +216,14 @@ export function AdminQuestionsClient() {
       <section className="mb-5 flex gap-2 rounded-lg border border-line bg-white p-2 shadow-soft">
         <button
           type="button"
-          onClick={() => setView("regular")}
+          onClick={() => setView("general")}
           className={`flex-1 rounded-md px-4 py-3 text-sm font-black transition ${
-            view === "regular"
+            view === "general"
               ? "bg-brand-600 text-white"
               : "bg-white text-slate-600 hover:bg-slate-50"
           }`}
         >
-          일반 문제 <span className="ml-1 text-xs opacity-80">({regularCount})</span>
+          일반 문제 <span className="ml-1 text-xs opacity-80">({generalCount})</span>
         </button>
         <button
           type="button"
@@ -219,6 +235,17 @@ export function AdminQuestionsClient() {
           }`}
         >
           데일리 문제 <span className="ml-1 text-xs opacity-80">({dailyCount})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setView("self_mock")}
+          className={`flex-1 rounded-md px-4 py-3 text-sm font-black transition ${
+            view === "self_mock"
+              ? "bg-coral-600 text-white"
+              : "bg-white text-slate-600 hover:bg-slate-50"
+          }`}
+        >
+          자체 모의고사 <span className="ml-1 text-xs opacity-80">({selfMockCount})</span>
         </button>
       </section>
 
