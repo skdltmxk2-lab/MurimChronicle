@@ -294,15 +294,23 @@ export function AdminUsersClient() {
                       <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.createdAt)}</td>
                       <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.lastSignInAt)}</td>
                       <td className="px-3 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => deleteUser(row)}
-                          disabled={isDeleting || isSelf}
-                          title={isSelf ? "본인 계정은 삭제할 수 없습니다" : "회원 삭제"}
-                          className="rounded-md border border-red-300 px-3 py-1 text-xs font-black text-red-600 hover:bg-red-50 disabled:opacity-50"
-                        >
-                          {isDeleting ? "삭제 중..." : "삭제"}
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            href={`/admin/users/${row.id}`}
+                            className="rounded-md border border-brand-300 px-3 py-1 text-xs font-black text-brand-700 hover:bg-brand-50"
+                          >
+                            상세
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => deleteUser(row)}
+                            disabled={isDeleting || isSelf}
+                            title={isSelf ? "본인 계정은 삭제할 수 없습니다" : "회원 삭제"}
+                            className="rounded-md border border-red-300 px-3 py-1 text-xs font-black text-red-600 hover:bg-red-50 disabled:opacity-50"
+                          >
+                            {isDeleting ? "삭제 중..." : "삭제"}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
