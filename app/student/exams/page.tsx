@@ -65,14 +65,16 @@ export default function StudentExamsPage() {
   // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
   const canDaily = true;
   const canSubjectMock = canUseTier(user, "go");
-  // 단원별 학습: 모든 등급 가능. 단 Free는 주1회·10문항 제한.
+  // 단원별 학습: 모든 등급 가능.
+  // Free: 주1회·10문항 / Go: 일1회 / Plus 이상: 무제한
   const canUnitPractice = !!user;
   const isFreeRestricted = !!user && user.role !== "admin" && user.tier === "free";
+  const isGoRestricted = !!user && user.role !== "admin" && user.tier === "go";
 
-  // Free 사용자: 마지막 단원별 학습 응시 시각 (주1회 제한 검사)
+  // 단원별 학습: 마지막 응시 시각 (등급별 제한 검사)
   const [lastUnitTestAt, setLastUnitTestAt] = useState<number | null>(null);
   useEffect(() => {
-    if (!user || !isFreeRestricted) {
+    if (!user || (!isFreeRestricted && !isGoRestricted)) {
       setLastUnitTestAt(null);
       return;
     }
@@ -90,13 +92,32 @@ export default function StudentExamsPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, isFreeRestricted]);
+  }, [user, isFreeRestricted, isGoRestricted]);
 
   const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
   const freeBlockedUntil =
     isFreeRestricted && lastUnitTestAt !== null && Date.now() - lastUnitTestAt < ONE_WEEK_MS
       ? new Date(lastUnitTestAt + ONE_WEEK_MS)
       : null;
+  // Go 일1회: 마지막 응시가 오늘이면 차단. 다음 가능은 내일 0시.
+  const goBlockedToday = (() => {
+    if (!isGoRestricted || lastUnitTestAt === null) return false;
+    const last = new Date(lastUnitTestAt);
+    const now = new Date();
+    return (
+      last.getFullYear() === now.getFullYear() &&
+      last.getMonth() === now.getMonth() &&
+      last.getDate() === now.getDate()
+    );
+  })();
+  const goNextAvailable = goBlockedToday
+    ? (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        d.setHours(0, 0, 0, 0);
+        return d;
+      })()
+    : null;
   // 실전 모의고사 카드 자체는 plus 이상에서만 클릭 가능
   // (모달 안의 가장 낮은 카테고리=기출기반이 plus).
   const canRealExam = canUseTier(user, "plus");
@@ -153,7 +174,12 @@ export default function StudentExamsPage() {
     if (!pickedSubject || selectedUnits.length === 0) return;
     if (freeBlockedUntil) {
       const ts = freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
-      window.alert(`Free 등급은 단원별 학습을 주 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Go 이상 등급에서 가능합니다.`);
+      window.alert(`Free 등급은 단원별 학습을 주 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Plus 이상 등급에서 가능합니다.`);
+      return;
+    }
+    if (goNextAvailable) {
+      const ts = goNextAvailable.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+      window.alert(`Go 등급은 단원별 학습을 하루 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Plus 이상 등급에서 가능합니다.`);
       return;
     }
     const enforcedCount = isFreeRestricted ? 10 : unitTestCount;
@@ -636,6 +662,15 @@ export default function StudentExamsPage() {
                       {freeBlockedUntil ? (
                         <span className="ml-1 font-black text-coral-600">
                           다음 가능: {freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      ) : null}
+                    </p>
+                  ) : isGoRestricted ? (
+                    <p className="mt-2 text-xs text-slate-500">
+                      Go 등급은 하루 1회만 가능합니다.
+                      {goNextAvailable ? (
+                        <span className="ml-1 font-black text-coral-600">
+                          다음 가능: {goNextAvailable.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
                         </span>
                       ) : null}
                     </p>

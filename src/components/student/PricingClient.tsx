@@ -35,9 +35,9 @@ type FeatureRow = {
 const FEATURES: FeatureRow[] = [
   { label: "커뮤니티",          values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
   { label: "데일리 테스트 (5문항/일)", values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
-  { label: "단원별 학습",        values: { free: "주1회·10문항", go: true,  plus: true,  pro: true,  max: true } },
+  { label: "단원별 학습",        values: { free: "주1회·10문항", go: "일1회",  plus: true,  pro: true,  max: true } },
   { label: "과목별 모의고사",     values: { free: false, go: false, plus: true,  pro: true,  max: true } },
-  { label: "실전 모의고사",      values: { free: false, go: false, plus: true,  pro: true,  max: true } },
+  { label: "실전 모의고사",      values: { free: false, go: false, plus: "기출유형만",  pro: true,  max: true } },
   { label: "취약유형 모의고사",   values: { free: false, go: false, plus: false, pro: true,  max: true } },
   { label: "최근 7일 틀린 문제 다시 보기", values: { free: false, go: false, plus: false, pro: true,  max: true } },
   { label: "문제 검색 (캡쳐 검색·출제 분석)", values: { free: false, go: false, plus: false, pro: false, max: true } },
@@ -124,14 +124,18 @@ export function PricingClient() {
                 isCurrent ? "shadow-xl ring-4 ring-brand-200" : isPro ? "shadow-lg ring-2 ring-amber-200" : "shadow-soft"
               }`}
             >
-              {isCurrent ? (
-                <span className="absolute -top-3 right-3 whitespace-nowrap rounded-full bg-brand-600 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
-                  ✓ 현재 이용 중
-                </span>
-              ) : null}
               {t.badge ? (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
                   ⭐ {t.badge}
+                </span>
+              ) : null}
+              {isCurrent ? (
+                <span
+                  className={`absolute whitespace-nowrap rounded-full bg-brand-600 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md ${
+                    t.badge ? "left-3 top-3" : "-top-3 right-3"
+                  }`}
+                >
+                  ✓ 이용 중
                 </span>
               ) : null}
               <div className="text-3xl">{t.emoji}</div>
