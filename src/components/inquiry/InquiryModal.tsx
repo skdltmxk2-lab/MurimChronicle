@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
+import { createPortal } from "react-dom";
 import { adminFetch } from "@/lib/api/adminFetch";
 
 const CATEGORIES: Array<{ id: "complaint" | "suggestion" | "bug" | "other"; label: string; emoji: string; desc: string }> = [
@@ -21,6 +22,8 @@ export function InquiryModal({ onClose }: { onClose: () => void }) {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   function pickImage(e: ChangeEvent<HTMLInputElement>) {
     setImageError("");
@@ -66,15 +69,17 @@ export function InquiryModal({ onClose }: { onClose: () => void }) {
     }
   }
 
-  return (
+  if (!mounted) return null;
+
+  const modal = (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-slate-900/60 px-4 py-6 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
+        className="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-line px-6 py-4">
@@ -203,4 +208,6 @@ export function InquiryModal({ onClose }: { onClose: () => void }) {
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }
