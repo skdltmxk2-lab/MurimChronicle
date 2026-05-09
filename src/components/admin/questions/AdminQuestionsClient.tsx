@@ -7,8 +7,21 @@ import type {
   QuestionFilters,
   QuestionPool,
   QuestionRecord,
-  QuestionSourceType
+  QuestionSourceType,
 } from "@/types/question";
+
+// 22개 한글 학교명을 영문 ID 코드로 매핑 (q-YEAR-CODE-* 패턴).
+const SCHOOL_OPTIONS: Array<{ code: string; ko: string }> = [
+  { code: "ajou", ko: "아주대" }, { code: "cau", ko: "중앙대" }, { code: "dgu", ko: "동국대" },
+  { code: "dku", ko: "단국대" }, { code: "gachon", ko: "가천대" }, { code: "hansung", ko: "한성대" },
+  { code: "hanyang", ko: "한양대" }, { code: "hongik", ko: "홍익대" }, { code: "inha", ko: "인하대" },
+  { code: "kau", ko: "항공대" }, { code: "konkuk", ko: "건국대" }, { code: "kw", ko: "광운대" },
+  { code: "kyonggi", ko: "경기대" }, { code: "kyunghee", ko: "경희대" }, { code: "mju", ko: "명지대" },
+  { code: "sejong", ko: "세종대" }, { code: "seoultech", ko: "서울과기대" }, { code: "skku", ko: "성균관대" },
+  { code: "sogang", ko: "서강대" }, { code: "sookmyung", ko: "숙명여대" }, { code: "soongsil", ko: "숭실대" },
+  { code: "uos", ko: "시립대" },
+];
+const YEAR_OPTIONS = ["2025","2024","2023","2022","2021","2020","2019","2018","2017","2016"];
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -47,8 +60,9 @@ export function AdminQuestionsClient() {
     subject: "",
     unit: "",
     difficulty: "all",
-    sourceType: "all",
-    pool: "all"
+    pool: "all",
+    school: "",
+    year: "",
   });
   const [view, setView] = useState<QuestionPool>("general");
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
@@ -127,8 +141,9 @@ export function AdminQuestionsClient() {
       subject: "",
       unit: "",
       difficulty: "all",
-      sourceType: "all",
-      pool: "all"
+      pool: "all",
+      school: "",
+      year: "",
     });
   }
 
@@ -250,7 +265,7 @@ export function AdminQuestionsClient() {
       </section>
 
       <section className="mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
-        <div className="grid gap-3 md:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-5">
           <label className="block">
             <span className="text-xs font-black text-slate-600">과목</span>
             <select
@@ -305,22 +320,33 @@ export function AdminQuestionsClient() {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs font-black text-slate-600">sourceType</span>
+            <span className="text-xs font-black text-slate-600">학교</span>
             <select
-              value={filters.sourceType}
+              value={filters.school}
               onChange={(event) =>
-                setFilters({
-                  ...filters,
-                  sourceType: event.target.value as QuestionFilters["sourceType"]
-                })
+                setFilters({ ...filters, school: event.target.value })
               }
               className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
             >
-              <option value="all">전체</option>
-              <option value="mock">mock</option>
-              <option value="manual">manual</option>
-              <option value="imported">imported</option>
-              <option value="ai">ai</option>
+              <option value="">전체</option>
+              {SCHOOL_OPTIONS.map((s) => (
+                <option key={s.code} value={s.code}>{s.ko}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-black text-slate-600">년도</span>
+            <select
+              value={filters.year}
+              onChange={(event) =>
+                setFilters({ ...filters, year: event.target.value })
+              }
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+            >
+              <option value="">전체</option>
+              {YEAR_OPTIONS.map((y) => (
+                <option key={y} value={y}>{y}년</option>
+              ))}
             </select>
           </label>
         </div>

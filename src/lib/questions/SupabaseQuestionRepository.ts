@@ -280,8 +280,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
       if (filters.subject && q.subject !== filters.subject) return false;
       if (filters.unit && q.unit !== filters.unit) return false;
       if (filters.difficulty !== "all" && q.difficulty !== filters.difficulty) return false;
-      if (filters.sourceType !== "all" && q.sourceType !== filters.sourceType) return false;
       if (filters.pool !== "all" && (q.pool ?? "general") !== filters.pool) return false;
+      if (filters.school || filters.year) {
+        const m = q.id.match(/^q-(\d{4})-([a-z-]+?)-/);
+        if (!m) return false; // 학교/년도 없는 문제는 학교/년도 필터 시 제외
+        const [, year, school] = m;
+        if (filters.year && year !== filters.year) return false;
+        if (filters.school && school !== filters.school) return false;
+      }
       return true;
     });
   },

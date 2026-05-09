@@ -52,6 +52,7 @@ export type QuestionFilters = {
   subject: string;
   unit: string;
   difficulty: "all" | Difficulty;
-  sourceType: "all" | QuestionSourceType;
   pool: "all" | QuestionPool;
+  school: string; // 빈 문자열이면 전체
+  year: string;   // 빈 문자열이면 전체
 };
