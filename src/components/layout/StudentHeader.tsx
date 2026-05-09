@@ -127,6 +127,9 @@ export function StudentHeader() {
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
             문제검색
           </Link>
+          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/pricing">
+            요금제
+          </Link>
           {isAdminUser(user) ? (
             <Link
               className="rounded-md border border-ink bg-ink px-3 py-2 text-xs font-black text-white hover:bg-slate-700"

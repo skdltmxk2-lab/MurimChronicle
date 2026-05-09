@@ -1,0 +1,180 @@
+"use client";
+
+const KAKAO_OPEN_CHAT_URL = "https://open.kakao.com/o/sBAS3Yti";
+
+type Tier = {
+  id: "free" | "go" | "plus" | "pro" | "max";
+  label: string;
+  price: number; // 원래 가격(원). 0이면 무료
+  badge?: string;
+  // 색상 토큰: 헤더 배경 + 진한색 + 강조 텍스트색 클래스 묶음
+  headerBg: string;
+  cellHi: string;
+  rim: string;
+  priceText: string;
+  emoji: string;
+};
+
+const TIERS: Tier[] = [
+  { id: "free", label: "Free",  price: 0,      headerBg: "bg-slate-100",   cellHi: "bg-slate-50",     rim: "border-slate-300",   priceText: "text-slate-700",   emoji: "🌱" },
+  { id: "go",   label: "Go",    price: 15900,  headerBg: "bg-emerald-50",  cellHi: "bg-emerald-50/40", rim: "border-emerald-300", priceText: "text-emerald-700", emoji: "🚀" },
+  { id: "plus", label: "Plus",  price: 56900,  headerBg: "bg-sky-50",      cellHi: "bg-sky-50/40",    rim: "border-sky-300",     priceText: "text-sky-700",     emoji: "⭐" },
+  { id: "pro",  label: "Pro",   price: 99900,  badge: "가장 많이 선택", headerBg: "bg-amber-50",   cellHi: "bg-amber-50/40",  rim: "border-amber-400",   priceText: "text-amber-700",   emoji: "🏆" },
+  { id: "max",  label: "Max",   price: 199000, headerBg: "bg-rose-50",     cellHi: "bg-rose-50/40",   rim: "border-rose-300",    priceText: "text-rose-700",    emoji: "👑" },
+];
+
+type FeatureRow = {
+  label: string;
+  desc?: string;
+  // 각 등급별 ✓ / ✗
+  values: Record<Tier["id"], boolean | string>;
+};
+
+const FEATURES: FeatureRow[] = [
+  { label: "커뮤니티",          values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
+  { label: "문제 검색",         values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
+  { label: "데일리 테스트 (5문항/일)", values: { free: true,  go: true,  plus: true,  pro: true,  max: true } },
+  { label: "단원별 학습",        values: { free: false, go: true,  plus: true,  pro: true,  max: true } },
+  { label: "과목별 모의고사",     values: { free: false, go: false, plus: true,  pro: true,  max: true } },
+  { label: "실전 모의고사",      values: { free: false, go: false, plus: true,  pro: true,  max: true } },
+  { label: "취약유형 모의고사",   values: { free: false, go: false, plus: false, pro: true,  max: true } },
+  { label: "최근 7일 틀린 문제 다시 보기", values: { free: false, go: false, plus: false, pro: true,  max: true } },
+  { label: "1:1 문의 우선 답변",  values: { free: false, go: false, plus: false, pro: false, max: true } },
+  { label: "신규 기능 우선 체험", values: { free: false, go: false, plus: false, pro: false, max: true } },
+];
+
+function formatWon(n: number) {
+  return n.toLocaleString("ko-KR");
+}
+
+function discounted(price: number) {
+  return Math.round(price * 0.5);
+}
+
+export function PricingClient() {
+  return (
+    <main className="mx-auto max-w-6xl px-5 py-10">
+      {/* 할인 배너 */}
+      <section className="mb-6 rounded-xl border-2 border-rose-300 bg-gradient-to-r from-rose-50 to-amber-50 px-6 py-5 text-center shadow-soft">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-rose-700">Limited Offer</p>
+        <h1 className="mt-1 text-2xl font-black text-ink">
+          🎉 50% 할인 이벤트 진행 중 <span className="text-rose-600">~ 6월 31일까지</span>
+        </h1>
+        <p className="mt-1 text-sm text-slate-600">지금 가입하시면 첫 결제 50% 할인된 금액으로 이용하실 수 있습니다.</p>
+      </section>
+
+      <section className="mb-8 text-center">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-600">Pricing</p>
+        <h2 className="mt-1 text-3xl font-black text-ink">루트매쓰 CBT 요금제</h2>
+        <p className="mt-2 text-sm text-slate-600">필요한 만큼만 골라 학습할 수 있도록 5단계로 준비했어요.</p>
+      </section>
+
+      {/* 등급 카드 */}
+      <section className="mb-8 grid gap-4 md:grid-cols-3 lg:grid-cols-5">
+        {TIERS.map((t) => {
+          const off = discounted(t.price);
+          const isPro = t.id === "pro";
+          return (
+            <div
+              key={t.id}
+              className={`relative flex flex-col rounded-2xl border-2 ${t.rim} ${t.headerBg} p-5 ${
+                isPro ? "shadow-lg ring-2 ring-amber-200" : "shadow-soft"
+              }`}
+            >
+              {t.badge ? (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
+                  ⭐ {t.badge}
+                </span>
+              ) : null}
+              <div className="text-3xl">{t.emoji}</div>
+              <h3 className={`mt-2 text-2xl font-black ${t.priceText}`}>{t.label}</h3>
+              <div className="mt-3 min-h-[3.5rem]">
+                {t.price === 0 ? (
+                  <div className={`text-2xl font-black ${t.priceText}`}>무료</div>
+                ) : (
+                  <>
+                    <div className="text-xs text-slate-500 line-through">월 {formatWon(t.price)}원</div>
+                    <div className={`mt-0.5 text-2xl font-black ${t.priceText}`}>
+                      월 {formatWon(off)}원
+                      <span className="ml-1 align-middle text-[10px] font-black text-coral-600">-50%</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      {/* 비교 표 */}
+      <section className="overflow-x-auto rounded-2xl border border-line bg-white shadow-soft">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line">
+              <th className="sticky left-0 z-10 bg-white px-4 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+                기능
+              </th>
+              {TIERS.map((t) => (
+                <th
+                  key={t.id}
+                  className={`px-3 py-4 text-center text-sm font-black ${t.headerBg} ${t.priceText} ${
+                    t.id === "pro" ? "border-x-2 border-amber-300" : ""
+                  }`}
+                >
+                  {t.emoji} {t.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {FEATURES.map((row, i) => (
+              <tr key={row.label} className={i % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
+                <td className="sticky left-0 z-10 bg-inherit px-4 py-3 text-left text-sm font-bold text-ink">
+                  {row.label}
+                  {row.desc ? <div className="mt-0.5 text-xs font-normal text-slate-500">{row.desc}</div> : null}
+                </td>
+                {TIERS.map((t) => {
+                  const v = row.values[t.id];
+                  const isPro = t.id === "pro";
+                  return (
+                    <td
+                      key={t.id}
+                      className={`px-3 py-3 text-center ${isPro ? "border-x-2 border-amber-200/70 bg-amber-50/30" : ""}`}
+                    >
+                      {v === true ? (
+                        <span className="text-xl font-black text-mint-600">O</span>
+                      ) : v === false ? (
+                        <span className="text-xl font-black text-slate-300">×</span>
+                      ) : (
+                        <span className="text-xs font-bold text-slate-700">{v}</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* 가입 안내 */}
+      <section className="mt-8 rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
+        <h3 className="text-xl font-black text-ink">요금제 가입 문의</h3>
+        <p className="mt-2 text-sm text-slate-600">
+          가입·업그레이드는 카카오톡 오픈채팅으로 편하게 문의해 주세요. 평일 24시간 이내 답변드립니다.
+        </p>
+        <a
+          href={KAKAO_OPEN_CHAT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#FEE500] px-6 py-3 text-sm font-black text-[#191600] transition hover:brightness-95"
+        >
+          💬 카카오톡 오픈채팅으로 문의하기
+        </a>
+        <p className="mt-3 text-[11px] text-slate-400">
+          * 표시된 가격은 부가세 포함, 월 결제 기준입니다. 50% 할인은 첫 결제에 한해 적용되며 이벤트 종료 후 정상가로 전환됩니다.
+        </p>
+      </section>
+    </main>
+  );
+}
