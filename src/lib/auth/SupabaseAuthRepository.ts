@@ -153,10 +153,13 @@ export const supabaseAuthRepo: IAuthRepository = {
     clearLegacyAdminKey();
     removeFromStorage(STUDENT_USER_KEY);
 
+    const emailRedirectTo =
+      typeof window !== "undefined" ? `${window.location.origin}/auth/confirm` : undefined;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo,
         data: {
           name,
           current_progress: params.currentProgress ?? "",

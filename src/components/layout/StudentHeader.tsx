@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
+import { supabase } from "@/lib/supabase/client";
 
 // ROUTE 편입 — Logo Concept A (SPARK).
 // 8-point spike: 카디널 4방향(상/하/좌/우) 긴 spike + 대각 4방향 짧은 spike.
@@ -36,12 +37,40 @@ export function StudentHeader() {
   const [studentPassword, setStudentPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resendDone, setResendDone] = useState(false);
+
+  const showResend = error.includes("이메일 인증") && !!studentEmail;
+
+  async function resendConfirmation() {
+    if (resending || !studentEmail) return;
+    setResending(true);
+    try {
+      const { error: resendErr } = await supabase.auth.resend({
+        type: "signup",
+        email: studentEmail,
+        options: {
+          emailRedirectTo:
+            typeof window !== "undefined" ? `${window.location.origin}/auth/confirm` : undefined
+        }
+      });
+      if (resendErr) {
+        setError(`재발송 실패: ${resendErr.message}`);
+      } else {
+        setResendDone(true);
+        setError("");
+      }
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function submitStudent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting) return;
     setSubmitting(true);
     setError("");
+    setResendDone(false);
     try {
       const result = await authRepo.loginStudent({
         email: studentEmail,
@@ -164,7 +193,26 @@ export function StudentHeader() {
               </form>
             </div>
           )}
-          {error ? <p className="text-xs font-bold text-coral-600">{error}</p> : null}
+          {error ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-xs font-bold text-coral-600">{error}</p>
+              {showResend ? (
+                <button
+                  type="button"
+                  onClick={resendConfirmation}
+                  disabled={resending}
+                  className="rounded-md border border-coral-300 px-2 py-1 text-xs font-black text-coral-700 hover:bg-coral-50 disabled:opacity-50"
+                >
+                  {resending ? "재발송 중..." : "인증 메일 다시 보내기"}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+          {resendDone ? (
+            <p className="text-xs font-bold text-mint-700">
+              인증 메일을 다시 보냈습니다. 메일함을 확인해 주세요.
+            </p>
+          ) : null}
         </div>
       </div>
     </header>

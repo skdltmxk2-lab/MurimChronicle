@@ -1,21 +1,43 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
-export default function AuthConfirmPage() {
+const ALLOWED_TYPES: EmailOtpType[] = ["signup", "recovery", "invite", "magiclink", "email", "email_change"];
+
+function AuthConfirmInner() {
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+    (async () => {
+      const tokenHash = searchParams.get("token_hash");
+      const typeParam = searchParams.get("type");
+
+      // 신규 token-hash 흐름
+      if (tokenHash && typeParam && (ALLOWED_TYPES as string[]).includes(typeParam)) {
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: typeParam as EmailOtpType
+        });
+        if (error) {
+          setErrorMsg(error.message);
+          setStatus("error");
+          return;
+        }
         setStatus("success");
-      } else {
-        setStatus("error");
+        return;
       }
-    });
-  }, []);
+
+      // 폴백: 구 PKCE 흐름이나 이미 콜백 완료된 경우 세션 존재 여부로 판단
+      const { data: { session } } = await supabase.auth.getSession();
+      setStatus(session ? "success" : "error");
+    })();
+  }, [searchParams]);
 
   if (status === "loading") return null;
 
@@ -45,11 +67,21 @@ export default function AuthConfirmPage() {
             <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-slate-50 text-3xl">
               🔗
             </div>
-            <h1 className="text-2xl font-black text-ink">인증 링크를 확인해주세요</h1>
+            <h1 className="text-2xl font-black text-ink">인증에 실패했습니다</h1>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              이메일에서 인증 링크를 클릭하면
-              <br />
-              자동으로 인증이 완료됩니다.
+              {errorMsg ? (
+                <>
+                  사유: {errorMsg}
+                  <br />
+                  링크가 만료되었거나 이미 사용되었을 수 있어요.
+                </>
+              ) : (
+                <>
+                  이메일에서 인증 링크를 클릭하면
+                  <br />
+                  자동으로 인증이 완료됩니다.
+                </>
+              )}
             </p>
             <Link
               href="/student/exams"
@@ -61,5 +93,13 @@ export default function AuthConfirmPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function AuthConfirmPage() {
+  return (
+    <Suspense fallback={null}>
+      <AuthConfirmInner />
+    </Suspense>
   );
 }
