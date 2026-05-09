@@ -7,6 +7,7 @@ import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
 import { supabase } from "@/lib/supabase/client";
+import { InquiryModal } from "@/components/inquiry/InquiryModal";
 
 // ROUTE 편입 — Logo Concept A (SPARK).
 // 8-point spike: 카디널 4방향(상/하/좌/우) 긴 spike + 대각 4방향 짧은 spike.
@@ -39,6 +40,7 @@ export function StudentHeader() {
   const [submitting, setSubmitting] = useState(false);
   const [resending, setResending] = useState(false);
   const [resendDone, setResendDone] = useState(false);
+  const [inquiryOpen, setInquiryOpen] = useState(false);
 
   const showResend = error.includes("이메일 인증") && !!studentEmail;
 
@@ -136,6 +138,12 @@ export function StudentHeader() {
               <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/users">
                 회원 관리
               </Link>
+              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/inquiries">
+                문의 관리
+              </Link>
+              <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/admin/messages">
+                공지/메시지
+              </Link>
             </>
           ) : null}
         </nav>
@@ -146,6 +154,13 @@ export function StudentHeader() {
               <span className="rounded-md bg-brand-50 px-3 py-2 text-sm font-black text-brand-700">
                 {user.name}님 안녕하세요!
               </span>
+              <button
+                type="button"
+                onClick={() => setInquiryOpen(true)}
+                className="rounded-md border border-brand-200 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-50"
+              >
+                문의하기
+              </button>
               <Link
                 href="/student/profile"
                 className="rounded-md border border-brand-200 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-50"
@@ -215,6 +230,7 @@ export function StudentHeader() {
           ) : null}
         </div>
       </div>
+      {inquiryOpen ? <InquiryModal onClose={() => setInquiryOpen(false)} /> : null}
     </header>
   );
 }
