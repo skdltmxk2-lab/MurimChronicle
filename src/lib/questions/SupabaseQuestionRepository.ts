@@ -276,17 +276,29 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   },
 
   filter(questions: QuestionRecord[], filters: QuestionFilters): QuestionRecord[] {
+    // 학교 영문 코드 → 한글명 매핑 (ID 슬러그 매칭이 hanyang-erica 같은 다중-단어
+    // 슬러그에서 misfire 할 수 있어 tags 기반 매칭을 우선 사용)
+    const SCHOOL_CODE_TO_KO: Record<string, string> = {
+      ajou: "아주대", cau: "중앙대", dgu: "동국대", dku: "단국대",
+      gachon: "가천대", hansung: "한성대", hanyang: "한양대", hongik: "홍익대",
+      inha: "인하대", kau: "항공대", konkuk: "건국대", kw: "광운대",
+      kyonggi: "경기대", kyunghee: "경희대", mju: "명지대", sejong: "세종대",
+      seoultech: "서울과기대", skku: "성균관대", sogang: "서강대",
+      sookmyung: "숙명여대", soongsil: "숭실대", uos: "시립대",
+    };
     return questions.filter((q) => {
       if (filters.subject && q.subject !== filters.subject) return false;
       if (filters.unit && q.unit !== filters.unit) return false;
       if (filters.difficulty !== "all" && q.difficulty !== filters.difficulty) return false;
       if (filters.pool !== "all" && (q.pool ?? "general") !== filters.pool) return false;
-      if (filters.school || filters.year) {
-        const m = q.id.match(/^q-(\d{4})-([a-z-]+?)-/);
-        if (!m) return false; // 학교/년도 없는 문제는 학교/년도 필터 시 제외
-        const [, year, school] = m;
-        if (filters.year && year !== filters.year) return false;
-        if (filters.school && school !== filters.school) return false;
+      if (filters.school) {
+        const schoolKo = SCHOOL_CODE_TO_KO[filters.school];
+        // 한글 학교명이 태그에 정확히 일치해야 통과
+        if (!schoolKo || !q.tags.includes(schoolKo)) return false;
+      }
+      if (filters.year) {
+        // 년도는 태그에 포함된 4자리 숫자 문자열로 매칭
+        if (!q.tags.includes(filters.year)) return false;
       }
       return true;
     });
