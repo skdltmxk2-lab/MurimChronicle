@@ -17,7 +17,7 @@ const filterSchool = process.argv[2] || null;
 const PAGE = 1000;
 const all = [];
 for (let from = 0; ; from += PAGE) {
-  let q = sb.from("questions").select("id, subject, unit, question, options, correct_option_id, explanation, content_type, question_image, explanation_content_type, explanation_image").order("id").range(from, from + PAGE - 1);
+  let q = sb.from("questions").select("id, subject, unit, question, options, correct_option_id, explanation, content_type, question_image, explanation_content_type, explanation_image, question_type, answer_text").order("id").range(from, from + PAGE - 1);
   if (filterSchool) q = q.like("id", `q-%-${filterSchool}-%`);
   const { data, error } = await q;
   if (error) { console.error(error); process.exit(1); }
@@ -82,9 +82,14 @@ for (const q of all) {
     issues.B_thin_explanation.push({ id: q.id, length: expLen, snippet: (q.explanation || "").slice(0, 80) });
   }
 
-  // C. 보기 문제 — 4지/5지 모두 정상, 그 외 또는 빈 보기/정답 누락만 오류로 표시
+  // C. 보기 문제 — 단답형은 옵션 없음 정상; 객관식은 4지/5지
   const opts = q.options || [];
-  if (opts.length !== 4 && opts.length !== 5) {
+  const isSubjective = q.question_type === "subjective";
+  if (isSubjective) {
+    if (!q.answer_text || q.answer_text.trim().length === 0) {
+      issues.C_options_problem.push({ id: q.id, reason: `단답형 정답 미지정`, opts: [] });
+    }
+  } else if (opts.length !== 4 && opts.length !== 5) {
     issues.C_options_problem.push({ id: q.id, reason: `옵션 ${opts.length}개`, opts: opts.map(o=>o.id) });
   } else {
     const emptyOpts = opts.filter(o => !o.text || o.text.trim().length === 0);

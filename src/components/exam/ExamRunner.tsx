@@ -88,6 +88,17 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     }));
   }
 
+  function setSubjectiveAnswer(problemId: string, value: string) {
+    setAnswers((current) => {
+      if (!value) {
+        const next = { ...current };
+        delete next[problemId];
+        return next;
+      }
+      return { ...current, [problemId]: value };
+    });
+  }
+
   async function exitWithoutSubmit() {
     const ok = window.confirm(
       "정말 학습을 종료하시겠습니까?\n데이터로 저장되지 않습니다."
@@ -175,36 +186,57 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                     className="text-base font-semibold leading-8 text-ink"
                   />
                   <div className="mt-5 space-y-2">
-                    {problem.options.map((option) => {
-                      const isSelected = selected === option.id;
-                      return (
-                        <button
-                          key={option.id}
-                          type="button"
-                          onClick={() => pickAnswer(problem.id, option.id)}
-                          className={`flex w-full items-start gap-3 rounded-md border px-4 py-3 text-left transition ${
-                            isSelected
-                              ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
-                              : "border-line bg-white hover:border-brand-500 hover:bg-brand-50"
-                          }`}
-                        >
-                          <span
-                            className={`grid size-7 shrink-0 place-items-center rounded-md text-sm font-black ${
-                              isSelected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"
+                    {problem.questionType === "subjective" ? (
+                      <div className="rounded-md border border-line bg-slate-50/40 p-3">
+                        <label className="block text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+                          단답형 정답 입력
+                        </label>
+                        <input
+                          type="text"
+                          inputMode="text"
+                          autoComplete="off"
+                          spellCheck={false}
+                          value={selected ?? ""}
+                          onChange={(e) => setSubjectiveAnswer(problem.id, e.target.value)}
+                          placeholder="답을 입력하세요 (예: 11, 2/9, sqrt(3)/3)"
+                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-semibold text-ink outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+                        />
+                        <p className="mt-2 text-xs text-slate-500">
+                          분수는 <code>2/9</code>, 제곱근은 <code>sqrt(3)</code>, 원주율은 <code>pi</code>처럼 입력해도 됩니다.
+                        </p>
+                      </div>
+                    ) : (
+                      problem.options.map((option) => {
+                        const isSelected = selected === option.id;
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => pickAnswer(problem.id, option.id)}
+                            className={`flex w-full items-start gap-3 rounded-md border px-4 py-3 text-left transition ${
+                              isSelected
+                                ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                                : "border-line bg-white hover:border-brand-500 hover:bg-brand-50"
                             }`}
                           >
-                            {option.label}
-                          </span>
-                          <ContentRenderer
-                            contentType={option.contentType}
-                            text={option.text}
-                            image={option.image}
-                            imageAlt={`${index + 1}번 ${option.label}번 보기`}
-                            className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-ink"
-                          />
-                        </button>
-                      );
-                    })}
+                            <span
+                              className={`grid size-7 shrink-0 place-items-center rounded-md text-sm font-black ${
+                                isSelected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"
+                              }`}
+                            >
+                              {option.label}
+                            </span>
+                            <ContentRenderer
+                              contentType={option.contentType}
+                              text={option.text}
+                              image={option.image}
+                              imageAlt={`${index + 1}번 ${option.label}번 보기`}
+                              className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-ink"
+                            />
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               </article>

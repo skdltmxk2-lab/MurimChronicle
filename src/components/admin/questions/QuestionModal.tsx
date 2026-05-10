@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { ContentType, Difficulty, ProblemOption } from "@/types/exam";
+import type { ContentType, Difficulty, ProblemOption, QuestionType } from "@/types/exam";
 import type { QuestionDraft, QuestionPool, QuestionRecord, QuestionSourceType } from "@/types/question";
 import { POOL_LABELS } from "@/types/question";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -38,8 +38,10 @@ function makeEmptyDraft(): QuestionDraft {
     question: "",
     contentType: "latex",
     questionImage: "",
+    questionType: "multiple_choice",
     options: emptyOptions,
     correctOptionId: "1",
+    answerText: "",
     explanation: "",
     explanationContentType: "latex",
     explanationImage: "",
@@ -58,8 +60,10 @@ function recordToDraft(question: QuestionRecord): QuestionDraft {
     question: question.question,
     contentType: question.contentType ?? "latex",
     questionImage: question.questionImage ?? "",
-    options: question.options,
-    correctOptionId: question.correctOptionId,
+    questionType: question.questionType ?? "multiple_choice",
+    options: question.options.length > 0 ? question.options : emptyOptions,
+    correctOptionId: question.correctOptionId || "1",
+    answerText: question.answerText ?? "",
     explanation: question.explanation,
     explanationContentType: question.explanationContentType ?? "latex",
     explanationImage: question.explanationImage ?? "",
@@ -171,9 +175,17 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
       setError("과목, 단원, 문제 내용 또는 문제 이미지는 필수입니다.");
       return;
     }
-    if (draft.options.some((option) => !option.text.trim() && !option.image)) {
-      setError("보기 4개는 텍스트 또는 이미지를 모두 입력해야 합니다.");
-      return;
+    const isSubjective = draft.questionType === "subjective";
+    if (isSubjective) {
+      if (!draft.answerText || !draft.answerText.trim()) {
+        setError("단답형 문제는 정답 텍스트를 입력해야 합니다.");
+        return;
+      }
+    } else {
+      if (draft.options.some((option) => !option.text.trim() && !option.image)) {
+        setError("보기 4개는 텍스트 또는 이미지를 모두 입력해야 합니다.");
+        return;
+      }
     }
     if (!hasExplanation) {
       setError("해설 텍스트 또는 해설 이미지를 입력해야 합니다.");
@@ -188,11 +200,16 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
       question: draft.question.trim(),
       contentType: draft.contentType ?? (draft.questionImage ? "image" : "latex"),
       questionImage: draft.questionImage,
-      options: draft.options.map((option) => ({
-        ...option,
-        text: option.text.trim(),
-        contentType: option.contentType ?? (option.image ? "image" : "latex")
-      })),
+      questionType: draft.questionType ?? "multiple_choice",
+      options: isSubjective
+        ? []
+        : draft.options.map((option) => ({
+            ...option,
+            text: option.text.trim(),
+            contentType: option.contentType ?? (option.image ? "image" : "latex")
+          })),
+      correctOptionId: isSubjective ? "" : draft.correctOptionId,
+      answerText: isSubjective ? draft.answerText?.trim() : undefined,
       explanation: draft.explanation.trim(),
       explanationContentType:
         draft.explanationContentType ?? (draft.explanationImage ? "image" : "latex"),
@@ -312,6 +329,20 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
             </label>
 
             <label className="block">
+              <span className="text-xs font-black text-slate-600">문제 유형</span>
+              <select
+                value={draft.questionType ?? "multiple_choice"}
+                onChange={(event) =>
+                  setDraft({ ...draft, questionType: event.target.value as QuestionType })
+                }
+                className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+              >
+                <option value="multiple_choice">객관식 (5지선다)</option>
+                <option value="subjective">단답형 (직접 입력)</option>
+              </select>
+            </label>
+
+            <label className="block">
               <span className="text-xs font-black text-slate-600">문제 입력 방식</span>
               <select
                 value={draft.contentType ?? "latex"}
@@ -363,6 +394,22 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
               ) : null}
             </div>
 
+            {draft.questionType === "subjective" ? (
+              <div className="rounded-md border border-brand-100 bg-brand-50/40 p-4">
+                <label className="block">
+                  <span className="text-xs font-black text-brand-700">단답형 정답 (LaTeX 가능)</span>
+                  <input
+                    value={draft.answerText ?? ""}
+                    onChange={(event) => setDraft({ ...draft, answerText: event.target.value })}
+                    placeholder="예: $11$, $\\dfrac{2}{9}$, $-\\dfrac{\\sqrt{3}}{3}$"
+                    className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-mono outline-none focus:border-brand-600"
+                  />
+                </label>
+                <p className="mt-2 text-xs text-slate-600">
+                  사용자 입력은 자동 정규화 후 비교합니다 (분수 <code>2/9</code>, 제곱근 <code>sqrt(3)</code>, 원주율 <code>pi</code>).
+                </p>
+              </div>
+            ) : (
             <div>
               <div className="mb-2 flex items-center gap-2">
                 <span className="text-xs font-black text-slate-600">보기</span>
@@ -450,6 +497,7 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                 ))}
               </div>
             </div>
+            )}
 
             <label className="block">
               <span className="text-xs font-black text-slate-600">해설 입력 방식</span>
@@ -561,18 +609,30 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                 />
               </div>
               <div className="mt-3 space-y-2">
-                {draft.options.map((option) => (
-                  <div
-                    key={option.id}
-                    className="rounded-md border border-line px-3 py-2 text-sm font-semibold text-slate-700"
-                  >
-                    <ContentRenderer
-                      contentType={option.contentType}
-                      text={`${option.label}. ${option.text || "보기"}`}
-                      image={option.image}
-                    />
+                {draft.questionType === "subjective" ? (
+                  <div className="rounded-md border border-brand-100 bg-brand-50/40 px-3 py-2">
+                    <div className="text-xs font-black text-brand-700">단답형 정답</div>
+                    <div className="mt-1 text-sm font-bold text-ink">
+                      <ContentRenderer
+                        contentType="latex"
+                        text={draft.answerText || "정답"}
+                      />
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  draft.options.map((option) => (
+                    <div
+                      key={option.id}
+                      className="rounded-md border border-line px-3 py-2 text-sm font-semibold text-slate-700"
+                    >
+                      <ContentRenderer
+                        contentType={option.contentType}
+                        text={`${option.label}. ${option.text || "보기"}`}
+                        image={option.image}
+                      />
+                    </div>
+                  ))
+                )}
               </div>
               <div className="mt-3 rounded-md bg-brand-50 p-3 text-sm font-semibold leading-6 text-ink">
                 <ContentRenderer

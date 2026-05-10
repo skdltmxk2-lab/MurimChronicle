@@ -108,8 +108,15 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
       <section className="mt-5 space-y-4">
         {exam.problems.map((problem, index) => {
           const review = reviewMap.get(problem.id);
-          const selected = problem.options.find((option) => option.id === review?.selectedOptionId);
-          const correct = problem.options.find((option) => option.id === problem.correctOptionId);
+          const isSubjective = problem.questionType === "subjective";
+          const selected = isSubjective
+            ? null
+            : problem.options.find((option) => option.id === review?.selectedOptionId);
+          const correct = isSubjective
+            ? null
+            : problem.options.find((option) => option.id === problem.correctOptionId);
+          const userText = isSubjective ? (review?.userAnswerText ?? null) : null;
+          const correctText = isSubjective ? (problem.answerText ?? "") : null;
 
           return (
             <article key={problem.id} className="rounded-lg border border-line bg-white shadow-soft">
@@ -141,7 +148,13 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                   <div className="rounded-md border border-line bg-slate-50 p-4">
                     <div className="text-xs font-black text-slate-500">내 답안</div>
                     <div className="mt-2 text-sm font-bold text-ink">
-                      {selected ? (
+                      {isSubjective ? (
+                        userText ? (
+                          <span className="font-mono">{userText}</span>
+                        ) : (
+                          "미응답"
+                        )
+                      ) : selected ? (
                         <ContentRenderer
                           contentType={selected.contentType}
                           text={`${selected.label}. ${selected.text}`}
@@ -156,7 +169,9 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                   <div className="rounded-md border border-mint-600/20 bg-mint-50 p-4">
                     <div className="text-xs font-black text-mint-600">정답</div>
                     <div className="mt-2 text-sm font-bold text-ink">
-                      {correct ? (
+                      {isSubjective ? (
+                        <ContentRenderer contentType="latex" text={correctText ?? "-"} />
+                      ) : correct ? (
                         <ContentRenderer
                           contentType={correct.contentType}
                           text={`${correct.label}. ${correct.text}`}

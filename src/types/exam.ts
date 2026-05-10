@@ -9,6 +9,7 @@ export type Difficulty =
 export type ExamMode = "selected" | "random" | "adaptive" | "custom" | "daily";
 
 export type ContentType = "latex" | "image" | "mixed";
+export type QuestionType = "multiple_choice" | "subjective";
 
 export type ProblemOption = {
   id: string;
@@ -27,8 +28,10 @@ export type Problem = {
   question: string;
   contentType?: ContentType;
   questionImage?: string;
+  questionType?: QuestionType;
   options: ProblemOption[];
   correctOptionId: string;
+  answerText?: string; // 단답형 정답 (LaTeX 가능)
   explanation: string;
   explanationContentType?: ContentType;
   explanationImage?: string;
@@ -51,6 +54,10 @@ export type AttemptReviewItem = {
   selectedOptionId: string | null;
   correctOptionId: string;
   isCorrect: boolean;
+  // 단답형용
+  questionType?: QuestionType;
+  userAnswerText?: string | null;
+  answerText?: string;
 };
 
 export type AttemptScore = {

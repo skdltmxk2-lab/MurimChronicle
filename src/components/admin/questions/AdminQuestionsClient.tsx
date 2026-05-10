@@ -406,7 +406,10 @@ export function AdminQuestionsClient() {
                       ) : null}
                     </div>
                     <div className="mt-2 text-xs font-semibold text-slate-500">
-                      {question.contentType ?? "latex"} / 정답 {question.correctOptionId}번
+                      {question.contentType ?? "latex"} /{" "}
+                      {question.questionType === "subjective"
+                        ? `단답형 (정답 ${question.answerText ?? "?"})`
+                        : `정답 ${question.correctOptionId}번`}
                     </div>
                   </td>
                   <td className="px-4 py-4">
@@ -499,7 +502,11 @@ export function AdminQuestionsClient() {
               <span className={`rounded-full px-2 py-0.5 text-xs font-black ${sourceTypeStyles[previewQuestion.sourceType]}`}>
                 {previewQuestion.sourceType}
               </span>
-              <span className="text-xs text-slate-500">정답 {previewQuestion.correctOptionId}번</span>
+              <span className="text-xs text-slate-500">
+                {previewQuestion.questionType === "subjective"
+                  ? "단답형"
+                  : `정답 ${previewQuestion.correctOptionId}번`}
+              </span>
             </div>
 
             <div className="mb-5 rounded-lg border border-line bg-slate-50 p-4">
@@ -513,6 +520,16 @@ export function AdminQuestionsClient() {
               />
             </div>
 
+            {previewQuestion.questionType === "subjective" ? (
+              <div className="mb-5 rounded-lg border border-mint-200 bg-mint-50/50 p-4">
+                <p className="text-xs font-black text-mint-600">단답형 정답</p>
+                <ContentRenderer
+                  contentType="latex"
+                  text={previewQuestion.answerText ?? "-"}
+                  className="mt-2 text-sm leading-7 text-ink"
+                />
+              </div>
+            ) : (
             <div className="mb-5 space-y-2">
               <p className="text-xs font-black text-slate-500">보기</p>
               {previewQuestion.options.map((opt) => {
@@ -544,6 +561,7 @@ export function AdminQuestionsClient() {
                 );
               })}
             </div>
+            )}
 
             {previewQuestion.explanation ? (
               <div className="mb-3 rounded-lg border border-line bg-amber-50/30 p-4">

@@ -24,6 +24,29 @@ function normalizeOptions(options: QuestionDraft["options"]) {
   }));
 }
 
+function draftToRow(draft: QuestionDraft) {
+  const isSubj = draft.questionType === "subjective";
+  return {
+    subject: draft.subject,
+    unit: draft.unit,
+    concept: draft.concept,
+    difficulty: draft.difficulty,
+    source_type: draft.sourceType,
+    pool: draft.pool ?? "general",
+    question: draft.question,
+    content_type: draft.contentType ?? null,
+    question_image: draft.questionImage ?? null,
+    question_type: draft.questionType ?? "multiple_choice",
+    options: isSubj ? [] : normalizeOptions(draft.options),
+    correct_option_id: isSubj ? "" : draft.correctOptionId,
+    answer_text: isSubj ? (draft.answerText?.trim() ?? "") : null,
+    explanation: draft.explanation,
+    explanation_content_type: draft.explanationContentType ?? null,
+    explanation_image: draft.explanationImage ?? null,
+    tags: unique(draft.tags.map((t) => t.trim())),
+  };
+}
+
 function problemToRecord(problem: Problem, examTitle: string): QuestionRecord {
   const createdAt = nowIso();
   return {
@@ -57,6 +80,18 @@ function getSeedQuestions(): QuestionRecord[] {
 type DbRow = Record<string, unknown>;
 
 function fromDb(row: DbRow): QuestionRecord {
+  // question_type 컬럼이 없으면 'subjective' 태그로 추론 (마이그레이션 이전 호환)
+  const tags = (row.tags ?? []) as string[];
+  const dbType = row.question_type as QuestionRecord["questionType"] | null | undefined;
+  const questionType: QuestionRecord["questionType"] =
+    dbType ?? (tags.includes("subjective") ? "subjective" : "multiple_choice");
+  // answer_text 컬럼이 없으면 단답형의 첫 옵션 텍스트로 fallback
+  const options = (row.options ?? []) as QuestionRecord["options"];
+  const dbAnswer = (row.answer_text ?? null) as string | null;
+  const answerText =
+    dbAnswer ??
+    (questionType === "subjective" && options.length > 0 ? options[0]?.text : undefined);
+
   return {
     id: row.id as string,
     subject: row.subject as string,
@@ -68,18 +103,21 @@ function fromDb(row: DbRow): QuestionRecord {
     question: row.question as string,
     contentType: (row.content_type ?? undefined) as QuestionRecord["contentType"],
     questionImage: (row.question_image ?? undefined) as string | undefined,
-    options: row.options as QuestionRecord["options"],
+    questionType,
+    options,
     correctOptionId: row.correct_option_id as string,
+    answerText: answerText ?? undefined,
     explanation: row.explanation as string,
     explanationContentType: (row.explanation_content_type ?? undefined) as QuestionRecord["explanationContentType"],
     explanationImage: (row.explanation_image ?? undefined) as string | undefined,
-    tags: (row.tags ?? []) as string[],
+    tags,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string
   };
 }
 
 function toDb(record: QuestionRecord) {
+  const isSubj = record.questionType === "subjective";
   return {
     id: record.id,
     subject: record.subject,
@@ -91,8 +129,10 @@ function toDb(record: QuestionRecord) {
     question: record.question,
     content_type: record.contentType ?? null,
     question_image: record.questionImage ?? null,
-    options: record.options,
-    correct_option_id: record.correctOptionId,
+    question_type: record.questionType ?? "multiple_choice",
+    options: isSubj ? [] : record.options,
+    correct_option_id: isSubj ? "" : record.correctOptionId,
+    answer_text: isSubj ? (record.answerText ?? "") : null,
     explanation: record.explanation,
     explanation_content_type: record.explanationContentType ?? null,
     explanation_image: record.explanationImage ?? null,
@@ -217,10 +257,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
 
   async create(draft: QuestionDraft): Promise<QuestionRecord> {
     const createdAt = nowIso();
+    const isSubj = draft.questionType === "subjective";
     const record: QuestionRecord = {
       ...draft,
       id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      options: normalizeOptions(draft.options),
+      questionType: draft.questionType ?? "multiple_choice",
+      options: isSubj ? [] : normalizeOptions(draft.options),
+      correctOptionId: isSubj ? "" : draft.correctOptionId,
+      answerText: isSubj ? (draft.answerText?.trim() ?? "") : undefined,
       tags: unique(draft.tags.map((t) => t.trim())),
       createdAt,
       updatedAt: createdAt
@@ -233,38 +277,27 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   async update(id: string, draft: QuestionDraft): Promise<void> {
     const { error } = await supabase
       .from("questions")
-      .update({
-        subject: draft.subject,
-        unit: draft.unit,
-        concept: draft.concept,
-        difficulty: draft.difficulty,
-        source_type: draft.sourceType,
-        pool: draft.pool ?? "general",
-        question: draft.question,
-        content_type: draft.contentType ?? null,
-        question_image: draft.questionImage ?? null,
-        options: normalizeOptions(draft.options),
-        correct_option_id: draft.correctOptionId,
-        explanation: draft.explanation,
-        explanation_content_type: draft.explanationContentType ?? null,
-        explanation_image: draft.explanationImage ?? null,
-        tags: unique(draft.tags.map((t) => t.trim())),
-        updated_at: nowIso()
-      })
+      .update({ ...draftToRow(draft), updated_at: nowIso() })
       .eq("id", id);
     if (error) throw error;
   },
 
   async appendMany(drafts: QuestionDraft[]): Promise<QuestionRecord[]> {
     const createdAt = nowIso();
-    const records = drafts.map((draft, index): QuestionRecord => ({
-      ...draft,
-      id: `q-import-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
-      options: normalizeOptions(draft.options),
-      tags: unique(draft.tags.map((t) => t.trim())),
-      createdAt,
-      updatedAt: createdAt
-    }));
+    const records = drafts.map((draft, index): QuestionRecord => {
+      const isSubj = draft.questionType === "subjective";
+      return {
+        ...draft,
+        id: `q-import-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 6)}`,
+        questionType: draft.questionType ?? "multiple_choice",
+        options: isSubj ? [] : normalizeOptions(draft.options),
+        correctOptionId: isSubj ? "" : draft.correctOptionId,
+        answerText: isSubj ? (draft.answerText?.trim() ?? "") : undefined,
+        tags: unique(draft.tags.map((t) => t.trim())),
+        createdAt,
+        updatedAt: createdAt
+      };
+    });
     const { error } = await supabase.from("questions").insert(records.map(toDb));
     if (error) throw error;
     return records;

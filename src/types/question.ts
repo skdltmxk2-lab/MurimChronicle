@@ -1,4 +1,4 @@
-import type { ContentType, Difficulty, ProblemOption } from "@/types/exam";
+import type { ContentType, Difficulty, ProblemOption, QuestionType } from "@/types/exam";
 
 export type QuestionSourceType = "mock" | "manual" | "imported" | "ai";
 export type QuestionPool = "general" | "daily" | "self_mock";
@@ -20,8 +20,10 @@ export type QuestionRecord = {
   question: string;
   contentType?: ContentType;
   questionImage?: string;
+  questionType?: QuestionType;
   options: ProblemOption[];
   correctOptionId: string;
+  answerText?: string;
   explanation: string;
   explanationContentType?: ContentType;
   explanationImage?: string;
@@ -40,8 +42,10 @@ export type QuestionDraft = {
   question: string;
   contentType?: ContentType;
   questionImage?: string;
+  questionType?: QuestionType;
   options: ProblemOption[];
   correctOptionId: string;
+  answerText?: string;
   explanation: string;
   explanationContentType?: ContentType;
   explanationImage?: string;
