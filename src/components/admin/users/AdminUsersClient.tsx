@@ -7,6 +7,8 @@ import { isAdminUser } from "@/lib/auth/mockAuth";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { USER_TIER_ORDER, USER_TIER_LABELS, type UserTier } from "@/types/auth";
 
+type StudentGroup = "external" | "private" | "routemath";
+
 type AdminUserRow = {
   id: string;
   email: string;
@@ -18,6 +20,19 @@ type AdminUserRow = {
   tierExpiresAt: string | null;
   tierExpired: boolean;
   isAdmin: boolean;
+  studentGroup: StudentGroup;
+};
+
+const STUDENT_GROUP_ORDER: StudentGroup[] = ["external", "private", "routemath"];
+const STUDENT_GROUP_LABELS: Record<StudentGroup, string> = {
+  external: "외부",
+  private: "과외",
+  routemath: "루트",
+};
+const STUDENT_GROUP_STYLES: Record<StudentGroup, string> = {
+  external: "bg-slate-100 text-slate-600",
+  private: "bg-amber-50 text-amber-700",
+  routemath: "bg-brand-50 text-brand-700",
 };
 
 function formatDateTime(iso: string | null): string {
@@ -54,6 +69,7 @@ export function AdminUsersClient() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [groupFilter, setGroupFilter] = useState<StudentGroup | "all">("all");
   const [editingTier, setEditingTier] = useState<AdminUserRow | null>(null);
 
   async function load() {
@@ -83,7 +99,12 @@ export function AdminUsersClient() {
 
   async function patchUser(
     target: AdminUserRow,
-    patch: { tier?: UserTier; tierMonths?: number | null; isAdmin?: boolean }
+    patch: {
+      tier?: UserTier;
+      tierMonths?: number | null;
+      isAdmin?: boolean;
+      studentGroup?: StudentGroup;
+    }
   ) {
     setSavingId(target.id);
     try {
@@ -145,13 +166,19 @@ export function AdminUsersClient() {
     );
   }
 
-  const filtered = search
-    ? rows.filter(
-        (r) =>
-          r.email.toLowerCase().includes(search.toLowerCase()) ||
-          r.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : rows;
+  const filtered = rows.filter((r) => {
+    if (groupFilter !== "all" && r.studentGroup !== groupFilter) return false;
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return r.email.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
+  });
+  const groupCounts = rows.reduce<Record<StudentGroup, number>>(
+    (acc, r) => {
+      acc[r.studentGroup] = (acc[r.studentGroup] ?? 0) + 1;
+      return acc;
+    },
+    { external: 0, private: 0, routemath: 0 }
+  );
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-8">
@@ -165,7 +192,7 @@ export function AdminUsersClient() {
       </section>
 
       <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -187,6 +214,35 @@ export function AdminUsersClient() {
           </div>
         </div>
 
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-black text-slate-500">분류</span>
+          <button
+            type="button"
+            onClick={() => setGroupFilter("all")}
+            className={`rounded-full border px-3 py-1 text-xs font-black transition ${
+              groupFilter === "all"
+                ? "border-brand-600 bg-brand-600 text-white"
+                : "border-line bg-white text-slate-600 hover:border-brand-600"
+            }`}
+          >
+            전체 ({rows.length})
+          </button>
+          {STUDENT_GROUP_ORDER.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroupFilter(g)}
+              className={`rounded-full border px-3 py-1 text-xs font-black transition ${
+                groupFilter === g
+                  ? "border-brand-600 bg-brand-600 text-white"
+                  : "border-line bg-white text-slate-600 hover:border-brand-600"
+              }`}
+            >
+              {STUDENT_GROUP_LABELS[g]} ({groupCounts[g] ?? 0})
+            </button>
+          ))}
+        </div>
+
         {error ? (
           <div className="mb-4 rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">
             {error}
@@ -206,6 +262,7 @@ export function AdminUsersClient() {
                 <tr>
                   <th className="px-3 py-3">이메일</th>
                   <th className="px-3 py-3">이름</th>
+                  <th className="px-3 py-3">분류</th>
                   <th className="px-3 py-3">등급</th>
                   <th className="px-3 py-3">만료</th>
                   <th className="px-3 py-3">권한</th>
@@ -231,6 +288,30 @@ export function AdminUsersClient() {
                         ) : null}
                       </td>
                       <td className="px-3 py-3 text-slate-700">{row.name || "—"}</td>
+                      <td className="px-3 py-3">
+                        <div className="flex items-center gap-1">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-black ${STUDENT_GROUP_STYLES[row.studentGroup] ?? STUDENT_GROUP_STYLES.external}`}
+                          >
+                            {STUDENT_GROUP_LABELS[row.studentGroup] ?? "외부"}
+                          </span>
+                          <select
+                            value={row.studentGroup}
+                            disabled={isSaving}
+                            onChange={(e) =>
+                              patchUser(row, { studentGroup: e.target.value as StudentGroup })
+                            }
+                            className="rounded-md border border-line bg-white px-1 py-0.5 text-[11px] font-black text-slate-500 outline-none hover:border-brand-600 focus:border-brand-600 disabled:opacity-50"
+                            title="분류 변경"
+                          >
+                            {STUDENT_GROUP_ORDER.map((g) => (
+                              <option key={g} value={g}>
+                                {STUDENT_GROUP_LABELS[g]}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </td>
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
                           <span

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 const ALLOWED_TIERS = new Set(["free", "go", "plus", "pro", "max"]);
+const ALLOWED_STUDENT_GROUPS = new Set(["external", "private", "routemath"]);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin(request);
@@ -13,7 +14,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { tier?: string; tierMonths?: number | null; isAdmin?: boolean }
+    | {
+        tier?: string;
+        tierMonths?: number | null;
+        isAdmin?: boolean;
+        studentGroup?: string;
+      }
     | null;
   if (!body) {
     return NextResponse.json({ ok: false, message: "잘못된 요청입니다." }, { status: 400 });
@@ -52,6 +58,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       );
     }
     updates.is_admin = body.isAdmin;
+  }
+  if (typeof body.studentGroup === "string") {
+    if (!ALLOWED_STUDENT_GROUPS.has(body.studentGroup)) {
+      return NextResponse.json(
+        { ok: false, message: "분류는 external/private/routemath 중 하나여야 합니다." },
+        { status: 400 }
+      );
+    }
+    updates.student_group = body.studentGroup;
   }
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ ok: false, message: "변경할 항목이 없습니다." }, { status: 400 });

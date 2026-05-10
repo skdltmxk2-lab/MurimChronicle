@@ -18,22 +18,37 @@ export async function GET(request: Request) {
   // tier_expires_at 컬럼이 아직 없는 환경에서도 admin이 박탈돼 보이지 않도록
   // 새 컬럼 SELECT가 실패하면 옛 컬럼 셋으로 한 번 더 조회한다.
   let profiles: Array<Record<string, unknown>> | null = null;
+  // student_group 컬럼이 마이그레이션 전인 환경에서도 동작하도록 단계적 fallback.
   const newQuery = await supabase
     .from("profiles")
-    .select("id, name, tier, is_admin, tier_expires_at")
+    .select("id, name, tier, is_admin, tier_expires_at, student_group")
     .in("id", ids);
   if (newQuery.error) {
-    const fallback = await supabase
+    const midQuery = await supabase
       .from("profiles")
-      .select("id, name, tier, is_admin")
+      .select("id, name, tier, is_admin, tier_expires_at")
       .in("id", ids);
-    profiles = (fallback.data as Array<Record<string, unknown>> | null) ?? [];
+    if (midQuery.error) {
+      const fallback = await supabase
+        .from("profiles")
+        .select("id, name, tier, is_admin")
+        .in("id", ids);
+      profiles = (fallback.data as Array<Record<string, unknown>> | null) ?? [];
+    } else {
+      profiles = (midQuery.data as Array<Record<string, unknown>> | null) ?? [];
+    }
   } else {
     profiles = (newQuery.data as Array<Record<string, unknown>> | null) ?? [];
   }
   const profileById = new Map<
     string,
-    { name: string; tier: string; isAdmin: boolean; tierExpiresAt: string | null }
+    {
+      name: string;
+      tier: string;
+      isAdmin: boolean;
+      tierExpiresAt: string | null;
+      studentGroup: string;
+    }
   >();
   for (const p of profiles ?? []) {
     profileById.set(p.id as string, {
@@ -41,6 +56,7 @@ export async function GET(request: Request) {
       tier: (p.tier as string) ?? "go",
       isAdmin: Boolean(p.is_admin),
       tierExpiresAt: (p.tier_expires_at as string | null | undefined) ?? null,
+      studentGroup: (p.student_group as string | undefined) ?? "external",
     });
   }
 
@@ -63,6 +79,7 @@ export async function GET(request: Request) {
       tierExpiresAt: expiresAt,
       tierExpired: expired,
       isAdmin: profile?.isAdmin ?? false,
+      studentGroup: profile?.studentGroup ?? "external",
     };
   });
 
