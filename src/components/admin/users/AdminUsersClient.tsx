@@ -167,13 +167,19 @@ export function AdminUsersClient() {
   }
 
   const filtered = rows.filter((r) => {
-    if (groupFilter !== "all" && r.studentGroup !== groupFilter) return false;
+    // admin은 분류와 무관 — 분류 필터를 켜면 항상 숨김
+    if (groupFilter !== "all") {
+      if (r.isAdmin) return false;
+      if (r.studentGroup !== groupFilter) return false;
+    }
     if (!search) return true;
     const q = search.toLowerCase();
     return r.email.toLowerCase().includes(q) || r.name.toLowerCase().includes(q);
   });
+  // 분류 카운트는 admin 제외
   const groupCounts = rows.reduce<Record<StudentGroup, number>>(
     (acc, r) => {
+      if (r.isAdmin) return acc;
       acc[r.studentGroup] = (acc[r.studentGroup] ?? 0) + 1;
       return acc;
     },
@@ -181,7 +187,7 @@ export function AdminUsersClient() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8">
+    <main className="mx-auto max-w-screen-2xl px-5 py-8">
       <section className="mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">관리자</p>
         <h1 className="mt-1 text-3xl font-black text-ink">회원 관리</h1>
@@ -287,30 +293,34 @@ export function AdminUsersClient() {
                           </span>
                         ) : null}
                       </td>
-                      <td className="px-3 py-3 text-slate-700">{row.name || "—"}</td>
-                      <td className="px-3 py-3">
-                        <div className="flex items-center gap-1">
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-[11px] font-black ${STUDENT_GROUP_STYLES[row.studentGroup] ?? STUDENT_GROUP_STYLES.external}`}
-                          >
-                            {STUDENT_GROUP_LABELS[row.studentGroup] ?? "외부"}
-                          </span>
-                          <select
-                            value={row.studentGroup}
-                            disabled={isSaving}
-                            onChange={(e) =>
-                              patchUser(row, { studentGroup: e.target.value as StudentGroup })
-                            }
-                            className="rounded-md border border-line bg-white px-1 py-0.5 text-[11px] font-black text-slate-500 outline-none hover:border-brand-600 focus:border-brand-600 disabled:opacity-50"
-                            title="분류 변경"
-                          >
-                            {STUDENT_GROUP_ORDER.map((g) => (
-                              <option key={g} value={g}>
-                                {STUDENT_GROUP_LABELS[g]}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
+                      <td className="whitespace-nowrap px-3 py-3 text-slate-700">{row.name || "—"}</td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {row.isAdmin ? (
+                          <span className="text-xs text-slate-300">—</span>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-black ${STUDENT_GROUP_STYLES[row.studentGroup] ?? STUDENT_GROUP_STYLES.external}`}
+                            >
+                              {STUDENT_GROUP_LABELS[row.studentGroup] ?? "외부"}
+                            </span>
+                            <select
+                              value={row.studentGroup}
+                              disabled={isSaving}
+                              onChange={(e) =>
+                                patchUser(row, { studentGroup: e.target.value as StudentGroup })
+                              }
+                              className="rounded-md border border-line bg-white px-1 py-0.5 text-[11px] font-black text-slate-500 outline-none hover:border-brand-600 focus:border-brand-600 disabled:opacity-50"
+                              title="분류 변경"
+                            >
+                              {STUDENT_GROUP_ORDER.map((g) => (
+                                <option key={g} value={g}>
+                                  {STUDENT_GROUP_LABELS[g]}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        )}
                       </td>
                       <td className="px-3 py-3">
                         <div className="flex items-center gap-2">
@@ -338,7 +348,7 @@ export function AdminUsersClient() {
                           </button>
                         </div>
                       </td>
-                      <td className="px-3 py-3 text-xs">
+                      <td className="whitespace-nowrap px-3 py-3 text-xs">
                         {row.tierRaw === "free" || !row.tierExpiresAt ? (
                           <span className="text-slate-400">영구</span>
                         ) : remaining !== null && remaining > 0 ? (
@@ -372,9 +382,9 @@ export function AdminUsersClient() {
                           </button>
                         )}
                       </td>
-                      <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.createdAt)}</td>
-                      <td className="px-3 py-3 text-xs text-slate-500">{formatDateTime(row.lastSignInAt)}</td>
-                      <td className="px-3 py-3 text-right">
+                      <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-500">{formatDateTime(row.createdAt)}</td>
+                      <td className="whitespace-nowrap px-3 py-3 text-xs text-slate-500">{formatDateTime(row.lastSignInAt)}</td>
+                      <td className="whitespace-nowrap px-3 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Link
                             href={`/admin/users/${row.id}`}
