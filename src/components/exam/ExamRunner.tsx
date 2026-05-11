@@ -199,12 +199,9 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                           spellCheck={false}
                           value={selected ?? ""}
                           onChange={(e) => setSubjectiveAnswer(problem.id, e.target.value)}
-                          placeholder="답을 입력하세요 (예: 11, 2/9, sqrt(3)/3)"
+                          placeholder="답을 입력하세요"
                           className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-semibold text-ink outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
                         />
-                        <p className="mt-2 text-xs text-slate-500">
-                          분수는 <code>2/9</code>, 제곱근은 <code>sqrt(3)</code>, 원주율은 <code>pi</code>처럼 입력해도 됩니다.
-                        </p>
                       </div>
                     ) : (
                       problem.options.map((option) => {
