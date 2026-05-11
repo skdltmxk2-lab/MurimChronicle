@@ -78,12 +78,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: result.reason }, { status: 400 });
   }
 
-  // 3) 문제 본문/옵션/풀이 한 번에 fetch
+  // 3) 문제 본문/옵션/풀이 한 번에 fetch (단답형 필드 question_type, answer_text 포함)
   const ids = result.assignments.map((a) => a.problemId);
   const { data: questions, error: qErr } = await auth.supabase
     .from("questions")
     .select(
-      "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image"
+      "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text"
     )
     .in("id", ids);
   if (qErr) {
@@ -110,6 +110,8 @@ export async function POST(request: Request) {
       explanation: q.explanation as string,
       explanationContentType: (q.explanation_content_type as string | null) ?? "latex",
       explanationImage: (q.explanation_image as string | null) ?? undefined,
+      questionType: (q.question_type as "multiple_choice" | "subjective" | null) ?? "multiple_choice",
+      answerText: (q.answer_text as string | null) ?? undefined,
     }));
 
   if (problems.length < 25) {
@@ -163,6 +165,7 @@ export async function POST(request: Request) {
   // 6) 출제 의도 + 사용자 상태 스냅샷 저장 (응시 후 리포트용)
   // weakness_exam_snapshots는 exam_id를 PK로 사용하고, 응시 완료 후
   // exam_attempts insert 트리거가 attempt_id를 link한다 (snapshot fix 마이그레이션 참조).
+  // 스냅샷이 저장돼야만 응시 후 리포트가 동작하므로, 실패 시 생성된 exam도 롤백한다.
   const userStateBefore = buildUserStateSnapshot(stats);
   const { error: snapErr } = await auth.supabase
     .from("weakness_exam_snapshots")
@@ -173,8 +176,14 @@ export async function POST(request: Request) {
       user_state_before: userStateBefore,
     });
   if (snapErr) {
-    console.warn("[weakness] snapshot insert failed:", snapErr.message);
-    // 시험 자체는 진행 가능 (리포트만 영향 받음)
+    console.error("[weakness] snapshot insert failed:", snapErr.message);
+    // 짝이 안 맞으면 응시 후 "취약유형 모의고사가 아닙니다" 오류가 뜨므로
+    // 생성된 generated_exams 행도 같이 제거해 사용자가 깨끗하게 재시도하게 한다.
+    await auth.supabase.from("generated_exams").delete().eq("id", examId);
+    return NextResponse.json(
+      { ok: false, message: `취약유형 시험 스냅샷 저장 실패: ${snapErr.message}` },
+      { status: 500 }
+    );
   }
 
   return NextResponse.json({

@@ -24,6 +24,8 @@ type WrongCardItem = {
   explanation: string;
   explanationContentType: string | null;
   explanationImage: string | null;
+  questionType: "multiple_choice" | "subjective";
+  answerText: string | null;
 };
 
 export async function GET(request: Request) {
@@ -88,12 +90,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: true, items: [] as WrongCardItem[], retentionDays: RETENTION_DAYS });
   }
 
-  // 문제 본문/풀이를 한 번에 가져오기 (in 절)
+  // 문제 본문/풀이를 한 번에 가져오기 (in 절). 단답형 필드(question_type, answer_text)도 포함.
   const ids = wrongs.map((w) => w.problemId);
   const { data: questions, error: qErr } = await auth.supabase
     .from("questions")
     .select(
-      "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image"
+      "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text"
     )
     .in("id", ids);
   if (qErr) {
@@ -126,6 +128,8 @@ export async function GET(request: Request) {
         explanation: (q.explanation as string) ?? "",
         explanationContentType: (q.explanation_content_type as string | null) ?? null,
         explanationImage: (q.explanation_image as string | null) ?? null,
+        questionType: (q.question_type as "multiple_choice" | "subjective" | null) ?? "multiple_choice",
+        answerText: (q.answer_text as string | null) ?? null,
       };
     })
     .filter((x): x is WrongCardItem => x !== null);
