@@ -31,41 +31,44 @@ export async function POST(request: Request) {
   const examCount = (profile?.weakness_exam_count as number | null) ?? 0;
   const isFirst = examCount === 0;
 
-  if (isFirst) {
-    if (totalSolved < FIRST_REQUIRED) {
-      return NextResponse.json(
-        {
-          ok: false,
-          message: `취약유형 모의고사는 ${FIRST_REQUIRED}문항 이상 풀이 후 응시할 수 있어요. (현재 ${totalSolved}문항)`,
-        },
-        { status: 400 }
-      );
-    }
-  } else {
-    if (lastAt) {
-      const daysSince = (Date.now() - Date.parse(lastAt)) / 86400_000;
-      if (daysSince < REPEAT_REQUIRED_DAYS) {
+  // 관리자는 자격 검증(200문항/3일/100문항)을 우회한다 — 테스트/디버깅 목적.
+  if (!auth.isAdmin) {
+    if (isFirst) {
+      if (totalSolved < FIRST_REQUIRED) {
         return NextResponse.json(
           {
             ok: false,
-            message: `직전 응시 후 ${REPEAT_REQUIRED_DAYS}일이 지나야 다시 응시할 수 있어요. (현재 ${daysSince.toFixed(1)}일)`,
+            message: `취약유형 모의고사는 ${FIRST_REQUIRED}문항 이상 풀이 후 응시할 수 있어요. (현재 ${totalSolved}문항)`,
           },
           { status: 400 }
         );
       }
-      const { count } = await auth.supabase
-        .from("user_problem_history")
-        .select("problem_id", { count: "exact", head: true })
-        .eq("user_id", auth.userId)
-        .gt("last_attempt_at", lastAt);
-      if ((count ?? 0) < REPEAT_REQUIRED_QUESTIONS) {
-        return NextResponse.json(
-          {
-            ok: false,
-            message: `직전 응시 후 ${REPEAT_REQUIRED_QUESTIONS}문항을 더 풀이한 뒤에 응시할 수 있어요. (현재 ${count ?? 0}문항)`,
-          },
-          { status: 400 }
-        );
+    } else {
+      if (lastAt) {
+        const daysSince = (Date.now() - Date.parse(lastAt)) / 86400_000;
+        if (daysSince < REPEAT_REQUIRED_DAYS) {
+          return NextResponse.json(
+            {
+              ok: false,
+              message: `직전 응시 후 ${REPEAT_REQUIRED_DAYS}일이 지나야 다시 응시할 수 있어요. (현재 ${daysSince.toFixed(1)}일)`,
+            },
+            { status: 400 }
+          );
+        }
+        const { count } = await auth.supabase
+          .from("user_problem_history")
+          .select("problem_id", { count: "exact", head: true })
+          .eq("user_id", auth.userId)
+          .gt("last_attempt_at", lastAt);
+        if ((count ?? 0) < REPEAT_REQUIRED_QUESTIONS) {
+          return NextResponse.json(
+            {
+              ok: false,
+              message: `직전 응시 후 ${REPEAT_REQUIRED_QUESTIONS}문항을 더 풀이한 뒤에 응시할 수 있어요. (현재 ${count ?? 0}문항)`,
+            },
+            { status: 400 }
+          );
+        }
       }
     }
   }

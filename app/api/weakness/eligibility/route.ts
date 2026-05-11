@@ -51,7 +51,10 @@ export async function GET(request: Request) {
 
   let eligible = false;
   let reason: "insufficient_data" | "too_soon" | "tier_locked" | undefined;
-  if (isFirst) {
+  if (auth.isAdmin) {
+    // 관리자는 자격 검증을 우회한다 — 테스트/디버깅 목적.
+    eligible = true;
+  } else if (isFirst) {
     eligible = totalSolved >= FIRST_REQUIRED;
     if (!eligible) reason = "insufficient_data";
   } else {
