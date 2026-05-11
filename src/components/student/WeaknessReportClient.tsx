@@ -7,6 +7,7 @@ import { adminFetch } from "@/lib/api/adminFetch";
 
 type TierResult = {
   target: number;
+  total: number;
   correct: number;
   percent: number;
   units: Array<{ subject: string; unit: string; accuracyInExam: number }>;
@@ -145,7 +146,7 @@ export function WeaknessReportClient({ attemptId }: { attemptId: string }) {
                   </div>
                   <div className="ml-auto text-right">
                     <div className="text-2xl font-black">{t.percent}%</div>
-                    <div className="text-xs opacity-90">{t.correct}/{t.target}</div>
+                    <div className="text-xs opacity-90">{t.correct}/{t.total ?? t.target}</div>
                   </div>
                 </div>
               </div>

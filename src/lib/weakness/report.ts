@@ -44,9 +44,10 @@ export type WeaknessReport = {
 };
 
 export type TierResult = {
-  target: number;
+  target: number; // 출제 의도 (원래 11/7/4/3 또는 재분배 결과)
+  total: number;  // 실제 채점에 잡힌 문항 수 (= acc.total)
   correct: number;
-  percent: number;
+  percent: number; // correct / total × 100
   units: Array<{ subject: string; unit: string; accuracyInExam: number }>;
 };
 
@@ -137,6 +138,7 @@ export async function generateReport(
     const percent = acc.total > 0 ? Math.round((acc.correct / acc.total) * 100) : 0;
     return {
       target,
+      total: acc.total,
       correct: acc.correct,
       percent,
       units: Array.from(acc.perUnit.values()).map((u) => ({
