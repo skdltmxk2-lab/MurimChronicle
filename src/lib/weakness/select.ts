@@ -455,6 +455,10 @@ export async function assembleWeaknessExam(
   // SnapshotTierBreakdown
   const qById = new Map<string, Candidate>();
   for (const q of allQuestions) qById.set(q.id, q);
+  const tier1Ids = combined.filter((a) => a.tier === 1).map((a) => a.problemId);
+  const tier2Ids = combined.filter((a) => a.tier === 2).map((a) => a.problemId);
+  const tier3Ids = combined.filter((a) => a.tier === 3).map((a) => a.problemId);
+  const tier4Ids = combined.filter((a) => a.tier === 4).map((a) => a.problemId);
   const snapshot: SnapshotTierBreakdown = {
     tier1: {
       count: finalBreakdown.tier1,
@@ -462,6 +466,7 @@ export async function assembleWeaknessExam(
         const stat = unitStats.find((s) => s.subject === w.subject && s.unit === w.unit);
         return { subject: w.subject, unit: w.unit, accuracy: stat?.accuracy ?? 0 };
       }),
+      problemIds: tier1Ids,
     },
     tier2: {
       count: finalBreakdown.tier2,
@@ -478,10 +483,11 @@ export async function assembleWeaknessExam(
             : null;
         })
         .filter((x): x is { subject: string; unit: string; type: "unit" | "concept" } => x !== null),
+      problemIds: tier2Ids,
     },
     tier3: {
       count: finalBreakdown.tier3,
-      problemIds: combined.filter((a) => a.tier === 3).map((a) => a.problemId),
+      problemIds: tier3Ids,
     },
     tier4: {
       count: finalBreakdown.tier4,
@@ -492,6 +498,7 @@ export async function assembleWeaknessExam(
           return q ? { subject: q.subject, unit: q.unit, difficulty: q.difficulty } : null;
         })
         .filter((x): x is { subject: string; unit: string; difficulty: string } => x !== null),
+      problemIds: tier4Ids,
     },
   };
 

@@ -93,7 +93,12 @@ export async function generateReport(
   }
 
   // 3) tier 분류
-  const tier3Set = new Set(breakdown.tier3?.problemIds ?? []);
+  // 신형 snapshot: problemIds 직접 매핑 우선 (spillover까지 정확히 분류).
+  // 구형 snapshot: units 기반 fallback (이전에 만들어진 시험 호환).
+  const tier1IdSet = new Set(breakdown.tier1?.problemIds ?? []);
+  const tier2IdSet = new Set(breakdown.tier2?.problemIds ?? []);
+  const tier3IdSet = new Set(breakdown.tier3?.problemIds ?? []);
+  const tier4IdSet = new Set(breakdown.tier4?.problemIds ?? []);
   const tier1UnitSet = new Set(
     (breakdown.tier1?.units ?? []).map((u) => `${u.subject}|${u.unit}`)
   );
@@ -120,10 +125,17 @@ export async function generateReport(
     const key = `${m.subject}|${m.unit}`;
 
     let target: TierAcc | null = null;
-    if (tier3Set.has(it.problemId)) target = t3;
+    // problemId 직접 매핑 (신형 snapshot) 우선
+    if (tier1IdSet.has(it.problemId)) target = t1;
+    else if (tier2IdSet.has(it.problemId)) target = t2;
+    else if (tier3IdSet.has(it.problemId)) target = t3;
+    else if (tier4IdSet.has(it.problemId)) target = t4;
+    // unit 기반 fallback (구형 snapshot 호환)
     else if (tier1UnitSet.has(key)) target = t1;
     else if (tier2UnitSet.has(key)) target = t2;
     else if (tier4UnitSet.has(key)) target = t4;
+    // 어디에도 안 잡히면 t1으로 흡수 (분류 누락 방지)
+    else target = t1;
 
     if (!target) continue;
     target.total += 1;
