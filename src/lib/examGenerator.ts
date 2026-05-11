@@ -43,7 +43,9 @@ function questionToProblem(question: QuestionRecord): Problem {
     correctOptionId: question.correctOptionId,
     explanation: question.explanation,
     explanationContentType: question.explanationContentType,
-    explanationImage: question.explanationImage
+    explanationImage: question.explanationImage,
+    questionType: question.questionType,
+    answerText: question.answerText
   };
 }
 

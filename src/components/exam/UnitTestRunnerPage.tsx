@@ -7,10 +7,11 @@ import { questionRepo } from "@/lib/questions/questionRepository";
 import { attemptRepo } from "@/lib/exam/storage";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
-import type { MockExam, Problem } from "@/types/exam";
+import type { Difficulty, MockExam, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { buildSubjectMockRounds } from "@/lib/exam/buildSubjectMockRounds";
+import { DIFFICULTY_KEYS } from "@/lib/taxonomy";
 
 export const SUBJECT_MOCK_ROUNDS = 3;
 export const SUBJECT_MOCK_PER_ROUND = 20;
@@ -24,6 +25,26 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
     const j = s % (i + 1);
     [result[i], result[j]] = [result[j], result[i]];
   }
+  return result;
+}
+
+const DIFFICULTY_INDEX: Record<Difficulty, number> = Object.fromEntries(
+  DIFFICULTY_KEYS.map((d, i) => [d, i])
+) as Record<Difficulty, number>;
+
+// 난이도 오름차순(easy→killer)으로 정렬하되 같은 난이도 안에서는 시드 셔플
+function sortByDifficultyAsc(arr: QuestionRecord[], seed: number): QuestionRecord[] {
+  const groups = new Map<number, QuestionRecord[]>();
+  for (const q of arr) {
+    const idx = DIFFICULTY_INDEX[q.difficulty as Difficulty] ?? DIFFICULTY_KEYS.length;
+    if (!groups.has(idx)) groups.set(idx, []);
+    groups.get(idx)!.push(q);
+  }
+  const sortedKeys = [...groups.keys()].sort((a, b) => a - b);
+  const result: QuestionRecord[] = [];
+  sortedKeys.forEach((k, i) => {
+    result.push(...seededShuffle(groups.get(k)!, seed + i));
+  });
   return result;
 }
 
@@ -50,6 +71,8 @@ function toProblems(records: QuestionRecord[]): Problem[] {
     explanation: q.explanation,
     explanationContentType: q.explanationContentType,
     explanationImage: q.explanationImage,
+    questionType: q.questionType,
+    answerText: q.answerText,
   }));
 }
 
@@ -214,19 +237,19 @@ export function UnitTestRunnerPage() {
           for (const item of result.items) seenProblemIds.add(item.problemId);
         }
         const localSeed = Math.floor(Date.now() % 0x7fffffff);
-        // Push previously-seen problems to the back so unseen ones come first.
-        // Once the cycle completes (all seen), shuffled seen ones are surfaced again.
+        // 안 본 문제 우선 배치 → 한 사이클이 끝나면(전부 본 상태) 본 문제들을 다시 노출.
+        // 각 그룹 안에서는 난이도 오름차순(쉬움→어려움), 같은 난이도 안에서는 시드 셔플.
         const unseen = pool.filter((q) => !seenProblemIds.has(q.id));
         const seen = pool.filter((q) => seenProblemIds.has(q.id));
         const ordered = [
-          ...seededShuffle(unseen, localSeed),
-          ...seededShuffle(seen, localSeed + 1)
+          ...sortByDifficultyAsc(unseen, localSeed),
+          ...sortByDifficultyAsc(seen, localSeed + 1000)
         ];
         filtered = ordered.slice(0, count);
         const unitStr = selectedUnits.join(", ");
         const cycleNote = unseen.length === 0 ? " (한 사이클 완료, 재출제)" : "";
         title = `${subject} 단원별 학습${cycleNote}`;
-        description = `${unitStr} · ${filtered.length}문항 · 안 본 문제 ${unseen.length}개 우선`;
+        description = `${unitStr} · ${filtered.length}문항 · 쉬움→어려움 순 · 안 본 문제 ${unseen.length}개 우선`;
         examId = `unit-test-${localSeed}`;
         tags = [subject, ...selectedUnits].filter(Boolean);
       }

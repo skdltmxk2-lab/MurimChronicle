@@ -11,7 +11,10 @@ export function gradeExam(params: {
   const { exam, answers, attemptId, elapsedSec, retryHref } = params;
   const items = exam.problems.map((problem) => {
     const userValue = answers[problem.id] ?? null;
-    if (problem.questionType === "subjective") {
+    const isSubjective =
+      problem.questionType === "subjective"
+      || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0);
+    if (isSubjective) {
       const correctText = problem.answerText ?? "";
       return {
         problemId: problem.id,

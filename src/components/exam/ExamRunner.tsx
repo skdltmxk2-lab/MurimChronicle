@@ -186,7 +186,8 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                     className="text-base font-semibold leading-8 text-ink"
                   />
                   <div className="mt-5 space-y-2">
-                    {problem.questionType === "subjective" ? (
+                    {(problem.questionType === "subjective"
+                      || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
                       <div className="rounded-md border border-line bg-slate-50/40 p-3">
                         <label className="block text-xs font-black uppercase tracking-[0.18em] text-brand-600">
                           단답형 정답 입력
