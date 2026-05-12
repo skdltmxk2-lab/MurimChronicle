@@ -50,16 +50,28 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
   useEffect(() => {
     (async () => {
-      startedAtRef.current = await attemptRepo.getStartedAt(exam.id);
-      const savedAnswers = await attemptRepo.loadAnswers(exam.id);
-      const savedElapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
+      let startedAt = await attemptRepo.getStartedAt(exam.id);
+      let savedAnswers = await attemptRepo.loadAnswers(exam.id);
+      let savedElapsed = Math.floor((Date.now() - startedAt) / 1000);
+
+      // 옛 startedAt이 localStorage에 남아 시간 제한을 이미 초과한 경우(이전 미완 응시),
+      // 진입 즉시 자동 제출되는 사고를 방지하기 위해 세션을 리셋한다.
+      // clearAnswers는 answers + startedAt 둘 다 지우므로 새 진입으로 간주됨.
+      if (savedElapsed >= exam.timeLimitSec) {
+        await attemptRepo.clearAnswers(exam.id);
+        startedAt = await attemptRepo.getStartedAt(exam.id);
+        savedAnswers = {};
+        savedElapsed = 0;
+      }
+
+      startedAtRef.current = startedAt;
       answersRef.current = savedAnswers;
       elapsedRef.current = savedElapsed;
       setAnswers(savedAnswers);
       setElapsedSec(savedElapsed);
       setLoaded(true);
     })();
-  }, [exam.id]);
+  }, [exam.id, exam.timeLimitSec]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -68,6 +80,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
   }, [answers, exam.id, loaded]);
 
   useEffect(() => {
+    // loaded 전에는 startedAtRef.current가 초기값(Date.now())이라 timer가 돌면
+    // 잠시 후 async fetch로 startedAt이 덮어쓰일 때 elapsed가 갑자기 점프해
+    // 자동 제출이 발화될 수 있다. 반드시 loaded 이후에만 timer를 시작한다.
+    if (!loaded) return;
     const timer = window.setInterval(() => {
       const nextElapsed = Math.floor((Date.now() - startedAtRef.current) / 1000);
       elapsedRef.current = nextElapsed;
@@ -79,7 +95,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [exam.timeLimitSec, submitExam]);
+  }, [exam.timeLimitSec, loaded, submitExam]);
 
   function pickAnswer(problemId: string, optionId: string) {
     setAnswers((current) => ({
