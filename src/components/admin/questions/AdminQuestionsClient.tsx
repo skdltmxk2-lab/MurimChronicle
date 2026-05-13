@@ -27,7 +27,6 @@ import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { QuestionModal } from "@/components/admin/questions/QuestionModal";
-import { exam1Questions } from "@/data/exam1Questions";
 import {
   DIFFICULTY_KEYS,
   DIFFICULTY_LABELS,
@@ -147,12 +146,6 @@ export function AdminQuestionsClient() {
     });
   }
 
-  async function seedExam1() {
-    if (!window.confirm("미분학 모의고사 1회 문제 20개를 문제은행에 추가할까요?")) return;
-    await questionRepo.appendMany(exam1Questions);
-    setQuestions(await questionRepo.list());
-  }
-
   async function deleteQuestion(id: string) {
     if (!window.confirm("이 문제를 삭제할까요?")) return;
     await questionRepo.deleteQuestion(id);
@@ -209,13 +202,6 @@ export function AdminQuestionsClient() {
               className="rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
             >
               mockData 초기화
-            </button>
-            <button
-              type="button"
-              onClick={seedExam1}
-              className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-black text-amber-700 hover:bg-amber-100"
-            >
-              미분학 모의고사 1회 추가
             </button>
             <button
               type="button"
