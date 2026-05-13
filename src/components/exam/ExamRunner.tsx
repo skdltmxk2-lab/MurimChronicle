@@ -134,33 +134,33 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     <main className="mx-auto max-w-6xl px-5 py-6">
       <section className="mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">시험 진행</p>
             <h1 className="mt-1 text-2xl font-black text-ink">{exam.title}</h1>
             <p className="mt-2 text-sm text-slate-600">{exam.description}</p>
           </div>
-          <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
-            <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">남은 시간</div>
-              <div className="mt-1 text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
+          <div className="grid shrink-0 grid-cols-2 gap-3 text-center sm:grid-cols-4">
+            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
+              <div className="whitespace-nowrap text-xs font-bold text-slate-500">남은 시간</div>
+              <div className="mt-1 whitespace-nowrap text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
             </div>
-            <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">진행</div>
-              <div className="mt-1 text-lg font-black text-ink">
+            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
+              <div className="whitespace-nowrap text-xs font-bold text-slate-500">진행</div>
+              <div className="mt-1 whitespace-nowrap text-lg font-black text-ink">
                 {answeredCount}/{exam.problems.length}
               </div>
             </div>
             <button
               type="button"
               onClick={exitWithoutSubmit}
-              className="col-span-1 rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              className="col-span-1 min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
             >
               나가기
             </button>
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="col-span-1 rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
+              className="col-span-1 min-w-[90px] whitespace-nowrap rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
             >
               제출
             </button>
