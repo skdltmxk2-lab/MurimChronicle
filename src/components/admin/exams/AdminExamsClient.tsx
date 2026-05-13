@@ -143,6 +143,15 @@ export function AdminExamsClient() {
     const effectiveSubjects = isReal ? [] : subjects;
     const effectiveUnits = isReal ? [] : units;
 
+    // 풀 분리: 기존 admin 모의고사(weakness 제외)에 이미 들어간 문제는 가능한 한 피한다.
+    // generatedExams는 ResultViewer/StudentExamLoader에서 학생들이 응시한 시험이라
+    // 같은 문제가 또 나오면 학습 효과가 떨어지기 때문.
+    const excludeIds = new Set<string>();
+    for (const exam of generatedExams) {
+      if ((exam.tags ?? []).includes("weakness")) continue; // 학생 본인의 취약유형 시험은 제외
+      for (const id of exam.sourceQuestionIds ?? []) excludeIds.add(id);
+    }
+
     const result = generateExamFromQuestionBank(pool, {
       title,
       mode: effectiveMode,
@@ -150,7 +159,8 @@ export function AdminExamsClient() {
       units: effectiveUnits,
       difficultyRatio,
       problemCount,
-      timeLimitSec: timeLimitMin * 60
+      timeLimitSec: timeLimitMin * 60,
+      excludeIds
     });
 
     if (!result.ok) {

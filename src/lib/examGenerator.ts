@@ -127,33 +127,74 @@ export function generateExamFromQuestionBank(
     return { ok: false, message: "조건에 맞는 문제가 없습니다." };
   }
 
+  // 풀 분리: 이미 다른 admin 모의고사에 들어간 문제는 가능한 한 피한다.
+  // - freshPool: 어떤 admin 시험에도 안 들어간 신규 문제 (우선 사용)
+  // - reusePool: 이미 다른 시험에 한 번 이상 들어간 문제 (부족 시 fallback)
+  // excludeIds가 비어있으면(또는 미전달) 모든 문제가 freshPool로 간주된다.
+  const excludeIds = config.excludeIds ?? new Set<string>();
+  const freshPool = matchedQuestions.filter((q) => !excludeIds.has(q.id));
+  const reusePool = matchedQuestions.filter((q) => excludeIds.has(q.id));
+
   const targetCounts = allocateDifficultyCounts(problemCount, config.difficultyRatio);
   const selected: QuestionRecord[] = [];
   const selectedIds = new Set<string>();
   const warnings: string[] = [];
+  let reuseCount = 0;
 
   for (const difficulty of difficulties) {
-    const pool = shuffle(matchedQuestions.filter((question) => question.difficulty === difficulty));
-    const picked = pool.slice(0, targetCounts[difficulty]);
-    picked.forEach((question) => {
-      selected.push(question);
-      selectedIds.add(question.id);
+    // 1) 신선한 풀에서 먼저 채움
+    const fresh = shuffle(freshPool.filter((q) => q.difficulty === difficulty));
+    const picked = fresh.slice(0, targetCounts[difficulty]);
+    picked.forEach((q) => {
+      selected.push(q);
+      selectedIds.add(q.id);
     });
 
+    // 2) 부족하면 재사용 풀에서 보충 (warning)
     if (picked.length < targetCounts[difficulty]) {
-      warnings.push(
-        `${difficulty} 난이도 문제가 부족해 ${targetCounts[difficulty]}개 중 ${picked.length}개만 배정했습니다.`
+      const need = targetCounts[difficulty] - picked.length;
+      const reuse = shuffle(
+        reusePool.filter((q) => q.difficulty === difficulty && !selectedIds.has(q.id))
       );
+      const reusePicked = reuse.slice(0, need);
+      reusePicked.forEach((q) => {
+        selected.push(q);
+        selectedIds.add(q.id);
+        reuseCount += 1;
+      });
+
+      const stillShort = targetCounts[difficulty] - (picked.length + reusePicked.length);
+      if (stillShort > 0) {
+        warnings.push(
+          `${difficulty} 난이도 문제가 부족해 ${targetCounts[difficulty]}개 중 ${picked.length + reusePicked.length}개만 배정했습니다.`
+        );
+      }
     }
   }
 
+  // 3) 그래도 부족하면 (난이도 미적합 포함) 마지막 fallback. fresh → reuse 순.
   if (selected.length < problemCount) {
-    const fallback = shuffle(matchedQuestions.filter((question) => !selectedIds.has(question.id)));
-    for (const question of fallback) {
+    const remainingFresh = shuffle(freshPool.filter((q) => !selectedIds.has(q.id)));
+    for (const q of remainingFresh) {
       if (selected.length >= problemCount) break;
-      selected.push(question);
-      selectedIds.add(question.id);
+      selected.push(q);
+      selectedIds.add(q.id);
     }
+    if (selected.length < problemCount) {
+      const remainingReuse = shuffle(reusePool.filter((q) => !selectedIds.has(q.id)));
+      for (const q of remainingReuse) {
+        if (selected.length >= problemCount) break;
+        selected.push(q);
+        selectedIds.add(q.id);
+        reuseCount += 1;
+      }
+    }
+  }
+
+  if (reuseCount > 0) {
+    warnings.push(
+      `풀 분리 정책상 신규 문제가 부족해 ${reuseCount}개가 다른 admin 시험과 겹쳐 출제됩니다.`
+    );
   }
 
   const finalQuestions = shuffle(selected).slice(0, problemCount);
