@@ -526,7 +526,13 @@ export function AdminExamsClient() {
           <section className="rounded-lg border border-line bg-white p-5 shadow-soft">
             <h2 className="text-lg font-black text-ink">저장된 모의고사</h2>
             <div className="mt-4 space-y-3">
-              {generatedExams.map((exam) => (
+              {/*
+                학생 본인이 생성한 취약유형 모의고사(weakness 태그)는 admin이 만든
+                것이 아니므로 이 목록에서 제외한다. 학생 측 GeneratedExamCards와 동일 정책.
+              */}
+              {generatedExams
+                .filter((exam) => !(exam.tags ?? []).includes("weakness"))
+                .map((exam) => (
                 <article key={exam.id} className="rounded-md border border-line p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
@@ -549,7 +555,7 @@ export function AdminExamsClient() {
                   </div>
                 </article>
               ))}
-              {generatedExams.length === 0 ? (
+              {generatedExams.filter((exam) => !(exam.tags ?? []).includes("weakness")).length === 0 ? (
                 <p className="text-sm leading-6 text-slate-600">저장된 생성 시험이 없습니다.</p>
               ) : null}
             </div>
