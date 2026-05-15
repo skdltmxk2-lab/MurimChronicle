@@ -65,6 +65,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // 로그인된 사용자의 last_seen_at을 30초마다 갱신.
+  // 관리자 화면의 "현재 접속 중" 표시에 사용.
+  useEffect(() => {
+    if (!user) return;
+    let stopped = false;
+    const sendHeartbeat = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token || stopped) return;
+        await fetch("/api/auth/heartbeat", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+          keepalive: true,
+        });
+      } catch {
+        // best-effort: heartbeat 실패는 조용히 무시
+      }
+    };
+    sendHeartbeat();
+    const id = setInterval(sendHeartbeat, 30 * 1000);
+    return () => {
+      stopped = true;
+      clearInterval(id);
+    };
+  }, [user]);
+
   return (
     <AuthContext.Provider value={{ user, setUser, authChecked }}>
       {children}

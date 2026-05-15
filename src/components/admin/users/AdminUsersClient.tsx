@@ -15,6 +15,7 @@ type AdminUserRow = {
   name: string;
   createdAt: string;
   lastSignInAt: string | null;
+  lastSeenAt: string | null;
   tier: string;             // effective tier (만료 반영)
   tierRaw: string;          // DB의 원본 등급
   tierExpiresAt: string | null;
@@ -22,6 +23,14 @@ type AdminUserRow = {
   isAdmin: boolean;
   studentGroup: StudentGroup;
 };
+
+// 마지막 활동(last_seen_at)이 1분 이내면 접속 중으로 본다.
+// 클라이언트가 30초마다 heartbeat를 보내므로 1분이면 충분히 여유.
+const ONLINE_THRESHOLD_MS = 60 * 1000;
+function isOnline(lastSeenAt: string | null): boolean {
+  if (!lastSeenAt) return false;
+  return Date.now() - Date.parse(lastSeenAt) < ONLINE_THRESHOLD_MS;
+}
 
 const STUDENT_GROUP_ORDER: StudentGroup[] = ["external", "private", "routemath"];
 const STUDENT_GROUP_LABELS: Record<StudentGroup, string> = {
@@ -95,7 +104,18 @@ export function AdminUsersClient() {
     if (!authChecked) return;
     if (!isAdminUser(user)) return;
     load();
+    // 접속 상태 표시를 실시간에 가깝게 유지하려 30초마다 목록 새로고침.
+    const id = setInterval(load, 30 * 1000);
+    return () => clearInterval(id);
   }, [authChecked, user]);
+
+  // 별 표시가 1분 임계값을 정확히 따르도록 컴포넌트도 10초마다 다시 렌더.
+  // (load는 30초 주기여서 그 사이에 last_seen_at이 stale해질 수 있음)
+  const [, forceTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => forceTick((n) => n + 1), 10 * 1000);
+    return () => clearInterval(id);
+  }, []);
 
   async function patchUser(
     target: AdminUserRow,
@@ -283,9 +303,19 @@ export function AdminUsersClient() {
                   const isSaving = savingId === row.id;
                   const isDeleting = deletingId === row.id;
                   const remaining = daysUntil(row.tierExpiresAt);
+                  const online = isOnline(row.lastSeenAt);
                   return (
                     <tr key={row.id} className="border-b border-line/50 hover:bg-slate-50">
                       <td className="px-3 py-3 font-bold text-ink">
+                        {online ? (
+                          <span
+                            className="mr-1.5 inline-block text-emerald-500"
+                            title="현재 접속 중"
+                            aria-label="현재 접속 중"
+                          >
+                            ★
+                          </span>
+                        ) : null}
                         {row.email || "—"}
                         {isSelf ? (
                           <span className="ml-2 rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-black text-brand-700">

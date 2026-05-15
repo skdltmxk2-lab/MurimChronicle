@@ -96,15 +96,30 @@ export const supabaseAttemptRepo: IAttemptRepository = {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) return;
 
-    const { error } = await supabase.from("exam_attempts").insert({
-      attempt_id: result.attemptId,
-      user_id: session.user.id,
-      exam_id: result.examId,
-      result: result
-    });
+    let res: Response;
+    try {
+      res = await fetch("/api/exam-attempts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ result }),
+      });
+    } catch (error) {
+      console.warn("[exam_attempts] server save failed; result kept in localStorage only.", error);
+      return;
+    }
 
-    if (error) {
-      console.warn("[exam_attempts] Supabase insert failed; result kept in localStorage only.", error);
+    if (!res.ok) {
+      let message = `HTTP ${res.status}`;
+      try {
+        const json = (await res.json()) as { message?: string };
+        message = json.message ?? message;
+      } catch {
+        // Ignore malformed error payloads.
+      }
+      console.warn("[exam_attempts] server save failed; result kept in localStorage only.", message);
     }
   },
 

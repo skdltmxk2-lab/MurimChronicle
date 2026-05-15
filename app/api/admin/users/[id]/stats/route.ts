@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
 type AttemptRow = {
   attempt_id: string;
   exam_id: string;
   exam_type: string | null;
-  result: { items?: Array<{ isCorrect?: boolean; problemId?: string }> } | null;
+  result: { submittedAt?: string; items?: Array<{ isCorrect?: boolean; problemId?: string }> } | null;
   created_at: string;
 };
 
@@ -16,6 +17,12 @@ type UnitStatRow = {
   wrong: number;
   accuracy: number;
   last_attempt_at: string;
+};
+
+type QuestionMetaRow = {
+  id: string;
+  subject: string;
+  unit: string;
 };
 
 type Category = "weakness" | "subject-mock" | "unit-test" | "daily" | "real";
@@ -51,6 +58,56 @@ function shortTitle(category: Category, examId: string): string {
   }
   if (category === "unit-test") return "단원별 학습";
   return examId; // real mock
+}
+
+function takenAt(a: AttemptRow): string {
+  return a.result?.submittedAt ?? a.created_at;
+}
+
+async function loadQuestionMeta(
+  supabase: SupabaseClient,
+  ids: string[]
+): Promise<Map<string, QuestionMetaRow>> {
+  const byId = new Map<string, QuestionMetaRow>();
+  const uniqueIds = [...new Set(ids)].filter(Boolean);
+  for (let i = 0; i < uniqueIds.length; i += 500) {
+    const chunk = uniqueIds.slice(i, i + 500);
+    const { data, error } = await supabase
+      .from("questions")
+      .select("id, subject, unit")
+      .in("id", chunk);
+    if (error) throw error;
+    for (const row of (data ?? []) as QuestionMetaRow[]) byId.set(row.id, row);
+  }
+  return byId;
+}
+
+function computeUnitStats(attempts: AttemptRow[], questionById: Map<string, QuestionMetaRow>): UnitStatRow[] {
+  const byUnit = new Map<string, { subject: string; unit: string; total: number; wrong: number; last_attempt_at: string }>();
+  for (const attempt of attempts) {
+    const attemptTime = takenAt(attempt);
+    for (const item of attempt.result?.items ?? []) {
+      if (!item.problemId) continue;
+      const q = questionById.get(item.problemId);
+      if (!q) continue;
+      const key = `${q.subject}\u0000${q.unit}`;
+      const cur = byUnit.get(key) ?? {
+        subject: q.subject,
+        unit: q.unit,
+        total: 0,
+        wrong: 0,
+        last_attempt_at: attemptTime,
+      };
+      cur.total += 1;
+      if (!item.isCorrect) cur.wrong += 1;
+      if (Date.parse(attemptTime) > Date.parse(cur.last_attempt_at)) cur.last_attempt_at = attemptTime;
+      byUnit.set(key, cur);
+    }
+  }
+  return [...byUnit.values()].map((s) => ({
+    ...s,
+    accuracy: s.total > 0 ? (s.total - s.wrong) / s.total : 0,
+  }));
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -116,19 +173,32 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       correct,
       wrong: items.length - correct,
       accuracy: items.length > 0 ? correct / items.length : 0,
-      takenAt: a.created_at,
+      takenAt: takenAt(a),
     };
   });
 
-  // 단원별 통계
-  const { data: unitStatsRaw, error: uErr } = await supabase
-    .from("user_unit_stats")
-    .select("subject, unit, total, wrong, accuracy, last_attempt_at")
-    .eq("user_id", id);
-  if (uErr) {
-    return NextResponse.json({ ok: false, message: uErr.message }, { status: 500 });
+  // 단원별 통계는 exam_attempts를 기준으로 직접 계산한다.
+  // 집계 트리거/user_unit_stats가 누락되거나 늦게 반영되어도 관리자 상세는 최신 제출 기록을 보여준다.
+  const attemptedProblemIds = attempts.flatMap((a) =>
+    (a.result?.items ?? []).map((item) => item.problemId).filter((pid): pid is string => Boolean(pid))
+  );
+  let unitStats: UnitStatRow[] = [];
+  try {
+    const questionById = await loadQuestionMeta(supabase, attemptedProblemIds);
+    unitStats = computeUnitStats(attempts, questionById);
+  } catch {
+    const { data: unitStatsRaw, error: uErr } = await supabase
+      .from("user_unit_stats")
+      .select("subject, unit, total, wrong, accuracy, last_attempt_at")
+      .eq("user_id", id);
+    if (uErr) {
+      return NextResponse.json({ ok: false, message: uErr.message }, { status: 500 });
+    }
+    unitStats = ((unitStatsRaw ?? []) as UnitStatRow[]).map((s) => ({
+      ...s,
+      accuracy: Number(s.accuracy ?? 0),
+    }));
   }
-  const unitStats = (unitStatsRaw ?? []) as UnitStatRow[];
 
   // 과목별 집계
   const bySubjectMap = new Map<string, { subject: string; total: number; wrong: number }>();
