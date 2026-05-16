@@ -139,6 +139,7 @@ export default function StudentExamsPage() {
   const [unitTestCount, setUnitTestCount] = useState(10);
   const [realExamOpen, setRealExamOpen] = useState(false);
   const [subjectExamOpen, setSubjectExamOpen] = useState(false);
+  const [selectedMockSubject, setSelectedMockSubject] = useState<string | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
@@ -201,6 +202,9 @@ export default function StudentExamsPage() {
   // (모달 안의 가장 낮은 카테고리=기출기반이 plus).
   const canRealExam = canUseTier(user, "plus");
   const subjectGeneratedExams = generatedExams.filter(isSubjectGeneratedExam);
+  const selectedSubjectGeneratedExams = selectedMockSubject
+    ? subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedMockSubject))
+    : [];
   const realGeneratedExams = generatedExams.filter(isRealGeneratedExam);
 
   useEffect(() => {
@@ -534,7 +538,10 @@ export default function StudentExamsPage() {
             {canSubjectMock ? (
               <button
                 type="button"
-                onClick={() => setSubjectExamOpen(true)}
+                onClick={() => {
+                  setSelectedMockSubject(null);
+                  setSubjectExamOpen(true);
+                }}
                 className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
               >
                 모의고사 선택하기
@@ -804,36 +811,84 @@ export default function StudentExamsPage() {
           >
             <div className="mb-5">
               <h3 className="text-xl font-black text-ink">과목별 모의고사</h3>
-              <p className="mt-1 text-sm text-slate-500">응시할 모의고사를 선택하세요</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {selectedMockSubject ? `${selectedMockSubject} 모의고사를 선택하세요` : "응시할 과목을 선택하세요"}
+              </p>
             </div>
             {subjectGeneratedExams.length === 0 ? (
               <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
                 등록된 과목별 모의고사가 없습니다.
               </div>
-            ) : (
+            ) : !selectedMockSubject ? (
               <div className="space-y-2">
-                {subjectGeneratedExams.map((exam) => (
-                  <GeneratedExamOption
-                    key={exam.id}
-                    exam={exam}
-                    accent="orange"
-                    allowed={canUseTier(user, requiredTierForGeneratedExam(exam))}
-                    lockLabel={tierLockMessage(requiredTierForGeneratedExam(exam))}
-                    onStart={() => {
-                      setSubjectExamOpen(false);
-                      router.push(`/student/exams/${exam.id}`);
-                    }}
-                  />
-                ))}
+                {SUBJECTS.map((subject) => {
+                  const examCount = subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(subject.name)).length;
+                  return (
+                    <button
+                      key={subject.name}
+                      type="button"
+                      onClick={() => setSelectedMockSubject(subject.name)}
+                      className="flex w-full items-center justify-between rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="text-2xl">{subject.emoji}</span>
+                        <div>
+                          <div className="text-sm font-black text-ink">{subject.name}</div>
+                          <div className="text-xs text-slate-500">{examCount}개 모의고사</div>
+                        </div>
+                      </div>
+                      <span className="text-xs font-black text-orange-600">보기 →</span>
+                    </button>
+                  );
+                })}
               </div>
+            ) : (
+              <>
+                {selectedSubjectGeneratedExams.length === 0 ? (
+                  <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
+                    {selectedMockSubject}에 등록된 모의고사가 없습니다.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {selectedSubjectGeneratedExams.map((exam) => (
+                      <GeneratedExamOption
+                        key={exam.id}
+                        exam={exam}
+                        accent="orange"
+                        allowed={canUseTier(user, requiredTierForGeneratedExam(exam))}
+                        lockLabel={tierLockMessage(requiredTierForGeneratedExam(exam))}
+                        onStart={() => {
+                          setSubjectExamOpen(false);
+                          setSelectedMockSubject(null);
+                          router.push(`/student/exams/${exam.id}`);
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
-            <button
-              type="button"
-              onClick={() => setSubjectExamOpen(false)}
-              className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
-            >
-              닫기
-            </button>
+            <div className="mt-4 flex gap-2">
+              {selectedMockSubject ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedMockSubject(null)}
+                  className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                >
+                  ← 과목 선택
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  setSubjectExamOpen(false);
+                  setSelectedMockSubject(null);
+                }}
+                className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+              >
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}
