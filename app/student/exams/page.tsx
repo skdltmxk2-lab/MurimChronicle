@@ -140,6 +140,7 @@ export default function StudentExamsPage() {
   const [realExamOpen, setRealExamOpen] = useState(false);
   const [subjectExamOpen, setSubjectExamOpen] = useState(false);
   const [selectedMockSubject, setSelectedMockSubject] = useState<string | null>(null);
+  const [selectedRealType, setSelectedRealType] = useState<"past" | "school" | "finalA" | "finalB" | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
@@ -206,6 +207,15 @@ export default function StudentExamsPage() {
     ? subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedMockSubject))
     : [];
   const realGeneratedExams = generatedExams.filter(isRealGeneratedExam);
+  const selectedRealGeneratedExams = selectedRealType
+    ? realGeneratedExams.filter((exam) => {
+        const tags = exam.tags ?? [];
+        if (selectedRealType === "past") return tags.includes("기출유형");
+        if (selectedRealType === "school") return tags.includes("자체모고");
+        if (selectedRealType === "finalA") return tags.includes("유형3");
+        return tags.includes("유형4");
+      })
+    : [];
 
   useEffect(() => {
     let cancelled = false;
@@ -610,7 +620,10 @@ export default function StudentExamsPage() {
             {canRealExam ? (
               <button
                 type="button"
-                onClick={() => setRealExamOpen(true)}
+                onClick={() => {
+                  setSelectedRealType(null);
+                  setRealExamOpen(true);
+                }}
                 className="w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-700"
               >
                 모의고사 선택하기 →
@@ -905,15 +918,59 @@ export default function StudentExamsPage() {
           >
             <div className="mb-5">
               <h3 className="text-xl font-black text-ink">실전 모의고사</h3>
-              <p className="mt-1 text-sm text-slate-500">응시할 모의고사를 선택하세요</p>
+              <p className="mt-1 text-sm text-slate-500">
+                {selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
+              </p>
             </div>
-            {realGeneratedExams.length === 0 ? (
+            {!selectedRealType ? (
+              <div className="space-y-2">
+                {[
+                  { key: "past", label: "기출기반 모의고사", desc: "역대 기출 문제 기반", req: "plus" as const, tag: "기출유형" },
+                  { key: "school", label: "학교별 모의고사", desc: "학교별 출제 경향 반영", req: "pro" as const, tag: "자체모고" },
+                  { key: "finalA", label: "파이널 모의고사 A", desc: "실전 난이도", req: "pro" as const, tag: "유형3" },
+                  { key: "finalB", label: "파이널 모의고사 B", desc: "최고 난이도", req: "pro" as const, tag: "유형4" },
+                ].map((item) => {
+                  const allowed = canUseTier(user, item.req);
+                  const examCount = realGeneratedExams.filter((exam) => (exam.tags ?? []).includes(item.tag)).length;
+                  return (
+                    <div
+                      key={item.key}
+                      className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                        allowed
+                          ? "border-line hover:border-mint-400 hover:bg-mint-50"
+                          : "border-line bg-slate-50"
+                      }`}
+                    >
+                      <div className="min-w-0 pr-3">
+                        <div className={`text-sm font-black ${allowed ? "text-ink" : "text-slate-400"}`}>
+                          {item.label}
+                        </div>
+                        <div className="text-xs text-slate-500">{item.desc} · {examCount}개</div>
+                      </div>
+                      {!allowed ? (
+                        <span className="shrink-0 rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-black text-slate-600">
+                          🔒 {tierLockMessage(item.req)}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedRealType(item.key as "past" | "school" | "finalA" | "finalB")}
+                          className="shrink-0 rounded-md bg-mint-600 px-3 py-1.5 text-xs font-black text-white hover:bg-mint-700"
+                        >
+                          보기 →
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : selectedRealGeneratedExams.length === 0 ? (
               <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
                 등록된 실전 모의고사가 없습니다.
               </div>
             ) : (
               <div className="space-y-2">
-                {realGeneratedExams.map((exam) => (
+                {selectedRealGeneratedExams.map((exam) => (
                   <GeneratedExamOption
                     key={exam.id}
                     exam={exam}
@@ -922,19 +979,34 @@ export default function StudentExamsPage() {
                     lockLabel={tierLockMessage(requiredTierForGeneratedExam(exam))}
                     onStart={() => {
                       setRealExamOpen(false);
+                      setSelectedRealType(null);
                       router.push(`/student/exams/${exam.id}`);
                     }}
                   />
                 ))}
               </div>
             )}
-            <button
-              type="button"
-              onClick={() => setRealExamOpen(false)}
-              className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
-            >
-              닫기
-            </button>
+            <div className="mt-4 flex gap-2">
+              {selectedRealType ? (
+                <button
+                  type="button"
+                  onClick={() => setSelectedRealType(null)}
+                  className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                >
+                  ← 종류 선택
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => {
+                  setRealExamOpen(false);
+                  setSelectedRealType(null);
+                }}
+                className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+              >
+                닫기
+              </button>
+            </div>
           </div>
         </div>
       )}
