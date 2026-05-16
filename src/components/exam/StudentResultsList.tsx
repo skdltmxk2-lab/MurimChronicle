@@ -19,10 +19,7 @@ function isDaily(result: AttemptResult) {
   return result.examId.startsWith("unit-daily-");
 }
 function isUnitPractice(result: AttemptResult) {
-  return (
-    result.examId.startsWith("unit-test-") ||
-    (result.examSnapshot?.tags ?? []).includes("단원별모의고사")
-  );
+  return result.examId.startsWith("unit-test-");
 }
 
 function parseSubjectMockId(examId: string): { subject: string; round: number } | null {

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { questionRepo } from "@/lib/questions/questionRepository";
 import { attemptRepo } from "@/lib/exam/storage";
+import { examRepo } from "@/lib/exams/generatedExamRepository";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
 import type { Difficulty, MockExam, Problem } from "@/types/exam";
@@ -74,6 +75,16 @@ function toProblems(records: QuestionRecord[]): Problem[] {
     questionType: q.questionType,
     answerText: q.answerText,
   }));
+}
+
+function isSubjectOrRealMock(tags: string[]) {
+  return (
+    tags.includes("과목별모의고사") ||
+    tags.includes("기출유형") ||
+    tags.includes("자체모고") ||
+    tags.includes("유형3") ||
+    tags.includes("유형4")
+  );
 }
 
 export function UnitTestRunnerPage() {
@@ -222,14 +233,28 @@ export function UnitTestRunnerPage() {
         tags = [subject, "과목별 모의고사", `${round}회`];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
-        const [pool, attempts] = await Promise.all([
+        const [pool, attempts, generatedExams] = await Promise.all([
           questionRepo.listByUnits(subject, selectedUnits),
           attemptRepo.listResults(),
+          examRepo.listGenerated(),
         ]);
         if (cancelled) return;
         if (pool.length === 0) {
           const unitStr = selectedUnits.join(", ");
           fail(`선택한 단원(${unitStr})의 문제가 아직 없습니다.\n문제 업로드 후 다시 시도해 주세요.`);
+          return;
+        }
+        const reservedProblemIds = new Set<string>();
+        for (const generatedExam of generatedExams) {
+          if ((generatedExam.tags ?? []).includes("weakness")) continue;
+          if (!isSubjectOrRealMock(generatedExam.tags ?? [])) continue;
+          for (const id of generatedExam.sourceQuestionIds ?? []) reservedProblemIds.add(id);
+          for (const problem of generatedExam.problems ?? []) reservedProblemIds.add(problem.id);
+        }
+        const unitOnlyPool = pool.filter((q) => !reservedProblemIds.has(q.id));
+        if (unitOnlyPool.length === 0) {
+          const unitStr = selectedUnits.join(", ");
+          fail(`선택한 단원(${unitStr})에서 과목별/실전 모의고사에 쓰이지 않은 문제가 없습니다.\n문제 업로드 후 다시 시도해 주세요.`);
           return;
         }
         const seenProblemIds = new Set<string>();
@@ -239,8 +264,8 @@ export function UnitTestRunnerPage() {
         const localSeed = Math.floor(Date.now() % 0x7fffffff);
         // 안 본 문제 우선 배치 → 한 사이클이 끝나면(전부 본 상태) 본 문제들을 다시 노출.
         // 각 그룹 안에서는 난이도 오름차순(쉬움→어려움), 같은 난이도 안에서는 시드 셔플.
-        const unseen = pool.filter((q) => !seenProblemIds.has(q.id));
-        const seen = pool.filter((q) => seenProblemIds.has(q.id));
+        const unseen = unitOnlyPool.filter((q) => !seenProblemIds.has(q.id));
+        const seen = unitOnlyPool.filter((q) => seenProblemIds.has(q.id));
         const ordered = [
           ...sortByDifficultyAsc(unseen, localSeed),
           ...sortByDifficultyAsc(seen, localSeed + 1000)
@@ -249,7 +274,7 @@ export function UnitTestRunnerPage() {
         const unitStr = selectedUnits.join(", ");
         const cycleNote = unseen.length === 0 ? " (한 사이클 완료, 재출제)" : "";
         title = `${subject} 단원별 학습${cycleNote}`;
-        description = `${unitStr} · ${filtered.length}문항 · 쉬움→어려움 순 · 안 본 문제 ${unseen.length}개 우선`;
+        description = `${unitStr} · ${filtered.length}문항 · 모고 미사용 문제 우선 · 안 본 문제 ${unseen.length}개`;
         examId = `unit-test-${localSeed}`;
         tags = [subject, ...selectedUnits].filter(Boolean);
       }

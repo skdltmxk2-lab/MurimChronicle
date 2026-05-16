@@ -17,7 +17,7 @@ import {
   unitsForSubject
 } from "@/lib/taxonomy";
 
-type ExamCategory = "unit" | "subject" | "real";
+type ExamCategory = "subject" | "real";
 type RealExamType = "past_exam" | "self_mock";
 
 const modeLabels: Record<AdminExamMode, string> = {
@@ -81,7 +81,7 @@ export function AdminExamsClient() {
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   const [title, setTitle] = useState("");
-  const [examCategory, setExamCategory] = useState<ExamCategory>("unit");
+  const [examCategory, setExamCategory] = useState<ExamCategory>("subject");
   const [realExamType, setRealExamType] = useState<RealExamType>("past_exam");
   const [pastSchool, setPastSchool] = useState<string>("");
   const [pastYear, setPastYear] = useState<string>("");
@@ -220,18 +220,7 @@ export function AdminExamsClient() {
 
     // 카테고리에 따라 사용할 문제 풀과 mode 결정
     const isReal = examCategory === "real";
-    const isUnit = examCategory === "unit";
     const isSubjectMock = examCategory === "subject";
-    if (isUnit && subjects.length === 0) {
-      setMessage("단원별 모의고사는 과목을 먼저 선택해주세요.");
-      setLastExam(null);
-      return;
-    }
-    if (isUnit && units.length === 0) {
-      setMessage("단원별 모의고사는 출제할 단원을 1개 이상 선택해주세요.");
-      setLastExam(null);
-      return;
-    }
     if (isSubjectMock && subjects.length !== 1) {
       setMessage("과목별 모의고사는 과목을 하나만 선택해주세요.");
       setLastExam(null);
@@ -283,7 +272,6 @@ export function AdminExamsClient() {
     let categoryTag: string | null = null;
     if (isReal && realExamType === "past_exam") categoryTag = "기출유형";
     else if (isReal && realExamType === "self_mock") categoryTag = "자체모고";
-    else if (isUnit) categoryTag = "단원별모의고사";
     else categoryTag = "과목별모의고사";
     if (categoryTag && !result.exam.tags.includes(categoryTag)) {
       result.exam.tags = [categoryTag, ...result.exam.tags];
@@ -421,7 +409,7 @@ export function AdminExamsClient() {
           <div>
             <h1 className="text-3xl font-black text-ink">모의고사 생성</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Supabase 문제은행에서 조건에 맞는 문제를 추출해 단원별/과목별/실전 CBT
+              Supabase 문제은행에서 조건에 맞는 문제를 추출해 과목별/실전 CBT
               시험을 생성합니다.
             </p>
           </div>
@@ -443,19 +431,7 @@ export function AdminExamsClient() {
           {/* 1단계: 큰 카테고리 */}
           <section>
             <div className="text-xs font-black text-slate-600">모의고사 종류</div>
-            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
-              <button
-                type="button"
-                onClick={() => changeExamCategory("unit")}
-                className={`rounded-md border px-4 py-3 text-left ${
-                  examCategory === "unit"
-                    ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
-                    : "border-line bg-white hover:border-brand-500"
-                }`}
-              >
-                <div className="text-sm font-black text-ink">📚 단원별 모의고사</div>
-                <div className="mt-1 text-xs text-slate-500">과목 안의 단원을 골라 CBT 생성</div>
-              </button>
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
               <button
                 type="button"
                 onClick={() => changeExamCategory("subject")}
@@ -486,9 +462,7 @@ export function AdminExamsClient() {
           {examCategory !== "real" ? (
             <>
               <section>
-                <div className="text-xs font-black text-slate-600">
-                  {examCategory === "subject" ? "과목 선택" : "과목 다중 선택"}
-                </div>
+                <div className="text-xs font-black text-slate-600">과목 선택</div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {subjectOptions.map((subject) => (
                     <button
@@ -539,9 +513,7 @@ export function AdminExamsClient() {
                   readOnly={examCategory === "subject" && !!subjectMockSubject && !customTitle}
                   className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600 read-only:bg-slate-50 read-only:font-black"
                   placeholder={
-                    examCategory === "unit"
-                      ? "예: 적분법 단원별 모의고사 15문항"
-                      : subjectMockSubject
+                    subjectMockSubject
                         ? nextSubjectMockTitle
                         : "과목을 선택하면 다음 회차 제목이 자동으로 들어갑니다"
                   }
@@ -568,14 +540,10 @@ export function AdminExamsClient() {
               </label>
 
               <section>
-                <div className="text-xs font-black text-slate-600">
-                  {examCategory === "unit" ? "단원 다중 선택 (필수)" : "단원 다중 선택 (선택)"}
-                </div>
-                {examCategory === "subject" ? (
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
-                    과목별 모의고사는 단원을 비워두면 선택 과목 전체에서 출제합니다.
-                  </p>
-                ) : null}
+                <div className="text-xs font-black text-slate-600">단원 다중 선택 (선택)</div>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  과목별 모의고사는 단원을 비워두면 선택 과목 전체에서 출제합니다.
+                </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {unitOptions.map((unit) => (
                     <button
