@@ -66,5 +66,18 @@ export const supabaseExamRepo: IExamRepository = {
   async addGenerated(exam: GeneratedExam): Promise<void> {
     const { error } = await supabase.from("generated_exams").insert(toDb(exam));
     if (error) throw error;
+  },
+
+  async updateGenerated(exam: GeneratedExam): Promise<void> {
+    const { error } = await supabase
+      .from("generated_exams")
+      .update(toDb(exam))
+      .eq("id", exam.id);
+    if (error) throw error;
+  },
+
+  async deleteGenerated(id: string): Promise<void> {
+    const { error } = await supabase.from("generated_exams").delete().eq("id", id);
+    if (error) throw error;
   }
 };

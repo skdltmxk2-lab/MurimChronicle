@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import type { Difficulty } from "@/types/exam";
+import type { Difficulty, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
 import { generateExamFromQuestionBank } from "@/lib/examGenerator";
 import type { AdminExamMode, DifficultyRatio, GeneratedExam } from "@/types/generatedExam";
@@ -17,7 +17,7 @@ import {
   unitsForSubject
 } from "@/lib/taxonomy";
 
-type ExamCategory = "subject" | "real";
+type ExamCategory = "unit" | "subject" | "real";
 type RealExamType = "past_exam" | "self_mock";
 
 const modeLabels: Record<AdminExamMode, string> = {
@@ -44,6 +44,36 @@ function toggleValue(values: string[], value: string) {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
 }
 
+function questionToProblem(question: QuestionRecord): Problem {
+  return {
+    id: question.id,
+    subject: question.subject,
+    unit: question.unit,
+    concept: question.concept,
+    difficulty: question.difficulty,
+    question: question.question,
+    contentType: question.contentType,
+    questionImage: question.questionImage,
+    options: question.options,
+    correctOptionId: question.correctOptionId,
+    explanation: question.explanation,
+    explanationContentType: question.explanationContentType,
+    explanationImage: question.explanationImage,
+    questionType: question.questionType,
+    answerText: question.answerText
+  };
+}
+
+function isSubjectMockExam(exam: GeneratedExam) {
+  return (exam.tags ?? []).includes("과목별모의고사");
+}
+
+function roundFromSubjectMockTitle(title: string, subject: string) {
+  const escapedSubject = subject.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = title.match(new RegExp(`^${escapedSubject}\\s*(?:과목별\\s*)?모의고사\\s*(\\d+)회$`));
+  return match ? Number(match[1]) : null;
+}
+
 export function AdminExamsClient() {
   const [authChecked, setAuthChecked] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -51,7 +81,7 @@ export function AdminExamsClient() {
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   const [title, setTitle] = useState("");
-  const [examCategory, setExamCategory] = useState<ExamCategory>("subject");
+  const [examCategory, setExamCategory] = useState<ExamCategory>("unit");
   const [realExamType, setRealExamType] = useState<RealExamType>("past_exam");
   const [pastSchool, setPastSchool] = useState<string>("");
   const [pastYear, setPastYear] = useState<string>("");
@@ -70,6 +100,9 @@ export function AdminExamsClient() {
   const [timeLimitMin, setTimeLimitMin] = useState(30);
   const [message, setMessage] = useState("");
   const [lastExam, setLastExam] = useState<GeneratedExam | null>(null);
+  const [customTitle, setCustomTitle] = useState(false);
+  const [editingExam, setEditingExam] = useState<GeneratedExam | null>(null);
+  const [editingMessage, setEditingMessage] = useState("");
 
   useEffect(() => {
     authRepo.getCurrentUser().then((user) => {
@@ -86,6 +119,23 @@ export function AdminExamsClient() {
   }, []);
 
   const subjectOptions = useMemo(() => SUBJECT_NAMES, []);
+
+  const subjectMockSubject = examCategory === "subject" && subjects.length === 1 ? subjects[0] : "";
+
+  const nextSubjectMockTitle = useMemo(() => {
+    if (!subjectMockSubject) return "";
+    const rounds = generatedExams
+      .filter((exam) => isSubjectMockExam(exam) && (exam.tags ?? []).includes(subjectMockSubject))
+      .map((exam) => roundFromSubjectMockTitle(exam.title, subjectMockSubject))
+      .filter((round): round is number => Number.isFinite(round) && round !== null);
+    const nextRound = rounds.length > 0 ? Math.max(...rounds) + 1 : 1;
+    return `${subjectMockSubject} 모의고사 ${nextRound}회`;
+  }, [generatedExams, subjectMockSubject]);
+
+  useEffect(() => {
+    if (examCategory !== "subject" || customTitle) return;
+    setTitle(nextSubjectMockTitle);
+  }, [customTitle, examCategory, nextSubjectMockTitle]);
 
   const unitOptions = useMemo(() => {
     if (subjects.length === 0) return [];
@@ -124,11 +174,70 @@ export function AdminExamsClient() {
     }));
   }
 
+  function changeExamCategory(category: ExamCategory) {
+    setExamCategory(category);
+    setTitle("");
+    setCustomTitle(false);
+    setSubjects([]);
+    setUnits([]);
+    setMessage("");
+    setLastExam(null);
+  }
+
+  function pickSubject(subject: string) {
+    if (examCategory === "subject") {
+      setSubjects([subject]);
+      setUnits([]);
+      setCustomTitle(false);
+      return;
+    }
+
+    const nextSubjects = toggleValue(subjects, subject);
+    setSubjects(nextSubjects);
+    setUnits((current) =>
+      current.filter((unit) =>
+        questions.some(
+          (question) =>
+            question.unit === unit &&
+            (nextSubjects.length === 0 || nextSubjects.includes(question.subject))
+        )
+      )
+    );
+  }
+
+  function enableCustomTitle() {
+    setCustomTitle(true);
+    if (!title && nextSubjectMockTitle) setTitle(nextSubjectMockTitle);
+  }
+
+  function resetAutoTitle() {
+    setCustomTitle(false);
+    setTitle(nextSubjectMockTitle);
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     // 카테고리에 따라 사용할 문제 풀과 mode 결정
     const isReal = examCategory === "real";
+    const isUnit = examCategory === "unit";
+    const isSubjectMock = examCategory === "subject";
+    if (isUnit && subjects.length === 0) {
+      setMessage("단원별 모의고사는 과목을 먼저 선택해주세요.");
+      setLastExam(null);
+      return;
+    }
+    if (isUnit && units.length === 0) {
+      setMessage("단원별 모의고사는 출제할 단원을 1개 이상 선택해주세요.");
+      setLastExam(null);
+      return;
+    }
+    if (isSubjectMock && subjects.length !== 1) {
+      setMessage("과목별 모의고사는 과목을 하나만 선택해주세요.");
+      setLastExam(null);
+      return;
+    }
+
     let pool: typeof questions;
     if (isReal && realExamType === "past_exam") {
       pool = questions.filter(matchesPastExam);
@@ -152,8 +261,9 @@ export function AdminExamsClient() {
       for (const id of exam.sourceQuestionIds ?? []) excludeIds.add(id);
     }
 
+    const finalTitle = isSubjectMock && !customTitle ? nextSubjectMockTitle : title;
     const result = generateExamFromQuestionBank(pool, {
-      title,
+      title: finalTitle,
       mode: effectiveMode,
       subjects: effectiveSubjects,
       units: effectiveUnits,
@@ -173,7 +283,8 @@ export function AdminExamsClient() {
     let categoryTag: string | null = null;
     if (isReal && realExamType === "past_exam") categoryTag = "기출유형";
     else if (isReal && realExamType === "self_mock") categoryTag = "자체모고";
-    else if (!isReal) categoryTag = "과목별모의고사";
+    else if (isUnit) categoryTag = "단원별모의고사";
+    else categoryTag = "과목별모의고사";
     if (categoryTag && !result.exam.tags.includes(categoryTag)) {
       result.exam.tags = [categoryTag, ...result.exam.tags];
     }
@@ -182,6 +293,95 @@ export function AdminExamsClient() {
     setGeneratedExams(await examRepo.listGenerated());
     setLastExam(result.exam);
     setMessage("모의고사를 생성했습니다.");
+  }
+
+  async function refreshGeneratedExams() {
+    const rows = await examRepo.listGenerated();
+    setGeneratedExams(rows);
+    return rows;
+  }
+
+  async function saveEditedExam(nextExam: GeneratedExam, successMessage: string) {
+    try {
+      await examRepo.updateGenerated(nextExam);
+      const rows = await refreshGeneratedExams();
+      setEditingExam(rows.find((exam) => exam.id === nextExam.id) ?? nextExam);
+      setLastExam((current) => (current?.id === nextExam.id ? nextExam : current));
+      setEditingMessage(successMessage);
+    } catch (error) {
+      setEditingMessage(error instanceof Error ? error.message : "모의고사 저장에 실패했습니다.");
+    }
+  }
+
+  async function deleteGeneratedExam(exam: GeneratedExam) {
+    if (!window.confirm(`"${exam.title}" 모의고사를 삭제할까요?`)) return;
+    try {
+      await examRepo.deleteGenerated(exam.id);
+      await refreshGeneratedExams();
+      setEditingExam(null);
+      setLastExam((current) => (current?.id === exam.id ? null : current));
+      setMessage("모의고사를 삭제했습니다.");
+    } catch (error) {
+      const failMessage = error instanceof Error ? error.message : "모의고사 삭제에 실패했습니다.";
+      setMessage(failMessage);
+      setEditingMessage(failMessage);
+    }
+  }
+
+  async function replaceProblemInExam(exam: GeneratedExam, problem: Problem) {
+    const usedIds = new Set(exam.problems.map((item) => item.id));
+    const pools = [
+      questions.filter(
+        (q) =>
+          q.id !== problem.id &&
+          !usedIds.has(q.id) &&
+          (q.pool ?? "general") === "general" &&
+          q.subject === problem.subject &&
+          q.unit === problem.unit &&
+          q.difficulty === problem.difficulty
+      ),
+      questions.filter(
+        (q) =>
+          q.id !== problem.id &&
+          !usedIds.has(q.id) &&
+          (q.pool ?? "general") === "general" &&
+          q.subject === problem.subject &&
+          q.unit === problem.unit
+      ),
+      questions.filter(
+        (q) =>
+          q.id !== problem.id &&
+          !usedIds.has(q.id) &&
+          (q.pool ?? "general") === "general" &&
+          q.subject === problem.subject
+      )
+    ];
+    const candidates = pools.find((pool) => pool.length > 0) ?? [];
+    if (candidates.length === 0) {
+      setEditingMessage("교체 가능한 문항이 없습니다.");
+      return;
+    }
+
+    const picked = candidates[Math.floor(Math.random() * candidates.length)];
+    const nextProblems = exam.problems.map((item) =>
+      item.id === problem.id ? questionToProblem(picked) : item
+    );
+    const difficultyCounts = { ...exam.generationSummary.difficultyCounts };
+    for (const difficulty of DIFFICULTY_KEYS) {
+      difficultyCounts[difficulty] = nextProblems.filter((item) => item.difficulty === difficulty).length;
+    }
+    const nextExam: GeneratedExam = {
+      ...exam,
+      problems: nextProblems,
+      sourceQuestionIds: nextProblems.map((item) => item.id),
+      generationSummary: {
+        ...exam.generationSummary,
+        selectedCount: nextProblems.length,
+        difficultyCounts
+      }
+    };
+
+    await saveEditedExam(nextExam, `${problem.id} 문항을 ${picked.id} 문항으로 교체했습니다.`);
   }
 
   if (!authChecked) {
@@ -221,7 +421,7 @@ export function AdminExamsClient() {
           <div>
             <h1 className="text-3xl font-black text-ink">모의고사 생성</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              Supabase 문제은행에서 조건에 맞는 문제를 추출해 selected/random/adaptive/daily
+              Supabase 문제은행에서 조건에 맞는 문제를 추출해 단원별/과목별/실전 CBT
               시험을 생성합니다.
             </p>
           </div>
@@ -243,22 +443,34 @@ export function AdminExamsClient() {
           {/* 1단계: 큰 카테고리 */}
           <section>
             <div className="text-xs font-black text-slate-600">모의고사 종류</div>
-            <div className="mt-2 grid grid-cols-2 gap-2">
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
               <button
                 type="button"
-                onClick={() => setExamCategory("subject")}
+                onClick={() => changeExamCategory("unit")}
+                className={`rounded-md border px-4 py-3 text-left ${
+                  examCategory === "unit"
+                    ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
+                    : "border-line bg-white hover:border-brand-500"
+                }`}
+              >
+                <div className="text-sm font-black text-ink">📚 단원별 모의고사</div>
+                <div className="mt-1 text-xs text-slate-500">과목 안의 단원을 골라 CBT 생성</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => changeExamCategory("subject")}
                 className={`rounded-md border px-4 py-3 text-left ${
                   examCategory === "subject"
                     ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
                     : "border-line bg-white hover:border-brand-500"
                 }`}
               >
-                <div className="text-sm font-black text-ink">📚 과목별 모의고사</div>
-                <div className="mt-1 text-xs text-slate-500">과목·단원·난이도로 직접 구성</div>
+                <div className="text-sm font-black text-ink">⏱️ 과목별 모의고사</div>
+                <div className="mt-1 text-xs text-slate-500">과목·난이도 중심으로 구성</div>
               </button>
               <button
                 type="button"
-                onClick={() => setExamCategory("real")}
+                onClick={() => changeExamCategory("real")}
                 className={`rounded-md border px-4 py-3 text-left ${
                   examCategory === "real"
                     ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
@@ -271,22 +483,76 @@ export function AdminExamsClient() {
             </div>
           </section>
 
-          <label className="block">
-            <span className="text-xs font-black text-slate-600">시험 제목</span>
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
-              placeholder={
-                examCategory === "real"
-                  ? "예: 2025년 가천대 기출 모의고사"
-                  : "예: 미분학 약점 보완 20문항"
-              }
-            />
-          </label>
-
-          {examCategory === "subject" ? (
+          {examCategory !== "real" ? (
             <>
+              <section>
+                <div className="text-xs font-black text-slate-600">
+                  {examCategory === "subject" ? "과목 선택" : "과목 다중 선택"}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {subjectOptions.map((subject) => (
+                    <button
+                      key={subject}
+                      type="button"
+                      onClick={() => pickSubject(subject)}
+                      className={`rounded-full px-3 py-2 text-sm font-black ${
+                        subjects.includes(subject)
+                          ? "bg-brand-600 text-white"
+                          : "bg-slate-100 text-slate-700 hover:bg-brand-50"
+                      }`}
+                    >
+                      {subject}
+                    </button>
+                  ))}
+                </div>
+              </section>
+
+              <label className="block">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-xs font-black text-slate-600">시험 제목</span>
+                  {examCategory === "subject" && subjectMockSubject ? (
+                    customTitle ? (
+                      <button
+                        type="button"
+                        onClick={resetAutoTitle}
+                        className="text-xs font-black text-brand-700 hover:underline"
+                      >
+                        회차 제목으로 되돌리기
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={enableCustomTitle}
+                        className="text-xs font-black text-brand-700 hover:underline"
+                      >
+                        이름 바꾸기
+                      </button>
+                    )
+                  ) : null}
+                </div>
+                <input
+                  value={title}
+                  onChange={(event) => {
+                    setTitle(event.target.value);
+                    if (examCategory === "subject") setCustomTitle(true);
+                  }}
+                  readOnly={examCategory === "subject" && !!subjectMockSubject && !customTitle}
+                  className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600 read-only:bg-slate-50 read-only:font-black"
+                  placeholder={
+                    examCategory === "unit"
+                      ? "예: 적분법 단원별 모의고사 15문항"
+                      : subjectMockSubject
+                        ? nextSubjectMockTitle
+                        : "과목을 선택하면 다음 회차 제목이 자동으로 들어갑니다"
+                  }
+                />
+                {examCategory === "subject" && subjectMockSubject && !customTitle ? (
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    저장된 과목별 모의고사 중 제목이 "{subjectMockSubject} 모의고사 N회"인 시험만 회차로 계산합니다.
+                  </p>
+                ) : null}
+              </label>
+
               <label className="block">
                 <span className="text-xs font-black text-slate-600">시험 유형</span>
                 <select
@@ -302,39 +568,14 @@ export function AdminExamsClient() {
               </label>
 
               <section>
-                <div className="text-xs font-black text-slate-600">과목 다중 선택</div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {subjectOptions.map((subject) => (
-                    <button
-                      key={subject}
-                      type="button"
-                      onClick={() => {
-                        const nextSubjects = toggleValue(subjects, subject);
-                        setSubjects(nextSubjects);
-                        setUnits((current) =>
-                          current.filter((unit) =>
-                            questions.some(
-                              (question) =>
-                                question.unit === unit &&
-                                (nextSubjects.length === 0 || nextSubjects.includes(question.subject))
-                            )
-                          )
-                        );
-                      }}
-                      className={`rounded-full px-3 py-2 text-sm font-black ${
-                        subjects.includes(subject)
-                          ? "bg-brand-600 text-white"
-                          : "bg-slate-100 text-slate-700 hover:bg-brand-50"
-                      }`}
-                    >
-                      {subject}
-                    </button>
-                  ))}
+                <div className="text-xs font-black text-slate-600">
+                  {examCategory === "unit" ? "단원 다중 선택 (필수)" : "단원 다중 선택 (선택)"}
                 </div>
-              </section>
-
-              <section>
-                <div className="text-xs font-black text-slate-600">단원 다중 선택</div>
+                {examCategory === "subject" ? (
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    과목별 모의고사는 단원을 비워두면 선택 과목 전체에서 출제합니다.
+                  </p>
+                ) : null}
                 <div className="mt-2 flex flex-wrap gap-2">
                   {unitOptions.map((unit) => (
                     <button
@@ -432,6 +673,16 @@ export function AdminExamsClient() {
                   </label>
                 </section>
               ) : null}
+
+              <label className="block">
+                <span className="text-xs font-black text-slate-600">시험 제목</span>
+                <input
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  className="mt-1 w-full rounded-md border border-line px-3 py-3 text-sm outline-none focus:border-brand-600"
+                  placeholder="예: 2025년 가천대 기출 모의고사"
+                />
+              </label>
             </>
           )}
 
@@ -545,16 +796,27 @@ export function AdminExamsClient() {
                 .map((exam) => (
                 <article key={exam.id} className="rounded-md border border-line p-4">
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingExam(exam);
+                        setEditingMessage("");
+                      }}
+                      className="min-w-0 flex-1 text-left"
+                    >
                       <h3 className="text-sm font-black text-ink">{exam.title}</h3>
                       <p className="mt-1 text-xs font-bold text-slate-500">
                         {modeLabels[exam.mode as AdminExamMode]} / {exam.problems.length}문항 /{" "}
                         {Math.floor(exam.timeLimitSec / 60)}분
                       </p>
-                    </div>
-                    <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-black text-slate-600">
-                      {exam.mode}
-                    </span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteGeneratedExam(exam)}
+                      className="rounded-md bg-slate-100 px-2 py-1 text-xs font-black text-slate-600 hover:bg-coral-50 hover:text-coral-600"
+                    >
+                      삭제
+                    </button>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {exam.tags.slice(0, 5).map((tag) => (
@@ -572,6 +834,83 @@ export function AdminExamsClient() {
           </section>
         </aside>
       </div>
+
+      {editingExam ? (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          onClick={() => setEditingExam(null)}
+        >
+          <section
+            className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-5 shadow-soft"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-600">
+                  Exam Editor
+                </p>
+                <h2 className="mt-1 text-xl font-black text-ink">{editingExam.title}</h2>
+                <p className="mt-1 text-xs font-bold text-slate-500">
+                  {editingExam.problems.length}문항 / {Math.floor(editingExam.timeLimitSec / 60)}분
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => deleteGeneratedExam(editingExam)}
+                  className="rounded-md bg-coral-50 px-4 py-2 text-xs font-black text-coral-600 hover:brightness-95"
+                >
+                  모고 삭제
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditingExam(null)}
+                  className="rounded-md border border-line px-4 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+
+            {editingMessage ? (
+              <div className="mt-4 rounded-md bg-brand-50 px-4 py-3 text-sm font-bold text-brand-700">
+                {editingMessage}
+              </div>
+            ) : null}
+
+            <div className="mt-4 space-y-2">
+              {editingExam.problems.map((problem, index) => (
+                <article key={problem.id} className="rounded-md border border-line p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-black text-slate-600">
+                          {index + 1}번
+                        </span>
+                        <DifficultyBadge difficulty={problem.difficulty} />
+                        <span className="text-xs font-bold text-slate-500">
+                          {problem.subject} / {problem.unit}
+                        </span>
+                      </div>
+                      <p className="mt-2 line-clamp-2 text-sm font-bold leading-6 text-ink">
+                        {problem.question || problem.concept || problem.id}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">{problem.id}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => replaceProblemInExam(editingExam, problem)}
+                      className="shrink-0 rounded-md bg-brand-600 px-4 py-2 text-xs font-black text-white hover:bg-brand-700"
+                    >
+                      문항 교체
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

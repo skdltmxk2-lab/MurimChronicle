@@ -9,14 +9,20 @@ import type { AttemptResult } from "@/types/exam";
 
 type Tab = "subject_mock" | "real";
 
-function isSubjectMock(examId: string) {
-  return examId.startsWith("subject-mock:");
+function isSubjectMock(result: AttemptResult) {
+  return (
+    result.examId.startsWith("subject-mock:") ||
+    (result.examSnapshot?.tags ?? []).includes("과목별모의고사")
+  );
 }
-function isDaily(examId: string) {
-  return examId.startsWith("unit-daily-");
+function isDaily(result: AttemptResult) {
+  return result.examId.startsWith("unit-daily-");
 }
-function isUnitPractice(examId: string) {
-  return examId.startsWith("unit-test-");
+function isUnitPractice(result: AttemptResult) {
+  return (
+    result.examId.startsWith("unit-test-") ||
+    (result.examSnapshot?.tags ?? []).includes("단원별모의고사")
+  );
 }
 
 function parseSubjectMockId(examId: string): { subject: string; round: number } | null {
@@ -55,11 +61,11 @@ export function StudentResultsList() {
     if (!results) return null;
     const sorted = [...results].sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : -1));
     if (tab === "subject_mock") {
-      return sorted.filter((r) => isSubjectMock(r.examId));
+      return sorted.filter((r) => isSubjectMock(r));
     }
     // 실전: subject_mock / daily / unit-practice 가 아닌 것
     return sorted.filter(
-      (r) => !isSubjectMock(r.examId) && !isDaily(r.examId) && !isUnitPractice(r.examId)
+      (r) => !isSubjectMock(r) && !isDaily(r) && !isUnitPractice(r)
     );
   }, [results, tab]);
 
@@ -139,7 +145,7 @@ export function StudentResultsList() {
       ) : (
         <section className="space-y-3">
           {filtered.map((r) => {
-            const meta = isSubjectMock(r.examId) ? parseSubjectMockId(r.examId) : null;
+            const meta = r.examId.startsWith("subject-mock:") ? parseSubjectMockId(r.examId) : null;
             const headline = meta
               ? `${meta.subject} 과목별 모의고사 ${meta.round}회`
               : r.examTitle || r.examId;
