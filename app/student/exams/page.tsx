@@ -101,13 +101,6 @@ function GeneratedExamOption({
           <p className="mt-1 text-xs font-bold text-slate-500">
             {exam.problems.length}문항 · {Math.floor(exam.timeLimitSec / 60)}분
           </p>
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {(exam.tags ?? []).slice(0, 4).map((tag) => (
-              <span key={tag} className={`rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black ${color.text}`}>
-                {tag}
-              </span>
-            ))}
-          </div>
         </div>
         {allowed ? (
           <button
