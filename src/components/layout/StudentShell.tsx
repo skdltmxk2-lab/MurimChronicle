@@ -32,11 +32,10 @@ export function StudentShell({ children }: { children: ReactNode }) {
         {/* 메인 콘텐츠 */}
         <div className="min-w-0 flex-1">{children}</div>
 
-        {/* 우측 실시간 채팅 — 큰 화면에서만 */}
-        <aside className="hidden shrink-0 pt-6 xl:block xl:w-80">
-          <div className="sticky top-4 h-[calc(100vh-2rem)]">
-            <LiveChatPanel className="h-full" />
-          </div>
+        {/* 우측 실시간 채팅 + 하단 광고 — 큰 화면에서만. 스크롤 시 따라오지 않음(non-sticky) */}
+        <aside className="hidden shrink-0 space-y-4 pt-6 xl:block xl:w-80">
+          <LiveChatPanel className="h-[460px]" />
+          <AdSlot slot="rail-right" format="rail" />
         </aside>
       </div>
 
