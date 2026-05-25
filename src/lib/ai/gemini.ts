@@ -48,24 +48,35 @@ export function isTransientAiError(e: unknown): boolean {
   return /(503|502|500|429|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED|INTERNAL|deadline|timeout)/i.test(msg);
 }
 
+// 기본 모델이 과부하일 때 자동 전환할 보조 모델(더 한가함). 임베딩에는 적용하지 않음(벡터 호환성).
+export const GEMINI_FALLBACK_MODEL = "gemini-2.5-flash-lite";
+
 type GenParams = Parameters<typeof gemini.models.generateContent>[0];
 
-/** 일시적 오류 시 지수 백오프로 재시도하며 generateContent 호출. */
+/**
+ * 일시적 오류 시 지수 백오프로 재시도하며 generateContent 호출.
+ * 기본 모델에서 재시도가 소진되면 보조 모델(flash-lite)로 한 번 더 시도한다.
+ */
 export async function generateWithRetry(
   params: GenParams,
-  retries = 2
+  retries = 1
 ): Promise<Awaited<ReturnType<typeof gemini.models.generateContent>>> {
+  const primary = params.model;
+  const models = primary === GEMINI_FALLBACK_MODEL ? [primary] : [primary, GEMINI_FALLBACK_MODEL];
   let last: unknown;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await gemini.models.generateContent(params);
-    } catch (e) {
-      last = e;
-      if (attempt < retries && isTransientAiError(e)) {
-        await sleep(500 * 2 ** attempt + Math.floor(Math.random() * 250));
-        continue;
+  for (const model of models) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await gemini.models.generateContent({ ...params, model });
+      } catch (e) {
+        last = e;
+        if (!isTransientAiError(e)) throw e; // 일시적 오류가 아니면 폴백하지 않음
+        if (attempt < retries) {
+          await sleep(500 * 2 ** attempt + Math.floor(Math.random() * 250));
+          continue;
+        }
+        break; // 이 모델 재시도 소진 → 다음(보조) 모델로
       }
-      throw e;
     }
   }
   throw last;
