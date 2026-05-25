@@ -130,9 +130,11 @@ export function StudentHeader() {
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
             커뮤니티
           </Link>
-          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
-            문제검색
-          </Link>
+          {track === "math" ? (
+            <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
+              문제검색
+            </Link>
+          ) : null}
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/pricing">
             요금제
           </Link>
