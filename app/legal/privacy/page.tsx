@@ -12,7 +12,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export const metadata = {
-  title: "개인정보처리방침 | 루트매쓰 CBT",
+  title: "개인정보처리방침 | 루트편입",
 };
 
 export default function PrivacyPage() {

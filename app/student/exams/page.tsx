@@ -255,7 +255,7 @@ export default function StudentExamsPage() {
       {/* 헤더 */}
       <section className="mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
-          루트매쓰 CBT
+          루트편입
         </p>
         <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

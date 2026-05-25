@@ -112,7 +112,7 @@ export function PricingClient() {
 
       <section className="mb-8 text-center">
         <p className="text-xs font-black uppercase tracking-[0.2em] text-brand-600">Pricing</p>
-        <h2 className="mt-1 text-3xl font-black text-ink">루트매쓰 CBT 요금제</h2>
+        <h2 className="mt-1 text-3xl font-black text-ink">루트편입 요금제</h2>
         <p className="mt-2 text-sm text-slate-600">
           핵심 학습은 무료로, 실전·AI 기능과 광고 제거는 PRO 하나로 끝내세요.
         </p>

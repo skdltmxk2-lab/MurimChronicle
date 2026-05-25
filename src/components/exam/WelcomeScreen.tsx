@@ -10,7 +10,7 @@ export function WelcomeScreen({ user, onDone }: { user: MockUser; onDone: () => 
     `안녕하세요, ${user.name}님!`,
     `${user.name}님이 많이 틀리시는 유형을 학습해`,
     "최적의 편입수학 공부를 돕는",
-    "루트매쓰 CBT입니다!",
+    "루트편입입니다!",
     "함께 공부를 시작해볼까요?",
   ];
 

@@ -3,7 +3,7 @@
  * (변호사 검토 권장 — 아래 문서는 표준 양식 기반 초안입니다.)
  */
 export const LEGAL = {
-  serviceName: "루트매쓰 CBT",
+  serviceName: "루트편입",
   operator: "루트편입",
   representative: "윤현식",
   businessNumber: "해당 없음", // 비사업자

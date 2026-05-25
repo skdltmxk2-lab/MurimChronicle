@@ -29,7 +29,7 @@ export function AdminHeader() {
           </span>
           <span>
             <span className="block text-sm font-black text-ink">관리자 콘솔</span>
-            <span className="block text-xs text-slate-500">루트매쓰 CBT</span>
+            <span className="block text-xs text-slate-500">루트편입</span>
           </span>
         </Link>
         <div className="flex flex-wrap items-center gap-2 text-sm">

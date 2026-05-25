@@ -12,7 +12,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 }
 
 export const metadata = {
-  title: "이용약관 | 루트매쓰 CBT",
+  title: "이용약관 | 루트편입",
 };
 
 export default function TermsPage() {

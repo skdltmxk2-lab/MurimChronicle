@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
 import { supabase } from "@/lib/supabase/client";
 import { InquiryModal } from "@/components/inquiry/InquiryModal";
+import { TrackToggle } from "@/components/layout/TrackToggle";
+import { useTrack } from "@/lib/useTrack";
 
 // ROUTE 편입 — Logo Concept A (SPARK).
 // 8-point spike: 카디널 4방향(상/하/좌/우) 긴 spike + 대각 4방향 짧은 spike.
@@ -34,6 +36,7 @@ function RouteMathIcon({ className }: { className?: string }) {
 export function StudentHeader() {
   const router = useRouter();
   const { user, setUser } = useAuth();
+  const track = useTrack();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
   const [error, setError] = useState("");
@@ -115,12 +118,15 @@ export function StudentHeader() {
         <Link href="/student/exams" className="flex items-center gap-3">
           <RouteMathIcon className="size-9 shrink-0" />
           <span>
-            <span className="block text-sm font-black text-ink">루트매쓰 CBT</span>
-            <span className="block text-xs text-slate-500">편입수학 맞춤 학습</span>
+            <span className="block text-sm font-black text-ink">루트편입</span>
+            <span className="block text-xs text-slate-500">
+              {track === "english" ? "편입영어 맞춤 학습" : "편입수학 맞춤 학습"}
+            </span>
           </span>
         </Link>
 
         <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
+          <TrackToggle />
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
             커뮤니티
           </Link>
