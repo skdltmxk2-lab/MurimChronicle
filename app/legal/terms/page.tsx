@@ -28,7 +28,7 @@ export default function TermsPage() {
 
       <Section title="제1조 (목적)">
         <p>
-          본 약관은 {LEGAL.operator}(이하 &ldquo;운영자&rdquo;)이(가) 제공하는 {LEGAL.serviceName}(이하
+          본 약관은 {LEGAL.operator}(대표 {LEGAL.representative}, 이하 &ldquo;운영자&rdquo;)이(가) 제공하는 {LEGAL.serviceName}(이하
           &ldquo;서비스&rdquo;) 이용과 관련하여 운영자와 이용자(회원)의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.
         </p>
       </Section>

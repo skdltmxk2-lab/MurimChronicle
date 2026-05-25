@@ -28,7 +28,7 @@ export default function PrivacyPage() {
 
       <Section title="제1조 (총칙)">
         <p>
-          {LEGAL.operator}(이하 &ldquo;운영자&rdquo;)은(는) 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」 등
+          {LEGAL.operator}(대표 {LEGAL.representative}, 이하 &ldquo;운영자&rdquo;)은(는) 이용자의 개인정보를 중요하게 생각하며, 「개인정보 보호법」 등
           관련 법령을 준수합니다. 본 방침은 운영자가 제공하는 서비스 이용과 관련하여 어떤 개인정보를 어떤 목적으로
           수집·이용하며, 이를 어떻게 보호·관리하는지를 안내합니다.
         </p>
