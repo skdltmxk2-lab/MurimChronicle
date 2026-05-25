@@ -13,6 +13,7 @@ type ChatMessage = {
 };
 
 const MAX_LEN = 300;
+const RETENTION_MS = 6 * 60 * 60 * 1000; // 6시간 지난 메시지는 표시하지 않음
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -32,10 +33,12 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
   useEffect(() => {
     let cancelled = false;
 
-    // 최근 50개 로드 (오래된 → 최신 순으로 표시)
+    // 최근 6시간 이내 메시지만 로드 (오래된 → 최신 순으로 표시)
+    const cutoffIso = new Date(Date.now() - RETENTION_MS).toISOString();
     supabase
       .from("chat_messages")
       .select("*")
+      .gte("created_at", cutoffIso)
       .order("created_at", { ascending: false })
       .limit(50)
       .then(({ data, error }) => {
@@ -77,6 +80,15 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
+
+  // 6시간 지난 메시지는 화면에서 제거 (1분마다 점검)
+  useEffect(() => {
+    const id = setInterval(() => {
+      const cutoff = Date.now() - RETENTION_MS;
+      setMessages((prev) => prev.filter((m) => Date.parse(m.created_at) >= cutoff));
+    }, 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   async function send() {
     const text = input.trim();
