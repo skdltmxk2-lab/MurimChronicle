@@ -65,6 +65,7 @@ export function AiSearchClient() {
   // 업로드 문제에 대한 AI 풀이
   const [solution, setSolution] = useState<string | null>(null);
   const [solving, setSolving] = useState(false);
+  const [withSolution, setWithSolution] = useState(false);
 
   // AI 튜터 채팅
   const [chat, setChat] = useState<ChatTurn[]>([]);
@@ -140,8 +141,8 @@ export function AiSearchClient() {
       const ex = json.extracted as Extracted;
       setExtracted(ex);
       setMatches((json.matches ?? []) as MatchItem[]);
-      // 인식 직후 AI 풀이 로드(병렬)
-      solve({ problemText: ex.problemText, subject: ex.subject, unit: ex.unit });
+      // 토글이 켜져 있을 때만 검색과 함께 AI 풀이 생성
+      if (withSolution) solve({ problemText: ex.problemText, subject: ex.subject, unit: ex.unit });
     } catch (e) {
       setError(e instanceof Error ? e.message : "검색 중 오류가 발생했습니다.");
     } finally {
@@ -230,6 +231,15 @@ export function AiSearchClient() {
               <div className="space-y-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={preview} alt="업로드한 문제" className="mx-auto max-h-72 rounded-lg border border-line" />
+                <label className="flex cursor-pointer items-center justify-between rounded-lg border border-line px-3 py-2.5">
+                  <span className="flex items-center gap-1.5 text-sm font-bold text-slate-600">🧠 AI 풀이도 함께 생성</span>
+                  <input
+                    type="checkbox"
+                    checked={withSolution}
+                    onChange={(e) => setWithSolution(e.target.checked)}
+                    className="size-4 accent-mint-600"
+                  />
+                </label>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -297,7 +307,13 @@ export function AiSearchClient() {
                 ) : solution ? (
                   <ContentRenderer contentType="latex" text={solution} />
                 ) : (
-                  <p className="py-4 text-center text-xs text-slate-400">풀이를 불러오는 중...</p>
+                  <button
+                    type="button"
+                    onClick={() => solve({ problemText: extracted.problemText, subject: extracted.subject, unit: extracted.unit })}
+                    className="w-full rounded-md bg-mint-600 py-2.5 text-sm font-black text-white hover:bg-mint-700"
+                  >
+                    🧠 AI 풀이 생성하기
+                  </button>
                 )}
               </div>
             </section>
