@@ -170,7 +170,7 @@ export async function POST(request: Request) {
           .eq("subject", extracted.subject)
           .eq("unit", extracted.unit)
           .eq("concept", concept)
-          .limit(8);
+          .limit(5);
         if (data) matches = data;
       }
     }
@@ -184,6 +184,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     extracted,
-    matches: matches.slice(0, 8),
+    matches: matches.slice(0, 5),
   });
 }
