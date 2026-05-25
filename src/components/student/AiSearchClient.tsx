@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 
@@ -73,6 +73,29 @@ export function AiSearchClient() {
     const url = URL.createObjectURL(file);
     setPreview(url);
   }
+
+  // 클립보드 붙여넣기(Ctrl+V) 로 캡쳐 이미지 바로 올리기
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (let i = 0; i < items.length; i++) {
+        const it = items[i];
+        if (it.kind === "file" && it.type.startsWith("image/")) {
+          const file = it.getAsFile();
+          if (file) {
+            pickFile(file);
+            e.preventDefault();
+            break;
+          }
+        }
+      }
+    }
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+    // pickFile 은 setState 래퍼만 사용해 안정적이므로 의존성 불필요
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function runSearch() {
     if (!pending || loading) return;
@@ -192,8 +215,8 @@ export function AiSearchClient() {
             className="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center hover:border-brand-400"
           >
             <span className="text-3xl">📷</span>
-            <span className="text-sm font-bold text-slate-600">문제 이미지를 업로드하세요</span>
-            <span className="text-xs text-slate-400">PNG · JPG · WEBP</span>
+            <span className="text-sm font-bold text-slate-600">문제 이미지를 업로드하거나 붙여넣으세요</span>
+            <span className="text-xs text-slate-400">PNG · JPG · WEBP · 클립보드 붙여넣기(Ctrl+V) 가능</span>
           </button>
         )}
       </section>
