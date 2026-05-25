@@ -37,3 +37,42 @@ export function extractJson<T = Record<string, unknown>>(text: string): T | null
     return null;
   }
 }
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
+/** Gemini의 일시적 오류(과부하/속도제한/일시 장애)인지 판별. */
+export function isTransientAiError(e: unknown): boolean {
+  const msg = e instanceof Error ? e.message : String(e);
+  return /(503|502|500|429|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED|INTERNAL|deadline|timeout)/i.test(msg);
+}
+
+type GenParams = Parameters<typeof gemini.models.generateContent>[0];
+
+/** 일시적 오류 시 지수 백오프로 재시도하며 generateContent 호출. */
+export async function generateWithRetry(
+  params: GenParams,
+  retries = 2
+): Promise<Awaited<ReturnType<typeof gemini.models.generateContent>>> {
+  let last: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await gemini.models.generateContent(params);
+    } catch (e) {
+      last = e;
+      if (attempt < retries && isTransientAiError(e)) {
+        await sleep(500 * 2 ** attempt + Math.floor(Math.random() * 250));
+        continue;
+      }
+      throw e;
+    }
+  }
+  throw last;
+}
+
+/** 사용자에게 보여줄 친절한 오류 메시지(원시 JSON 노출 방지). */
+export function friendlyAiError(e: unknown): string {
+  if (isTransientAiError(e)) return "AI가 잠시 혼잡해요. 잠시 후 다시 시도해 주세요.";
+  return e instanceof Error ? e.message : "AI 처리 중 오류가 발생했습니다.";
+}

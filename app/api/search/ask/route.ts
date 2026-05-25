@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { gemini, GEMINI_MODEL } from "@/lib/ai/gemini";
+import { GEMINI_MODEL, generateWithRetry, friendlyAiError } from "@/lib/ai/gemini";
 import { requireTier } from "@/lib/auth/requireTier";
 import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
 
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
   }));
 
   try {
-    const result = await gemini.models.generateContent({
+    const result = await generateWithRetry({
       model: GEMINI_MODEL,
       contents,
       config: {
@@ -108,7 +108,6 @@ export async function POST(request: Request) {
       answer: answer || "답변을 생성하지 못했어요. 다시 질문해 주세요.",
     });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "AI 튜터 응답에 실패했습니다.";
-    return NextResponse.json({ ok: false, message: `AI 튜터 오류: ${message}` }, { status: 502 });
+    return NextResponse.json({ ok: false, message: friendlyAiError(e) }, { status: 502 });
   }
 }

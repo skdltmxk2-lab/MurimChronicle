@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
-import { gemini, GEMINI_MODEL } from "@/lib/ai/gemini";
+import { GEMINI_MODEL, generateWithRetry, friendlyAiError } from "@/lib/ai/gemini";
 import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
 
 const SOLVE_LIMIT = 10;
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await gemini.models.generateContent({
+    const result = await generateWithRetry({
       model: GEMINI_MODEL,
       contents: [
         {
@@ -57,7 +57,6 @@ export async function POST(request: Request) {
     if (!auth.isAdmin) await bumpDailyUsage(auth.supabase, auth.userId, "solve");
     return NextResponse.json({ ok: true, solution: solution || "풀이를 생성하지 못했어요." });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "AI 풀이 생성에 실패했습니다.";
-    return NextResponse.json({ ok: false, message: `AI 풀이 오류: ${message}` }, { status: 502 });
+    return NextResponse.json({ ok: false, message: friendlyAiError(e) }, { status: 502 });
   }
 }

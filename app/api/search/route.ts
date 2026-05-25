@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
-import { gemini, GEMINI_MODEL, ALLOWED_IMAGE_TYPES, extractJson } from "@/lib/ai/gemini";
+import { GEMINI_MODEL, ALLOWED_IMAGE_TYPES, extractJson, generateWithRetry, friendlyAiError } from "@/lib/ai/gemini";
 import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
 import { embedOne, EMBED_DIM } from "@/lib/ai/embed";
 import { SUBJECTS, SUBJECT_UNITS, isKnownSubject } from "@/lib/taxonomy";
@@ -51,7 +51,7 @@ function buildPrompt(): string {
  */
 async function pickConcept(problemText: string, concepts: string[]): Promise<string | null> {
   try {
-    const result = await gemini.models.generateContent({
+    const result = await generateWithRetry({
       model: GEMINI_MODEL,
       contents: [
         {
@@ -175,7 +175,7 @@ export async function POST(request: Request) {
   // 1) 비전으로 문제 추출
   let extracted: Extracted | null = null;
   try {
-    const result = await gemini.models.generateContent({
+    const result = await generateWithRetry({
       model: GEMINI_MODEL,
       contents: [
         {
@@ -190,8 +190,7 @@ export async function POST(request: Request) {
     });
     extracted = extractJson<Extracted>(result.text ?? "");
   } catch (e) {
-    const message = e instanceof Error ? e.message : "AI 분석에 실패했습니다.";
-    return NextResponse.json({ ok: false, message: `AI 분석 오류: ${message}` }, { status: 502 });
+    return NextResponse.json({ ok: false, message: friendlyAiError(e) }, { status: 502 });
   }
 
   if (!extracted || !extracted.problemText) {
