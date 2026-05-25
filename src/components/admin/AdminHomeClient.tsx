@@ -108,6 +108,12 @@ export function AdminHomeClient() {
       desc: "CSV·JSON 일괄 등록",
       emoji: "📥",
     },
+    {
+      href: "/admin/ai",
+      title: "AI 추천 설정",
+      desc: "추천 엔진(개념/임베딩) 선택·임베딩 생성",
+      emoji: "🧬",
+    },
   ];
 
   return (

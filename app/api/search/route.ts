@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
 import { gemini, GEMINI_MODEL, ALLOWED_IMAGE_TYPES, extractJson } from "@/lib/ai/gemini";
 import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
+import { embedOne, EMBED_DIM } from "@/lib/ai/embed";
 import { SUBJECTS, SUBJECT_UNITS, isKnownSubject } from "@/lib/taxonomy";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+const SELECT =
+  "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text";
 
 // 비전 호출은 건당 과금이라 PRO라도 하루 횟수를 제한한다(관리자는 예외).
 const SEARCH_LIMIT = 10;
@@ -73,6 +78,65 @@ async function pickConcept(problemText: string, concepts: string[]): Promise<str
   }
 }
 
+async function getSearchEngine(supabase: SupabaseClient): Promise<"concept" | "embedding"> {
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "search_engine")
+    .maybeSingle();
+  return data?.value === "embedding" ? "embedding" : "concept";
+}
+
+// 개념(태그) 기반 매칭: 과목+단원 안에서 개념 1개를 골라 정확 일치 문제만
+async function conceptMatch(supabase: SupabaseClient, extracted: Extracted): Promise<Record<string, unknown>[]> {
+  if (!isKnownSubject(extracted.subject)) return [];
+  const units = SUBJECT_UNITS[extracted.subject as keyof typeof SUBJECT_UNITS] as readonly string[];
+  if (!units.includes(extracted.unit)) return [];
+  const { data: conceptRows } = await supabase
+    .from("questions")
+    .select("concept")
+    .eq("subject", extracted.subject)
+    .eq("unit", extracted.unit)
+    .not("concept", "is", null)
+    .limit(1000);
+  const concepts = Array.from(
+    new Set((conceptRows ?? []).map((r) => ((r.concept as string) ?? "").trim()).filter(Boolean))
+  );
+  const concept = concepts.length > 0 ? await pickConcept(extracted.problemText, concepts) : null;
+  if (!concept) return [];
+  const { data } = await supabase
+    .from("questions")
+    .select(SELECT)
+    .eq("subject", extracted.subject)
+    .eq("unit", extracted.unit)
+    .eq("concept", concept)
+    .limit(5);
+  return data ?? [];
+}
+
+// 임베딩(벡터) 기반 매칭: 전체 DB에서 의미가 가까운 문제 추천 (같은 과목으로 한정)
+async function embeddingMatch(supabase: SupabaseClient, extracted: Extracted): Promise<Record<string, unknown>[]> {
+  try {
+    const vec = await embedOne(`${extracted.subject} ${extracted.unit}\n${extracted.problemText}`, "RETRIEVAL_QUERY");
+    if (vec.length !== EMBED_DIM) return [];
+    const { data: ids } = await supabase.rpc("match_questions", {
+      query_embedding: vec,
+      match_count: 5,
+      p_subject: isKnownSubject(extracted.subject) ? extracted.subject : null,
+    });
+    const idList = ((ids ?? []) as { id: string }[]).map((r) => r.id);
+    if (idList.length === 0) return [];
+    const { data } = await supabase.from("questions").select(SELECT).in("id", idList);
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const byId = new Map(rows.map((d) => [String(d.id), d]));
+    return idList
+      .map((id) => byId.get(String(id)))
+      .filter((x): x is Record<string, unknown> => Boolean(x));
+  } catch {
+    return [];
+  }
+}
+
 export async function POST(request: Request) {
   const auth = await requireTier(request, "pro");
   if (!auth.ok) return auth.response;
@@ -137,37 +201,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // 2) 같은 과목+단원 안에서 "가장 작은 분류(개념)"가 일치하는 문제만 추천
-  const SELECT =
-    "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text";
+  // 2) 추천 엔진(관리자 설정)에 따라 매칭. 임베딩이 비어있거나 결과 없으면 개념매칭으로 폴백.
+  const engine = await getSearchEngine(auth.supabase);
   let matches: Record<string, unknown>[] = [];
-  if (isKnownSubject(extracted.subject)) {
-    const units = SUBJECT_UNITS[extracted.subject as keyof typeof SUBJECT_UNITS] as readonly string[];
-    if (units.includes(extracted.unit)) {
-      // 2-1) 해당 단원에 실제로 존재하는 개념 목록
-      const { data: conceptRows } = await auth.supabase
-        .from("questions")
-        .select("concept")
-        .eq("subject", extracted.subject)
-        .eq("unit", extracted.unit)
-        .not("concept", "is", null)
-        .limit(1000);
-      const concepts = Array.from(
-        new Set((conceptRows ?? []).map((r) => ((r.concept as string) ?? "").trim()).filter(Boolean))
-      );
-      // 2-2) 이 문제에 맞는 개념 1개 선택 → 그 개념과 정확히 일치하는 문제만 추천
-      const concept = concepts.length > 0 ? await pickConcept(extracted.problemText, concepts) : null;
-      if (concept) {
-        const { data } = await auth.supabase
-          .from("questions")
-          .select(SELECT)
-          .eq("subject", extracted.subject)
-          .eq("unit", extracted.unit)
-          .eq("concept", concept)
-          .limit(5);
-        if (data) matches = data;
-      }
-    }
+  if (engine === "embedding") {
+    matches = await embeddingMatch(auth.supabase, extracted);
+    if (matches.length === 0) matches = await conceptMatch(auth.supabase, extracted);
+  } else {
+    matches = await conceptMatch(auth.supabase, extracted);
   }
 
   // 3) 사용량 증가 (성공 시, best-effort)
