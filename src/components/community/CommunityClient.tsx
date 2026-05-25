@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { supabase } from "@/lib/supabase/client";
+import { adminFetch } from "@/lib/api/adminFetch";
 import type { MockUser } from "@/types/auth";
 import type { CommunityPost, PostCategory } from "@/types/community";
 import { CATEGORY_LABEL, CATEGORY_STYLE } from "@/types/community";
@@ -32,12 +33,34 @@ export function CommunityClient() {
   const [newTitle, setNewTitle] = useState("");
   const [newContent, setNewContent] = useState("");
   const [newCategory, setNewCategory] = useState<PostCategory>("question");
+  const [nickname, setNickname] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [realNames, setRealNames] = useState<Record<string, string>>({});
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     authRepo.getCurrentUser().then(setUser);
     fetchPosts("all");
   }, []);
+
+  // 기본 닉네임: 저장된 값 → 사용자 이름
+  useEffect(() => {
+    if (!user) return;
+    const saved = typeof window !== "undefined" ? window.localStorage.getItem("cbt:community:nickname") : null;
+    setNickname(saved || user.name || "");
+  }, [user]);
+
+  // 관리자: 글쓴이 user_id → 실명 매핑 조회 (일반 사용자에겐 내려가지 않음)
+  useEffect(() => {
+    if (user?.role !== "admin" || posts.length === 0) return;
+    const ids = Array.from(new Set(posts.map((p) => p.user_id).filter(Boolean)));
+    adminFetch("/api/admin/community/names", { method: "POST", body: JSON.stringify({ ids }) })
+      .then((r) => r.json())
+      .then((j) => {
+        if (j.ok) setRealNames(j.names ?? {});
+      })
+      .catch(() => {});
+  }, [user, posts]);
 
   async function fetchPosts(activeTab: Tab) {
     setLoading(true);
@@ -141,13 +164,15 @@ export function CommunityClient() {
 
   async function submitPost() {
     if (!newTitle.trim() || !newContent.trim()) return;
+    const nick = nickname.trim();
+    if (!nick) { alert("닉네임을 입력해 주세요."); return; }
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user || !user) { alert("로그인 후 이용해 주세요."); return; }
 
     setSubmitting(true);
     const { error } = await supabase.from("community_posts").insert({
       user_id: session.user.id,
-      user_name: user.name,
+      user_name: nick,
       title: newTitle.trim(),
       content: newContent.trim(),
       category: newCategory,
@@ -157,6 +182,7 @@ export function CommunityClient() {
 
     if (error) { alert("글 작성에 실패했습니다."); }
     else {
+      try { window.localStorage.setItem("cbt:community:nickname", nick); } catch { /* 무시 */ }
       setNewTitle("");
       setNewContent("");
       setNewCategory("question");
@@ -164,6 +190,32 @@ export function CommunityClient() {
       fetchPosts(tab);
     }
     setSubmitting(false);
+  }
+
+  function displayName(post: CommunityPost): string {
+    if (user?.role === "admin" && post.user_id && realNames[post.user_id]) {
+      return `${post.user_name} (${realNames[post.user_id]})`;
+    }
+    return post.user_name;
+  }
+
+  function canDelete(post: CommunityPost): boolean {
+    return !!user && (user.id === post.user_id || user.role === "admin");
+  }
+
+  async function deletePost(post: CommunityPost) {
+    if (!window.confirm("이 글을 삭제할까요? 댓글도 함께 삭제됩니다.")) return;
+    setDeletingId(post.id);
+    try {
+      const res = await adminFetch(`/api/community/posts/${post.id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!json.ok) { alert(json.message ?? "삭제에 실패했습니다."); return; }
+      setPosts((prev) => prev.filter((p) => p.id !== post.id));
+    } catch {
+      alert("삭제 중 오류가 발생했습니다.");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   const TABS: { key: Tab; label: string }[] = [
@@ -257,7 +309,7 @@ export function CommunityClient() {
                 </h2>
               </Link>
               <p className="mt-1 text-xs text-slate-400">
-                {post.user_name} · {formatTimeAgo(post.created_at)}
+                {displayName(post)} · {formatTimeAgo(post.created_at)}
               </p>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
                 <span>댓글 {post.comment_count}</span>
@@ -271,6 +323,16 @@ export function CommunityClient() {
                   <span>{post.liked_by_me ? "❤️" : "🤍"}</span>
                   <span>좋아요 {post.like_count}</span>
                 </button>
+                {canDelete(post) ? (
+                  <button
+                    type="button"
+                    onClick={() => deletePost(post)}
+                    disabled={deletingId === post.id}
+                    className="ml-auto font-bold text-red-500 hover:text-red-600 disabled:opacity-50"
+                  >
+                    {deletingId === post.id ? "삭제 중..." : "삭제"}
+                  </button>
+                ) : null}
               </div>
             </article>
           ))}
@@ -288,6 +350,21 @@ export function CommunityClient() {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 className="mb-4 text-lg font-black text-ink">글 쓰기</h2>
+
+            {/* 닉네임 */}
+            <div className="mb-3">
+              <p className="mb-1 text-xs font-black text-slate-600">닉네임</p>
+              <input
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                maxLength={20}
+                placeholder="표시될 닉네임"
+                className="w-full rounded-lg border border-line px-4 py-2.5 text-sm outline-none focus:border-brand-600"
+              />
+              <p className="mt-1 text-[11px] text-slate-400">
+                다른 사용자에게는 닉네임만 보입니다. (관리자에게는 실명도 함께 표시)
+              </p>
+            </div>
 
             {/* 카테고리 */}
             <div className="mb-3 flex gap-2">
