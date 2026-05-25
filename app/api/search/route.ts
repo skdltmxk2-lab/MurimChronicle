@@ -110,7 +110,7 @@ export async function POST(request: Request) {
     );
   }
 
-  // 2) 추출 결과로 우리 DB에서 유사 문제 매칭 (과목+단원 → 과목 순으로 broaden)
+  // 2) 추출 결과로 DB 매칭 — 과목+단원이 "정확히 일치"하는 문제만 추천 (과목 전체로 넓히지 않음)
   const SELECT =
     "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text";
   const matches: Record<string, unknown>[] = [];
@@ -122,21 +122,8 @@ export async function POST(request: Request) {
         .select(SELECT)
         .eq("subject", extracted.subject)
         .eq("unit", extracted.unit)
-        .limit(6);
+        .limit(8);
       if (data) matches.push(...data);
-    }
-    if (matches.length < 3) {
-      const { data } = await auth.supabase
-        .from("questions")
-        .select(SELECT)
-        .eq("subject", extracted.subject)
-        .limit(6);
-      if (data) {
-        for (const row of data) {
-          if (!matches.some((m) => m.id === row.id)) matches.push(row);
-          if (matches.length >= 6) break;
-        }
-      }
     }
   }
 
@@ -148,6 +135,6 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     extracted,
-    matches: matches.slice(0, 6),
+    matches: matches.slice(0, 8),
   });
 }

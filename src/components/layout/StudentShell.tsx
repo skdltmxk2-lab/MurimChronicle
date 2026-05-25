@@ -14,8 +14,10 @@ import { MobileChatButton } from "@/components/chat/MobileChatButton";
  */
 export function StudentShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  // /student/exams/{examId}, /student/exams/unit-test, /student/exams/weakness/... 등 응시·분석 화면은 풀집중.
-  const focusMode = pathname.startsWith("/student/exams/") && pathname !== "/student/exams";
+  // 응시·분석 화면은 풀집중. 문제검색은 자체 우측 AI 튜터 패널을 쓰므로 실시간 채팅/광고 레일을 숨긴다.
+  const focusMode =
+    pathname === "/student/search" ||
+    (pathname.startsWith("/student/exams/") && pathname !== "/student/exams");
 
   if (focusMode) return <>{children}</>;
 

@@ -166,7 +166,7 @@ export function AiSearchClient() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-5 py-10">
+    <main className={`mx-auto px-5 py-10 ${extracted ? "max-w-6xl" : "max-w-3xl"}`}>
       <div className="mb-6 text-center">
         <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-2xl bg-[#0D1F3C] text-3xl">
           🔍
@@ -176,6 +176,9 @@ export function AiSearchClient() {
           문제를 캡쳐해 올리면 비슷한 문제를 찾아주고, 풀이도 물어볼 수 있어요.
         </p>
       </div>
+
+      <div className={extracted ? "lg:flex lg:items-start lg:gap-6" : ""}>
+        <div className={extracted ? "lg:min-w-0 lg:flex-1" : ""}>
 
       {/* 업로드 */}
       <section className="rounded-2xl border border-line bg-white p-5 shadow-soft">
@@ -250,7 +253,7 @@ export function AiSearchClient() {
           <h2 className="mb-3 text-lg font-black text-ink">추천 문제 {matches.length > 0 ? `(${matches.length})` : ""}</h2>
           {matches.length === 0 ? (
             <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
-              비슷한 문제를 찾지 못했어요. 아래 AI 튜터에게 풀이를 물어보세요.
+              같은 단원의 등록 문제가 없어요. 오른쪽 AI 튜터에게 풀이를 물어보세요.
             </div>
           ) : (
             <ul className="space-y-3">
@@ -305,9 +308,13 @@ export function AiSearchClient() {
         </section>
       ) : null}
 
-      {/* AI 튜터 */}
-      {extracted ? (
-        <section className="mt-6 rounded-2xl border border-line bg-white shadow-soft">
+        </div>
+
+        {/* 오른쪽: AI 튜터 (검색 후 표시) */}
+        {extracted ? (
+          <div className="mt-6 lg:mt-0 lg:w-96 lg:shrink-0">
+            <div className="lg:sticky lg:top-4">
+        <section className="rounded-2xl border border-line bg-white shadow-soft">
           <div className="flex items-center gap-2 border-b border-line bg-[#0D1F3C] px-4 py-3">
             <span className="text-lg">🤖</span>
             <div>
@@ -315,7 +322,7 @@ export function AiSearchClient() {
               <p className="text-[11px] text-slate-300">이 문제 풀이에 대해 무엇이든 물어보세요</p>
             </div>
           </div>
-          <div className="max-h-[50vh] space-y-3 overflow-y-auto px-4 py-4">
+          <div className="h-[55vh] space-y-3 overflow-y-auto px-4 py-4">
             {chat.length === 0 ? (
               <p className="py-6 text-center text-xs text-slate-400">
                 예: &ldquo;이 문제 풀이 과정을 단계별로 알려줘&rdquo;, &ldquo;왜 이 방법을 쓰는지 설명해줘&rdquo;
@@ -364,7 +371,10 @@ export function AiSearchClient() {
             </div>
           </div>
         </section>
-      ) : null}
+            </div>
+          </div>
+        ) : null}
+      </div>
     </main>
   );
 }
