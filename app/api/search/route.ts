@@ -25,7 +25,7 @@ function buildPrompt(): string {
     "설명/코드펜스 없이 JSON 객체 하나만 출력할 것.",
     "",
     "필드:",
-    "- problemText: 문제 본문을 LaTeX로. 인라인 수식은 $...$, 블록 수식은 $$...$$ 사용.",
+    "- problemText: 문제 본문. 한국어 등 일반 텍스트는 그대로 쓰고, 수식만 $...$(인라인)·$$...$$(블록)로 감싼다. 한국어를 \\text{}로 감싸지 말 것.",
     `- subject: 다음 중 하나로만. [${subjectList}]`,
     "- unit: 아래 과목별 단원 목록 중 가장 가까운 것 하나.",
     "- concept: 핵심 개념(짧은 한국어 구).",
@@ -35,8 +35,41 @@ function buildPrompt(): string {
     "과목별 단원:",
     unitList,
     "",
-    '출력 예: {"problemText":"$\\\\int_0^1 x^2\\\\,dx$ 의 값은?","subject":"적분학","unit":"정적분의 계산","concept":"정적분 계산","difficulty":"하","keywords":["정적분","다항함수"]}',
+    '출력 예: {"problemText":"유리함수 $f(x)=\\\\dfrac{ax}{3x+1}$와 그 역함수 $f^{-1}(x)$가 서로 같을 때, 상수 $a$의 값은?","subject":"미분학","unit":"함수","concept":"역함수","difficulty":"중","keywords":["역함수","유리함수"]}',
   ].join("\n");
+}
+
+/**
+ * 같은 과목+단원 안에서, 이 문제에 가장 맞는 '개념(가장 작은 분류)'을 DB 개념 목록 중 하나로 선택.
+ * 적절한 게 없으면 null → 추천 없음(엉뚱한 유형 추천 방지).
+ */
+async function pickConcept(problemText: string, concepts: string[]): Promise<string | null> {
+  try {
+    const result = await gemini.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text:
+                "다음 수학 문제와 가장 일치하는 '개념'을 아래 목록에서 정확히 하나만 골라 JSON으로 답해.\n" +
+                `문제: ${problemText}\n` +
+                `개념 목록: ${JSON.stringify(concepts)}\n` +
+                '반드시 목록에 있는 문자열을 그대로 사용하고, 적절한 것이 없으면 "NONE"으로 답한다.\n' +
+                '형식: {"concept":"..."}',
+            },
+          ],
+        },
+      ],
+      config: { responseMimeType: "application/json" },
+    });
+    const parsed = extractJson<{ concept?: string }>(result.text ?? "");
+    const c = parsed?.concept?.trim();
+    return c && c !== "NONE" && concepts.includes(c) ? c : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function POST(request: Request) {
@@ -110,20 +143,36 @@ export async function POST(request: Request) {
     );
   }
 
-  // 2) 추출 결과로 DB 매칭 — 과목+단원이 "정확히 일치"하는 문제만 추천 (과목 전체로 넓히지 않음)
+  // 2) 같은 과목+단원 안에서 "가장 작은 분류(개념)"가 일치하는 문제만 추천
   const SELECT =
     "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text";
-  const matches: Record<string, unknown>[] = [];
+  let matches: Record<string, unknown>[] = [];
   if (isKnownSubject(extracted.subject)) {
     const units = SUBJECT_UNITS[extracted.subject as keyof typeof SUBJECT_UNITS] as readonly string[];
     if (units.includes(extracted.unit)) {
-      const { data } = await auth.supabase
+      // 2-1) 해당 단원에 실제로 존재하는 개념 목록
+      const { data: conceptRows } = await auth.supabase
         .from("questions")
-        .select(SELECT)
+        .select("concept")
         .eq("subject", extracted.subject)
         .eq("unit", extracted.unit)
-        .limit(8);
-      if (data) matches.push(...data);
+        .not("concept", "is", null)
+        .limit(1000);
+      const concepts = Array.from(
+        new Set((conceptRows ?? []).map((r) => ((r.concept as string) ?? "").trim()).filter(Boolean))
+      );
+      // 2-2) 이 문제에 맞는 개념 1개 선택 → 그 개념과 정확히 일치하는 문제만 추천
+      const concept = concepts.length > 0 ? await pickConcept(extracted.problemText, concepts) : null;
+      if (concept) {
+        const { data } = await auth.supabase
+          .from("questions")
+          .select(SELECT)
+          .eq("subject", extracted.subject)
+          .eq("unit", extracted.unit)
+          .eq("concept", concept)
+          .limit(8);
+        if (data) matches = data;
+      }
     }
   }
 

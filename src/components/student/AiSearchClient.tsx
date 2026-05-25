@@ -253,7 +253,7 @@ export function AiSearchClient() {
           <h2 className="mb-3 text-lg font-black text-ink">추천 문제 {matches.length > 0 ? `(${matches.length})` : ""}</h2>
           {matches.length === 0 ? (
             <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
-              같은 단원의 등록 문제가 없어요. 오른쪽 AI 튜터에게 풀이를 물어보세요.
+              같은 유형(개념)의 등록 문제가 없어요. 오른쪽 AI 튜터에게 풀이를 물어보세요.
             </div>
           ) : (
             <ul className="space-y-3">
