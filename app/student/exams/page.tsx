@@ -497,6 +497,9 @@ export default function StudentExamsPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             5개 과목에서 각 5문항씩, 총 25문항으로 구성된 실전형 모의고사예요. 편입시험과 동일한 형식으로 풀어보세요.
           </p>
+          <p className="mt-1.5 text-xs font-bold text-mint-700">
+            📅 매년 9월~1월 업로드됩니다.
+          </p>
           <div className="mt-3 flex flex-wrap gap-1.5">
             {SUBJECTS.map((s) => (
               <span

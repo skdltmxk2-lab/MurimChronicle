@@ -7,8 +7,8 @@ import { canUseTier } from "@/lib/auth/tierGuard";
 type AdSlotProps = {
   // 광고 네트워크 연동 시 식별용 슬롯 키 (예: "exams-top", "results-inline").
   slot: string;
-  // 레이아웃 형태. banner는 가로형, inline은 본문 사이 작은 박스.
-  format?: "banner" | "inline";
+  // 레이아웃 형태. banner는 가로형, inline은 본문 사이 작은 박스, rail은 세로 스카이스크래퍼.
+  format?: "banner" | "inline" | "rail";
   className?: string;
 };
 
@@ -24,7 +24,8 @@ export function AdSlot({ slot, format = "banner", className = "" }: AdSlotProps)
   // PRO/관리자는 광고 없음.
   if (canUseTier(user, "pro")) return null;
 
-  const minH = format === "banner" ? "min-h-[90px]" : "min-h-[120px]";
+  const minH =
+    format === "banner" ? "min-h-[90px]" : format === "rail" ? "min-h-[600px]" : "min-h-[120px]";
 
   return (
     <div
