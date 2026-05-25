@@ -151,6 +151,22 @@ export function AdminHomeClient() {
           </Link>
         ))}
       </section>
+
+      {/* 편입영어 (수학과 별도) */}
+      <section className="mt-12">
+        <h2 className="mb-3 text-xs font-black uppercase tracking-[0.18em] text-brand-600">편입영어</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <Link
+            href="/admin/english"
+            className="group flex h-full flex-col rounded-xl border border-line bg-white p-6 shadow-soft transition hover:-translate-y-0.5 hover:border-brand-600 hover:shadow-lg"
+          >
+            <div className="text-4xl">🔤</div>
+            <h2 className="mt-3 text-lg font-black text-ink">영어 단어 DB</h2>
+            <p className="mt-1 text-xs leading-5 text-slate-500">단어 일괄 등록·관리 (단어 테스트용)</p>
+            <div className="mt-auto pt-5 text-xs font-black text-brand-700 group-hover:text-brand-800">열기 →</div>
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
