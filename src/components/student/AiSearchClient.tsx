@@ -159,7 +159,7 @@ export function AiSearchClient() {
         <input
           ref={fileRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
+          accept="image/png,image/jpeg,image/webp"
           className="hidden"
           onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
         />
@@ -193,7 +193,7 @@ export function AiSearchClient() {
           >
             <span className="text-3xl">📷</span>
             <span className="text-sm font-bold text-slate-600">문제 이미지를 업로드하세요</span>
-            <span className="text-xs text-slate-400">PNG · JPG · WEBP · GIF</span>
+            <span className="text-xs text-slate-400">PNG · JPG · WEBP</span>
           </button>
         )}
       </section>

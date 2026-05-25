@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import type Anthropic from "@anthropic-ai/sdk";
 import { requireTier } from "@/lib/auth/requireTier";
-import { anthropic, AI_MODEL, ALLOWED_IMAGE_TYPES, extractJson, type ImageMediaType } from "@/lib/ai/anthropic";
+import { gemini, GEMINI_MODEL, ALLOWED_IMAGE_TYPES, extractJson } from "@/lib/ai/gemini";
 import { SUBJECTS, SUBJECT_UNITS, isKnownSubject } from "@/lib/taxonomy";
 
 // 비전 호출은 건당 과금이라 PRO라도 하루 횟수를 제한한다(관리자는 예외).
@@ -26,7 +25,7 @@ function buildPrompt(): string {
     "설명/코드펜스 없이 JSON 객체 하나만 출력할 것.",
     "",
     "필드:",
-    '- problemText: 문제 본문을 LaTeX로. 인라인 수식은 $...$, 블록 수식은 $$...$$ 사용.',
+    "- problemText: 문제 본문을 LaTeX로. 인라인 수식은 $...$, 블록 수식은 $$...$$ 사용.",
     `- subject: 다음 중 하나로만. [${subjectList}]`,
     "- unit: 아래 과목별 단원 목록 중 가장 가까운 것 하나.",
     "- concept: 핵심 개념(짧은 한국어 구).",
@@ -44,7 +43,7 @@ export async function POST(request: Request) {
   const auth = await requireTier(request, "pro");
   if (!auth.ok) return auth.response;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json(
       { ok: false, message: "AI 검색이 아직 설정되지 않았습니다. (서버 키 미설정)" },
       { status: 503 }
@@ -59,7 +58,7 @@ export async function POST(request: Request) {
   }
   if (!ALLOWED_IMAGE_TYPES.has(body.mediaType)) {
     return NextResponse.json(
-      { ok: false, message: "PNG·JPG·WEBP·GIF 이미지만 지원합니다." },
+      { ok: false, message: "PNG·JPG·WEBP 이미지만 지원합니다." },
       { status: 400 }
     );
   }
@@ -85,32 +84,20 @@ export async function POST(request: Request) {
   // 1) 비전으로 문제 추출
   let extracted: Extracted | null = null;
   try {
-    const messages: Anthropic.MessageParam[] = [
-      {
-        role: "user",
-        content: [
-          {
-            type: "image",
-            source: {
-              type: "base64",
-              media_type: body.mediaType as ImageMediaType,
-              data: body.imageBase64,
-            },
-          },
-          { type: "text", text: buildPrompt() },
-        ],
-      },
-    ];
-    const resp = await anthropic.messages.create({
-      model: AI_MODEL,
-      max_tokens: 1500,
-      messages,
+    const result = await gemini.models.generateContent({
+      model: GEMINI_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { inlineData: { mimeType: body.mediaType, data: body.imageBase64 } },
+            { text: buildPrompt() },
+          ],
+        },
+      ],
+      config: { responseMimeType: "application/json" },
     });
-    const text = resp.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n");
-    extracted = extractJson<Extracted>(text);
+    extracted = extractJson<Extracted>(result.text ?? "");
   } catch (e) {
     const message = e instanceof Error ? e.message : "AI 분석에 실패했습니다.";
     return NextResponse.json({ ok: false, message: `AI 분석 오류: ${message}` }, { status: 502 });
@@ -127,11 +114,9 @@ export async function POST(request: Request) {
   const SELECT =
     "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text";
   const matches: Record<string, unknown>[] = [];
-  const subjectOk = isKnownSubject(extracted.subject);
-  if (subjectOk) {
+  if (isKnownSubject(extracted.subject)) {
     const units = SUBJECT_UNITS[extracted.subject as keyof typeof SUBJECT_UNITS] as readonly string[];
-    const unitOk = units.includes(extracted.unit);
-    if (unitOk) {
+    if (units.includes(extracted.unit)) {
       const { data } = await auth.supabase
         .from("questions")
         .select(SELECT)

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import type Anthropic from "@anthropic-ai/sdk";
+import { gemini, GEMINI_MODEL } from "@/lib/ai/gemini";
 import { requireTier } from "@/lib/auth/requireTier";
-import { anthropic, AI_MODEL } from "@/lib/ai/anthropic";
 
 const MAX_TURNS = 20;
 
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
   const auth = await requireTier(request, "pro");
   if (!auth.ok) return auth.response;
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json(
       { ok: false, message: "AI 튜터가 아직 설정되지 않았습니다. (서버 키 미설정)" },
       { status: 503 }
@@ -50,42 +49,39 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "질문이 필요합니다." }, { status: 400 });
   }
 
-  // 대화 길이 제한 + 형식 정규화 (user로 시작/끝, 교대)
+  // 대화 정규화: user/assistant만, 마지막은 user, 길이 제한
   const clean: ChatTurn[] = turns
-    .filter((t) => (t.role === "user" || t.role === "assistant") && typeof t.content === "string" && t.content.trim())
+    .filter(
+      (t) =>
+        (t.role === "user" || t.role === "assistant") &&
+        typeof t.content === "string" &&
+        t.content.trim()
+    )
     .slice(-MAX_TURNS);
   if (clean.length === 0 || clean[clean.length - 1].role !== "user") {
     return NextResponse.json({ ok: false, message: "질문이 필요합니다." }, { status: 400 });
   }
 
-  // 문제 맥락은 대화 내내 고정 → 프롬프트 캐싱 대상으로 둔다(맥락이 충분히 길면 캐시 적중).
-  const system: Anthropic.TextBlockParam[] = [
-    { type: "text", text: TUTOR_SYSTEM },
-    {
-      type: "text",
-      text: buildProblemContext(body.problem),
-      cache_control: { type: "ephemeral" },
-    },
-  ];
-
-  const messages: Anthropic.MessageParam[] = clean.map((t) => ({
-    role: t.role,
-    content: t.content,
+  // Gemini는 assistant 역할을 "model"로 표기한다. 문제 맥락은 systemInstruction에 고정.
+  const contents = clean.map((t) => ({
+    role: t.role === "assistant" ? "model" : "user",
+    parts: [{ text: t.content }],
   }));
 
   try {
-    const resp = await anthropic.messages.create({
-      model: AI_MODEL,
-      max_tokens: 2000,
-      system,
-      messages,
+    const result = await gemini.models.generateContent({
+      model: GEMINI_MODEL,
+      contents,
+      config: {
+        systemInstruction: `${TUTOR_SYSTEM}\n\n${buildProblemContext(body.problem)}`,
+        maxOutputTokens: 2000,
+      },
     });
-    const answer = resp.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("\n")
-      .trim();
-    return NextResponse.json({ ok: true, answer: answer || "답변을 생성하지 못했어요. 다시 질문해 주세요." });
+    const answer = (result.text ?? "").trim();
+    return NextResponse.json({
+      ok: true,
+      answer: answer || "답변을 생성하지 못했어요. 다시 질문해 주세요.",
+    });
   } catch (e) {
     const message = e instanceof Error ? e.message : "AI 튜터 응답에 실패했습니다.";
     return NextResponse.json({ ok: false, message: `AI 튜터 오류: ${message}` }, { status: 502 });
