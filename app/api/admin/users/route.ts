@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { normalizeTier } from "@/types/auth";
 
 export async function GET(request: Request) {
   const auth = await requireAdmin(request);
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
   for (const p of profiles ?? []) {
     profileById.set(p.id as string, {
       name: (p.name as string) ?? "",
-      tier: (p.tier as string) ?? "go",
+      tier: normalizeTier(p.tier),
       isAdmin: Boolean(p.is_admin),
       tierExpiresAt: (p.tier_expires_at as string | null | undefined) ?? null,
       studentGroup: (p.student_group as string | undefined) ?? "external",
@@ -73,7 +74,7 @@ export async function GET(request: Request) {
   const now = Date.now();
   const users = usersPage.users.map((u) => {
     const profile = profileById.get(u.id);
-    const rawTier = profile?.tier ?? "go";
+    const rawTier = profile?.tier ?? "free";
     const expiresAt = profile?.tierExpiresAt ?? null;
     // 만료된 등급은 effectiveTier='free'로 노출. raw는 별도로 같이 보낸다.
     const expired = expiresAt !== null && Date.parse(expiresAt) <= now;

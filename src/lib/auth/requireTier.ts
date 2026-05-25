@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { USER_TIER_ORDER, type UserTier } from "@/types/auth";
+import { USER_TIER_ORDER, normalizeTier, type UserTier } from "@/types/auth";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -88,7 +88,7 @@ export async function requireTier(
   const rawTier = (row?.tier as string | undefined) ?? "free";
   const expiresAt = (row?.tier_expires_at as string | null | undefined) ?? null;
   const expired = expiresAt !== null && Date.parse(expiresAt) <= Date.now();
-  const effectiveTier = (expired ? "free" : rawTier) as UserTier;
+  const effectiveTier: UserTier = expired ? "free" : normalizeTier(rawTier);
 
   if (!isAdmin && !tierAtLeast(effectiveTier, required)) {
     return {

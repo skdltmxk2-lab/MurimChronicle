@@ -7,12 +7,11 @@ import { canUseTier } from "@/lib/auth/tierGuard";
 import type { UserTier } from "@/types/auth";
 
 // 카테고리 마커 태그에 따른 최소 요구 등급.
-//   - 자체 모의고사 / 향후 추가 sub-type: Pro 이상
-//   - 기출유형 / 과목별 모의고사 / 그 외: Plus 이상
+//   - 과목별 모의고사: 무료 개방
+//   - 실전 모의고사(기출유형 / 자체모고 / 파이널 등): PRO 전용
 function requiredTierForExam(tags: string[]): UserTier {
-  if (tags.includes("자체모고")) return "pro";
-  if (tags.includes("유형3") || tags.includes("유형4")) return "pro";
-  return "plus";
+  if (tags.includes("과목별모의고사")) return "free";
+  return "pro";
 }
 
 export function ExamCard({ exam }: { exam: MockExam }) {
@@ -20,7 +19,7 @@ export function ExamCard({ exam }: { exam: MockExam }) {
   const minutes = Math.floor(exam.timeLimitSec / 60);
   const required = requiredTierForExam(exam.tags ?? []);
   const allowed = canUseTier(user, required);
-  const tierLabel = required === "pro" ? "Pro 이상" : "Plus 이상";
+  const tierLabel = "Pro";
 
   return (
     <article className="rounded-lg border border-line bg-white p-5 shadow-soft">

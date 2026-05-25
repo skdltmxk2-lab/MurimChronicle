@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
-const ALLOWED_TIERS = new Set(["free", "go", "plus", "pro", "max"]);
+const ALLOWED_TIERS = new Set(["free", "pro"]);
 const ALLOWED_STUDENT_GROUPS = new Set(["external", "private", "routemath"]);
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -29,7 +29,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (typeof body.tier === "string") {
     if (!ALLOWED_TIERS.has(body.tier)) {
       return NextResponse.json(
-        { ok: false, message: `등급은 free/go/plus/pro/max 중 하나여야 합니다.` },
+        { ok: false, message: `등급은 free/pro 중 하나여야 합니다.` },
         { status: 400 }
       );
     }

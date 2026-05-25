@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { questionRepo } from "@/lib/questions/questionRepository";
-import { attemptRepo } from "@/lib/exam/storage";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
 import type { GeneratedExam } from "@/types/generatedExam";
@@ -61,8 +61,9 @@ function isRealGeneratedExam(exam: GeneratedExam) {
 
 function requiredTierForGeneratedExam(exam: GeneratedExam): UserTier {
   const tags = exam.tags ?? [];
-  if (tags.includes("자체모고") || tags.includes("유형3") || tags.includes("유형4")) return "pro";
-  return "plus";
+  // 과목별 모의고사는 무료 개방. 실전 모의고사(기출유형·자체모고·파이널)는 PRO 전용.
+  if (tags.includes("과목별모의고사")) return "free";
+  return "pro";
 }
 
 function GeneratedExamOption({
@@ -136,65 +137,12 @@ export default function StudentExamsPage() {
   const [selectedRealType, setSelectedRealType] = useState<"past" | "school" | "finalA" | "finalB" | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
-  // 데일리 테스트는 free 등급도 이용 가능. 커뮤니티도 등급 가드 없음.
-  const canDaily = true;
-  const canSubjectMock = canUseTier(user, "go");
-  // 단원별 학습: 모든 등급 가능.
-  // Free: 주1회·10문항 / Go: 일1회 / Plus 이상: 무제한
-  const canUnitPractice = !!user;
-  const isFreeRestricted = !!user && user.role !== "admin" && user.tier === "free";
-  const isGoRestricted = !!user && user.role !== "admin" && user.tier === "go";
-
-  // 단원별 학습: 마지막 응시 시각 (등급별 제한 검사)
-  const [lastUnitTestAt, setLastUnitTestAt] = useState<number | null>(null);
-  useEffect(() => {
-    if (!user || (!isFreeRestricted && !isGoRestricted)) {
-      setLastUnitTestAt(null);
-      return;
-    }
-    let cancelled = false;
-    attemptRepo.listResults().then((rows) => {
-      if (cancelled) return;
-      const unit = rows.filter((r) => r.examId?.startsWith("unit-test-"));
-      if (unit.length === 0) {
-        setLastUnitTestAt(null);
-        return;
-      }
-      const latest = Math.max(...unit.map((r) => Date.parse(r.submittedAt)));
-      setLastUnitTestAt(Number.isFinite(latest) ? latest : null);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [user, isFreeRestricted, isGoRestricted]);
-
-  const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-  const freeBlockedUntil =
-    isFreeRestricted && lastUnitTestAt !== null && Date.now() - lastUnitTestAt < ONE_WEEK_MS
-      ? new Date(lastUnitTestAt + ONE_WEEK_MS)
-      : null;
-  // Go 일1회: 마지막 응시가 오늘이면 차단. 다음 가능은 내일 0시.
-  const goBlockedToday = (() => {
-    if (!isGoRestricted || lastUnitTestAt === null) return false;
-    const last = new Date(lastUnitTestAt);
-    const now = new Date();
-    return (
-      last.getFullYear() === now.getFullYear() &&
-      last.getMonth() === now.getMonth() &&
-      last.getDate() === now.getDate()
-    );
-  })();
-  const goNextAvailable = goBlockedToday
-    ? (() => {
-        const d = new Date();
-        d.setDate(d.getDate() + 1);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      })()
-    : null;
-  // 실전 모의고사 카드 자체는 plus 이상에서만 클릭 가능
-  // (모달 안의 가장 낮은 카테고리=기출기반이 plus).
-  const canRealExam = canUseTier(user, "plus");
+  // 무료 개방 기능: 데일리·단원별 학습·과목별 모의고사·취약유형 모의고사·커뮤니티는
+  // 등급 제한 없이 로그인만 하면 이용할 수 있다 (이 페이지는 비로그인 시 early return).
+  // 실전 모의고사는 PRO 전용.
+  const canRealExam = canUseTier(user, "pro");
+  // 오답 복습은 모든 로그인 사용자에게 열려 있고, 보관 기간만 등급별로 다르다 (무료 7일 / PRO 30일).
+  const isPro = canUseTier(user, "pro");
   const subjectGeneratedExams = generatedExams.filter(isSubjectGeneratedExam);
   const selectedSubjectGeneratedExams = selectedMockSubject
     ? subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedMockSubject))
@@ -262,21 +210,10 @@ export default function StudentExamsPage() {
 
   function startUnitTest() {
     if (!pickedSubject || selectedUnits.length === 0) return;
-    if (freeBlockedUntil) {
-      const ts = freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
-      window.alert(`Free 등급은 단원별 학습을 주 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Plus 이상 등급에서 가능합니다.`);
-      return;
-    }
-    if (goNextAvailable) {
-      const ts = goNextAvailable.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
-      window.alert(`Go 등급은 단원별 학습을 하루 1회만 응시할 수 있어요.\n다음 가능: ${ts}\n\n무제한 이용은 Plus 이상 등급에서 가능합니다.`);
-      return;
-    }
-    const enforcedCount = isFreeRestricted ? 10 : unitTestCount;
     const params = new URLSearchParams({
       subject: pickedSubject,
       units: selectedUnits.join(","),
-      count: String(enforcedCount),
+      count: String(unitTestCount),
       seed: String(Date.now()),
     });
     router.push(`/student/exams/unit-test?${params.toString()}`);
@@ -356,7 +293,7 @@ export default function StudentExamsPage() {
             <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
               준비 중
             </span>
-          ) : canDaily ? (
+          ) : (
             <button
               type="button"
               onClick={() =>
@@ -368,14 +305,10 @@ export default function StudentExamsPage() {
             >
               풀기 →
             </button>
-          ) : (
-            <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
-              🔒 {tierLockMessage("go")}
-            </span>
           )}
         </div>
 
-        {/* Pro 복습: 최근 7일 틀린 문제 */}
+        {/* 복습: 최근 틀린 문제 (무료 7일 / PRO 30일) */}
         <div
           className="mt-3 flex items-center justify-between rounded-xl px-5 py-4 shadow-soft"
           style={{
@@ -385,28 +318,27 @@ export default function StudentExamsPage() {
         >
           <div>
             <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
-              PRO+ · 복습
+              복습
             </p>
             <p className="mt-0.5 text-base font-black text-ink">최근 틀린 문제 다시 보기</p>
             <p className="mt-0.5 text-xs text-slate-700">
-              지난 7일 동안 틀린 문제만 모아 복습 (Pro 이상)
+              {isPro
+                ? "지난 30일 동안 틀린 문제를 모아 복습할 수 있어요."
+                : "무료는 최근 7일 · PRO는 30일치 오답을 모아 복습해요."}
             </p>
           </div>
-          {canUseTier(user, "pro") ? (
-            <Link
-              href="/student/wrong-questions"
-              className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-black text-white hover:opacity-90"
-              style={{ backgroundColor: "#0b8a61" }}
-            >
-              열람 →
-            </Link>
-          ) : (
-            <span className="shrink-0 rounded-lg bg-slate-200 px-5 py-2.5 text-sm font-black text-slate-500">
-              🔒 {tierLockMessage("pro")}
-            </span>
-          )}
+          <Link
+            href="/student/wrong-questions"
+            className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-black text-white hover:opacity-90"
+            style={{ backgroundColor: "#0b8a61" }}
+          >
+            열람 →
+          </Link>
         </div>
       </section>
+
+      {/* 광고 슬롯 (무료 사용자에게만 노출) */}
+      <AdSlot slot="exams-top" className="mb-5" />
 
       {/* 취약유형 모의고사 */}
       <section className="mb-5">
@@ -478,23 +410,13 @@ export default function StudentExamsPage() {
               <div className="font-black text-ink">단원별</div>
             </div>
           </div>
-          {canUnitPractice ? (
-            <button
-              type="button"
-              onClick={openSubjectModal}
-              className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
-            >
-              과목 선택하기
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled
-              className="mt-4 w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
-            >
-              🔒 {tierLockMessage("plus")}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={openSubjectModal}
+            className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
+          >
+            과목 선택하기
+          </button>
         </div>
 
         {/* 과목별 모의고사 */}
@@ -538,26 +460,16 @@ export default function StudentExamsPage() {
             </div>
           </div>
           <div className="mt-4 flex gap-2">
-            {canSubjectMock ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedMockSubject(null);
-                  setSubjectExamOpen(true);
-                }}
-                className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
-              >
-                모의고사 선택하기
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled
-                className="flex-1 cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
-              >
-                🔒 {tierLockMessage("go")}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedMockSubject(null);
+                setSubjectExamOpen(true);
+              }}
+              className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
+            >
+              모의고사 선택하기
+            </button>
             <Link
               href="/student/results?type=subject_mock"
               className="rounded-md border border-orange-300 bg-white px-4 py-3 text-sm font-black text-orange-600 hover:bg-orange-50"
@@ -622,13 +534,12 @@ export default function StudentExamsPage() {
                 모의고사 선택하기 →
               </button>
             ) : (
-              <button
-                type="button"
-                disabled
-                className="w-full cursor-not-allowed rounded-md bg-slate-100 py-3 text-sm font-black text-slate-400"
+              <Link
+                href="/student/pricing"
+                className="flex w-full items-center justify-center gap-1 rounded-md bg-slate-100 py-3 text-sm font-black text-slate-500 hover:bg-slate-200"
               >
-                🔒 {tierLockMessage("plus")}
-              </button>
+                🔒 {tierLockMessage("pro")} · 요금제 보기 →
+              </Link>
             )}
             <Link
               href="/student/results?type=real"
@@ -709,47 +620,23 @@ export default function StudentExamsPage() {
                   <p className="mb-2 text-xs font-black text-slate-600">문제 수</p>
                   <div className="flex gap-2">
                     {COUNT_OPTIONS.map((n) => {
-                      const locked = isFreeRestricted && n !== 10;
-                      const active = (isFreeRestricted ? 10 : unitTestCount) === n;
+                      const active = unitTestCount === n;
                       return (
                         <button
                           key={n}
                           type="button"
-                          onClick={() => !locked && setUnitTestCount(n)}
-                          disabled={locked}
-                          title={locked ? "Free 등급은 10문항만 가능합니다" : undefined}
+                          onClick={() => setUnitTestCount(n)}
                           className={`flex-1 rounded-lg py-2.5 text-sm font-black transition ${
                             active
                               ? "bg-brand-600 text-white"
-                              : locked
-                                ? "cursor-not-allowed border border-dashed border-line bg-slate-50 text-slate-400"
-                                : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                              : "border border-line bg-white text-slate-600 hover:border-brand-400"
                           }`}
                         >
-                          {n}문항{locked ? " 🔒" : ""}
+                          {n}문항
                         </button>
                       );
                     })}
                   </div>
-                  {isFreeRestricted ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      Free 등급은 주 1회 · 10문항만 가능합니다.
-                      {freeBlockedUntil ? (
-                        <span className="ml-1 font-black text-coral-600">
-                          다음 가능: {freeBlockedUntil.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      ) : null}
-                    </p>
-                  ) : isGoRestricted ? (
-                    <p className="mt-2 text-xs text-slate-500">
-                      Go 등급은 하루 1회만 가능합니다.
-                      {goNextAvailable ? (
-                        <span className="ml-1 font-black text-coral-600">
-                          다음 가능: {goNextAvailable.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      ) : null}
-                    </p>
-                  ) : null}
                 </div>
 
                 <div className="flex gap-2">
@@ -918,7 +805,7 @@ export default function StudentExamsPage() {
             {!selectedRealType ? (
               <div className="space-y-2">
                 {[
-                  { key: "past", label: "기출기반 모의고사", desc: "역대 기출 문제 기반", req: "plus" as const, tag: "기출유형" },
+                  { key: "past", label: "기출기반 모의고사", desc: "역대 기출 문제 기반", req: "pro" as const, tag: "기출유형" },
                   { key: "school", label: "학교별 모의고사", desc: "학교별 출제 경향 반영", req: "pro" as const, tag: "자체모고" },
                   { key: "finalA", label: "파이널 모의고사 A", desc: "실전 난이도", req: "pro" as const, tag: "유형3" },
                   { key: "finalB", label: "파이널 모의고사 B", desc: "최고 난이도", req: "pro" as const, tag: "유형4" },

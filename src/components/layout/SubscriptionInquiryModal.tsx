@@ -25,35 +25,19 @@ type ModalContent = {
   ctaLabel: string;
 };
 
-// 등급별 모달 문구. pro/max는 모달 자체를 띄우지 않으므로 여기 포함 안 됨.
+// 등급별 모달 문구. pro는 모달 자체를 띄우지 않으므로 free만 포함.
 function contentForTier(tier: UserTier): ModalContent | null {
   if (tier === "free") {
     return {
-      title: "요금제 가입 문의",
+      title: "PRO로 더 깊게 학습하세요",
       description: (
         <>
-          Go · Plus · Pro · Max 요금제 가입은
+          실전 모의고사 · AI 문제검색 · 30일 오답 복습까지,
           <br />
-          아래 오픈채팅으로 편하게 문의해 주세요.
+          광고 없이 누리는 PRO 가입은 아래 오픈채팅으로 문의해 주세요.
         </>
       ),
       ctaLabel: "카카오톡 오픈채팅으로 문의하기",
-    };
-  }
-  if (tier === "go" || tier === "plus") {
-    return {
-      title: "Pro 등급으로 성적 향상하세요",
-      description: (
-        <>
-          성적 향상의 핵심,{" "}
-          <span className="font-black text-brand-600">취약유형 모의고사</span>로
-          <br />
-          자주 틀리는 유형을 집중 공략해 보세요.
-          <br />
-          업그레이드는 아래 오픈채팅으로 문의해 주세요.
-        </>
-      ),
-      ctaLabel: "Pro 업그레이드 문의하기",
     };
   }
   return null;
@@ -69,11 +53,11 @@ export function SubscriptionInquiryModal() {
       return;
     }
     if (typeof window === "undefined") return;
-    // 관리자, 그리고 pro/max 등급은 팝업 노출 안 함.
+    // 관리자, 그리고 PRO 등급은 팝업 노출 안 함.
     // 플래그가 set돼 있어도 그대로 비움.
     const tier = (user.tier ?? "free") as UserTier;
     const isAdmin = user.role === "admin";
-    if (isAdmin || tier === "pro" || tier === "max") {
+    if (isAdmin || tier === "pro") {
       // 이미 열려 있으면 즉시 닫기. (등급 변경/새 코드 배포 직후 케이스)
       setOpen(false);
       try {

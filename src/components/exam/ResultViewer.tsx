@@ -8,6 +8,7 @@ import { attemptRepo } from "@/lib/exam/storage";
 import type { AttemptResult, MockExam } from "@/types/exam";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
+import { AdSlot } from "@/components/ads/AdSlot";
 
 export function ResultViewer({ attemptId }: { attemptId: string }) {
   const [result, setResult] = useState<AttemptResult | null>(null);
@@ -104,6 +105,9 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
           </Link>
         </div>
       </section>
+
+      {/* 광고 슬롯 (무료 사용자에게만 노출) */}
+      <AdSlot slot="result-top" className="mt-5" />
 
       <section className="mt-5 space-y-4">
         {exam.problems.map((problem, index) => {

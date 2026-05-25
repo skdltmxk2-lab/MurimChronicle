@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
+import { canUseTier } from "@/lib/auth/tierGuard";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
@@ -44,13 +45,14 @@ export function WrongQuestionsClient() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [retentionDays, setRetentionDays] = useState(7);
 
-  const allowed = canUseTier(user, "pro");
+  // PRO(및 관리자)는 30일, 무료는 7일치 오답을 복습할 수 있다.
+  const isPro = canUseTier(user, "pro");
 
   useEffect(() => {
     if (!authChecked) return;
     if (!user) return;
-    if (!allowed) return;
     let cancelled = false;
     setLoading(true);
     setError("");
@@ -63,6 +65,7 @@ export function WrongQuestionsClient() {
           setItems([]);
           return;
         }
+        if (typeof json.retentionDays === "number") setRetentionDays(json.retentionDays);
         setItems(json.items as WrongCardItem[]);
       })
       .catch(() => {
@@ -77,7 +80,7 @@ export function WrongQuestionsClient() {
     return () => {
       cancelled = true;
     };
-  }, [authChecked, user, allowed]);
+  }, [authChecked, user]);
 
   function toggle(problemId: string) {
     setOpenItems((prev) => {
@@ -107,39 +110,35 @@ export function WrongQuestionsClient() {
     );
   }
 
-  if (!allowed) {
-    return (
-      <main className="mx-auto max-w-3xl px-5 py-16">
-        <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
-          <div className="mb-4 text-5xl">🔒</div>
-          <h1 className="text-2xl font-black text-ink">{tierLockMessage("pro")}</h1>
-          <p className="mt-3 text-sm text-slate-600">
-            최근 7일 동안 틀린 문제 다시 보기는 Pro 이상 등급부터 제공됩니다.
-          </p>
-          <Link
-            href="/student/exams"
-            className="mt-6 inline-block rounded-md bg-brand-600 px-6 py-3 text-sm font-black text-white hover:bg-brand-700"
-          >
-            시험 목록으로
-          </Link>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className="mx-auto max-w-3xl px-5 py-8">
       <section className="mb-6">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
-          Pro · 복습
+          복습
         </p>
         <h1 className="mt-1 text-3xl font-black text-ink">최근 틀린 문제</h1>
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          최근 <b className="text-ink">7일</b> 동안 응시한 시험에서 틀린 문제를 모아둡니다.
-          같은 문제를 여러 번 틀렸다면 가장 최근 시도만 보여드립니다. 7일이 지나면 목록에서
+          최근 <b className="text-ink">{retentionDays}일</b> 동안 응시한 시험에서 틀린 문제를 모아둡니다.
+          같은 문제를 여러 번 틀렸다면 가장 최근 시도만 보여드립니다. {retentionDays}일이 지나면 목록에서
           자동으로 빠집니다.
         </p>
       </section>
+
+      {!isPro ? (
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-mint-300 bg-mint-50 px-5 py-4">
+          <p className="text-sm font-bold text-mint-800">
+            ⏳ 무료는 최근 <b>7일</b>치만 복습할 수 있어요. PRO로 업그레이드하면 <b>30일</b>치까지 모아볼 수 있습니다.
+          </p>
+          <Link
+            href="/student/pricing"
+            className="shrink-0 rounded-lg bg-mint-600 px-4 py-2 text-xs font-black text-white hover:bg-mint-700"
+          >
+            PRO 보기 →
+          </Link>
+        </section>
+      ) : null}
+
+      <AdSlot slot="wrong-questions-top" className="mb-6" />
 
       {error ? (
         <div className="mb-4 rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">
@@ -152,11 +151,11 @@ export function WrongQuestionsClient() {
       ) : items && items.length === 0 ? (
         <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
           <div className="mb-4 text-5xl">🎉</div>
-          <h2 className="text-xl font-black text-ink">최근 7일 동안 틀린 문제가 없네요</h2>
+          <h2 className="text-xl font-black text-ink">최근 {retentionDays}일 동안 틀린 문제가 없네요</h2>
           <p className="mt-3 text-sm text-slate-600">
             이 페이지는 시험을 풀고 채점한 뒤에 누적됩니다.
             <br />
-            지금까지 풀어 보신 시험 중 오답이 있었다면 7일이 지나며 사라졌을 수 있어요.
+            지금까지 풀어 보신 시험 중 오답이 있었다면 {retentionDays}일이 지나며 사라졌을 수 있어요.
           </p>
           <Link
             href="/student/exams"

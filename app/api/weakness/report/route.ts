@@ -3,7 +3,8 @@ import { requireTier } from "@/lib/auth/requireTier";
 import { generateReport } from "@/lib/weakness/report";
 
 export async function GET(request: Request) {
-  const auth = await requireTier(request, "pro");
+  // 취약유형 모의고사가 무료 개방되었으므로 응시 후 리포트도 무료로 열람 가능.
+  const auth = await requireTier(request, "free");
   if (!auth.ok) return auth.response;
 
   const url = new URL(request.url);

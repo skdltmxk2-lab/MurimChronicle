@@ -7,11 +7,11 @@ const REPEAT_REQUIRED_QUESTIONS = 100;
 const REPEAT_REQUIRED_DAYS = 3;
 
 export async function GET(request: Request) {
-  // 모든 등급 호출 가능 (free 가드는 통과). 단 generate는 별도로 pro+.
+  // 취약유형 모의고사는 무료 개방. 등급 제한 없이 자격(풀이량/기간)만 본다.
   const auth = await requireTier(request, "free");
   if (!auth.ok) return auth.response;
 
-  const tierAllowed = ["pro", "max"].includes(auth.tier) || auth.isAdmin;
+  const tierAllowed = true;
 
   const stats = await fetchUnitStats(auth.supabase, auth.userId);
   const totalSolved = totalAttemptsFromUnitStats(stats);

@@ -1,14 +1,8 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import type { MockUser, UserTier } from "@/types/auth";
+import { normalizeTier, type MockUser } from "@/types/auth";
 import type { IAuthRepository } from "@/lib/auth/IAuthRepository";
-
-function normalizeTier(value: unknown): UserTier {
-  return value === "go" || value === "plus" || value === "pro" || value === "max"
-    ? value
-    : "free";
-}
 
 // 1-B에서 폐기된 routeroute 모드의 잔재 키. 한 번씩 청소만 한다.
 const LEGACY_ADMIN_USER_KEY = "cbt:auth:admin:v1";

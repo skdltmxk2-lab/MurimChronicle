@@ -14,7 +14,8 @@ const REPEAT_REQUIRED_QUESTIONS = 100;
 const REPEAT_REQUIRED_DAYS = 3;
 
 export async function POST(request: Request) {
-  const auth = await requireTier(request, "pro");
+  // 취약유형 모의고사는 무료 개방. 자격(풀이량/기간)만 검증한다.
+  const auth = await requireTier(request, "free");
   if (!auth.ok) return auth.response;
 
   // 1) 자격 재검증
