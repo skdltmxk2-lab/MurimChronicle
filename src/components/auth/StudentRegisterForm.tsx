@@ -209,6 +209,18 @@ export function StudentRegisterForm() {
             </div>
           ) : null}
 
+          <p className="text-center text-xs leading-5 text-slate-500">
+            회원가입 시{" "}
+            <Link href="/legal/terms" target="_blank" className="font-bold text-brand-700 underline">
+              이용약관
+            </Link>
+            {" "}및{" "}
+            <Link href="/legal/privacy" target="_blank" className="font-bold text-brand-700 underline">
+              개인정보처리방침
+            </Link>
+            에 동의하는 것으로 간주됩니다.
+          </p>
+
           <div className="flex flex-col gap-2 sm:flex-row">
             <button
               type="submit"
