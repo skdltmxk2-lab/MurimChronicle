@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
 import { gemini, GEMINI_MODEL, ALLOWED_IMAGE_TYPES, extractJson } from "@/lib/ai/gemini";
+import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
 import { SUBJECTS, SUBJECT_UNITS, isKnownSubject } from "@/lib/taxonomy";
 
 // 비전 호출은 건당 과금이라 PRO라도 하루 횟수를 제한한다(관리자는 예외).
-const DAILY_LIMIT = 20;
+const SEARCH_LIMIT = 10;
 
 type Extracted = {
   problemText: string;
@@ -97,18 +98,11 @@ export async function POST(request: Request) {
   }
 
   // 일일 한도 체크 (관리자 예외)
-  const today = new Date().toISOString().slice(0, 10);
   if (!auth.isAdmin) {
-    const { data: usage } = await auth.supabase
-      .from("ai_search_usage")
-      .select("count")
-      .eq("user_id", auth.userId)
-      .eq("used_on", today)
-      .maybeSingle();
-    const used = (usage?.count as number | undefined) ?? 0;
-    if (used >= DAILY_LIMIT) {
+    const used = await getDailyUsage(auth.supabase, auth.userId, "search");
+    if (used >= SEARCH_LIMIT) {
       return NextResponse.json(
-        { ok: false, message: `오늘 AI 검색 한도(${DAILY_LIMIT}회)를 모두 사용했어요. 내일 다시 이용해 주세요.` },
+        { ok: false, message: `오늘 AI 검색 한도(${SEARCH_LIMIT}회)를 모두 사용했어요. 내일 다시 이용해 주세요.` },
         { status: 429 }
       );
     }
@@ -178,7 +172,7 @@ export async function POST(request: Request) {
 
   // 3) 사용량 증가 (성공 시, best-effort)
   if (!auth.isAdmin) {
-    await auth.supabase.rpc("increment_ai_search_usage", { p_user_id: auth.userId });
+    await bumpDailyUsage(auth.supabase, auth.userId, "search");
   }
 
   return NextResponse.json({

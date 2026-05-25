@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { gemini, GEMINI_MODEL } from "@/lib/ai/gemini";
 import { requireTier } from "@/lib/auth/requireTier";
+import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
 
 const MAX_TURNS = 20;
+const ASK_LIMIT = 20;
 
 type Recommendation = { n: number; question: string; answer?: string; explanation?: string };
 
@@ -74,6 +76,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "질문이 필요합니다." }, { status: 400 });
   }
 
+  if (!auth.isAdmin) {
+    const used = await getDailyUsage(auth.supabase, auth.userId, "ask");
+    if (used >= ASK_LIMIT) {
+      return NextResponse.json(
+        { ok: false, message: `오늘 AI 튜터 질문 한도(${ASK_LIMIT}회)를 모두 사용했어요. 내일 다시 이용해 주세요.` },
+        { status: 429 }
+      );
+    }
+  }
+
   // Gemini는 assistant 역할을 "model"로 표기한다. 문제 맥락은 systemInstruction에 고정.
   const contents = clean.map((t) => ({
     role: t.role === "assistant" ? "model" : "user",
@@ -90,6 +102,7 @@ export async function POST(request: Request) {
       },
     });
     const answer = (result.text ?? "").trim();
+    if (!auth.isAdmin) await bumpDailyUsage(auth.supabase, auth.userId, "ask");
     return NextResponse.json({
       ok: true,
       answer: answer || "답변을 생성하지 못했어요. 다시 질문해 주세요.",
