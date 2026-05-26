@@ -189,13 +189,21 @@ export function StudentHeader() {
                   placeholder="이메일"
                   type="email"
                 />
-                <input
-                  value={studentPassword}
-                  onChange={(event) => setStudentPassword(event.target.value)}
-                  className="min-w-0 flex-1 basis-32 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                  placeholder="비밀번호"
-                  type="password"
-                />
+                <div className="flex min-w-0 flex-1 basis-32 flex-col gap-1">
+                  <input
+                    value={studentPassword}
+                    onChange={(event) => setStudentPassword(event.target.value)}
+                    className="w-full min-w-0 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                    placeholder="비밀번호"
+                    type="password"
+                  />
+                  <Link
+                    href="/student/forgot-password"
+                    className="self-end px-0.5 text-[11px] font-bold text-slate-500 hover:text-brand-700 hover:underline"
+                  >
+                    비밀번호 찾기
+                  </Link>
+                </div>
                 <button
                   type="submit"
                   disabled={submitting}
@@ -208,12 +216,6 @@ export function StudentHeader() {
                   className="shrink-0 rounded-md bg-brand-600 px-3 py-2 text-sm font-black text-white hover:bg-brand-700"
                 >
                   회원가입
-                </Link>
-                <Link
-                  href="/student/forgot-password"
-                  className="shrink-0 self-center px-1 text-xs font-bold text-slate-500 hover:text-brand-700 hover:underline"
-                >
-                  비밀번호 찾기
                 </Link>
               </form>
             </div>
