@@ -70,7 +70,7 @@ const FEATURES: Feature[] = [
 const STATS = [
   { label: "등록 문항", value: "5,000+" },
   { label: "기출 학교", value: "28개" },
-  { label: "전 문항 · AI 검증", value: "1타강사 풀이" },
+  { label: "1타강사 현장조교 풀이 + AI 검증", value: "전 문항" },
 ];
 
 const TEACHERS = ["장T", "류T", "병권T", "신근T"];
