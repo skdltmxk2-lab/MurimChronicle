@@ -130,7 +130,7 @@ export function StudentHeader() {
         </div>
 
         <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
-          <TrackToggle />
+          {user ? <TrackToggle /> : null}
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
             커뮤니티
           </Link>
@@ -188,8 +188,8 @@ export function StudentHeader() {
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-2 xl:flex-row xl:items-center">
-              <form onSubmit={submitStudent} className="flex min-w-0 flex-wrap gap-2">
+            <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:gap-2">
+              <form onSubmit={submitStudent} className="flex min-w-0 flex-wrap gap-2 xl:flex-1">
                 <input
                   value={studentEmail}
                   onChange={(event) => setStudentEmail(event.target.value)}
@@ -211,13 +211,13 @@ export function StudentHeader() {
                 >
                   {submitting ? "로그인 중..." : "로그인"}
                 </button>
-                <Link
-                  href="/student/register"
-                  className="shrink-0 rounded-md bg-brand-600 px-3 py-2 text-sm font-black text-white hover:bg-brand-700"
-                >
-                  회원가입
-                </Link>
               </form>
+              <Link
+                href="/student/register"
+                className="shrink-0 self-end rounded-md bg-brand-600 px-3 py-2 text-sm font-black text-white hover:bg-brand-700 xl:self-auto"
+              >
+                회원가입
+              </Link>
             </div>
           )}
           {error ? (
