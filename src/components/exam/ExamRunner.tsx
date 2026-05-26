@@ -185,12 +185,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                   <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-black text-brand-700">
                     {problem.subject}
                   </span>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
-                    {problem.unit}
-                  </span>
-                  <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
-                    {problem.concept}
-                  </span>
+                  {/* 단원·개념 태그는 응시 중엔 숨김 (정답 힌트 방지). 결과/해설 화면에선 노출. */}
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
                 <div className="px-5 py-5">
