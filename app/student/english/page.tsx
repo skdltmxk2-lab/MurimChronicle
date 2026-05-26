@@ -18,35 +18,35 @@ const FEATURES: Feature[] = [
     title: "단어 테스트",
     desc: "단어를 보고 알맞은 뜻 고르기 (4지선다)",
     href: "/student/english/words",
-    tint: "bg-brand-50 text-brand-700",
+    tint: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-100",
     cta: "text-brand-700",
   },
   {
     emoji: "✍️",
     title: "단어 문제",
     desc: "문장 속 밑줄 친 단어의 유의어·반의어 고르기",
-    tint: "bg-orange-50 text-orange-700",
+    tint: "bg-orange-50 text-orange-700 dark:bg-orange-500/15 dark:text-orange-200",
     cta: "text-orange-700",
   },
   {
     emoji: "🧠",
     title: "논리 문제",
     desc: "문장 배열·추론 등 논리 유형",
-    tint: "bg-amber-50 text-amber-700",
+    tint: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200",
     cta: "text-amber-700",
   },
   {
     emoji: "🧩",
     title: "문법 문제",
     desc: "핵심 문법 포인트 객관식 문제",
-    tint: "bg-mint-50 text-mint-700",
+    tint: "bg-mint-50 text-mint-700 dark:bg-mint-500/15 dark:text-mint-200",
     cta: "text-mint-700",
   },
   {
     emoji: "📖",
     title: "독해 문제",
     desc: "짧은 지문 + 문항으로 독해 연습",
-    tint: "bg-sky-50 text-sky-700",
+    tint: "bg-sky-50 text-sky-700 dark:bg-sky-500/15 dark:text-sky-200",
     cta: "text-sky-700",
   },
 ];
@@ -77,23 +77,32 @@ export default function EnglishHomePage() {
   return (
     <main className="mx-auto max-w-5xl px-5 py-8">
       {/* 히어로 */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-500 p-7 text-white shadow-soft">
-        <div className="absolute -right-8 -top-10 text-[140px] opacity-15 select-none">🔤</div>
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-white/70">루트편입 · 편입영어</p>
-        <h1 className="mt-2 text-3xl font-black">편입영어 학습</h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-white/85">
-          {user.name}님, 단어부터 차근차근 시작해요.
-        </p>
-        <Link
-          href="/student/english/wrong-words"
-          className="mt-5 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-black text-white backdrop-blur transition hover:bg-white/25"
-        >
-          📌 내 틀린 단어
-        </Link>
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 p-8 text-white shadow-soft">
+        {/* 은은한 광택 장식 */}
+        <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-24 -left-10 size-56 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative">
+          <p className="text-[11px] font-black uppercase tracking-[0.22em] text-white/70">
+            루트편입 · 편입영어
+          </p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">편입영어 학습</h1>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-white/85">
+            {user.name}님, 단어부터 차근차근 시작해요.
+          </p>
+          <Link
+            href="/student/english/wrong-words"
+            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-black text-white ring-1 ring-inset ring-white/25 backdrop-blur transition hover:bg-white/25"
+          >
+            📌 내 틀린 단어
+          </Link>
+        </div>
       </section>
 
       {/* 학습 카드 */}
-      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <h2 className="mb-3 mt-8 text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+        학습 유형
+      </h2>
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map((f) =>
           f.href ? (
             <Link

@@ -9,6 +9,7 @@ import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionI
 import { supabase } from "@/lib/supabase/client";
 import { InquiryModal } from "@/components/inquiry/InquiryModal";
 import { TrackToggle } from "@/components/layout/TrackToggle";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useTrack } from "@/lib/useTrack";
 
 // ROUTE 편입 — Logo Concept A (SPARK).
@@ -115,15 +116,18 @@ export function StudentHeader() {
   return (
     <header className="border-b border-line bg-white/85 backdrop-blur">
       <div className="mx-auto flex min-h-16 max-w-6xl flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <Link href="/student/exams" className="flex items-center gap-3">
-          <RouteMathIcon className="size-9 shrink-0" />
-          <span>
-            <span className="block text-sm font-black text-ink">루트편입</span>
-            <span className="block text-xs text-slate-500">
-              {track === "english" ? "편입영어 맞춤 학습" : "편입수학 맞춤 학습"}
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <Link href="/student/exams" className="flex items-center gap-3">
+            <RouteMathIcon className="size-9 shrink-0" />
+            <span>
+              <span className="block text-sm font-black text-ink">루트편입</span>
+              <span className="block text-xs text-slate-500">
+                {track === "english" ? "편입영어 맞춤 학습" : "편입수학 맞춤 학습"}
+              </span>
             </span>
-          </span>
-        </Link>
+          </Link>
+        </div>
 
         <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
           <TrackToggle />

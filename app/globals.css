@@ -35,3 +35,59 @@ textarea {
 .katex {
   font-size: 1.04em;
 }
+
+/* ─────────────── 다크 모드 ───────────────
+   기존 컴포넌트는 bg-white / border-line / text-ink / text-slate-* 유틸리티를
+   광범위하게 사용하므로, 다크에서는 그 유틸리티를 전역 치환해 한 번에 적용한다. */
+.dark {
+  color-scheme: dark;
+  background: #0b0f17;
+}
+
+.dark body {
+  background:
+    linear-gradient(180deg, rgba(36, 107, 254, 0.12), rgba(11, 15, 23, 0) 360px),
+    #0b0f17;
+  color: #e8ebf2;
+}
+
+/* 표면 */
+.dark .bg-white { background-color: #151b29 !important; }
+.dark .bg-white\/95 { background-color: rgba(21, 27, 41, 0.95) !important; }
+.dark .bg-white\/90 { background-color: rgba(21, 27, 41, 0.9) !important; }
+.dark .bg-white\/85 { background-color: rgba(16, 21, 33, 0.85) !important; }
+.dark .bg-white\/80 { background-color: rgba(21, 27, 41, 0.8) !important; }
+.dark .bg-white\/70 { background-color: rgba(21, 27, 41, 0.55) !important; }
+.dark .bg-white\/60 { background-color: rgba(16, 21, 33, 0.5) !important; }
+
+.dark .bg-slate-50 { background-color: #161c2b !important; }
+.dark .bg-slate-100 { background-color: #1c2335 !important; }
+.dark .bg-slate-200 { background-color: #232c42 !important; }
+
+.dark .hover\:bg-slate-100:hover { background-color: #1c2335 !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #161c2b !important; }
+
+/* 테두리 */
+.dark .border-line { border-color: #28324a !important; }
+
+/* 글자 */
+.dark .text-ink { color: #e8ebf2 !important; }
+.dark .text-slate-700 { color: #ccd4e1 !important; }
+.dark .text-slate-600 { color: #b6bfd0 !important; }
+.dark .text-slate-500 { color: #98a2b6 !important; }
+.dark .text-slate-400 { color: #7e889c !important; }
+.dark .text-slate-300 { color: #687085 !important; }
+
+/* 브랜드 톤 (다크에서 가독성 위해 밝게) */
+.dark .text-brand-700,
+.dark .text-brand-600 { color: #8fb6ff !important; }
+.dark .bg-brand-50 { background-color: rgba(36, 107, 254, 0.16) !important; }
+.dark .hover\:bg-brand-50:hover { background-color: rgba(36, 107, 254, 0.24) !important; }
+.dark .border-brand-200 { border-color: rgba(36, 107, 254, 0.42) !important; }
+
+.dark .text-mint-700 { color: #4cd3a3 !important; }
+.dark .bg-coral-50 { background-color: rgba(213, 74, 49, 0.14) !important; }
+
+/* 그림자 */
+.dark .shadow-soft { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5) !important; }
+.dark .hover\:shadow-lg:hover { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55) !important; }
