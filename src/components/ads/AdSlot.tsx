@@ -21,6 +21,10 @@ type AdSlotProps = {
 export function AdSlot({ slot, format = "banner", className = "" }: AdSlotProps) {
   const { user } = useAuth();
 
+  // 실제 광고가 연동되기 전까지 자리 자체를 숨김.
+  // 광고 네트워크 붙일 때 Vercel 환경변수 NEXT_PUBLIC_ADS_ENABLED=true 로 켠다.
+  if (process.env.NEXT_PUBLIC_ADS_ENABLED !== "true") return null;
+
   // PRO/관리자는 광고 없음.
   if (canUseTier(user, "pro")) return null;
 
