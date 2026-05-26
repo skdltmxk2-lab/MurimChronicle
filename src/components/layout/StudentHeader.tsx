@@ -142,6 +142,14 @@ export function StudentHeader() {
           <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/pricing">
             요금제
           </Link>
+          {!user ? (
+            <Link
+              href="/student/forgot-password"
+              className="ml-1 rounded-md px-2 py-1 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-brand-700"
+            >
+              비밀번호 찾기
+            </Link>
+          ) : null}
           {isAdminUser(user) ? (
             <Link
               className="rounded-md border border-ink bg-ink px-3 py-2 text-xs font-black text-white hover:bg-slate-700"
@@ -189,21 +197,13 @@ export function StudentHeader() {
                   placeholder="이메일"
                   type="email"
                 />
-                <div className="flex min-w-0 flex-1 basis-32 flex-col gap-1">
-                  <input
-                    value={studentPassword}
-                    onChange={(event) => setStudentPassword(event.target.value)}
-                    className="w-full min-w-0 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                    placeholder="비밀번호"
-                    type="password"
-                  />
-                  <Link
-                    href="/student/forgot-password"
-                    className="self-end px-0.5 text-[11px] font-bold text-slate-500 hover:text-brand-700 hover:underline"
-                  >
-                    비밀번호 찾기
-                  </Link>
-                </div>
+                <input
+                  value={studentPassword}
+                  onChange={(event) => setStudentPassword(event.target.value)}
+                  className="min-w-0 flex-1 basis-32 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
+                  placeholder="비밀번호"
+                  type="password"
+                />
                 <button
                   type="submit"
                   disabled={submitting}
