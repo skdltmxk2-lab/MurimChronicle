@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { formatQuestionStat } from "@/lib/stats/displayed";
+import { fetchQuestionCount } from "@/lib/stats/serverFetch";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
@@ -9,14 +11,13 @@ const PRETENDARD_URL =
   "https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/public/static/Pretendard-Bold.otf";
 
 export default async function OpengraphImage() {
-  // Satori는 OTF/TTF/WOFF 지원. Pretendard OTF 를 요청 시 다운로드 (Next.js fetch 캐시 동작).
-  let fontData: ArrayBuffer | null = null;
-  try {
-    const res = await fetch(PRETENDARD_URL, { cache: "force-cache" });
-    if (res.ok) fontData = await res.arrayBuffer();
-  } catch {
-    fontData = null;
-  }
+  // 폰트 + 문항 수 병렬 로드
+  const [fontRes, qCount] = await Promise.all([
+    fetch(PRETENDARD_URL, { cache: "force-cache" }).catch(() => null),
+    fetchQuestionCount(),
+  ]);
+  const fontData = fontRes && fontRes.ok ? await fontRes.arrayBuffer() : null;
+  const qStat = formatQuestionStat(qCount); // "7,500+" 등 — FLOOR 바꾸면 자동 반영
 
   return new ImageResponse(
     (
@@ -98,7 +99,7 @@ export default async function OpengraphImage() {
             display: "flex",
           }}
         >
-          1타강사 현장조교 풀이 · AI 검증 · 5,000+ 문항
+          1타강사 현장조교 풀이 · AI 검증 · {qStat} 문항
         </div>
 
         {/* URL 칩 */}

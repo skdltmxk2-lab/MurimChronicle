@@ -67,14 +67,18 @@ const FEATURES: Feature[] = [
   },
 ];
 
-const TEACHERS = ["장T", "류T", "병권T", "신근T"];
-
-export function LandingClient({ displayedUsers }: { displayedUsers: number }) {
+export function LandingClient({
+  displayedUsers,
+  questionStat,
+}: {
+  displayedUsers: number;
+  questionStat: string;
+}) {
   const router = useRouter();
   const { user, authChecked } = useAuth();
 
   const STATS = [
-    { label: "등록 문항", value: "5,000+" },
+    { label: "등록 문항", value: questionStat },
     { label: "기출 학교", value: "28개" },
     { label: "사용 중인 학생", value: `${displayedUsers.toLocaleString("ko-KR")}명` },
     { label: "1타강사 현장조교 풀이 + AI 검증", value: "전 문항" },
@@ -111,7 +115,7 @@ export function LandingClient({ displayedUsers }: { displayedUsers: number }) {
               가장 빠른 길.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
-              실제 1타강사 현장조교가 만든 <b className="font-black">5,000+ 문항</b> ·
+              실제 1타강사 현장조교가 만든 <b className="font-black">{questionStat} 문항</b> ·
               <b className="font-black">AI 풀이·검색·튜터</b> ·{" "}
               <b className="font-black">취약유형 맞춤 모의고사</b>까지 한 곳에서.
             </p>
@@ -184,20 +188,10 @@ export function LandingClient({ displayedUsers }: { displayedUsers: number }) {
               1타강사 현장조교에게 <br className="sm:hidden" />
               직접 상담받기
             </p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">
-              실제 <b>현장조교 · 현장조교 출신</b>이 카카오톡으로 직접 답변해줘요.
+            <p className="mt-3 text-base leading-7 text-slate-600">
+              <b className="text-ink">김영편입 1타강사 영수 현장조교</b>가
+              <br className="sm:hidden" /> 카카오톡으로 직접 상담해드립니다.
             </p>
-
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-lg leading-9">
-              {TEACHERS.map((t) => (
-                <span
-                  key={t}
-                  className="bg-[linear-gradient(transparent_58%,rgba(253,224,71,0.9)_58%)] px-1.5 font-black tracking-tight text-slate-900 dark:bg-[linear-gradient(transparent_58%,rgba(250,204,21,0.45)_58%)] dark:text-white"
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
 
             <a
               href={KAKAO_CHANNEL_URL}

@@ -10,6 +10,7 @@ import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
+import { formatQuestionStat, formatExamStat } from "@/lib/stats/displayed";
 import type { GeneratedExam } from "@/types/generatedExam";
 import type { UserTier } from "@/types/auth";
 
@@ -17,28 +18,10 @@ const WELCOME_KEY = "cbt:welcome:pending";
 
 const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
+// 통계 포맷터는 src/lib/stats/displayed.ts 한 곳에서 관리.
+// FLOOR 만 바꾸면 랜딩·시험·메타·OG 이미지가 동시에 갱신된다.
+
 const COUNT_OPTIONS = [10, 15, 20];
-
-function formatStat(count: number): string {
-  if (count <= 0) return "-";
-  if (count < 10) return String(count);
-  return `${Math.floor(count / 10) * 10}+`;
-}
-
-// 운영 초기 단계에서는 통계 카드를 임계값 아래로 내려가지 않도록 고정한다.
-// 실제 등록 문항이 5000개를 넘기는 순간부터 자동으로 실제 카운트가 노출된다.
-const QUESTIONS_FLOOR = 5000;
-const EXAMS_FLOOR = 500;
-function formatQuestionStat(count: number): string {
-  if (count >= QUESTIONS_FLOOR) return formatStat(count);
-  return `${QUESTIONS_FLOOR}+`;
-}
-function formatExamStat(count: number): string {
-  // '시험'은 count/10으로 산출되므로 5000을 넘는 순간 500을 자동으로 넘는다.
-  const exams = Math.floor(count / 10);
-  if (exams >= EXAMS_FLOOR) return formatStat(exams);
-  return `${EXAMS_FLOOR}+`;
-}
 
 function getTodayStr(): string {
   const d = new Date();
