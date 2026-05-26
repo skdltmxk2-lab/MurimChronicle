@@ -67,17 +67,18 @@ const FEATURES: Feature[] = [
   },
 ];
 
-const STATS = [
-  { label: "등록 문항", value: "5,000+" },
-  { label: "기출 학교", value: "28개" },
-  { label: "1타강사 현장조교 풀이 + AI 검증", value: "전 문항" },
-];
-
 const TEACHERS = ["장T", "류T", "병권T", "신근T"];
 
-export function LandingClient() {
+export function LandingClient({ displayedUsers }: { displayedUsers: number }) {
   const router = useRouter();
   const { user, authChecked } = useAuth();
+
+  const STATS = [
+    { label: "등록 문항", value: "5,000+" },
+    { label: "기출 학교", value: "28개" },
+    { label: "사용 중인 학생", value: `${displayedUsers.toLocaleString("ko-KR")}명` },
+    { label: "1타강사 현장조교 풀이 + AI 검증", value: "전 문항" },
+  ];
 
   // 이미 로그인된 사용자는 마케팅 랜딩 대신 학습 페이지로
   useEffect(() => {
@@ -131,7 +132,7 @@ export function LandingClient() {
             </div>
 
             {/* 통계 */}
-            <div className="mt-12 grid max-w-2xl grid-cols-3 gap-4 border-t border-white/20 pt-6 sm:gap-6">
+            <div className="mt-10 grid max-w-3xl grid-cols-2 gap-4 border-t border-white/20 pt-5 sm:grid-cols-4 sm:gap-5">
               {STATS.map((s) => (
                 <div key={s.label}>
                   <div className="text-2xl font-black text-white sm:text-3xl">{s.value}</div>
