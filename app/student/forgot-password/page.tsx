@@ -43,8 +43,9 @@ export default function ForgotPasswordPage() {
               <br />
               비밀번호 재설정 링크를 보냈어요.
             </p>
-            <p className="mt-3 text-xs text-slate-500">
+            <p className="mt-3 text-xs leading-5 text-slate-500">
               메일이 안 보이면 <b>스팸함</b>도 확인해주세요.<br />
+              그래도 안 온다면 <b>가입 여부</b>를 확인해주세요.<br />
               링크는 1시간 동안 유효해요.
             </p>
             <Link
