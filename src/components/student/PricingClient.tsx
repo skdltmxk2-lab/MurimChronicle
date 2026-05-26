@@ -197,7 +197,7 @@ export function PricingClient() {
           </thead>
           <tbody>
             {FEATURES.map((row, i) => (
-              <tr key={row.label} className={i % 2 === 0 ? "bg-white" : "bg-slate-50/50"}>
+              <tr key={row.label} className={i % 2 === 0 ? "bg-white" : "bg-slate-50/50 dark:bg-white/[0.03]"}>
                 <td className="sticky left-0 z-10 bg-inherit px-4 py-3 text-left text-sm font-bold text-ink">
                   {row.label}
                   {row.desc ? <div className="mt-0.5 text-xs font-normal text-slate-500">{row.desc}</div> : null}
@@ -208,7 +208,7 @@ export function PricingClient() {
                   return (
                     <td
                       key={t.id}
-                      className={`px-4 py-3 text-center ${isPro ? "border-x-2 border-amber-200/70 bg-amber-50/30" : ""}`}
+                      className={`px-4 py-3 text-center ${isPro ? "border-x-2 border-amber-200/70 bg-amber-50/30 dark:border-amber-500/30 dark:bg-amber-500/[0.07]" : ""}`}
                     >
                       {v === true ? (
                         <span className="text-xl font-black text-mint-600">O</span>
