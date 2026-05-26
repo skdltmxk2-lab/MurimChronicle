@@ -131,11 +131,11 @@ export function LandingClient() {
             </div>
 
             {/* 통계 */}
-            <div className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-white/20 pt-6">
+            <div className="mt-12 grid max-w-2xl grid-cols-3 gap-4 border-t border-white/20 pt-6 sm:gap-6">
               {STATS.map((s) => (
                 <div key={s.label}>
                   <div className="text-2xl font-black text-white sm:text-3xl">{s.value}</div>
-                  <div className="mt-1 text-[11px] font-bold uppercase tracking-wider text-white/70">
+                  <div className="mt-1 text-[11px] font-bold leading-snug text-white/75">
                     {s.label}
                   </div>
                 </div>
