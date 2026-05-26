@@ -148,13 +148,20 @@ textarea {
   animation: intro-gradient 8s ease infinite;
 }
 
+@keyframes hero-cta-swap {
+  0% { opacity: 0; transform: translateY(6px) scale(0.96); }
+  100% { opacity: 1; transform: none; }
+}
+.animate-hero-cta-swap { animation: hero-cta-swap 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
 @media (prefers-reduced-motion: reduce) {
   .animate-intro-backdrop,
   .animate-intro-rise,
   .animate-intro-pop,
   .animate-intro-float,
   .animate-intro-orb,
-  .animate-intro-gradient {
+  .animate-intro-gradient,
+  .animate-hero-cta-swap {
     animation: none !important;
   }
 }

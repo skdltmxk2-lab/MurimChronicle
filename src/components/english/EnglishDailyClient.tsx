@@ -6,17 +6,14 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { adminFetch } from "@/lib/api/adminFetch";
 
 type Q = { id: number; word: string; correct: string; choices: string[] };
-type SetMeta = { setIndex: number; size: number; totalSets: number };
 
-const SET_SIZE = 20;
-const LS_LAST_SET = "cbt:english:word-test:lastSet";
+const LS_LAST_DAILY_SEED = "cbt:english:daily:lastSeed";
 
-export function EnglishWordTestClient() {
+export function EnglishDailyClient() {
   const { user, authChecked } = useAuth();
-  const [totalSets, setTotalSets] = useState<number>(0);
-  const [selectedSet, setSelectedSet] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Q[] | null>(null);
-  const [setMeta, setSetMeta] = useState<SetMeta | null>(null);
+  const [seed, setSeed] = useState<number | null>(null);
+  const [alreadyDone, setAlreadyDone] = useState(false);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [wrongIds, setWrongIds] = useState<number[]>([]);
@@ -25,86 +22,45 @@ export function EnglishWordTestClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const loadMeta = useCallback(async () => {
-    setError("");
-    try {
-      const res = await adminFetch("/api/english/progress");
-      const json = await res.json();
-      if (!json.ok) {
-        setError(json.message ?? "정보를 불러오지 못했어요.");
-        return;
-      }
-      const total = (json.total as number) ?? 0;
-      const ts = Math.max(0, Math.ceil(total / SET_SIZE));
-      setTotalSets(ts);
-    } catch {
-      setError("정보를 불러오지 못했어요.");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (authChecked && user) loadMeta();
-  }, [authChecked, user, loadMeta]);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_LAST_SET);
-      if (raw) {
-        const n = Number(raw);
-        if (Number.isFinite(n) && n >= 1) setSelectedSet(n);
-      }
-    } catch {
-      // 무시
-    }
-  }, []);
-
-  async function startSet(n: number) {
+  const load = useCallback(async () => {
     setLoading(true);
     setError("");
     setQuestions(null);
-    setSetMeta(null);
     setIdx(0);
     setSelected(null);
     setWrongIds([]);
     setCorrectCount(0);
     setFinished(false);
-    setSelectedSet(n);
     try {
-      localStorage.setItem(LS_LAST_SET, String(n));
-    } catch {
-      // 무시
-    }
-    try {
-      const res = await adminFetch(`/api/english/word-test?set=${n}&size=${SET_SIZE}`);
+      const res = await adminFetch("/api/english/daily");
       const json = await res.json();
       if (!json.ok) {
         setError(json.message ?? "불러오는 중 오류가 발생했습니다.");
         return;
       }
       if (!json.questions?.length) {
-        setError(json.message ?? "이 세트의 단어가 부족해요.");
+        setError(json.message ?? "오늘은 출제할 단어가 부족해요.");
         setQuestions([]);
         return;
       }
       setQuestions(json.questions as Q[]);
-      setSetMeta((json.setMeta as SetMeta) ?? null);
+      setSeed((json.seed as number) ?? null);
+      try {
+        const lastSeed = localStorage.getItem(LS_LAST_DAILY_SEED);
+        if (lastSeed && Number(lastSeed) === json.seed) setAlreadyDone(true);
+      } catch {
+        // 무시
+      }
     } catch {
       setError("불러오는 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
-  function backToPicker() {
-    setQuestions(null);
-    setSetMeta(null);
-    setIdx(0);
-    setSelected(null);
-    setWrongIds([]);
-    setCorrectCount(0);
-    setFinished(false);
-    setError("");
-  }
+  useEffect(() => {
+    if (authChecked && user) load();
+  }, [authChecked, user, load]);
 
   function choose(c: string) {
     if (selected || !questions) return;
@@ -118,6 +74,13 @@ export function EnglishWordTestClient() {
     if (!questions) return;
     if (idx + 1 >= questions.length) {
       setFinished(true);
+      if (seed != null) {
+        try {
+          localStorage.setItem(LS_LAST_DAILY_SEED, String(seed));
+        } catch {
+          // 무시
+        }
+      }
       if (wrongIds.length > 0) {
         try {
           await adminFetch("/api/english/wrong-words", {
@@ -153,10 +116,11 @@ export function EnglishWordTestClient() {
     <main className="mx-auto max-w-2xl px-5 py-8">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <Link href="/student/english/words" className="text-xs font-black text-slate-500 hover:text-brand-700">
-            ← 단어
+          <Link href="/student/english" className="text-xs font-black text-slate-500 hover:text-brand-700">
+            ← 편입영어
           </Link>
-          <h1 className="mt-1 text-2xl font-black text-ink">📝 단어 테스트</h1>
+          <h1 className="mt-1 text-2xl font-black text-ink">📅 데일리테스트</h1>
+          <p className="mt-1 text-xs font-bold text-slate-500">매일 다른 영단어 10개 — 가볍게 워밍업해요.</p>
         </div>
         <Link
           href="/student/english/wrong-words"
@@ -166,59 +130,27 @@ export function EnglishWordTestClient() {
         </Link>
       </div>
 
-      {error && !questions ? (
-        <div className="mb-4 rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">{error}</div>
+      {alreadyDone && !finished && questions && questions.length > 0 ? (
+        <div className="mb-4 rounded-md bg-mint-50 px-4 py-3 text-sm font-bold text-mint-700">
+          오늘 데일리테스트는 이미 풀었어요. 한 번 더 풀어도 좋아요!
+        </div>
       ) : null}
 
-      {/* 세트 선택 */}
-      {!questions && !loading ? (
-        totalSets === 0 ? (
-          <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
-            <div className="text-3xl">📭</div>
-            <p className="mt-2 text-sm font-bold text-slate-500">등록된 단어가 부족해요.</p>
-            <button
-              type="button"
-              onClick={loadMeta}
-              className="mt-4 rounded-md bg-brand-600 px-5 py-2.5 text-sm font-black text-white hover:bg-brand-700"
-            >
-              새로고침
-            </button>
-          </div>
-        ) : (
-          <section className="rounded-2xl border border-line bg-white p-6 shadow-soft">
-            <p className="text-sm text-slate-600">
-              총 <b className="text-ink">{totalSets}</b>개 세트(각 {SET_SIZE}개). 등록된 순서대로 끊어 풀 수 있어요.
-            </p>
-            <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
-              {Array.from({ length: totalSets }, (_, i) => i + 1).map((n) => {
-                const isActive = selectedSet === n;
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => startSet(n)}
-                    className={`rounded-md border px-3 py-3 text-sm font-black transition ${
-                      isActive
-                        ? "border-brand-500 bg-brand-50 text-brand-700"
-                        : "border-line bg-white text-slate-700 hover:border-brand-400 hover:bg-brand-50/40"
-                    }`}
-                  >
-                    Set {n}
-                    <span className="block text-[10px] font-bold text-slate-400">
-                      {(n - 1) * SET_SIZE + 1}–{n * SET_SIZE}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-        )
-      ) : null}
-
-      {/* 시험 진행 */}
-      {loading ? (
+      {error ? (
+        <div className="rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
+          <div className="text-3xl">📭</div>
+          <p className="mt-2 text-sm font-bold text-slate-500">{error}</p>
+          <button
+            type="button"
+            onClick={load}
+            className="mt-4 rounded-md bg-brand-600 px-5 py-2.5 text-sm font-black text-white hover:bg-brand-700"
+          >
+            다시 시도
+          </button>
+        </div>
+      ) : loading || !questions ? (
         <p className="py-16 text-center text-sm text-slate-400">불러오는 중...</p>
-      ) : !questions ? null : finished ? (
+      ) : finished ? (
         <section className="rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
           <div className="text-4xl">{correctCount === questions.length ? "🎉" : "📊"}</div>
           <h2 className="mt-3 text-2xl font-black text-ink">
@@ -232,27 +164,17 @@ export function EnglishWordTestClient() {
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <button
               type="button"
-              onClick={() => startSet(setMeta?.setIndex ?? selectedSet ?? 1)}
+              onClick={load}
               className="rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700"
             >
-              이 세트 다시 풀기
+              다시 풀기
             </button>
-            {setMeta && setMeta.setIndex < setMeta.totalSets ? (
-              <button
-                type="button"
-                onClick={() => startSet(setMeta.setIndex + 1)}
-                className="rounded-md bg-mint-600 px-5 py-3 text-sm font-black text-white hover:bg-mint-700"
-              >
-                다음 세트 →
-              </button>
-            ) : null}
-            <button
-              type="button"
-              onClick={backToPicker}
+            <Link
+              href="/student/english/words"
               className="rounded-md border border-line px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
             >
-              세트 다시 고르기
-            </button>
+              단어 학습하러 가기
+            </Link>
             <Link
               href="/student/english/wrong-words"
               className="rounded-md border border-line px-5 py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
@@ -265,7 +187,7 @@ export function EnglishWordTestClient() {
         <section className="rounded-2xl border border-line bg-white p-6 shadow-soft">
           <div className="mb-4 flex items-center justify-between text-xs font-bold text-slate-400">
             <span>
-              Set {setMeta?.setIndex ?? selectedSet} · {idx + 1} / {questions.length}
+              {idx + 1} / {questions.length}
             </span>
             <span>정답 {correctCount}</span>
           </div>
@@ -307,15 +229,7 @@ export function EnglishWordTestClient() {
             >
               {idx + 1 >= questions.length ? "결과 보기" : "다음 →"}
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={backToPicker}
-              className="mt-5 w-full rounded-md border border-line py-3 text-sm font-black text-slate-500 hover:bg-slate-50"
-            >
-              세트 다시 고르기
-            </button>
-          )}
+          ) : null}
         </section>
       )}
     </main>

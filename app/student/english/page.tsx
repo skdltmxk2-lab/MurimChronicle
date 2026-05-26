@@ -4,21 +4,22 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { EnglishWelcomeIntro, ENGLISH_INTRO_KEY } from "@/components/english/EnglishWelcomeIntro";
+import { EnglishHeroCTAs } from "@/components/english/EnglishHeroCTAs";
 
 type Feature = {
   emoji: string;
   title: string;
   desc: string;
   href?: string;
-  tint: string; // 아이콘 칩 배경/글자
-  cta: string; // 활성 카드 CTA 색
+  tint: string;
+  cta: string;
 };
 
 const FEATURES: Feature[] = [
   {
     emoji: "🔤",
     title: "단어 테스트",
-    desc: "단어를 보고 알맞은 뜻 고르기 (4지선다)",
+    desc: "단어 테스트 + 단어 학습을 한 곳에서",
     href: "/student/english/words",
     tint: "bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-100",
     cta: "text-brand-700",
@@ -57,7 +58,6 @@ export default function EnglishHomePage() {
   const { user, authChecked } = useAuth();
   const [introOpen, setIntroOpen] = useState(false);
 
-  // 첫 방문 시 1회 환영 인트로 노출 (이후 localStorage 플래그로 숨김)
   useEffect(() => {
     if (!user) return;
     try {
@@ -95,7 +95,6 @@ export default function EnglishHomePage() {
 
       {/* 히어로 */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 p-8 text-white shadow-soft">
-        {/* 은은한 광택 장식 */}
         <div className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-white/10 blur-2xl" />
         <div className="pointer-events-none absolute -bottom-24 -left-10 size-56 rounded-full bg-white/10 blur-2xl" />
         <div className="relative">
@@ -106,12 +105,7 @@ export default function EnglishHomePage() {
           <p className="mt-2 max-w-xl text-sm leading-6 text-white/85">
             {user.name}님, 단어부터 차근차근 시작해요.
           </p>
-          <Link
-            href="/student/english/wrong-words"
-            className="mt-6 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-black text-white ring-1 ring-inset ring-white/25 backdrop-blur transition hover:bg-white/25"
-          >
-            📌 내 틀린 단어
-          </Link>
+          <EnglishHeroCTAs />
         </div>
       </section>
 
