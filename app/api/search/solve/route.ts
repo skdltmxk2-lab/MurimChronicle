@@ -51,7 +51,8 @@ export async function POST(request: Request) {
           ],
         },
       ],
-      config: { maxOutputTokens: 4000 },
+      // gemini-2.5-flash는 thinking 토큰도 한도에 포함되므로 풀이가 잘리지 않게 넉넉히.
+      config: { maxOutputTokens: 8192 },
     });
     const solution = (result.text ?? "").trim();
     if (!auth.isAdmin) await bumpDailyUsage(auth.supabase, auth.userId, "solve");

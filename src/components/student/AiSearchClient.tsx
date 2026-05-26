@@ -454,7 +454,9 @@ export function AiSearchClient() {
                       <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                         <div
                           className={`max-w-[88%] rounded-2xl px-3 py-2 text-sm leading-7 ${
-                            m.role === "user" ? "rounded-br-sm bg-brand-600 text-white" : "rounded-bl-sm bg-slate-100 text-ink"
+                            m.role === "user"
+                              ? "rounded-br-sm bg-brand-600 text-white"
+                              : "rounded-bl-sm bg-slate-200/70 text-slate-800 dark:bg-slate-700 dark:text-slate-50"
                           }`}
                         >
                           {m.role === "assistant" ? <ContentRenderer contentType="latex" text={m.content} /> : m.content}

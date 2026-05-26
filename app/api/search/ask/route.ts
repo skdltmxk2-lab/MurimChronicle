@@ -98,7 +98,8 @@ export async function POST(request: Request) {
       contents,
       config: {
         systemInstruction: `${TUTOR_SYSTEM}\n\n${buildProblemContext(body.problem)}`,
-        maxOutputTokens: 2000,
+        // gemini-2.5-flash는 thinking 토큰도 이 한도에 포함되므로 답변이 잘리지 않게 넉넉히.
+        maxOutputTokens: 8192,
       },
     });
     const answer = (result.text ?? "").trim();
