@@ -131,10 +131,12 @@ export function StudentHeader() {
 
         <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
           {user ? <TrackToggle /> : null}
-          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
-            커뮤니티
-          </Link>
-          {track === "math" ? (
+          {user ? (
+            <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
+              커뮤니티
+            </Link>
+          ) : null}
+          {user && track === "math" ? (
             <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
               문제검색
             </Link>
