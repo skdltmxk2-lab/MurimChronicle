@@ -26,8 +26,9 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     }
   }
 
-  // 서버/클라이언트 초기 렌더 일치를 위해 마운트 전엔 placeholder
-  const label = !mounted ? "🌙" : dark ? "☀️" : "🌙";
+  // 아이콘은 '현재 모드'를 나타낸다: 라이트=해, 다크=달.
+  // 서버/클라이언트 초기 렌더 일치를 위해 마운트 전엔 라이트 기준(해).
+  const label = !mounted ? "☀️" : dark ? "🌙" : "☀️";
 
   return (
     <button

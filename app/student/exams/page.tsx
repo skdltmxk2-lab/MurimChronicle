@@ -309,15 +309,9 @@ export default function StudentExamsPage() {
         </div>
 
         {/* 복습: 최근 틀린 문제 (무료 7일 / PRO 30일) */}
-        <div
-          className="mt-3 flex items-center justify-between rounded-xl px-5 py-4 shadow-soft"
-          style={{
-            backgroundColor: "#dcfce7",
-            border: "2px solid #0b8a61",
-          }}
-        >
+        <div className="mt-3 flex items-center justify-between rounded-xl border-2 border-mint-600 bg-mint-50 px-5 py-4 shadow-soft dark:bg-mint-500/15">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
+            <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600 dark:text-mint-200">
               복습
             </p>
             <p className="mt-0.5 text-base font-black text-ink">최근 틀린 문제 다시 보기</p>
@@ -329,8 +323,7 @@ export default function StudentExamsPage() {
           </div>
           <Link
             href="/student/wrong-questions"
-            className="shrink-0 rounded-lg px-5 py-2.5 text-sm font-black text-white hover:opacity-90"
-            style={{ backgroundColor: "#0b8a61" }}
+            className="shrink-0 rounded-lg bg-mint-600 px-5 py-2.5 text-sm font-black text-white hover:bg-mint-700"
           >
             열람 →
           </Link>
