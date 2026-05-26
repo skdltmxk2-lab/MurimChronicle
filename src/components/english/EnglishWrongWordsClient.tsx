@@ -12,6 +12,24 @@ export function EnglishWrongWordsClient() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [error, setError] = useState("");
   const [removing, setRemoving] = useState<number | null>(null);
+  const [hideAnswer, setHideAnswer] = useState(false);
+  const [revealed, setRevealed] = useState<Set<number>>(new Set());
+
+  function toggleHide() {
+    setHideAnswer((prev) => {
+      // 가리기 → 보이기로 바뀔 땐 개별 공개 상태도 리셋
+      if (prev) setRevealed(new Set());
+      return !prev;
+    });
+  }
+
+  function revealOne(id: number) {
+    setRevealed((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
 
   async function load() {
     setError("");
@@ -65,12 +83,28 @@ export function EnglishWrongWordsClient() {
 
   return (
     <main className="mx-auto max-w-2xl px-5 py-8">
-      <div className="mb-5 flex items-center justify-between">
-        <div>
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div className="min-w-0">
           <Link href="/student/english" className="text-xs font-black text-slate-500 hover:text-brand-700">← 편입영어</Link>
-          <h1 className="mt-1 text-2xl font-black text-ink">📌 틀린 단어</h1>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+            <h1 className="text-2xl font-black text-ink">📌 틀린 단어</h1>
+            {items && items.length > 0 ? (
+              <button
+                type="button"
+                onClick={toggleHide}
+                aria-pressed={hideAnswer}
+                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black transition ${
+                  hideAnswer
+                    ? "bg-brand-600 text-white hover:bg-brand-700"
+                    : "border border-line text-slate-600 hover:border-brand-400 hover:text-brand-700"
+                }`}
+              >
+                {hideAnswer ? "🙈 답 보이기" : "👁️ 답 가리기"}
+              </button>
+            ) : null}
+          </div>
         </div>
-        <Link href="/student/english/words" className="rounded-md bg-brand-600 px-3 py-2 text-xs font-black text-white hover:bg-brand-700">
+        <Link href="/student/english/words" className="shrink-0 rounded-md bg-brand-600 px-3 py-2 text-xs font-black text-white hover:bg-brand-700">
           단어 테스트
         </Link>
       </div>
@@ -93,14 +127,24 @@ export function EnglishWrongWordsClient() {
         <ul className="space-y-2">
           {items.map((it) => (
             <li key={it.wordId} className="flex items-start justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-soft">
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-base font-black text-ink">{it.word}</span>
                   {it.wrongCount > 1 ? (
                     <span className="rounded-full bg-coral-50 px-2 py-0.5 text-[10px] font-black text-coral-600">{it.wrongCount}회 틀림</span>
                   ) : null}
                 </div>
-                <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
+                {hideAnswer && !revealed.has(it.wordId) ? (
+                  <button
+                    type="button"
+                    onClick={() => revealOne(it.wordId)}
+                    className="mt-1 inline-flex items-center gap-1 rounded-md border border-dashed border-line px-2 py-1 text-[11px] font-black text-slate-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
+                  >
+                    👁️ 답 보기
+                  </button>
+                ) : (
+                  <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
+                )}
               </div>
               <button
                 type="button"

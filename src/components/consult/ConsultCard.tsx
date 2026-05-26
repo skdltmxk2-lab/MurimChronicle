@@ -46,7 +46,7 @@ export function ConsultCard({ className = "" }: { className?: string }) {
       </div>
 
       <p className="mt-3 text-[11px] leading-5 text-slate-500">
-        실제 현장 조교들이 직접 답변해줘요.
+        실제 현장조교 · 현장조교 출신이 직접 상담해줘요.
       </p>
 
       <div className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] py-3 text-sm font-black text-[#191600] shadow-sm transition group-hover:brightness-95">
