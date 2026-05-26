@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { EnglishWelcomeIntro, ENGLISH_INTRO_KEY } from "@/components/english/EnglishWelcomeIntro";
 
 type Feature = {
   emoji: string;
@@ -53,6 +55,17 @@ const FEATURES: Feature[] = [
 
 export default function EnglishHomePage() {
   const { user, authChecked } = useAuth();
+  const [introOpen, setIntroOpen] = useState(false);
+
+  // 첫 방문 시 1회 환영 인트로 노출 (이후 localStorage 플래그로 숨김)
+  useEffect(() => {
+    if (!user) return;
+    try {
+      if (!localStorage.getItem(ENGLISH_INTRO_KEY)) setIntroOpen(true);
+    } catch {
+      // 무시
+    }
+  }, [user]);
 
   if (!authChecked) return null;
 
@@ -76,6 +89,10 @@ export default function EnglishHomePage() {
 
   return (
     <main className="mx-auto max-w-5xl px-5 py-8">
+      {introOpen ? (
+        <EnglishWelcomeIntro name={user.name} onClose={() => setIntroOpen(false)} />
+      ) : null}
+
       {/* 히어로 */}
       <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 p-8 text-white shadow-soft">
         {/* 은은한 광택 장식 */}

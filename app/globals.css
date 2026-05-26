@@ -109,3 +109,52 @@ textarea {
 /* 그림자 */
 .dark .shadow-soft { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5) !important; }
 .dark .hover\:shadow-lg:hover { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55) !important; }
+
+/* ─────────────── 편입영어 환영 인트로 이펙트 ─────────────── */
+@keyframes intro-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes intro-rise {
+  from { opacity: 0; transform: translateY(26px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes intro-pop {
+  0% { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+  60% { opacity: 1; transform: scale(1.12) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes intro-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes intro-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(26px, -22px) scale(1.15); }
+}
+@keyframes intro-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-intro-backdrop { animation: intro-backdrop 0.45s ease-out both; }
+.animate-intro-rise { animation: intro-rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.animate-intro-pop { animation: intro-pop 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.animate-intro-float { animation: intro-float 4s ease-in-out infinite; }
+.animate-intro-orb { animation: intro-orb 9s ease-in-out infinite; }
+.animate-intro-gradient {
+  background-size: 200% 200%;
+  animation: intro-gradient 8s ease infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-intro-backdrop,
+  .animate-intro-rise,
+  .animate-intro-pop,
+  .animate-intro-float,
+  .animate-intro-orb,
+  .animate-intro-gradient {
+    animation: none !important;
+  }
+}
