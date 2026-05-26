@@ -209,6 +209,12 @@ export function StudentHeader() {
                 >
                   회원가입
                 </Link>
+                <Link
+                  href="/student/forgot-password"
+                  className="shrink-0 self-center px-1 text-xs font-bold text-slate-500 hover:text-brand-700 hover:underline"
+                >
+                  비밀번호 찾기
+                </Link>
               </form>
             </div>
           )}

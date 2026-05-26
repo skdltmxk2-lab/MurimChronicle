@@ -13,6 +13,7 @@ import type { QuestionRecord } from "@/types/question";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 import { buildSubjectMockRounds } from "@/lib/exam/buildSubjectMockRounds";
 import { DIFFICULTY_KEYS } from "@/lib/taxonomy";
+import { allowedSubjectsForMonth, monthFromDateString } from "@/lib/daily/schedule";
 
 export const SUBJECT_MOCK_ROUNDS = 3;
 export const SUBJECT_MOCK_PER_ROUND = 20;
@@ -174,12 +175,19 @@ export function UnitTestRunnerPage() {
 
         // 2) assignment 없으면 라운드 로빈 (use_count 적은 문제 우선)
         if (!pickedIds || pickedIds.length === 0) {
+          // 월별 학습 범위로 데일리 풀 좁히기 (아직 안 배운 과목 제외).
+          // 관리자가 명시적으로 지정한 assignment 경로는 위에서 통과하므로 영향 없음.
+          const allowedSubjects = new Set<string>(allowedSubjectsForMonth(monthFromDateString(dateParam)));
+          const scopedPool = dailyPool.filter((q) => allowedSubjects.has(q.subject));
+          // 범위 내 문제가 0개면 안전상 전체 풀로 폴백 (서비스 중단 방지).
+          const randomPool = scopedPool.length > 0 ? scopedPool : dailyPool;
+          const randomCount = Math.min(5, randomPool.length);
           let usageMap = new Map<string, { useCount: number; lastUsedDate: string }>();
           try {
             const { data: usageRows } = await supabase
               .from("daily_usage")
               .select("question_id, last_used_date, use_count")
-              .in("question_id", dailyPool.map((q) => q.id));
+              .in("question_id", randomPool.map((q) => q.id));
             for (const row of usageRows ?? []) {
               usageMap.set(row.question_id as string, {
                 useCount: (row.use_count as number) ?? 0,
@@ -191,12 +199,12 @@ export function UnitTestRunnerPage() {
           }
           // 폴백: 사용 이력 정보가 모두 비어있으면 기존 날짜 시드 알고리즘 유지
           if (usageMap.size === 0) {
-            const sorted = [...dailyPool].sort((a, b) => a.id.localeCompare(b.id));
+            const sorted = [...randomPool].sort((a, b) => a.id.localeCompare(b.id));
             const dayIndex = Math.floor(new Date(`${dateParam}T00:00:00`).getTime() / 86400000);
-            const start = (dayIndex * dailyCount) % sorted.length;
-            pickedIds = [...sorted.slice(start), ...sorted.slice(0, start)].slice(0, dailyCount).map((q) => q.id);
+            const start = sorted.length > 0 ? (dayIndex * randomCount) % sorted.length : 0;
+            pickedIds = [...sorted.slice(start), ...sorted.slice(0, start)].slice(0, randomCount).map((q) => q.id);
           } else {
-            const sortedPool = [...dailyPool].sort((a, b) => {
+            const sortedPool = [...randomPool].sort((a, b) => {
               const ua = usageMap.get(a.id);
               const ub = usageMap.get(b.id);
               const ca = ua?.useCount ?? 0;
@@ -207,7 +215,7 @@ export function UnitTestRunnerPage() {
               if (da !== db) return da < db ? -1 : 1;
               return a.id.localeCompare(b.id);
             });
-            pickedIds = sortedPool.slice(0, dailyCount).map((q) => q.id);
+            pickedIds = sortedPool.slice(0, randomCount).map((q) => q.id);
           }
         }
 

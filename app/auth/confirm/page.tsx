@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import type { EmailOtpType } from "@supabase/supabase-js";
@@ -9,6 +9,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 const ALLOWED_TYPES: EmailOtpType[] = ["signup", "recovery", "invite", "magiclink", "email", "email_change"];
 
 function AuthConfirmInner() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState<string>("");
@@ -27,6 +28,11 @@ function AuthConfirmInner() {
         if (error) {
           setErrorMsg(error.message);
           setStatus("error");
+          return;
+        }
+        // 비밀번호 재설정 흐름이면 새 비밀번호 입력 페이지로 바로 이동
+        if (typeParam === "recovery") {
+          router.replace("/auth/reset-password");
           return;
         }
         setStatus("success");
