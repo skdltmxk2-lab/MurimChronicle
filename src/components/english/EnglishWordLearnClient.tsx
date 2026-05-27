@@ -15,8 +15,8 @@ export function EnglishWordLearnClient() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [hideAnswer, setHideAnswer] = useState(false);
-  const [revealed, setRevealed] = useState<Set<number>>(new Set());
+  const [cardIdx, setCardIdx] = useState(0);
+  const [revealed, setRevealed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
 
@@ -41,7 +41,8 @@ export function EnglishWordLearnClient() {
     setLoading(true);
     setError("");
     setItems(null);
-    setRevealed(new Set());
+    setCardIdx(0);
+    setRevealed(false);
     try {
       const res = await adminFetch(`/api/english/word-learn?day=${n}`);
       const json = await res.json();
@@ -67,19 +68,40 @@ export function EnglishWordLearnClient() {
     })();
   }, [authChecked, user, loadProgress, loadDay]);
 
-  function toggleHide() {
-    setHideAnswer((prev) => {
-      if (prev) setRevealed(new Set());
-      return !prev;
+  const goPrev = useCallback(() => {
+    setCardIdx((i) => {
+      if (i <= 0) return i;
+      setRevealed(false);
+      return i - 1;
     });
-  }
-  function revealOne(id: number) {
-    setRevealed((prev) => {
-      const next = new Set(prev);
-      next.add(id);
-      return next;
+  }, []);
+  const goNext = useCallback(() => {
+    setCardIdx((i) => {
+      if (!items || i >= items.length - 1) return i;
+      setRevealed(false);
+      return i + 1;
     });
-  }
+  }, [items]);
+
+  // 키보드 단축키: ← → 로 이동, 스페이스/엔터로 뜻 토글
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goPrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        setRevealed((r) => !r);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goPrev, goNext]);
 
   async function saveProgress(n: number) {
     setSaving(true);
@@ -123,6 +145,9 @@ export function EnglishWordLearnClient() {
   }
 
   const isReviewingPast = day != null && currentDay != null && day < currentDay;
+  const item = items && cardIdx < items.length ? items[cardIdx] : null;
+  const onLast = items != null && items.length > 0 && cardIdx === items.length - 1;
+  const onFirst = cardIdx === 0;
 
   return (
     <main className="mx-auto max-w-3xl px-5 py-8">
@@ -131,23 +156,7 @@ export function EnglishWordLearnClient() {
           <Link href="/student/english/words" className="text-xs font-black text-slate-500 hover:text-brand-700">
             ← 단어
           </Link>
-          <div className="mt-1 flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-black text-ink">📚 단어 학습</h1>
-            {items && items.length > 0 ? (
-              <button
-                type="button"
-                onClick={toggleHide}
-                aria-pressed={hideAnswer}
-                className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black transition ${
-                  hideAnswer
-                    ? "bg-brand-600 text-white hover:bg-brand-700"
-                    : "border border-line text-slate-600 hover:border-brand-400 hover:text-brand-700"
-                }`}
-              >
-                {hideAnswer ? "🙈 답 보이기" : "👁️ 답 가리기"}
-              </button>
-            ) : null}
-          </div>
+          <h1 className="mt-1 text-2xl font-black text-ink">📚 단어 학습</h1>
           {currentDay != null ? (
             <p className="mt-1 text-xs font-bold text-slate-500">
               현재 진척도: Day {currentDay} / {maxDay}
@@ -205,44 +214,70 @@ export function EnglishWordLearnClient() {
           <div className="text-4xl">📭</div>
           <p className="mt-2 text-sm font-bold text-slate-600">이 day에 단어가 아직 없어요.</p>
         </section>
-      ) : (
+      ) : item ? (
         <>
-          <ul className="space-y-2">
-            {items.map((it, i) => (
-              <li
-                key={it.id}
-                className="flex items-start justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-soft"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-black text-slate-400">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-base font-black text-ink">{it.word}</span>
-                  </div>
-                  {hideAnswer && !revealed.has(it.id) ? (
-                    <button
-                      type="button"
-                      onClick={() => revealOne(it.id)}
-                      className="mt-1 inline-flex items-center gap-1 rounded-md border border-dashed border-line px-2 py-1 text-[11px] font-black text-slate-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
-                    >
-                      👁️ 뜻 보기
-                    </button>
-                  ) : (
-                    <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
+          {/* 진행 인디케이터 */}
+          <div className="mb-3 flex items-center justify-between text-xs font-bold text-slate-500">
+            <span>
+              {cardIdx + 1} / {items.length}
+            </span>
+            <span className="hidden text-slate-400 sm:inline">탭 / Space: 뜻 보기 · ← → : 단어 이동</span>
+          </div>
+
+          {/* 카드 */}
+          <button
+            type="button"
+            onClick={() => setRevealed((r) => !r)}
+            className="group relative flex min-h-[280px] w-full flex-col items-center justify-center rounded-3xl border border-line bg-white p-8 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg"
+          >
+            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-500">
+              Day {day} · {String(cardIdx + 1).padStart(2, "0")}
+            </p>
+            <p className="mt-4 break-words text-4xl font-black text-ink sm:text-5xl">{item.word}</p>
+            {revealed ? (
+              <p className="mt-6 whitespace-pre-wrap text-base leading-7 text-slate-700">{item.meaning}</p>
+            ) : (
+              <p className="mt-6 inline-flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-[11px] font-black text-slate-400 transition group-hover:border-brand-400 group-hover:text-brand-600">
+                👁️ 카드를 눌러 뜻 보기
+              </p>
+            )}
+          </button>
+
+          {/* 네비게이션 */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={onFirst}
+              aria-label="이전 단어"
+              className="flex-1 rounded-xl border border-line bg-white py-3 text-sm font-black text-slate-700 transition hover:border-brand-400 hover:bg-brand-50/40 disabled:opacity-40 disabled:hover:border-line disabled:hover:bg-white"
+            >
+              ← 이전 단어
+            </button>
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={onLast}
+              aria-label="다음 단어"
+              className="flex-1 rounded-xl border border-line bg-white py-3 text-sm font-black text-slate-700 transition hover:border-brand-400 hover:bg-brand-50/40 disabled:opacity-40 disabled:hover:border-line disabled:hover:bg-white"
+            >
+              다음 단어 →
+            </button>
+          </div>
 
           {/* 액션 */}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft">
             <div className="text-xs font-bold text-slate-500">
-              {savedMsg ? <span className="text-mint-700">{savedMsg}</span> : "오늘 day를 끝내면 다음 day로 이어집니다."}
+              {savedMsg ? (
+                <span className="text-mint-700">{savedMsg}</span>
+              ) : onLast ? (
+                "마지막 카드예요. Day를 마무리해 보세요!"
+              ) : (
+                "마지막 카드에서 Day를 끝낼 수 있어요."
+              )}
             </div>
             <div className="flex flex-wrap gap-2">
-              {day != null && currentDay != null && day === currentDay && day < maxDay ? (
+              {day != null && currentDay != null && day === currentDay && day < maxDay && onLast ? (
                 <button
                   type="button"
                   onClick={finishDay}
@@ -252,13 +287,13 @@ export function EnglishWordLearnClient() {
                   {saving ? "저장 중..." : `Day ${day} 끝내고 Day ${day + 1}로 →`}
                 </button>
               ) : null}
-              {day != null && currentDay != null && day === currentDay && day >= maxDay ? (
+              {day != null && currentDay != null && day === currentDay && day >= maxDay && onLast ? (
                 <span className="rounded-md bg-amber-50 px-4 py-2.5 text-sm font-black text-amber-700">
                   마지막 Day에 도달했어요! 🎉
                 </span>
               ) : null}
               <Link
-                href={`/student/english/words/test`}
+                href="/student/english/words/test"
                 className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
                 이 범위로 단어 테스트 →
@@ -266,7 +301,7 @@ export function EnglishWordLearnClient() {
             </div>
           </div>
         </>
-      )}
+      ) : null}
     </main>
   );
 }
