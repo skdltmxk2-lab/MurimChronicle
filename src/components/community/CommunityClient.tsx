@@ -5,6 +5,7 @@ import Link from "next/link";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { supabase } from "@/lib/supabase/client";
 import { adminFetch } from "@/lib/api/adminFetch";
+import { checkBadWords } from "@/lib/moderation/badWords";
 import type { MockUser } from "@/types/auth";
 import type { CommunityPost, PostCategory } from "@/types/community";
 import { CATEGORY_LABEL, CATEGORY_STYLE } from "@/types/community";
@@ -166,30 +167,42 @@ export function CommunityClient() {
     if (!newTitle.trim() || !newContent.trim()) return;
     const nick = nickname.trim();
     if (!nick) { alert("닉네임을 입력해 주세요."); return; }
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user || !user) { alert("로그인 후 이용해 주세요."); return; }
+    if (!user) { alert("로그인 후 이용해 주세요."); return; }
+
+    // 1차 클라이언트 필터(즉시 피드백). 서버에서도 한 번 더 검사한다.
+    const bw = checkBadWords(newTitle, newContent, nick);
+    if (!bw.ok) {
+      alert(`욕설·비방으로 감지되어 등록할 수 없습니다. (감지: "${bw.matched}")`);
+      return;
+    }
 
     setSubmitting(true);
-    const { error } = await supabase.from("community_posts").insert({
-      user_id: session.user.id,
-      user_name: nick,
-      title: newTitle.trim(),
-      content: newContent.trim(),
-      category: newCategory,
-      like_count: 0,
-      comment_count: 0,
-    });
-
-    if (error) { alert("글 작성에 실패했습니다."); }
-    else {
+    try {
+      const res = await adminFetch("/api/community/posts", {
+        method: "POST",
+        body: JSON.stringify({
+          title: newTitle.trim(),
+          content: newContent.trim(),
+          category: newCategory,
+          userName: nick,
+        }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        alert(json.message ?? "글 작성에 실패했습니다.");
+        return;
+      }
       try { window.localStorage.setItem("cbt:community:nickname", nick); } catch { /* 무시 */ }
       setNewTitle("");
       setNewContent("");
       setNewCategory("question");
       setShowCreate(false);
       fetchPosts(tab);
+    } catch {
+      alert("글 작성 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   function displayName(post: CommunityPost): string {

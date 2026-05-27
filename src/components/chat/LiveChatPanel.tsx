@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { adminFetch } from "@/lib/api/adminFetch";
+import { checkBadWords } from "@/lib/moderation/badWords";
 
 type ChatMessage = {
   id: string;
@@ -93,14 +95,28 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
   async function send() {
     const text = input.trim();
     if (!text || sending || !user) return;
+    const bw = checkBadWords(text);
+    if (!bw.ok) {
+      alert(`욕설·비방으로 감지되어 전송할 수 없습니다. (감지: "${bw.matched}")`);
+      return;
+    }
     setSending(true);
-    const { error } = await supabase.from("chat_messages").insert({
-      user_id: user.id,
-      user_name: user.name,
-      content: text.slice(0, MAX_LEN),
-    });
-    if (!error) setInput("");
-    setSending(false);
+    try {
+      const res = await adminFetch("/api/chat/send", {
+        method: "POST",
+        body: JSON.stringify({ content: text.slice(0, MAX_LEN), userName: user.name }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        alert(json.message ?? "메시지 전송에 실패했어요.");
+        return;
+      }
+      setInput("");
+    } catch {
+      alert("메시지 전송 중 오류가 발생했어요.");
+    } finally {
+      setSending(false);
+    }
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {

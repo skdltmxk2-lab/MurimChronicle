@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { supabase } from "@/lib/supabase/client";
 import { adminFetch } from "@/lib/api/adminFetch";
+import { checkBadWords } from "@/lib/moderation/badWords";
 import type { MockUser } from "@/types/auth";
 import type { CommunityComment, CommunityPost } from "@/types/community";
 import { CATEGORY_LABEL, CATEGORY_STYLE } from "@/types/community";
@@ -120,29 +121,39 @@ export function PostDetailClient({ postId }: { postId: string }) {
   }
 
   async function submitComment() {
-    if (!newComment.trim() || !post) return;
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user || !user) { alert("로그인 후 이용해 주세요."); return; }
-
+    if (!newComment.trim() || !post || !user) return;
     const nick = nickname.trim() || user.name;
+
+    const bw = checkBadWords(newComment, nick);
+    if (!bw.ok) {
+      alert(`욕설·비방으로 감지되어 등록할 수 없습니다. (감지: "${bw.matched}")`);
+      return;
+    }
+
     setSubmitting(true);
-    const { error } = await supabase.from("community_comments").insert({
-      post_id: post.id,
-      user_id: session.user.id,
-      user_name: nick,
-      content: newComment.trim(),
-    });
-    if (!error) {
+    try {
+      const res = await adminFetch("/api/community/comments", {
+        method: "POST",
+        body: JSON.stringify({
+          postId: post.id,
+          content: newComment.trim(),
+          userName: nick,
+        }),
+      });
+      const json = await res.json();
+      if (!json.ok) {
+        alert(json.message ?? "댓글 작성에 실패했습니다.");
+        return;
+      }
       try { window.localStorage.setItem("cbt:community:nickname", nick); } catch { /* 무시 */ }
-      await supabase
-        .from("community_posts")
-        .update({ comment_count: post.comment_count + 1 })
-        .eq("id", post.id);
       setPost({ ...post, comment_count: post.comment_count + 1 });
       setNewComment("");
       fetchComments();
+    } catch {
+      alert("댓글 작성 중 오류가 발생했습니다.");
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   function displayName(name: string, userId: string | null): string {
