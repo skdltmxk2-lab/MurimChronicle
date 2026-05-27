@@ -122,21 +122,35 @@ export function EnglishWordLearnClient() {
 
   async function toggleMark(wordId: number) {
     if (markingId === wordId) return;
-    setMarkingId(wordId);
     const already = markedIds.has(wordId);
+
+    // 낙관적 업데이트: UI 를 즉시 토글, 서버 호출은 백그라운드.
+    setMarkedIds((prev) => {
+      const next = new Set(prev);
+      if (already) next.delete(wordId);
+      else next.add(wordId);
+      return next;
+    });
+    setMarkingId(wordId);
+
+    const rollback = () => {
+      setMarkedIds((prev) => {
+        const next = new Set(prev);
+        if (already) next.add(wordId);
+        else next.delete(wordId);
+        return next;
+      });
+    };
+
     try {
       const res = await adminFetch("/api/english/wrong-words", {
         method: "POST",
         body: JSON.stringify(already ? { remove: wordId } : { wrongIds: [wordId] }),
       });
-      const json = await res.json();
-      if (!json.ok) return;
-      setMarkedIds((prev) => {
-        const next = new Set(prev);
-        if (already) next.delete(wordId);
-        else next.add(wordId);
-        return next;
-      });
+      const json = await res.json().catch(() => null);
+      if (!json?.ok) rollback();
+    } catch {
+      rollback();
     } finally {
       setMarkingId(null);
     }
@@ -354,9 +368,8 @@ export function EnglishWordLearnClient() {
                 <button
                   type="button"
                   onClick={() => toggleMark(item.id)}
-                  disabled={markingId === item.id}
                   aria-pressed={markedIds.has(item.id)}
-                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-black transition disabled:opacity-50 ${
+                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-black transition ${
                     markedIds.has(item.id)
                       ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
                       : "border border-line text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
@@ -524,10 +537,9 @@ export function EnglishWordLearnClient() {
                   <button
                     type="button"
                     onClick={() => toggleMark(it.id)}
-                    disabled={markingId === it.id}
                     aria-pressed={marked}
                     title={marked ? "다시 볼 단어 해제" : "다시 볼 단어로 표시"}
-                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-black transition disabled:opacity-50 ${
+                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-black transition ${
                       marked
                         ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
                         : "border border-line text-slate-500 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
