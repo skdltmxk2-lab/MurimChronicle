@@ -14,6 +14,8 @@ const LS_LAST_SET = "cbt:english:word-test:lastSet";
 export function EnglishWordTestClient() {
   const { user, authChecked } = useAuth();
   const [totalSets, setTotalSets] = useState<number>(0);
+  const [unlockedSets, setUnlockedSets] = useState<number>(0);
+  const [currentDay, setCurrentDay] = useState<number>(1);
   const [selectedSet, setSelectedSet] = useState<number | null>(null);
   const [questions, setQuestions] = useState<Q[] | null>(null);
   const [setMeta, setSetMeta] = useState<SetMeta | null>(null);
@@ -37,6 +39,12 @@ export function EnglishWordTestClient() {
       const total = (json.total as number) ?? 0;
       const ts = Math.max(0, Math.ceil(total / SET_SIZE));
       setTotalSets(ts);
+      // 학습 진척도 기준 잠금: currentDay 까지 학습한 단어 = currentDay * wordsPerDay 까지의 세트만 풀 수 있다.
+      const day = (json.currentDay as number) ?? 1;
+      const wordsPerDay = (json.wordsPerDay as number) ?? 50;
+      setCurrentDay(day);
+      const unlocked = Math.min(ts, Math.floor((day * wordsPerDay) / SET_SIZE));
+      setUnlockedSets(Math.max(unlocked, 1));
     } catch {
       setError("정보를 불러오지 못했어요.");
     }
@@ -59,6 +67,10 @@ export function EnglishWordTestClient() {
   }, []);
 
   async function startSet(n: number) {
+    if (unlockedSets > 0 && n > unlockedSets) {
+      setError("아직 학습하지 않은 범위의 세트예요. 단어 학습으로 해당 Day를 끝낸 뒤 풀 수 있어요.");
+      return;
+    }
     setLoading(true);
     setError("");
     setQuestions(null);
@@ -187,24 +199,34 @@ export function EnglishWordTestClient() {
         ) : (
           <section className="rounded-2xl border border-line bg-white p-6 shadow-soft">
             <p className="text-sm text-slate-600">
-              총 <b className="text-ink">{totalSets}</b>개 세트(각 {SET_SIZE}개). 등록된 순서대로 끊어 풀 수 있어요.
+              총 <b className="text-ink">{totalSets}</b>개 세트(각 {SET_SIZE}개) · 현재 Day {currentDay}까지 학습해서{" "}
+              <b className="text-brand-700">Set {unlockedSets}</b>까지 열려 있어요.
+            </p>
+            <p className="mt-1 text-[11px] font-bold text-slate-400">
+              잠긴 세트는 단어 학습으로 해당 Day를 끝내면 자동으로 열립니다.
             </p>
             <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
               {Array.from({ length: totalSets }, (_, i) => i + 1).map((n) => {
                 const isActive = selectedSet === n;
+                const isLocked = n > unlockedSets;
                 return (
                   <button
                     key={n}
                     type="button"
-                    onClick={() => startSet(n)}
+                    onClick={() => !isLocked && startSet(n)}
+                    disabled={isLocked}
+                    aria-disabled={isLocked}
+                    title={isLocked ? "단어 학습으로 이 범위를 학습한 뒤 풀 수 있어요." : undefined}
                     className={`rounded-md border px-3 py-3 text-sm font-black transition ${
-                      isActive
-                        ? "border-brand-500 bg-brand-50 text-brand-700"
-                        : "border-line bg-white text-slate-700 hover:border-brand-400 hover:bg-brand-50/40"
+                      isLocked
+                        ? "cursor-not-allowed border-line bg-slate-50 text-slate-300"
+                        : isActive
+                          ? "border-brand-500 bg-brand-50 text-brand-700"
+                          : "border-line bg-white text-slate-700 hover:border-brand-400 hover:bg-brand-50/40"
                     }`}
                   >
-                    Set {n}
-                    <span className="block text-[10px] font-bold text-slate-400">
+                    {isLocked ? `🔒 Set ${n}` : `Set ${n}`}
+                    <span className={`block text-[10px] font-bold ${isLocked ? "text-slate-300" : "text-slate-400"}`}>
                       {(n - 1) * SET_SIZE + 1}–{n * SET_SIZE}
                     </span>
                   </button>

@@ -6,6 +6,9 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { adminFetch } from "@/lib/api/adminFetch";
 
 type Item = { id: number; word: string; meaning: string };
+type LearnMode = "card" | "list";
+
+const LS_MODE_KEY = "cbt:english:learn:mode";
 
 export function EnglishWordLearnClient() {
   const { user, authChecked } = useAuth();
@@ -15,10 +18,39 @@ export function EnglishWordLearnClient() {
   const [items, setItems] = useState<Item[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // 카드 모드 상태
   const [cardIdx, setCardIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
+
+  // 리스트 모드 상태
+  const [hideAnswer, setHideAnswer] = useState(false);
+  const [revealedIds, setRevealedIds] = useState<Set<number>>(new Set());
+
+  // 학습 모드(카드 / 단어표)
+  const [mode, setMode] = useState<LearnMode>("card");
+
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
+
+  // 모드 localStorage 복구
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(LS_MODE_KEY);
+      if (saved === "list" || saved === "card") setMode(saved);
+    } catch {
+      // 무시
+    }
+  }, []);
+
+  function switchMode(m: LearnMode) {
+    setMode(m);
+    try {
+      localStorage.setItem(LS_MODE_KEY, m);
+    } catch {
+      // 무시
+    }
+  }
 
   const loadProgress = useCallback(async () => {
     try {
@@ -43,6 +75,7 @@ export function EnglishWordLearnClient() {
     setItems(null);
     setCardIdx(0);
     setRevealed(false);
+    setRevealedIds(new Set());
     try {
       const res = await adminFetch(`/api/english/word-learn?day=${n}`);
       const json = await res.json();
@@ -83,8 +116,9 @@ export function EnglishWordLearnClient() {
     });
   }, [items]);
 
-  // 키보드 단축키: ← → 로 이동, 스페이스/엔터로 뜻 토글
+  // 키보드 단축키: 카드 모드일 때만
   useEffect(() => {
+    if (mode !== "card") return;
     function onKey(e: KeyboardEvent) {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA")) return;
@@ -101,7 +135,21 @@ export function EnglishWordLearnClient() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goPrev, goNext]);
+  }, [mode, goPrev, goNext]);
+
+  function toggleHideList() {
+    setHideAnswer((prev) => {
+      if (prev) setRevealedIds(new Set());
+      return !prev;
+    });
+  }
+  function revealOneList(id: number) {
+    setRevealedIds((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+  }
 
   async function saveProgress(n: number) {
     setSaving(true);
@@ -175,9 +223,9 @@ export function EnglishWordLearnClient() {
         <div className="mb-4 rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">{error}</div>
       ) : null}
 
-      {/* Day 선택 */}
+      {/* Day 선택 + 모드 토글 */}
       <section className="mb-4 rounded-2xl border border-line bg-white p-4 shadow-soft">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -195,10 +243,37 @@ export function EnglishWordLearnClient() {
             >
               다음 Day →
             </button>
+            <p className="ml-2 text-sm font-black text-ink">
+              {day != null ? `Day ${day}` : "—"}{" "}
+              <span className="text-xs font-bold text-slate-400">/ {maxDay}</span>
+            </p>
           </div>
-          <p className="text-sm font-black text-ink">
-            {day != null ? `Day ${day}` : "—"} <span className="text-xs font-bold text-slate-400">/ {maxDay}</span>
-          </p>
+
+          {/* 모드 토글 */}
+          <div className="inline-flex rounded-full border border-line bg-slate-50 p-1 text-xs font-black">
+            <button
+              type="button"
+              onClick={() => switchMode("card")}
+              className={`rounded-full px-3 py-1.5 transition ${
+                mode === "card"
+                  ? "bg-brand-600 text-white shadow"
+                  : "text-slate-500 hover:text-brand-700"
+              }`}
+            >
+              📇 카드
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("list")}
+              className={`rounded-full px-3 py-1.5 transition ${
+                mode === "list"
+                  ? "bg-brand-600 text-white shadow"
+                  : "text-slate-500 hover:text-brand-700"
+              }`}
+            >
+              📋 단어표
+            </button>
+          </div>
         </div>
         {isReviewingPast ? (
           <p className="mt-2 text-[11px] font-bold text-amber-600">
@@ -214,54 +289,68 @@ export function EnglishWordLearnClient() {
           <div className="text-4xl">📭</div>
           <p className="mt-2 text-sm font-bold text-slate-600">이 day에 단어가 아직 없어요.</p>
         </section>
-      ) : item ? (
+      ) : mode === "card" && item ? (
         <>
           {/* 진행 인디케이터 */}
           <div className="mb-3 flex items-center justify-between text-xs font-bold text-slate-500">
             <span>
               {cardIdx + 1} / {items.length}
             </span>
-            <span className="hidden text-slate-400 sm:inline">탭 / Space: 뜻 보기 · ← → : 단어 이동</span>
+            <span className="hidden text-slate-400 sm:inline">
+              탭 / Space: 뜻 보기 · ← → : 단어 이동
+            </span>
           </div>
 
-          {/* 카드 */}
-          <button
-            type="button"
-            onClick={() => setRevealed((r) => !r)}
-            className="group relative flex min-h-[280px] w-full flex-col items-center justify-center rounded-3xl border border-line bg-white p-8 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg"
-          >
-            <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-500">
-              Day {day} · {String(cardIdx + 1).padStart(2, "0")}
-            </p>
-            <p className="mt-4 break-words text-4xl font-black text-ink sm:text-5xl">{item.word}</p>
-            {revealed ? (
-              <p className="mt-6 whitespace-pre-wrap text-base leading-7 text-slate-700">{item.meaning}</p>
-            ) : (
-              <p className="mt-6 inline-flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-[11px] font-black text-slate-400 transition group-hover:border-brand-400 group-hover:text-brand-600">
-                👁️ 카드를 눌러 뜻 보기
-              </p>
-            )}
-          </button>
-
-          {/* 네비게이션 */}
-          <div className="mt-4 flex items-center justify-between gap-2">
+          {/* 카드 + 좌우 화살표 */}
+          <div className="relative">
             <button
               type="button"
-              onClick={goPrev}
+              onClick={() => setRevealed((r) => !r)}
+              className="group flex min-h-[280px] w-full flex-col items-center justify-center rounded-3xl border border-line bg-white px-14 py-8 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg sm:px-20"
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-500">
+                Day {day} · {String(cardIdx + 1).padStart(2, "0")}
+              </p>
+              <p className="mt-4 break-words text-4xl font-black text-ink sm:text-5xl">
+                {item.word}
+              </p>
+              {revealed ? (
+                <p className="mt-6 whitespace-pre-wrap text-base leading-7 text-slate-700">
+                  {item.meaning}
+                </p>
+              ) : (
+                <p className="mt-6 inline-flex items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-[11px] font-black text-slate-400 transition group-hover:border-brand-400 group-hover:text-brand-600">
+                  👁️ 카드를 눌러 뜻 보기
+                </p>
+              )}
+            </button>
+
+            {/* 좌측 화살표 */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
               disabled={onFirst}
               aria-label="이전 단어"
-              className="flex-1 rounded-xl border border-line bg-white py-3 text-sm font-black text-slate-700 transition hover:border-brand-400 hover:bg-brand-50/40 disabled:opacity-40 disabled:hover:border-line disabled:hover:bg-white"
+              className="absolute left-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-line bg-white text-2xl font-black text-slate-700 shadow-soft transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-line disabled:hover:bg-white disabled:hover:text-slate-700 sm:left-4 sm:size-12"
             >
-              ← 이전 단어
+              ‹
             </button>
+
+            {/* 우측 화살표 */}
             <button
               type="button"
-              onClick={goNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
               disabled={onLast}
               aria-label="다음 단어"
-              className="flex-1 rounded-xl border border-line bg-white py-3 text-sm font-black text-slate-700 transition hover:border-brand-400 hover:bg-brand-50/40 disabled:opacity-40 disabled:hover:border-line disabled:hover:bg-white"
+              className="absolute right-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full border border-line bg-white text-2xl font-black text-slate-700 shadow-soft transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-line disabled:hover:bg-white disabled:hover:text-slate-700 sm:right-4 sm:size-12"
             >
-              다음 단어 →
+              ›
             </button>
           </div>
 
@@ -288,6 +377,85 @@ export function EnglishWordLearnClient() {
                 </button>
               ) : null}
               {day != null && currentDay != null && day === currentDay && day >= maxDay && onLast ? (
+                <span className="rounded-md bg-amber-50 px-4 py-2.5 text-sm font-black text-amber-700">
+                  마지막 Day에 도달했어요! 🎉
+                </span>
+              ) : null}
+              <Link
+                href="/student/english/words/test"
+                className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                이 범위로 단어 테스트 →
+              </Link>
+            </div>
+          </div>
+        </>
+      ) : mode === "list" ? (
+        <>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm font-black text-ink">Day {day} 단어 {items.length}개</p>
+            <button
+              type="button"
+              onClick={toggleHideList}
+              aria-pressed={hideAnswer}
+              className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-black transition ${
+                hideAnswer
+                  ? "bg-brand-600 text-white hover:bg-brand-700"
+                  : "border border-line text-slate-600 hover:border-brand-400 hover:text-brand-700"
+              }`}
+            >
+              {hideAnswer ? "🙈 답 보이기" : "👁️ 답 가리기"}
+            </button>
+          </div>
+          <ul className="space-y-2">
+            {items.map((it, i) => (
+              <li
+                key={it.id}
+                className="flex items-start justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-soft"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[10px] font-black text-slate-400">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="text-base font-black text-ink">{it.word}</span>
+                  </div>
+                  {hideAnswer && !revealedIds.has(it.id) ? (
+                    <button
+                      type="button"
+                      onClick={() => revealOneList(it.id)}
+                      className="mt-1 inline-flex items-center gap-1 rounded-md border border-dashed border-line px-2 py-1 text-[11px] font-black text-slate-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
+                    >
+                      👁️ 뜻 보기
+                    </button>
+                  ) : (
+                    <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft">
+            <div className="text-xs font-bold text-slate-500">
+              {savedMsg ? (
+                <span className="text-mint-700">{savedMsg}</span>
+              ) : (
+                "다 외웠으면 이 Day를 마무리해 주세요."
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {day != null && currentDay != null && day === currentDay && day < maxDay ? (
+                <button
+                  type="button"
+                  onClick={finishDay}
+                  disabled={saving}
+                  className="rounded-md bg-mint-600 px-5 py-2.5 text-sm font-black text-white hover:bg-mint-700 disabled:opacity-50"
+                >
+                  {saving ? "저장 중..." : `Day ${day} 끝내고 Day ${day + 1}로 →`}
+                </button>
+              ) : null}
+              {day != null && currentDay != null && day === currentDay && day >= maxDay ? (
                 <span className="rounded-md bg-amber-50 px-4 py-2.5 text-sm font-black text-amber-700">
                   마지막 Day에 도달했어요! 🎉
                 </span>
