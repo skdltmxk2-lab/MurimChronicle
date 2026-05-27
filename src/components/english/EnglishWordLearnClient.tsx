@@ -30,6 +30,10 @@ export function EnglishWordLearnClient() {
   // 학습 모드(카드 / 단어표)
   const [mode, setMode] = useState<LearnMode>("card");
 
+  // 다시 볼 단어 마킹 — 기존 english_wrong_words 와 같은 풀을 사용한다.
+  const [markedIds, setMarkedIds] = useState<Set<number>>(new Set());
+  const [markingId, setMarkingId] = useState<number | null>(null);
+
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState("");
 
@@ -93,13 +97,50 @@ export function EnglishWordLearnClient() {
     }
   }, []);
 
+  const loadMarked = useCallback(async () => {
+    try {
+      const res = await adminFetch("/api/english/wrong-words");
+      const json = await res.json();
+      if (!json.ok) return;
+      const ids = new Set<number>(
+        (json.items as { wordId: number }[]).map((it) => it.wordId)
+      );
+      setMarkedIds(ids);
+    } catch {
+      // 무시 — 마킹 목록 로드 실패는 학습 자체를 막지 않음
+    }
+  }, []);
+
   useEffect(() => {
     if (!authChecked || !user) return;
     (async () => {
       const p = await loadProgress();
       if (p) await loadDay(p.currentDay);
+      await loadMarked();
     })();
-  }, [authChecked, user, loadProgress, loadDay]);
+  }, [authChecked, user, loadProgress, loadDay, loadMarked]);
+
+  async function toggleMark(wordId: number) {
+    if (markingId === wordId) return;
+    setMarkingId(wordId);
+    const already = markedIds.has(wordId);
+    try {
+      const res = await adminFetch("/api/english/wrong-words", {
+        method: "POST",
+        body: JSON.stringify(already ? { remove: wordId } : { wrongIds: [wordId] }),
+      });
+      const json = await res.json();
+      if (!json.ok) return;
+      setMarkedIds((prev) => {
+        const next = new Set(prev);
+        if (already) next.delete(wordId);
+        else next.add(wordId);
+        return next;
+      });
+    } finally {
+      setMarkingId(null);
+    }
+  }
 
   const goPrev = useCallback(() => {
     setCardIdx((i) => {
@@ -291,14 +332,31 @@ export function EnglishWordLearnClient() {
         </section>
       ) : mode === "card" && item ? (
         <>
-          {/* 진행 인디케이터 */}
-          <div className="mb-3 flex items-center justify-between text-xs font-bold text-slate-500">
+          {/* 진행 인디케이터 + 마킹 토글 */}
+          <div className="mb-3 flex items-center justify-between gap-2 text-xs font-bold text-slate-500">
             <span>
               {cardIdx + 1} / {items.length}
             </span>
-            <span className="hidden text-slate-400 sm:inline">
-              탭 / Space: 뜻 보기 · ← → : 단어 이동
-            </span>
+            <div className="flex items-center gap-2">
+              {item ? (
+                <button
+                  type="button"
+                  onClick={() => toggleMark(item.id)}
+                  disabled={markingId === item.id}
+                  aria-pressed={markedIds.has(item.id)}
+                  className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-black transition disabled:opacity-50 ${
+                    markedIds.has(item.id)
+                      ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                      : "border border-line text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+                  }`}
+                >
+                  {markedIds.has(item.id) ? "🔖 다시 볼 단어 (해제)" : "🔖 다시 볼 단어"}
+                </button>
+              ) : null}
+              <span className="hidden text-slate-400 sm:inline">
+                탭 / Space: 뜻 보기 · ← → : 단어 이동
+              </span>
+            </div>
           </div>
 
           {/* 카드 + 좌우 화살표 */}
@@ -306,7 +364,11 @@ export function EnglishWordLearnClient() {
             <button
               type="button"
               onClick={() => setRevealed((r) => !r)}
-              className="group flex min-h-[280px] w-full flex-col items-center justify-center rounded-3xl border border-line bg-white px-14 py-8 text-center shadow-soft transition hover:-translate-y-0.5 hover:border-brand-400 hover:shadow-lg sm:px-20"
+              className={`group flex min-h-[280px] w-full flex-col items-center justify-center rounded-3xl border bg-white px-14 py-8 text-center shadow-soft transition hover:-translate-y-0.5 hover:shadow-lg sm:px-20 ${
+                markedIds.has(item.id)
+                  ? "border-amber-300 ring-2 ring-amber-100 hover:border-amber-400"
+                  : "border-line hover:border-brand-400"
+              }`}
             >
               <p className="text-[10px] font-black uppercase tracking-[0.22em] text-brand-500">
                 Day {day} · {String(cardIdx + 1).padStart(2, "0")}
@@ -382,6 +444,17 @@ export function EnglishWordLearnClient() {
                 </span>
               ) : null}
               <Link
+                href="/student/english/wrong-words"
+                className="rounded-md border border-line px-4 py-2.5 text-sm font-black text-slate-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+              >
+                📌 내 틀린 단어
+                {markedIds.size > 0 ? (
+                  <span className="ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+                    {markedIds.size}
+                  </span>
+                ) : null}
+              </Link>
+              <Link
                 href="/student/english/words/test"
                 className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
@@ -408,32 +481,51 @@ export function EnglishWordLearnClient() {
             </button>
           </div>
           <ul className="space-y-2">
-            {items.map((it, i) => (
-              <li
-                key={it.id}
-                className="flex items-start justify-between gap-3 rounded-xl border border-line bg-white px-4 py-3 shadow-soft"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] font-black text-slate-400">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="text-base font-black text-ink">{it.word}</span>
+            {items.map((it, i) => {
+              const marked = markedIds.has(it.id);
+              return (
+                <li
+                  key={it.id}
+                  className={`flex items-start justify-between gap-3 rounded-xl border bg-white px-4 py-3 shadow-soft ${
+                    marked ? "border-amber-300 ring-1 ring-amber-100" : "border-line"
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-[10px] font-black text-slate-400">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="text-base font-black text-ink">{it.word}</span>
+                    </div>
+                    {hideAnswer && !revealedIds.has(it.id) ? (
+                      <button
+                        type="button"
+                        onClick={() => revealOneList(it.id)}
+                        className="mt-1 inline-flex items-center gap-1 rounded-md border border-dashed border-line px-2 py-1 text-[11px] font-black text-slate-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
+                      >
+                        👁️ 뜻 보기
+                      </button>
+                    ) : (
+                      <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
+                    )}
                   </div>
-                  {hideAnswer && !revealedIds.has(it.id) ? (
-                    <button
-                      type="button"
-                      onClick={() => revealOneList(it.id)}
-                      className="mt-1 inline-flex items-center gap-1 rounded-md border border-dashed border-line px-2 py-1 text-[11px] font-black text-slate-500 transition hover:border-brand-400 hover:bg-brand-50 hover:text-brand-700"
-                    >
-                      👁️ 뜻 보기
-                    </button>
-                  ) : (
-                    <p className="mt-0.5 whitespace-pre-wrap text-sm text-slate-600">{it.meaning}</p>
-                  )}
-                </div>
-              </li>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => toggleMark(it.id)}
+                    disabled={markingId === it.id}
+                    aria-pressed={marked}
+                    title={marked ? "다시 볼 단어 해제" : "다시 볼 단어로 표시"}
+                    className={`shrink-0 rounded-md px-2.5 py-1.5 text-[11px] font-black transition disabled:opacity-50 ${
+                      marked
+                        ? "bg-amber-100 text-amber-700 hover:bg-amber-200"
+                        : "border border-line text-slate-500 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+                    }`}
+                  >
+                    {marked ? "🔖 표시됨" : "🔖 표시"}
+                  </button>
+                </li>
+              );
+            })}
           </ul>
 
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white p-4 shadow-soft">
@@ -460,6 +552,17 @@ export function EnglishWordLearnClient() {
                   마지막 Day에 도달했어요! 🎉
                 </span>
               ) : null}
+              <Link
+                href="/student/english/wrong-words"
+                className="rounded-md border border-line px-4 py-2.5 text-sm font-black text-slate-700 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-700"
+              >
+                📌 내 틀린 단어
+                {markedIds.size > 0 ? (
+                  <span className="ml-1.5 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+                    {markedIds.size}
+                  </span>
+                ) : null}
+              </Link>
               <Link
                 href="/student/english/words/test"
                 className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
