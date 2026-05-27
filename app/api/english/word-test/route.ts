@@ -20,11 +20,45 @@ export async function GET(request: Request) {
   const count = Math.min(40, Math.max(5, Number(url.searchParams.get("count")) || 10));
   const setParam = url.searchParams.get("set");
   const sizeParam = url.searchParams.get("size");
+  const dayParam = url.searchParams.get("day");
+  const WORDS_PER_DAY = 50;
 
   let questionWords: WordRow[] = [];
-  let setMeta: { setIndex: number; size: number; totalSets: number } | null = null;
+  let setMeta: {
+    setIndex?: number;
+    size?: number;
+    totalSets?: number;
+    day?: number;
+    maxDay?: number;
+  } | null = null;
 
-  if (setParam) {
+  if (dayParam) {
+    // Day 모드: 단어학습 N번째 Day 의 50개를 그대로 시험으로 본다.
+    const day = Math.max(1, Math.floor(Number(dayParam) || 1));
+
+    const { data: totalData } = await auth.supabase.rpc("english_words_total");
+    const total = (totalData as number | null) ?? 0;
+    const maxDay = Math.max(1, Math.ceil(total / WORDS_PER_DAY));
+    const safeDay = Math.min(day, maxDay);
+    const offset = (safeDay - 1) * WORDS_PER_DAY;
+
+    const { data, error } = await auth.supabase.rpc("english_words_slice", {
+      p_offset: offset,
+      p_limit: WORDS_PER_DAY,
+    });
+    if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    questionWords = ((data ?? []) as WordRow[]).slice();
+    setMeta = { day: safeDay, maxDay };
+
+    if (questionWords.length < 4) {
+      return NextResponse.json({
+        ok: true,
+        questions: [],
+        setMeta,
+        message: "이 Day의 단어가 부족해요.",
+      });
+    }
+  } else if (setParam) {
     // 정렬 모드: 등록 순서 기준으로 size개씩 끊어 set 번호의 묶음을 가져온다
     const size = Math.min(40, Math.max(5, Number(sizeParam) || 20));
     const setIndex = Math.max(1, Math.floor(Number(setParam) || 1));

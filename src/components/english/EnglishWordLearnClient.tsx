@@ -290,30 +290,42 @@ export function EnglishWordLearnClient() {
             </p>
           </div>
 
-          {/* 모드 토글 */}
-          <div className="inline-flex rounded-full border border-line bg-slate-50 p-1 text-xs font-black">
-            <button
-              type="button"
-              onClick={() => switchMode("card")}
-              className={`rounded-full px-3 py-1.5 transition ${
-                mode === "card"
-                  ? "bg-brand-600 text-white shadow"
-                  : "text-slate-500 hover:text-brand-700"
-              }`}
-            >
-              📇 카드
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode("list")}
-              className={`rounded-full px-3 py-1.5 transition ${
-                mode === "list"
-                  ? "bg-brand-600 text-white shadow"
-                  : "text-slate-500 hover:text-brand-700"
-              }`}
-            >
-              📋 단어표
-            </button>
+          <div className="flex items-center gap-2">
+            {/* 현재 Day 의 50개로 바로 시험 */}
+            {day != null ? (
+              <Link
+                href={`/student/english/words/test?day=${day}`}
+                className="inline-flex items-center gap-1 rounded-full bg-mint-600 px-3 py-1.5 text-xs font-black text-white hover:bg-mint-700"
+              >
+                📝 단어테스트
+              </Link>
+            ) : null}
+
+            {/* 모드 토글 */}
+            <div className="inline-flex rounded-full border border-line bg-slate-50 p-1 text-xs font-black">
+              <button
+                type="button"
+                onClick={() => switchMode("card")}
+                className={`rounded-full px-3 py-1.5 transition ${
+                  mode === "card"
+                    ? "bg-brand-600 text-white shadow"
+                    : "text-slate-500 hover:text-brand-700"
+                }`}
+              >
+                📇 카드
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode("list")}
+                className={`rounded-full px-3 py-1.5 transition ${
+                  mode === "list"
+                    ? "bg-brand-600 text-white shadow"
+                    : "text-slate-500 hover:text-brand-700"
+                }`}
+              >
+                📋 단어표
+              </button>
+            </div>
           </div>
         </div>
         {isReviewingPast ? (
@@ -455,10 +467,10 @@ export function EnglishWordLearnClient() {
                 ) : null}
               </Link>
               <Link
-                href="/student/english/words/test"
+                href={day != null ? `/student/english/words/test?day=${day}` : "/student/english/words/test"}
                 className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
-                이 범위로 단어 테스트 →
+                {day != null ? `Day ${day} 단어 테스트 →` : "단어 테스트 →"}
               </Link>
             </div>
           </div>
@@ -564,10 +576,10 @@ export function EnglishWordLearnClient() {
                 ) : null}
               </Link>
               <Link
-                href="/student/english/words/test"
+                href={day != null ? `/student/english/words/test?day=${day}` : "/student/english/words/test"}
                 className="rounded-md border border-line px-5 py-2.5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
-                이 범위로 단어 테스트 →
+                {day != null ? `Day ${day} 단어 테스트 →` : "단어 테스트 →"}
               </Link>
             </div>
           </div>
