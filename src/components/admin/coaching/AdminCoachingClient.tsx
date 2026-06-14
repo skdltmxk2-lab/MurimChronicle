@@ -528,7 +528,7 @@ export function AdminCoachingClient() {
         }
         .coaching-print-page .coaching-print-question,
         .coaching-print-page .coaching-print-question * {
-          color: #000000 !important;
+          color: #f8fafc !important;
         }
         @media (min-width: 1024px) {
           .coaching-print-question {
@@ -610,6 +610,10 @@ export function AdminCoachingClient() {
             line-height: 1.42;
             grid-column: var(--coaching-print-column);
             grid-row: var(--coaching-print-row);
+          }
+          .coaching-print-page .coaching-print-question,
+          .coaching-print-page .coaching-print-question * {
+            color: #000000 !important;
           }
           .coaching-print-question img {
             max-height: 36mm !important;
