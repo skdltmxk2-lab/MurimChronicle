@@ -238,14 +238,44 @@ export function AdminCoachingClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function replacePages(next: UploadPage[]) {
-    setPages((prev) => {
-      releasePages(prev);
-      return next;
-    });
+  function clearRelatedOutputs(message = "") {
     setExtracted([]);
     setRelatedGroups([]);
-    setRelatedMsg("");
+    setRelatedMsg(message);
+    setSheet((current) => (current?.sourceLabel === "vector-related" ? null : current));
+  }
+
+  function appendPages(next: UploadPage[], message = "") {
+    if (next.length === 0) {
+      if (message) setRelatedMsg(message);
+      return;
+    }
+
+    setPages((prev) => [...prev, ...next]);
+    clearRelatedOutputs(message);
+  }
+
+  function removePage(pageId: string) {
+    const target = pagesRef.current.find((page) => page.id === pageId);
+    if (!target) return;
+
+    URL.revokeObjectURL(target.url);
+    setPages((prev) => prev.filter((page) => page.id !== pageId));
+    clearRelatedOutputs(
+      pagesRef.current.length > 1
+        ? "업로드 페이지를 삭제했습니다. 문제 갯수를 다시 확인해 주세요."
+        : ""
+    );
+    if (relatedFileRef.current) relatedFileRef.current.value = "";
+  }
+
+  function clearPages() {
+    if (pagesRef.current.length === 0) return;
+
+    releasePages(pagesRef.current);
+    setPages([]);
+    clearRelatedOutputs();
+    if (relatedFileRef.current) relatedFileRef.current.value = "";
   }
 
   async function buildPagesFromFiles(files: FileList | File[]) {
@@ -253,10 +283,17 @@ export function AdminCoachingClient() {
     if (list.length === 0) return;
     setUploading(true);
     setRelatedMsg("");
+    const next: UploadPage[] = [];
     try {
-      const next: UploadPage[] = [];
+      const currentCount = pagesRef.current.length;
+      const capacity = MAX_UPLOAD_PAGES - currentCount;
+      if (capacity <= 0) {
+        setRelatedMsg(`이미 최대 ${MAX_UPLOAD_PAGES}페이지가 준비되어 있습니다. 필요 없는 페이지를 삭제한 뒤 추가해 주세요.`);
+        return;
+      }
+
       for (const file of list) {
-        if (next.length >= MAX_UPLOAD_PAGES) break;
+        if (next.length >= capacity) break;
         if (hasExtension(file, [".hwp", ".hwpx"])) {
           throw new Error("HWP/HWPX는 PDF 또는 이미지로 변환해서 올려 주세요.");
         }
@@ -264,7 +301,7 @@ export function AdminCoachingClient() {
         const isPdf = file.type === "application/pdf" || hasExtension(file, [".pdf"]);
         if (isPdf) {
           const first = await renderPdfPage(file, 1);
-          const pageCount = Math.min(first.pageCount, MAX_UPLOAD_PAGES - next.length);
+          const pageCount = Math.min(first.pageCount, capacity - next.length);
           next.push(pageFromImage(first, file.name, `${file.name} · ${first.pageNumber}p`));
           for (let pageNumber = 2; pageNumber <= pageCount; pageNumber++) {
             const page = await renderPdfPage(file, pageNumber);
@@ -279,11 +316,17 @@ export function AdminCoachingClient() {
         const image = await normalizeImageBlob(file);
         next.push(pageFromImage(image, file.name || "image", file.name || "image"));
       }
-      replacePages(next);
-      if (next.length === MAX_UPLOAD_PAGES) {
-        setRelatedMsg(`한 번에 ${MAX_UPLOAD_PAGES}페이지까지만 불러왔습니다.`);
-      }
+      const reachedLimit = currentCount + next.length >= MAX_UPLOAD_PAGES;
+      appendPages(
+        next,
+        reachedLimit
+          ? `최대 ${MAX_UPLOAD_PAGES}페이지까지만 준비됩니다.`
+          : currentCount > 0
+            ? "업로드 페이지를 추가했습니다. 문제 갯수를 다시 확인해 주세요."
+            : ""
+      );
     } catch (error) {
+      releasePages(next);
       setRelatedMsg(error instanceof Error ? error.message : "파일을 읽지 못했습니다.");
     } finally {
       setUploading(false);
@@ -682,7 +725,7 @@ export function AdminCoachingClient() {
             <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
               <h2 className="text-lg font-black text-ink">1. 업로드 문제 분석</h2>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                PDF는 앞에서부터 최대 {MAX_UPLOAD_PAGES}페이지까지 이미지로 변환해 Gemini가 문제 단위로 분리합니다.
+                PDF/이미지를 여러 개 올릴 수 있고, 최대 {MAX_UPLOAD_PAGES}페이지까지 Gemini가 문제 단위로 분리합니다.
               </p>
               <input
                 ref={relatedFileRef}
@@ -722,9 +765,9 @@ export function AdminCoachingClient() {
                   +
                 </div>
                 <p className="mt-4 text-base font-black text-ink">PDF/이미지 업로드</p>
-                <p className="mt-2 text-xs font-bold text-slate-500">파일 선택 · 드래그 · 붙여넣기</p>
+                <p className="mt-2 text-xs font-bold text-slate-500">여러 파일 선택 · 드래그 · 붙여넣기</p>
                 <p className="mt-4 rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600 shadow-sm">
-                  {pages.length > 0 ? `${pages.length}페이지 준비됨` : `최대 ${MAX_UPLOAD_PAGES}페이지`}
+                  {pages.length > 0 ? `${pages.length}/${MAX_UPLOAD_PAGES}페이지 준비됨` : `최대 ${MAX_UPLOAD_PAGES}페이지`}
                 </p>
               </div>
               <label className="mt-4 block text-xs font-black text-slate-600">
@@ -781,10 +824,29 @@ export function AdminCoachingClient() {
             <div className="space-y-5">
               {pages.length > 0 ? (
                 <section className="rounded-lg border border-line bg-white p-5 shadow-soft">
-                  <h3 className="text-sm font-black text-ink">업로드 페이지</h3>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-sm font-black text-ink">업로드 페이지</h3>
+                    <button
+                      type="button"
+                      disabled={uploading || extracting || matching}
+                      onClick={clearPages}
+                      className="rounded-md border border-line px-3 py-1.5 text-xs font-black text-slate-600 transition hover:border-coral-600 hover:text-coral-600 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      전체 삭제
+                    </button>
+                  </div>
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {pages.map((page) => (
-                      <div key={page.id} className="rounded-lg border border-line bg-slate-50 p-2">
+                      <div key={page.id} className="group relative rounded-lg border border-line bg-slate-50 p-2">
+                        <button
+                          type="button"
+                          disabled={uploading || extracting || matching}
+                          onClick={() => removePage(page.id)}
+                          aria-label={`${page.sourceLabel} 삭제`}
+                          className="absolute right-3 top-3 z-10 rounded-full bg-coral-600 px-2.5 py-1 text-[11px] font-black text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          삭제
+                        </button>
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={page.url} alt={page.sourceLabel} className="h-36 w-full rounded-md bg-white object-contain" />
                         <p className="mt-2 truncate text-xs font-bold text-slate-600">{page.sourceLabel}</p>
