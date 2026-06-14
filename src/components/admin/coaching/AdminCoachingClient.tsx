@@ -102,6 +102,10 @@ function answerLabel(question: QuestionRecord): string {
   return option ? option.label : question.correctOptionId;
 }
 
+function stripLeadingQuestionNumber(value: string): string {
+  return value.replace(/^\s*(?:\d+|[①-⑳])[\).\s]+/, "").trimStart();
+}
+
 function hasEditablePasteTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
@@ -1058,20 +1062,17 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
           <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
             {questions.map((question, index) => (
               <div key={question.id} className="coaching-print-question px-3 py-2">
-                <div className="mb-2 flex items-start gap-2">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink text-xs font-black text-white">
-                    {pageIndex * 6 + index + 1}
+                <div className="flex items-start gap-2">
+                  <span className="shrink-0 text-sm font-black leading-6 text-ink">
+                    {pageIndex * 6 + index + 1}.
                   </span>
-                  <div className="min-w-0 text-[11px] font-bold text-slate-500">
-                    {question.unit} · {question.concept}
-                  </div>
+                  <ContentRenderer
+                    contentType={question.contentType}
+                    text={stripLeadingQuestionNumber(question.question)}
+                    image={question.questionImage}
+                    className="min-w-0 flex-1 text-sm leading-6 text-ink"
+                  />
                 </div>
-                <ContentRenderer
-                  contentType={question.contentType}
-                  text={question.question}
-                  image={question.questionImage}
-                  className="text-sm leading-6 text-ink"
-                />
                 {question.options.length > 0 ? (
                   <ol className="mt-3 space-y-1.5">
                     {question.options.map((option) => (
