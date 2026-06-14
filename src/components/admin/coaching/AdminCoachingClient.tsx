@@ -618,6 +618,17 @@ export function AdminCoachingClient() {
         .coaching-print-page .coaching-print-question * {
           color: #f8fafc !important;
         }
+        .coaching-print-content {
+          word-break: keep-all;
+          overflow-wrap: normal;
+        }
+        .coaching-print-question .katex {
+          white-space: nowrap;
+        }
+        .coaching-print-question .katex-display {
+          margin: 0.2em 0;
+          overflow: visible;
+        }
         .coaching-pdf-exporting .coaching-print-area {
           margin: 0 !important;
           background: #ffffff !important;
@@ -659,8 +670,8 @@ export function AdminCoachingClient() {
           border: 0 !important;
           border-radius: 0 !important;
           padding: 0 3mm !important;
-          font-size: 9.5pt !important;
-          line-height: 1.42 !important;
+          font-size: 8pt !important;
+          line-height: 1.48 !important;
           grid-column: var(--coaching-print-column) !important;
           grid-row: var(--coaching-print-row) !important;
         }
@@ -671,7 +682,28 @@ export function AdminCoachingClient() {
         .coaching-pdf-exporting .coaching-print-question img {
           max-height: 36mm !important;
         }
+        .coaching-pdf-exporting .coaching-print-option {
+          gap: 2mm !important;
+          line-height: 1.45 !important;
+          break-inside: avoid !important;
+        }
+        .coaching-pdf-exporting .coaching-print-option-label {
+          width: 4mm !important;
+          flex: 0 0 4mm !important;
+          text-align: left !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question .katex {
+          font-size: 1em !important;
+          white-space: nowrap !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question .katex-display {
+          margin: 0.15em 0 !important;
+          overflow: visible !important;
+        }
         @media (min-width: 1024px) {
+          .coaching-print-grid {
+            min-height: 820px;
+          }
           .coaching-print-question {
             grid-column: var(--coaching-print-column);
             grid-row: var(--coaching-print-row);
@@ -747,8 +779,8 @@ export function AdminCoachingClient() {
             border: 0 !important;
             border-radius: 0 !important;
             padding: 0 3mm;
-            font-size: 9.5pt;
-            line-height: 1.42;
+            font-size: 8pt;
+            line-height: 1.48;
             grid-column: var(--coaching-print-column);
             grid-row: var(--coaching-print-row);
           }
@@ -760,7 +792,22 @@ export function AdminCoachingClient() {
             max-height: 36mm !important;
           }
           .coaching-print-question .katex {
-            font-size: 0.98em;
+            font-size: 1em;
+            white-space: nowrap;
+          }
+          .coaching-print-question .katex-display {
+            margin: 0.15em 0 !important;
+            overflow: visible !important;
+          }
+          .coaching-print-option {
+            gap: 2mm;
+            line-height: 1.45;
+            break-inside: avoid;
+          }
+          .coaching-print-option-label {
+            width: 4mm;
+            flex: 0 0 4mm;
+            text-align: left;
           }
         }
       `}</style>
@@ -1286,15 +1333,20 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
                     contentType={question.contentType}
                     text={stripLeadingQuestionNumber(question.question)}
                     image={question.questionImage}
-                    className="min-w-0 flex-1 text-sm leading-6 text-ink"
+                    className="coaching-print-content min-w-0 flex-1 text-sm leading-6 text-ink"
                   />
                 </div>
                 {question.options.length > 0 ? (
-                  <ol className="mt-3 space-y-1.5">
+                  <ol className="coaching-print-options mt-3 space-y-1.5">
                     {question.options.map((option) => (
-                      <li key={option.id} className="flex gap-2 text-xs leading-5">
-                        <span className="font-black text-slate-600">{option.label}</span>
-                        <ContentRenderer contentType={option.contentType} text={option.text} image={option.image} />
+                      <li key={option.id} className="coaching-print-option flex gap-2 text-xs leading-5">
+                        <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
+                        <ContentRenderer
+                          contentType={option.contentType}
+                          text={option.text}
+                          image={option.image}
+                          className="coaching-print-content min-w-0 flex-1"
+                        />
                       </li>
                     ))}
                   </ol>
