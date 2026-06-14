@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ClipboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import {
   blobToBase64,
+  dataUrlToBlob,
   normalizeImageBlob,
   renderPdfPage,
   type NormalizedImage,
@@ -51,6 +52,14 @@ type TwinResult = {
 function hasExtension(file: File, extensions: string[]): boolean {
   const name = file.name.toLowerCase();
   return extensions.some((extension) => name.endsWith(extension));
+}
+
+function isSupportedClipboardFile(file: File): boolean {
+  return (
+    file.type.startsWith("image/") ||
+    file.type === "application/pdf" ||
+    hasExtension(file, [".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".pdf"])
+  );
 }
 
 function mediaTypeOf(blob: Blob): UploadPage["mediaType"] {
@@ -213,6 +222,53 @@ export function AdminCoachingClient() {
     } finally {
       setUploading(false);
       if (relatedFileRef.current) relatedFileRef.current.value = "";
+    }
+  }
+
+  async function loadClipboardFile(file: File) {
+    if (tab === "twin") {
+      await loadTwinFile(file);
+      return;
+    }
+
+    setTab("related");
+    await buildPagesFromFiles([file]);
+  }
+
+  async function handlePaste(event: ClipboardEvent<HTMLElement>) {
+    const clipboard = event.clipboardData;
+    if (!clipboard) return;
+
+    const files = Array.from(clipboard.files);
+    const pastedFile = files.find(isSupportedClipboardFile);
+    if (pastedFile) {
+      event.preventDefault();
+      await loadClipboardFile(pastedFile);
+      return;
+    }
+
+    for (const item of Array.from(clipboard.items)) {
+      if (item.kind !== "file") continue;
+      const file = item.getAsFile();
+      if (!file || !isSupportedClipboardFile(file)) continue;
+      event.preventDefault();
+      await loadClipboardFile(file);
+      return;
+    }
+
+    const html = clipboard.getData("text/html");
+    const src = html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
+    if (!src) return;
+
+    event.preventDefault();
+    try {
+      const blob = await dataUrlToBlob(src);
+      const file = new File([blob], "clipboard-image", { type: blob.type || "image/png" });
+      await loadClipboardFile(file);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "클립보드 이미지를 읽지 못했습니다.";
+      if (tab === "twin") setTwinMsg(message);
+      else setRelatedMsg(message);
     }
   }
 
@@ -384,7 +440,7 @@ export function AdminCoachingClient() {
   }
 
   return (
-    <main className="coaching-workspace mx-auto max-w-7xl px-5 py-8">
+    <main className="coaching-workspace mx-auto max-w-7xl px-5 py-8" onPaste={handlePaste}>
       <style jsx global>{`
         @page {
           size: A4;

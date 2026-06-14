@@ -80,6 +80,12 @@ export async function blobToBase64(blob: Blob): Promise<string> {
   return btoa(binary);
 }
 
+export async function dataUrlToBlob(dataUrl: string): Promise<Blob> {
+  const response = await fetch(dataUrl);
+  if (!response.ok) throw new Error("클립보드 이미지를 읽지 못했습니다.");
+  return response.blob();
+}
+
 export async function normalizeImageBlob(blob: Blob): Promise<NormalizedImage> {
   const decoded = await decodeImage(blob);
   try {
