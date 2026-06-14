@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
+import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
 import {
   blobToBase64,
   dataUrlToBlob,
@@ -104,6 +105,66 @@ function answerLabel(question: QuestionRecord): string {
 
 function stripLeadingQuestionNumber(value: string): string {
   return value.replace(/^\s*(?:\d+|[①-⑳])[\).\s]+/, "").trimStart();
+}
+
+function normalizePrintableText(value: string): string {
+  return value
+    .replace(/[\\₩wW]?\s*<\s*보기\s*[\\₩wW]?\s*>/g, "<보기>")
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+type ViewBlockItem = {
+  label: string;
+  displayLabel: string;
+  text: string;
+};
+
+type ParsedViewBlock = {
+  prompt: string;
+  items: ViewBlockItem[];
+  tail: string;
+};
+
+function parseViewBlock(value: string): ParsedViewBlock | null {
+  const text = normalizePrintableText(value);
+  const markerPattern = /(?:\(([ㄱ-ㅎ가-힣a-eA-E])\)|\b([a-eA-E])\.|(^|[\s\n])([가-힣ㄱ-ㅎ])\.)\s*/gm;
+  const markers = [...text.matchAll(markerPattern)];
+  if (markers.length < 2) return null;
+
+  const labels = markers.map((marker) => marker[1] ?? marker[2] ?? marker[4] ?? "");
+  const koreanLetterLabels = ["가", "나", "다", "라", "마", "ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ"];
+  const latinLabels = ["a", "b", "c", "d", "e"];
+  const hasOrderedPair = labels.some((label, index) => {
+    if (index === 0) return false;
+    const prev = labels[index - 1].toLowerCase();
+    const current = label.toLowerCase();
+    return (
+      koreanLetterLabels.indexOf(prev) >= 0 &&
+      koreanLetterLabels.indexOf(current) === koreanLetterLabels.indexOf(prev) + 1
+    ) || (
+      latinLabels.indexOf(prev) >= 0 &&
+      latinLabels.indexOf(current) === latinLabels.indexOf(prev) + 1
+    );
+  });
+  if (!hasOrderedPair) return null;
+
+  const firstIndex = markers[0].index ?? 0;
+  const prompt = text.slice(0, firstIndex).trim();
+  const items = markers.map((marker, index) => {
+    const start = (marker.index ?? 0) + marker[0].length;
+    const end = index + 1 < markers.length ? markers[index + 1].index ?? text.length : text.length;
+    const label = marker[1] ?? marker[2] ?? marker[4] ?? "";
+    return {
+      label,
+      displayLabel: marker[1] ? `(${label})` : `${label}.`,
+      text: text.slice(start, end).trim(),
+    };
+  }).filter((item) => item.text.length > 0);
+
+  if (items.length < 2) return null;
+  return { prompt, items, tail: "" };
 }
 
 function pdfFileName(title: string): string {
@@ -627,6 +688,36 @@ export function AdminCoachingClient() {
           overflow: visible;
           text-align: left;
         }
+        .coaching-print-viewbox {
+          margin: 0.65em 0 0.45em;
+          border: 1px solid #94a3b8;
+          padding: 0.55em 0.7em 0.65em;
+        }
+        .coaching-print-viewbox-title {
+          margin-bottom: 0.4em;
+          text-align: center;
+          font-weight: 900;
+          line-height: 1.2;
+        }
+        .coaching-print-viewitems {
+          display: flex;
+          flex-direction: column;
+          gap: 0.45em;
+        }
+        .coaching-print-viewitem {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.55em;
+          break-inside: avoid;
+        }
+        .coaching-print-viewitem-label {
+          flex: 0 0 auto;
+          font-weight: 900;
+        }
+        .coaching-print-viewitem-text {
+          min-width: 0;
+          flex: 1;
+        }
         .coaching-pdf-exporting .coaching-print-area {
           margin: 0 !important;
           background: #ffffff !important;
@@ -716,6 +807,20 @@ export function AdminCoachingClient() {
           margin: 0.15em 0 !important;
           overflow: visible !important;
           text-align: left !important;
+        }
+        .coaching-pdf-exporting .coaching-print-viewbox {
+          border: 0.25mm solid #111111 !important;
+          padding: 1.8mm 2.2mm 2mm !important;
+          margin: 1.8mm 0 1.4mm !important;
+        }
+        .coaching-pdf-exporting .coaching-print-viewbox-title {
+          margin-bottom: 1.2mm !important;
+        }
+        .coaching-pdf-exporting .coaching-print-viewitems {
+          gap: 1.2mm !important;
+        }
+        .coaching-pdf-exporting .coaching-print-viewitem {
+          gap: 1.8mm !important;
         }
         @media (min-width: 1024px) {
           .coaching-print-grid {
@@ -833,6 +938,20 @@ export function AdminCoachingClient() {
             margin: 0.15em 0 !important;
             overflow: visible !important;
             text-align: left !important;
+          }
+          .coaching-print-viewbox {
+            border: 0.25mm solid #111111 !important;
+            padding: 1.8mm 2.2mm 2mm !important;
+            margin: 1.8mm 0 1.4mm !important;
+          }
+          .coaching-print-viewbox-title {
+            margin-bottom: 1.2mm !important;
+          }
+          .coaching-print-viewitems {
+            gap: 1.2mm !important;
+          }
+          .coaching-print-viewitem {
+            gap: 1.8mm !important;
           }
           .coaching-print-option {
             gap: 2mm;
@@ -1337,6 +1456,50 @@ function QuestionPreview({ question, showAnswer }: { question: QuestionRecord; s
   );
 }
 
+function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
+  const text = normalizePrintableText(stripLeadingQuestionNumber(question.question));
+  const viewBlock = parseViewBlock(text);
+  const shouldShowImage = (question.contentType === "image" || question.contentType === "mixed") && question.questionImage;
+  const shouldShowText = question.contentType === "latex" || question.contentType === "mixed";
+
+  return (
+    <div className="coaching-print-content min-w-0 flex-1 text-ink">
+      {shouldShowImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={question.questionImage}
+          alt="문제 이미지"
+          className="max-h-[560px] w-auto max-w-full rounded-md border border-line bg-white object-contain"
+        />
+      ) : null}
+      {shouldShowText && text ? (
+        <div className={shouldShowImage ? "mt-3" : undefined}>
+          {viewBlock ? (
+            <>
+              {viewBlock.prompt ? <KaTeXRenderer content={viewBlock.prompt} /> : null}
+              <div className="coaching-print-viewbox">
+                <div className="coaching-print-viewbox-title">{"<보기>"}</div>
+                <div className="coaching-print-viewitems">
+                  {viewBlock.items.map((item) => (
+                    <div key={item.label} className="coaching-print-viewitem">
+                      <span className="coaching-print-viewitem-label">{item.displayLabel}</span>
+                      <div className="coaching-print-viewitem-text">
+                        <KaTeXRenderer content={item.text} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <KaTeXRenderer content={text} />
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers: boolean }) {
   const pages = chunk(sheet.questions, 6);
   return (
@@ -1368,12 +1531,7 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
                         <span className="coaching-print-question-number shrink-0 font-black text-ink">
                           {questionNumber}.
                         </span>
-                        <ContentRenderer
-                          contentType={question.contentType}
-                          text={stripLeadingQuestionNumber(question.question)}
-                          image={question.questionImage}
-                          className="coaching-print-content min-w-0 flex-1 text-ink"
-                        />
+                        <PrintableQuestionContent question={question} />
                       </div>
                       {question.options.length > 0 ? (
                         <ol className="coaching-print-options mt-3 space-y-1.5">
