@@ -91,6 +91,12 @@ export function AdminHomeClient() {
       emoji: "📅",
     },
     {
+      href: "/admin/coaching",
+      title: "학생지도",
+      desc: "관련문제 PDF·단원 모고·쌍둥이 문제",
+      emoji: "🎯",
+    },
+    {
       href: "/admin/messages",
       title: "공지 / 메시지",
       desc: "전체 공지 및 1대1 메시지 발송",

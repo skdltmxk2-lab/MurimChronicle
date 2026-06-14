@@ -1,0 +1,13 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": [
+    "scripts/**",
+    "paste_image_component/**",
+    "public/**",
+    "index.html",
+    "*.config.mjs"
+  ],
+  "rules": {
+    "react/no-unescaped-entities": "off"
+  }
+}
