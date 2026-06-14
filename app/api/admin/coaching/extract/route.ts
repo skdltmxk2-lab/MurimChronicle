@@ -27,15 +27,20 @@ function stripDataUrl(value: string): string {
   return value.startsWith("data:") && comma >= 0 ? value.slice(comma + 1) : value;
 }
 
-function buildPrompt(sourceLabel: string): string {
+function buildPrompt(sourceLabel: string, expectedProblemCount?: number): string {
   const subjectList = SUBJECTS.map((s) => s.name).join(", ");
   const unitList = Object.entries(SUBJECT_UNITS)
     .map(([subject, units]) => `- ${subject}: ${units.join(", ")}`)
     .join("\n");
+  const expectedCountRule =
+    typeof expectedProblemCount === "number"
+      ? `전체 업로드의 예상 문제 수는 ${expectedProblemCount}개다. 이 값은 누락 검산용이며, 이미지에 없는 문제를 만들지 않는다.`
+      : "전체 문제 수가 입력되지 않았다면 이미지에서 확인되는 문제만 분리한다.";
 
   return [
     "너는 편입수학 시험지 이미지를 문제 단위로 분리하는 비전 OCR 분석가다.",
     `이미지 출처: ${sourceLabel}`,
+    expectedCountRule,
     "한 이미지에 여러 문제가 있으면 문제 번호 기준으로 모두 분리한다.",
     "두 단/여러 열 배치라면 한국 시험지 독해 순서대로 왼쪽 위에서 오른쪽 아래로 정렬한다.",
     "설명/코드펜스 없이 JSON 객체 하나만 출력한다.",
@@ -111,7 +116,11 @@ function normalizeProblem(
   };
 }
 
-async function extractFromImage(input: Required<ImageInput>, indexOffset: number) {
+async function extractFromImage(
+  input: Required<ImageInput>,
+  indexOffset: number,
+  expectedProblemCount?: number
+) {
   const result = await generateWithRetry({
     model: GEMINI_MODEL,
     contents: [
@@ -119,7 +128,7 @@ async function extractFromImage(input: Required<ImageInput>, indexOffset: number
         role: "user",
         parts: [
           { inlineData: { mimeType: input.mediaType, data: stripDataUrl(input.imageBase64) } },
-          { text: buildPrompt(input.sourceLabel) },
+          { text: buildPrompt(input.sourceLabel, expectedProblemCount) },
         ],
       },
     ],
@@ -144,10 +153,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = (await request.json().catch(() => null)) as { images?: ImageInput[] } | null;
+  const body = (await request.json().catch(() => null)) as {
+    images?: ImageInput[];
+    expectedProblemCount?: number;
+  } | null;
   const images = Array.isArray(body?.images) ? body.images : [];
+  const expectedProblemCount =
+    typeof body?.expectedProblemCount === "number" &&
+    Number.isFinite(body.expectedProblemCount)
+      ? Math.floor(body.expectedProblemCount)
+      : undefined;
   if (images.length === 0) {
     return NextResponse.json({ ok: false, message: "분석할 PDF/이미지 페이지가 없습니다." }, { status: 400 });
+  }
+  if (
+    typeof expectedProblemCount === "number" &&
+    (expectedProblemCount < 1 || expectedProblemCount > 200)
+  ) {
+    return NextResponse.json(
+      { ok: false, message: "전체 문제 수는 1~200 사이로 입력해 주세요." },
+      { status: 400 }
+    );
   }
   if (images.length > MAX_IMAGES) {
     return NextResponse.json(
@@ -185,7 +211,11 @@ export async function POST(request: Request) {
   try {
     const problems: CoachingExtractedProblem[] = [];
     for (const [index, image] of normalized.entries()) {
-      const extracted = await extractFromImage(image, problems.length + index * 100);
+      const extracted = await extractFromImage(
+        image,
+        problems.length + index * 100,
+        expectedProblemCount
+      );
       problems.push(...extracted);
     }
     return NextResponse.json({ ok: true, problems, count: problems.length });

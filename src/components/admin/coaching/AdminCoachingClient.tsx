@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ClipboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import {
@@ -20,13 +20,12 @@ import type { Difficulty } from "@/types/exam";
 import type { QuestionDraft, QuestionPool, QuestionRecord } from "@/types/question";
 import type {
   CoachingExtractedProblem,
-  CoachingReclassificationItem,
   CoachingRelatedGroup,
 } from "@/types/coaching";
 
 const MAX_UPLOAD_PAGES = 8;
 
-type Tab = "related" | "unit" | "twin" | "classify";
+type Tab = "related" | "unit" | "twin";
 type PoolFilter = "all" | QuestionPool;
 
 type UploadPage = {
@@ -103,8 +102,34 @@ function answerLabel(question: QuestionRecord): string {
   return option ? option.label : question.correctOptionId;
 }
 
-function difficultyText(value: string): string {
-  return DIFFICULTY_LABELS[value as Difficulty] ?? value;
+function hasEditablePasteTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+}
+
+function clipboardHasSupportedInput(clipboard: DataTransfer): boolean {
+  if (Array.from(clipboard.files).some(isSupportedClipboardFile)) return true;
+  if (Array.from(clipboard.items).some((item) => item.kind === "file")) return true;
+  return /<img[^>]+src=["'][^"']+["']/i.test(clipboard.getData("text/html"));
+}
+
+async function clipboardFileFromData(clipboard: DataTransfer): Promise<File | null> {
+  const pastedFile = Array.from(clipboard.files).find(isSupportedClipboardFile);
+  if (pastedFile) return pastedFile;
+
+  for (const item of Array.from(clipboard.items)) {
+    if (item.kind !== "file") continue;
+    const file = item.getAsFile();
+    if (file && isSupportedClipboardFile(file)) return file;
+  }
+
+  const html = clipboard.getData("text/html");
+  const src = html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
+  if (!src) return null;
+
+  const blob = await dataUrlToBlob(src);
+  return new File([blob], "clipboard-image", { type: blob.type || "image/png" });
 }
 
 function chunk<T>(values: T[], size: number): T[][] {
@@ -126,14 +151,17 @@ export function AdminCoachingClient() {
   const twinFileRef = useRef<HTMLInputElement>(null);
   const pagesRef = useRef<UploadPage[]>([]);
   const twinImageRef = useRef<UploadPage | null>(null);
+  const tabRef = useRef<Tab>("related");
 
   const [tab, setTab] = useState<Tab>("related");
   const [pages, setPages] = useState<UploadPage[]>([]);
+  const [uploadDragActive, setUploadDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [extracting, setExtracting] = useState(false);
   const [matching, setMatching] = useState(false);
   const [relatedMsg, setRelatedMsg] = useState("");
   const [extracted, setExtracted] = useState<CoachingExtractedProblem[]>([]);
+  const [expectedProblemCount, setExpectedProblemCount] = useState<number | "">("");
   const [perProblem, setPerProblem] = useState(2);
   const [relatedGroups, setRelatedGroups] = useState<CoachingRelatedGroup[]>([]);
 
@@ -153,14 +181,6 @@ export function AdminCoachingClient() {
   const [twinMsg, setTwinMsg] = useState("");
   const [twinResult, setTwinResult] = useState<TwinResult | null>(null);
 
-  const [reclassOffset, setReclassOffset] = useState(0);
-  const [reclassLimit, setReclassLimit] = useState(500);
-  const [reclassTotal, setReclassTotal] = useState<number | null>(null);
-  const [reclassLoading, setReclassLoading] = useState(false);
-  const [reclassApplying, setReclassApplying] = useState(false);
-  const [reclassMsg, setReclassMsg] = useState("");
-  const [reclassItems, setReclassItems] = useState<CoachingReclassificationItem[]>([]);
-
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
 
@@ -172,6 +192,10 @@ export function AdminCoachingClient() {
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
   );
+
+  useEffect(() => {
+    tabRef.current = tab;
+  }, [tab]);
 
   useEffect(() => {
     pagesRef.current = pages;
@@ -189,10 +213,19 @@ export function AdminCoachingClient() {
   }, []);
 
   useEffect(() => {
-    if (tab !== "classify" || reclassTotal !== null) return;
-    void loadReclassStatus();
+    function handleWindowPaste(event: globalThis.ClipboardEvent) {
+      const clipboard = event.clipboardData;
+      if (!clipboard || !clipboardHasSupportedInput(clipboard)) return;
+      if (hasEditablePasteTarget(event.target) && clipboard.files.length === 0) return;
+
+      event.preventDefault();
+      void loadClipboardData(clipboard);
+    }
+
+    window.addEventListener("paste", handleWindowPaste);
+    return () => window.removeEventListener("paste", handleWindowPaste);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, reclassTotal]);
+  }, []);
 
   function replacePages(next: UploadPage[]) {
     setPages((prev) => {
@@ -248,7 +281,7 @@ export function AdminCoachingClient() {
   }
 
   async function loadClipboardFile(file: File) {
-    if (tab === "twin") {
+    if (tabRef.current === "twin") {
       await loadTwinFile(file);
       return;
     }
@@ -257,41 +290,29 @@ export function AdminCoachingClient() {
     await buildPagesFromFiles([file]);
   }
 
-  async function handlePaste(event: ClipboardEvent<HTMLElement>) {
-    const clipboard = event.clipboardData;
-    if (!clipboard) return;
-
-    const files = Array.from(clipboard.files);
-    const pastedFile = files.find(isSupportedClipboardFile);
-    if (pastedFile) {
-      event.preventDefault();
-      await loadClipboardFile(pastedFile);
-      return;
-    }
-
-    for (const item of Array.from(clipboard.items)) {
-      if (item.kind !== "file") continue;
-      const file = item.getAsFile();
-      if (!file || !isSupportedClipboardFile(file)) continue;
-      event.preventDefault();
-      await loadClipboardFile(file);
-      return;
-    }
-
-    const html = clipboard.getData("text/html");
-    const src = html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
-    if (!src) return;
-
-    event.preventDefault();
+  async function loadClipboardData(clipboard: DataTransfer) {
     try {
-      const blob = await dataUrlToBlob(src);
-      const file = new File([blob], "clipboard-image", { type: blob.type || "image/png" });
+      const file = await clipboardFileFromData(clipboard);
+      if (!file) return;
       await loadClipboardFile(file);
     } catch (error) {
       const message = error instanceof Error ? error.message : "클립보드 이미지를 읽지 못했습니다.";
-      if (tab === "twin") setTwinMsg(message);
+      if (tabRef.current === "twin") setTwinMsg(message);
       else setRelatedMsg(message);
     }
+  }
+
+  function handleUploadDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setUploadDragActive(false);
+    const files = Array.from(event.dataTransfer.files).filter(isSupportedClipboardFile);
+    if (files.length > 0) void buildPagesFromFiles(files);
+  }
+
+  function handleUploadKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    relatedFileRef.current?.click();
   }
 
   async function extractProblems() {
@@ -311,11 +332,20 @@ export function AdminCoachingClient() {
       const json = await ensureOk<{ problems: CoachingExtractedProblem[]; count: number }>(
         await adminFetch("/api/admin/coaching/extract", {
           method: "POST",
-          body: JSON.stringify({ images }),
+          body: JSON.stringify({
+            images,
+            expectedProblemCount:
+              typeof expectedProblemCount === "number" ? expectedProblemCount : undefined,
+          }),
         })
       );
       setExtracted(json.problems ?? []);
-      setRelatedMsg(`인식된 문제: ${json.count ?? json.problems?.length ?? 0}개`);
+      const recognizedCount = json.count ?? json.problems?.length ?? 0;
+      setRelatedMsg(
+        typeof expectedProblemCount === "number" && recognizedCount !== expectedProblemCount
+          ? `인식된 문제: ${recognizedCount}개 · 입력한 총 ${expectedProblemCount}개와 다릅니다.`
+          : `인식된 문제: ${recognizedCount}개`
+      );
     } catch (error) {
       setRelatedMsg(error instanceof Error ? error.message : "문제 인식에 실패했습니다.");
     } finally {
@@ -457,85 +487,12 @@ export function AdminCoachingClient() {
     }
   }
 
-  async function loadReclassStatus() {
-    try {
-      const json = await ensureOk<{ total: number }>(
-        await adminFetch("/api/admin/coaching/reclassify")
-      );
-      setReclassTotal(json.total ?? 0);
-    } catch (error) {
-      setReclassMsg(error instanceof Error ? error.message : "DB 문제 수를 불러오지 못했습니다.");
-    }
-  }
-
-  async function reviewReclassification() {
-    if (reclassLoading) return;
-    setReclassLoading(true);
-    setReclassMsg("");
-    setReclassItems([]);
-    try {
-      const json = await ensureOk<{
-        total: number;
-        reviewed: number;
-        changedCount: number;
-        items: CoachingReclassificationItem[];
-      }>(
-        await adminFetch("/api/admin/coaching/reclassify", {
-          method: "POST",
-          body: JSON.stringify({
-            offset: reclassOffset,
-            limit: reclassLimit,
-          }),
-        })
-      );
-      setReclassTotal(json.total ?? reclassTotal);
-      setReclassItems(json.items ?? []);
-      setReclassMsg(`검토 ${json.reviewed ?? 0}문항 · 변경 제안 ${json.changedCount ?? 0}문항`);
-    } catch (error) {
-      setReclassMsg(error instanceof Error ? error.message : "AI 분류 검토에 실패했습니다.");
-    } finally {
-      setReclassLoading(false);
-    }
-  }
-
-  async function applyReclassification() {
-    const changedItems = reclassItems.filter((item) => item.changed);
-    if (changedItems.length === 0 || reclassApplying) return;
-    if (!confirm(`변경 제안 ${changedItems.length}문항을 DB에 반영할까요?`)) return;
-
-    setReclassApplying(true);
-    setReclassMsg("");
-    try {
-      const json = await ensureOk<{ applied: number }>(
-        await adminFetch("/api/admin/coaching/reclassify", {
-          method: "POST",
-          body: JSON.stringify({
-            applyReviewed: true,
-            items: changedItems,
-          }),
-        })
-      );
-      setReclassMsg(`DB에 ${json.applied ?? 0}문항을 반영했습니다.`);
-      setReclassItems((prev) =>
-        prev.map((item) =>
-          item.changed
-            ? { ...item, before: item.after, changed: false }
-            : item
-        )
-      );
-    } catch (error) {
-      setReclassMsg(error instanceof Error ? error.message : "DB 반영에 실패했습니다.");
-    } finally {
-      setReclassApplying(false);
-    }
-  }
-
   function printSheet() {
     window.print();
   }
 
   return (
-    <main className="coaching-workspace mx-auto max-w-7xl px-5 py-8" onPaste={handlePaste}>
+    <main className="coaching-workspace mx-auto max-w-7xl px-5 py-8">
       <style jsx global>{`
         @page {
           size: A4;
@@ -666,7 +623,6 @@ export function AdminCoachingClient() {
           { id: "related" as const, label: "관련문제 문제지" },
           { id: "unit" as const, label: "단원별 모고" },
           { id: "twin" as const, label: "쌍둥이 문제" },
-          { id: "classify" as const, label: "DB 세부분류" },
         ].map((item) => (
           <button
             key={item.id}
@@ -685,8 +641,8 @@ export function AdminCoachingClient() {
 
       <section className="admin-screen-only">
         {tab === "related" ? (
-          <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
-            <aside className="rounded-lg border border-line bg-white p-5 shadow-soft">
+          <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
+            <aside className="rounded-lg border border-line bg-white p-6 shadow-soft">
               <h2 className="text-lg font-black text-ink">1. 업로드 문제 분석</h2>
               <p className="mt-1 text-xs leading-5 text-slate-500">
                 PDF는 앞에서부터 최대 {MAX_UPLOAD_PAGES}페이지까지 이미지로 변환해 Gemini가 문제 단위로 분리합니다.
@@ -696,16 +652,66 @@ export function AdminCoachingClient() {
                 type="file"
                 accept="image/*,application/pdf,.pdf"
                 multiple
-                className="mt-4 block w-full rounded-md border border-line bg-white px-3 py-2 text-sm"
+                className="sr-only"
                 onChange={(event) => {
                   if (event.target.files) void buildPagesFromFiles(event.target.files);
                 }}
               />
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label="문제 PDF 또는 이미지 업로드"
+                onClick={() => relatedFileRef.current?.click()}
+                onKeyDown={handleUploadKeyDown}
+                onDragEnter={(event) => {
+                  event.preventDefault();
+                  setUploadDragActive(true);
+                }}
+                onDragOver={(event) => event.preventDefault()}
+                onDragLeave={(event) => {
+                  event.preventDefault();
+                  if (event.currentTarget === event.target) setUploadDragActive(false);
+                }}
+                onDrop={handleUploadDrop}
+                className={`mt-4 flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed px-5 py-6 text-center transition ${
+                  uploadDragActive
+                    ? "border-brand-600 bg-brand-50"
+                    : pages.length > 0
+                      ? "border-brand-200 bg-brand-50/60 hover:bg-brand-50"
+                      : "border-line bg-slate-50 hover:border-brand-300 hover:bg-white"
+                }`}
+              >
+                <div className="grid size-12 place-items-center rounded-md bg-brand-600 text-2xl font-black leading-none text-white">
+                  +
+                </div>
+                <p className="mt-4 text-base font-black text-ink">PDF/이미지 업로드</p>
+                <p className="mt-2 text-xs font-bold text-slate-500">파일 선택 · 드래그 · 붙여넣기</p>
+                <p className="mt-4 rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600 shadow-sm">
+                  {pages.length > 0 ? `${pages.length}페이지 준비됨` : `최대 ${MAX_UPLOAD_PAGES}페이지`}
+                </p>
+              </div>
+              <label className="mt-4 block text-xs font-black text-slate-600">
+                전체 문제 수 <span className="font-bold text-slate-400">(선택)</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={200}
+                  value={expectedProblemCount}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setExpectedProblemCount(
+                      value === "" ? "" : Math.max(1, Math.min(200, Number(value) || 1))
+                    );
+                  }}
+                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
+                  placeholder="예: 6"
+                />
+              </label>
               <button
                 type="button"
                 disabled={pages.length === 0 || extracting || uploading}
                 onClick={extractProblems}
-                className="mt-3 w-full rounded-md bg-brand-600 px-4 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                className="mt-4 w-full rounded-md bg-brand-600 px-4 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
                 {extracting ? "문제 인식 중..." : uploading ? "파일 읽는 중..." : "문제 갯수 확인"}
               </button>
@@ -987,140 +993,6 @@ export function AdminCoachingClient() {
           </section>
         ) : null}
 
-        {tab === "classify" ? (
-          <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
-            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-              <div>
-                <h2 className="text-lg font-black text-ink">DB 세부분류 재검토</h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  Gemini가 저장된 문제의 과목·단원·세부개념·난이도를 다시 제안합니다. 검토 결과를 본 뒤 바뀐 항목만 DB에 반영합니다.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={loadReclassStatus}
-                disabled={reclassLoading || reclassApplying}
-                className="rounded-md border border-line px-4 py-2 text-xs font-black text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-              >
-                문제 수 새로고침
-              </button>
-            </div>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
-              <label className="text-xs font-black text-slate-600">
-                시작 위치
-                <input
-                  type="number"
-                  min={0}
-                  value={reclassOffset}
-                  onChange={(event) => setReclassOffset(Math.max(0, Number(event.target.value) || 0))}
-                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
-                />
-              </label>
-              <label className="text-xs font-black text-slate-600">
-                검토 개수
-                <input
-                  type="number"
-                  min={1}
-                  max={500}
-                  value={reclassLimit}
-                  onChange={(event) => setReclassLimit(Math.max(1, Math.min(500, Number(event.target.value) || 1)))}
-                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
-                />
-              </label>
-              <div className="rounded-md bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600">
-                전체 문제 수
-                <p className="mt-1 text-lg font-black text-ink">
-                  {reclassTotal === null ? "-" : reclassTotal.toLocaleString()}
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={reviewReclassification}
-                disabled={reclassLoading || reclassApplying}
-                className="rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
-              >
-                {reclassLoading ? "AI 검토 중..." : `${reclassLimit}문항 AI 검토`}
-              </button>
-              <button
-                type="button"
-                onClick={applyReclassification}
-                disabled={reclassApplying || reclassItems.every((item) => !item.changed)}
-                className="rounded-md bg-ink px-5 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:bg-slate-300"
-              >
-                {reclassApplying ? "DB 반영 중..." : "검토 결과 DB 반영"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setReclassOffset((prev) => prev + reclassLimit);
-                  setReclassItems([]);
-                  setReclassMsg("");
-                }}
-                disabled={reclassLoading || reclassApplying}
-                className="rounded-md border border-line px-5 py-3 text-sm font-black text-slate-600 hover:bg-slate-50 disabled:opacity-50"
-              >
-                다음 묶음으로
-              </button>
-            </div>
-
-            {reclassMsg ? (
-              <p className="mt-4 rounded-md bg-brand-50 px-4 py-3 text-sm font-bold text-brand-700">{reclassMsg}</p>
-            ) : null}
-
-            {reclassItems.length > 0 ? (
-              <div className="mt-5 overflow-x-auto rounded-lg border border-line">
-                <table className="min-w-full divide-y divide-line text-left text-xs">
-                  <thead className="bg-slate-50 text-slate-500">
-                    <tr>
-                      <th className="px-3 py-2 font-black">문제</th>
-                      <th className="px-3 py-2 font-black">기존</th>
-                      <th className="px-3 py-2 font-black">제안</th>
-                      <th className="px-3 py-2 font-black">확신</th>
-                      <th className="px-3 py-2 font-black">사유</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line bg-white">
-                    {reclassItems.map((item) => (
-                      <tr key={item.id} className={item.changed ? "bg-amber-50/40" : undefined}>
-                        <td className="max-w-[360px] px-3 py-3 align-top">
-                          <p className="font-black text-slate-500">{item.id}</p>
-                          <p className="mt-1 line-clamp-3 text-slate-600">{item.questionPreview}</p>
-                        </td>
-                        <td className="px-3 py-3 align-top text-slate-500">
-                          <p>{item.before.subject}</p>
-                          <p>{item.before.unit}</p>
-                          <p>{item.before.concept}</p>
-                          <p>{difficultyText(item.before.difficulty)}</p>
-                        </td>
-                        <td className="px-3 py-3 align-top font-bold text-ink">
-                          <p>{item.after.subject}</p>
-                          <p>{item.after.unit}</p>
-                          <p>{item.after.concept}</p>
-                          <p>{difficultyText(item.after.difficulty)}</p>
-                          {item.changed ? (
-                            <span className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-black text-amber-700">
-                              변경
-                            </span>
-                          ) : null}
-                        </td>
-                        <td className="px-3 py-3 align-top font-black text-brand-700">
-                          {Math.round(item.confidence * 100)}%
-                        </td>
-                        <td className="max-w-[260px] px-3 py-3 align-top text-slate-500">
-                          {item.reason || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : null}
-          </section>
-        ) : null}
       </section>
 
       {sheet ? (
