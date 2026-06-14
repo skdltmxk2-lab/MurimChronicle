@@ -18,11 +18,15 @@ import {
 } from "@/lib/taxonomy";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionDraft, QuestionPool, QuestionRecord } from "@/types/question";
-import type { CoachingExtractedProblem, CoachingRelatedGroup } from "@/types/coaching";
+import type {
+  CoachingExtractedProblem,
+  CoachingReclassificationItem,
+  CoachingRelatedGroup,
+} from "@/types/coaching";
 
 const MAX_UPLOAD_PAGES = 8;
 
-type Tab = "related" | "unit" | "twin";
+type Tab = "related" | "unit" | "twin" | "classify";
 type PoolFilter = "all" | QuestionPool;
 
 type UploadPage = {
@@ -99,6 +103,10 @@ function answerLabel(question: QuestionRecord): string {
   return option ? option.label : question.correctOptionId;
 }
 
+function difficultyText(value: string): string {
+  return DIFFICULTY_LABELS[value as Difficulty] ?? value;
+}
+
 function chunk<T>(values: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < values.length; i += size) chunks.push(values.slice(i, i + size));
@@ -145,6 +153,14 @@ export function AdminCoachingClient() {
   const [twinMsg, setTwinMsg] = useState("");
   const [twinResult, setTwinResult] = useState<TwinResult | null>(null);
 
+  const [reclassOffset, setReclassOffset] = useState(0);
+  const [reclassLimit, setReclassLimit] = useState(500);
+  const [reclassTotal, setReclassTotal] = useState<number | null>(null);
+  const [reclassLoading, setReclassLoading] = useState(false);
+  const [reclassApplying, setReclassApplying] = useState(false);
+  const [reclassMsg, setReclassMsg] = useState("");
+  const [reclassItems, setReclassItems] = useState<CoachingReclassificationItem[]>([]);
+
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
 
@@ -171,6 +187,12 @@ export function AdminCoachingClient() {
       if (twinImageRef.current) URL.revokeObjectURL(twinImageRef.current.url);
     };
   }, []);
+
+  useEffect(() => {
+    if (tab !== "classify" || reclassTotal !== null) return;
+    void loadReclassStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, reclassTotal]);
 
   function replacePages(next: UploadPage[]) {
     setPages((prev) => {
@@ -435,6 +457,79 @@ export function AdminCoachingClient() {
     }
   }
 
+  async function loadReclassStatus() {
+    try {
+      const json = await ensureOk<{ total: number }>(
+        await adminFetch("/api/admin/coaching/reclassify")
+      );
+      setReclassTotal(json.total ?? 0);
+    } catch (error) {
+      setReclassMsg(error instanceof Error ? error.message : "DB 문제 수를 불러오지 못했습니다.");
+    }
+  }
+
+  async function reviewReclassification() {
+    if (reclassLoading) return;
+    setReclassLoading(true);
+    setReclassMsg("");
+    setReclassItems([]);
+    try {
+      const json = await ensureOk<{
+        total: number;
+        reviewed: number;
+        changedCount: number;
+        items: CoachingReclassificationItem[];
+      }>(
+        await adminFetch("/api/admin/coaching/reclassify", {
+          method: "POST",
+          body: JSON.stringify({
+            offset: reclassOffset,
+            limit: reclassLimit,
+          }),
+        })
+      );
+      setReclassTotal(json.total ?? reclassTotal);
+      setReclassItems(json.items ?? []);
+      setReclassMsg(`검토 ${json.reviewed ?? 0}문항 · 변경 제안 ${json.changedCount ?? 0}문항`);
+    } catch (error) {
+      setReclassMsg(error instanceof Error ? error.message : "AI 분류 검토에 실패했습니다.");
+    } finally {
+      setReclassLoading(false);
+    }
+  }
+
+  async function applyReclassification() {
+    const changedItems = reclassItems.filter((item) => item.changed);
+    if (changedItems.length === 0 || reclassApplying) return;
+    if (!confirm(`변경 제안 ${changedItems.length}문항을 DB에 반영할까요?`)) return;
+
+    setReclassApplying(true);
+    setReclassMsg("");
+    try {
+      const json = await ensureOk<{ applied: number }>(
+        await adminFetch("/api/admin/coaching/reclassify", {
+          method: "POST",
+          body: JSON.stringify({
+            applyReviewed: true,
+            items: changedItems,
+          }),
+        })
+      );
+      setReclassMsg(`DB에 ${json.applied ?? 0}문항을 반영했습니다.`);
+      setReclassItems((prev) =>
+        prev.map((item) =>
+          item.changed
+            ? { ...item, before: item.after, changed: false }
+            : item
+        )
+      );
+    } catch (error) {
+      setReclassMsg(error instanceof Error ? error.message : "DB 반영에 실패했습니다.");
+    } finally {
+      setReclassApplying(false);
+    }
+  }
+
   function printSheet() {
     window.print();
   }
@@ -448,6 +543,24 @@ export function AdminCoachingClient() {
         }
         .coaching-print-area {
           display: block;
+        }
+        .coaching-print-grid {
+          position: relative;
+        }
+        .coaching-print-question {
+          min-width: 0;
+        }
+        @media (min-width: 1024px) {
+          .coaching-print-grid::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            top: 0;
+            width: 1px;
+            background: #d7deea;
+            transform: translateX(-0.5px);
+          }
         }
         @media print {
           body {
@@ -482,16 +595,29 @@ export function AdminCoachingClient() {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             grid-template-rows: repeat(3, minmax(0, 1fr));
-            gap: 5mm;
+            column-gap: 8mm;
+            row-gap: 7mm;
             height: 255mm;
+            position: relative;
+          }
+          .coaching-print-grid::before {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            top: 0;
+            width: 0.35mm;
+            background: #d7deea;
+            transform: translateX(-0.175mm);
           }
           .coaching-print-question {
             min-height: 0;
             overflow: hidden;
             break-inside: avoid;
             page-break-inside: avoid;
-            border: 1px solid #d7deea;
-            padding: 4mm;
+            border: 0 !important;
+            border-radius: 0 !important;
+            padding: 0 3mm;
             font-size: 9.5pt;
             line-height: 1.42;
           }
@@ -540,6 +666,7 @@ export function AdminCoachingClient() {
           { id: "related" as const, label: "관련문제 문제지" },
           { id: "unit" as const, label: "단원별 모고" },
           { id: "twin" as const, label: "쌍둥이 문제" },
+          { id: "classify" as const, label: "DB 세부분류" },
         ].map((item) => (
           <button
             key={item.id}
@@ -859,6 +986,141 @@ export function AdminCoachingClient() {
             </div>
           </section>
         ) : null}
+
+        {tab === "classify" ? (
+          <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <h2 className="text-lg font-black text-ink">DB 세부분류 재검토</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-500">
+                  Gemini가 저장된 문제의 과목·단원·세부개념·난이도를 다시 제안합니다. 검토 결과를 본 뒤 바뀐 항목만 DB에 반영합니다.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={loadReclassStatus}
+                disabled={reclassLoading || reclassApplying}
+                className="rounded-md border border-line px-4 py-2 text-xs font-black text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              >
+                문제 수 새로고침
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-4 md:grid-cols-3">
+              <label className="text-xs font-black text-slate-600">
+                시작 위치
+                <input
+                  type="number"
+                  min={0}
+                  value={reclassOffset}
+                  onChange={(event) => setReclassOffset(Math.max(0, Number(event.target.value) || 0))}
+                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
+                />
+              </label>
+              <label className="text-xs font-black text-slate-600">
+                검토 개수
+                <input
+                  type="number"
+                  min={1}
+                  max={500}
+                  value={reclassLimit}
+                  onChange={(event) => setReclassLimit(Math.max(1, Math.min(500, Number(event.target.value) || 1)))}
+                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
+                />
+              </label>
+              <div className="rounded-md bg-slate-50 px-4 py-3 text-xs font-bold text-slate-600">
+                전체 문제 수
+                <p className="mt-1 text-lg font-black text-ink">
+                  {reclassTotal === null ? "-" : reclassTotal.toLocaleString()}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={reviewReclassification}
+                disabled={reclassLoading || reclassApplying}
+                className="rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
+              >
+                {reclassLoading ? "AI 검토 중..." : `${reclassLimit}문항 AI 검토`}
+              </button>
+              <button
+                type="button"
+                onClick={applyReclassification}
+                disabled={reclassApplying || reclassItems.every((item) => !item.changed)}
+                className="rounded-md bg-ink px-5 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:bg-slate-300"
+              >
+                {reclassApplying ? "DB 반영 중..." : "검토 결과 DB 반영"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setReclassOffset((prev) => prev + reclassLimit);
+                  setReclassItems([]);
+                  setReclassMsg("");
+                }}
+                disabled={reclassLoading || reclassApplying}
+                className="rounded-md border border-line px-5 py-3 text-sm font-black text-slate-600 hover:bg-slate-50 disabled:opacity-50"
+              >
+                다음 묶음으로
+              </button>
+            </div>
+
+            {reclassMsg ? (
+              <p className="mt-4 rounded-md bg-brand-50 px-4 py-3 text-sm font-bold text-brand-700">{reclassMsg}</p>
+            ) : null}
+
+            {reclassItems.length > 0 ? (
+              <div className="mt-5 overflow-x-auto rounded-lg border border-line">
+                <table className="min-w-full divide-y divide-line text-left text-xs">
+                  <thead className="bg-slate-50 text-slate-500">
+                    <tr>
+                      <th className="px-3 py-2 font-black">문제</th>
+                      <th className="px-3 py-2 font-black">기존</th>
+                      <th className="px-3 py-2 font-black">제안</th>
+                      <th className="px-3 py-2 font-black">확신</th>
+                      <th className="px-3 py-2 font-black">사유</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-line bg-white">
+                    {reclassItems.map((item) => (
+                      <tr key={item.id} className={item.changed ? "bg-amber-50/40" : undefined}>
+                        <td className="max-w-[360px] px-3 py-3 align-top">
+                          <p className="font-black text-slate-500">{item.id}</p>
+                          <p className="mt-1 line-clamp-3 text-slate-600">{item.questionPreview}</p>
+                        </td>
+                        <td className="px-3 py-3 align-top text-slate-500">
+                          <p>{item.before.subject}</p>
+                          <p>{item.before.unit}</p>
+                          <p>{item.before.concept}</p>
+                          <p>{difficultyText(item.before.difficulty)}</p>
+                        </td>
+                        <td className="px-3 py-3 align-top font-bold text-ink">
+                          <p>{item.after.subject}</p>
+                          <p>{item.after.unit}</p>
+                          <p>{item.after.concept}</p>
+                          <p>{difficultyText(item.after.difficulty)}</p>
+                          {item.changed ? (
+                            <span className="mt-2 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-black text-amber-700">
+                              변경
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="px-3 py-3 align-top font-black text-brand-700">
+                          {Math.round(item.confidence * 100)}%
+                        </td>
+                        <td className="max-w-[260px] px-3 py-3 align-top text-slate-500">
+                          {item.reason || "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
       </section>
 
       {sheet ? (
@@ -921,9 +1183,9 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
               {pageIndex + 1} / {pages.length}
             </p>
           </div>
-          <div className="coaching-print-grid grid gap-4 lg:grid-cols-2">
+          <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
             {questions.map((question, index) => (
-              <div key={question.id} className="coaching-print-question rounded-lg border border-line p-4">
+              <div key={question.id} className="coaching-print-question px-3 py-2">
                 <div className="mb-2 flex items-start gap-2">
                   <span className="grid size-6 shrink-0 place-items-center rounded-full bg-ink text-xs font-black text-white">
                     {pageIndex * 6 + index + 1}

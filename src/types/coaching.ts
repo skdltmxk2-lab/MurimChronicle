@@ -30,3 +30,20 @@ export type CoachingRelatedGroup = {
   skipped?: boolean;
   reason?: string;
 };
+
+export type CoachingClassificationValue = {
+  subject: string;
+  unit: string;
+  concept: string;
+  difficulty: string;
+};
+
+export type CoachingReclassificationItem = {
+  id: string;
+  questionPreview: string;
+  before: CoachingClassificationValue;
+  after: CoachingClassificationValue;
+  confidence: number;
+  reason: string;
+  changed: boolean;
+};
