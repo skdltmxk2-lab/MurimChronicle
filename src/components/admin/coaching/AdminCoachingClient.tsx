@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import {
@@ -110,13 +110,6 @@ function pdfFileName(title: string): string {
   const safeTitle = title.replace(/[\\/:*?"<>|]+/g, "-").trim() || "문제지";
   const date = new Date().toISOString().slice(0, 10);
   return `${safeTitle}-${date}.pdf`;
-}
-
-function printGridPosition(index: number): CSSProperties {
-  return {
-    "--coaching-print-column": index < 3 ? "1" : "2",
-    "--coaching-print-row": String((index % 3) + 1),
-  } as CSSProperties;
 }
 
 function hasEditablePasteTarget(target: EventTarget | null): boolean {
@@ -606,6 +599,12 @@ export function AdminCoachingClient() {
           padding-top: 1.25rem;
           box-sizing: border-box;
         }
+        .coaching-print-column {
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+        }
         .coaching-print-divider {
           display: none;
         }
@@ -619,15 +618,14 @@ export function AdminCoachingClient() {
           color: #f8fafc !important;
         }
         .coaching-print-content {
+          min-width: 0;
           word-break: keep-all;
-          overflow-wrap: normal;
-        }
-        .coaching-print-question .katex {
-          white-space: nowrap;
+          overflow-wrap: break-word;
         }
         .coaching-print-question .katex-display {
           margin: 0.2em 0;
           overflow: visible;
+          text-align: left;
         }
         .coaching-pdf-exporting .coaching-print-area {
           margin: 0 !important;
@@ -645,13 +643,17 @@ export function AdminCoachingClient() {
         .coaching-pdf-exporting .coaching-print-grid {
           display: grid !important;
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
           column-gap: 8mm !important;
-          row-gap: 7mm !important;
           height: 255mm !important;
           padding-top: 9mm !important;
           box-sizing: border-box !important;
           position: relative !important;
+        }
+        .coaching-pdf-exporting .coaching-print-column {
+          min-width: 0 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 7mm !important;
         }
         .coaching-pdf-exporting .coaching-print-divider {
           display: block !important;
@@ -666,14 +668,28 @@ export function AdminCoachingClient() {
         }
         .coaching-pdf-exporting .coaching-print-question {
           min-height: 0 !important;
-          overflow: hidden !important;
+          overflow: visible !important;
           border: 0 !important;
           border-radius: 0 !important;
           padding: 0 3mm !important;
           font-size: 8pt !important;
           line-height: 1.48 !important;
-          grid-column: var(--coaching-print-column) !important;
-          grid-row: var(--coaching-print-row) !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question-body {
+          display: flex !important;
+          align-items: flex-start !important;
+          gap: 2mm !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question-number {
+          flex: 0 0 auto !important;
+          font-size: 8pt !important;
+          line-height: 1.48 !important;
+        }
+        .coaching-pdf-exporting .coaching-print-content {
+          font-size: 8pt !important;
+          line-height: 1.48 !important;
+          word-break: keep-all !important;
+          overflow-wrap: break-word !important;
         }
         .coaching-pdf-exporting .coaching-print-page .coaching-print-question,
         .coaching-pdf-exporting .coaching-print-page .coaching-print-question * {
@@ -694,19 +710,19 @@ export function AdminCoachingClient() {
         }
         .coaching-pdf-exporting .coaching-print-question .katex {
           font-size: 1em !important;
-          white-space: nowrap !important;
+          white-space: normal !important;
         }
         .coaching-pdf-exporting .coaching-print-question .katex-display {
           margin: 0.15em 0 !important;
           overflow: visible !important;
+          text-align: left !important;
         }
         @media (min-width: 1024px) {
           .coaching-print-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 2rem;
             min-height: 820px;
-          }
-          .coaching-print-question {
-            grid-column: var(--coaching-print-column);
-            grid-row: var(--coaching-print-row);
           }
           .coaching-print-divider {
             display: block;
@@ -752,13 +768,17 @@ export function AdminCoachingClient() {
           .coaching-print-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            grid-template-rows: repeat(3, minmax(0, 1fr));
             column-gap: 8mm;
-            row-gap: 7mm;
             height: 255mm;
             padding-top: 9mm;
             box-sizing: border-box;
             position: relative;
+          }
+          .coaching-print-column {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 7mm;
           }
           .coaching-print-divider {
             display: block !important;
@@ -773,7 +793,7 @@ export function AdminCoachingClient() {
           }
           .coaching-print-question {
             min-height: 0;
-            overflow: hidden;
+            overflow: visible;
             break-inside: avoid;
             page-break-inside: avoid;
             border: 0 !important;
@@ -781,8 +801,22 @@ export function AdminCoachingClient() {
             padding: 0 3mm;
             font-size: 8pt;
             line-height: 1.48;
-            grid-column: var(--coaching-print-column);
-            grid-row: var(--coaching-print-row);
+          }
+          .coaching-print-question-body {
+            display: flex;
+            align-items: flex-start;
+            gap: 2mm;
+          }
+          .coaching-print-question-number {
+            flex: 0 0 auto;
+            font-size: 8pt;
+            line-height: 1.48;
+          }
+          .coaching-print-content {
+            font-size: 8pt;
+            line-height: 1.48;
+            word-break: keep-all;
+            overflow-wrap: break-word;
           }
           .coaching-print-page .coaching-print-question,
           .coaching-print-page .coaching-print-question * {
@@ -793,11 +827,12 @@ export function AdminCoachingClient() {
           }
           .coaching-print-question .katex {
             font-size: 1em;
-            white-space: nowrap;
+            white-space: normal;
           }
           .coaching-print-question .katex-display {
             margin: 0.15em 0 !important;
             overflow: visible !important;
+            text-align: left !important;
           }
           .coaching-print-option {
             gap: 2mm;
@@ -1323,43 +1358,50 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
           </div>
           <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
             <div className="coaching-print-divider" aria-hidden="true" />
-            {questions.map((question, index) => (
-              <div key={question.id} className="coaching-print-question px-3 py-2" style={printGridPosition(index)}>
-                <div className="flex items-start gap-2">
-                  <span className="shrink-0 text-sm font-black leading-6 text-ink">
-                    {pageIndex * 6 + index + 1}.
-                  </span>
-                  <ContentRenderer
-                    contentType={question.contentType}
-                    text={stripLeadingQuestionNumber(question.question)}
-                    image={question.questionImage}
-                    className="coaching-print-content min-w-0 flex-1 text-sm leading-6 text-ink"
-                  />
-                </div>
-                {question.options.length > 0 ? (
-                  <ol className="coaching-print-options mt-3 space-y-1.5">
-                    {question.options.map((option) => (
-                      <li key={option.id} className="coaching-print-option flex gap-2 text-xs leading-5">
-                        <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
+            {[questions.slice(0, 3), questions.slice(3, 6)].map((columnQuestions, columnIndex) => (
+              <div key={columnIndex} className="coaching-print-column">
+                {columnQuestions.map((question, index) => {
+                  const questionNumber = pageIndex * 6 + columnIndex * 3 + index + 1;
+                  return (
+                    <div key={question.id} className="coaching-print-question px-3 py-2">
+                      <div className="coaching-print-question-body flex items-start gap-2">
+                        <span className="coaching-print-question-number shrink-0 font-black text-ink">
+                          {questionNumber}.
+                        </span>
                         <ContentRenderer
-                          contentType={option.contentType}
-                          text={option.text}
-                          image={option.image}
-                          className="coaching-print-content min-w-0 flex-1"
+                          contentType={question.contentType}
+                          text={stripLeadingQuestionNumber(question.question)}
+                          image={question.questionImage}
+                          className="coaching-print-content min-w-0 flex-1 text-ink"
                         />
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <div className="mt-4 border-t border-dashed border-slate-300 pt-3 text-xs text-slate-400">
-                    답:
-                  </div>
-                )}
-                {showAnswers ? (
-                  <div className="mt-3 rounded bg-slate-100 px-2 py-1 text-xs font-black text-slate-700">
-                    정답 {answerLabel(question) || "-"}
-                  </div>
-                ) : null}
+                      </div>
+                      {question.options.length > 0 ? (
+                        <ol className="coaching-print-options mt-3 space-y-1.5">
+                          {question.options.map((option) => (
+                            <li key={option.id} className="coaching-print-option flex gap-2">
+                              <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
+                              <ContentRenderer
+                                contentType={option.contentType}
+                                text={option.text}
+                                image={option.image}
+                                className="coaching-print-content min-w-0 flex-1"
+                              />
+                            </li>
+                          ))}
+                        </ol>
+                      ) : (
+                        <div className="mt-4 border-t border-dashed border-slate-300 pt-3 text-xs text-slate-400">
+                          답:
+                        </div>
+                      )}
+                      {showAnswers ? (
+                        <div className="mt-3 rounded bg-slate-100 px-2 py-1 text-xs font-black text-slate-700">
+                          정답 {answerLabel(question) || "-"}
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>
