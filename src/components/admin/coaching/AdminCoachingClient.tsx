@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type DragEvent, type KeyboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import {
@@ -104,6 +104,13 @@ function answerLabel(question: QuestionRecord): string {
 
 function stripLeadingQuestionNumber(value: string): string {
   return value.replace(/^\s*(?:\d+|[①-⑳])[\).\s]+/, "").trimStart();
+}
+
+function printGridPosition(index: number): CSSProperties {
+  return {
+    "--coaching-print-column": index < 3 ? "1" : "2",
+    "--coaching-print-row": String((index % 3) + 1),
+  } as CSSProperties;
 }
 
 function hasEditablePasteTarget(target: EventTarget | null): boolean {
@@ -519,7 +526,15 @@ export function AdminCoachingClient() {
           position: relative;
           z-index: 1;
         }
+        .coaching-print-page .coaching-print-question,
+        .coaching-print-page .coaching-print-question * {
+          color: #000000 !important;
+        }
         @media (min-width: 1024px) {
+          .coaching-print-question {
+            grid-column: var(--coaching-print-column);
+            grid-row: var(--coaching-print-row);
+          }
           .coaching-print-divider {
             display: block;
             position: absolute;
@@ -593,6 +608,8 @@ export function AdminCoachingClient() {
             padding: 0 3mm;
             font-size: 9.5pt;
             line-height: 1.42;
+            grid-column: var(--coaching-print-column);
+            grid-row: var(--coaching-print-row);
           }
           .coaching-print-question img {
             max-height: 36mm !important;
@@ -1084,7 +1101,7 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
           <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
             <div className="coaching-print-divider" aria-hidden="true" />
             {questions.map((question, index) => (
-              <div key={question.id} className="coaching-print-question px-3 py-2">
+              <div key={question.id} className="coaching-print-question px-3 py-2" style={printGridPosition(index)}>
                 <div className="flex items-start gap-2">
                   <span className="shrink-0 text-sm font-black leading-6 text-ink">
                     {pageIndex * 6 + index + 1}.
