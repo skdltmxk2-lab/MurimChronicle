@@ -55,7 +55,7 @@ async function matchProblem(
 
   const { data, error } = await supabase.rpc("match_questions", {
     query_embedding: vec,
-    match_count: Math.max(perProblem * 6, perProblem + usedIds.size + 8),
+    match_count: Math.max(perProblem * 8, perProblem + usedIds.size + 12),
     p_subject: isKnownSubject(problem.subject) ? problem.subject : null,
   });
   if (error) throw error;
@@ -88,10 +88,13 @@ export async function POST(request: Request) {
   }
 
   const body = (await request.json().catch(() => null)) as
-    | { problems?: CoachingExtractedProblem[]; perProblem?: number }
+    | { problems?: CoachingExtractedProblem[]; perProblem?: number; excludeIds?: unknown[] }
     | null;
   const problems = Array.isArray(body?.problems) ? body.problems : [];
   const perProblem = Math.max(1, Math.min(6, Math.round(Number(body?.perProblem ?? 2))));
+  const excludeIds = Array.isArray(body?.excludeIds)
+    ? body.excludeIds.filter((id): id is string => typeof id === "string").slice(0, 100)
+    : [];
 
   if (problems.length === 0) {
     return NextResponse.json({ ok: false, message: "관련문제를 찾을 원문 문제가 없습니다." }, { status: 400 });
@@ -101,7 +104,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const usedIds = new Set<string>();
+    const usedIds = new Set<string>(excludeIds);
     const groups: CoachingRelatedGroup[] = [];
 
     for (const problem of problems) {

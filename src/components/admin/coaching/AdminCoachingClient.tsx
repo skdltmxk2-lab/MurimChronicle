@@ -357,11 +357,12 @@ export function AdminCoachingClient() {
     }
   }
 
-  async function findRelated() {
+  async function findRelated(excludeCurrent = false) {
     if (extracted.length === 0 || matching) return;
     setMatching(true);
     setRelatedMsg("");
-    setRelatedGroups([]);
+    const excludeIds = excludeCurrent ? relatedSelected.map((question) => question.id) : [];
+    if (!excludeCurrent) setRelatedGroups([]);
     try {
       const json = await ensureOk<{
         groups: CoachingRelatedGroup[];
@@ -370,7 +371,7 @@ export function AdminCoachingClient() {
       }>(
         await adminFetch("/api/admin/coaching/related", {
           method: "POST",
-          body: JSON.stringify({ problems: extracted, perProblem }),
+          body: JSON.stringify({ problems: extracted, perProblem, excludeIds }),
         })
       );
       setRelatedGroups(json.groups ?? []);
@@ -507,20 +508,28 @@ export function AdminCoachingClient() {
         }
         .coaching-print-grid {
           position: relative;
+          padding-top: 1.25rem;
+          box-sizing: border-box;
+        }
+        .coaching-print-divider {
+          display: none;
         }
         .coaching-print-question {
           min-width: 0;
+          position: relative;
+          z-index: 1;
         }
         @media (min-width: 1024px) {
-          .coaching-print-grid::before {
-            content: "";
+          .coaching-print-divider {
+            display: block;
             position: absolute;
             bottom: 0;
             left: 50%;
             top: 0;
             width: 1px;
-            background: #d7deea;
+            background: #c2ccda;
             transform: translateX(-0.5px);
+            z-index: 0;
           }
         }
         @media print {
@@ -559,17 +568,20 @@ export function AdminCoachingClient() {
             column-gap: 8mm;
             row-gap: 7mm;
             height: 255mm;
+            padding-top: 9mm;
+            box-sizing: border-box;
             position: relative;
           }
-          .coaching-print-grid::before {
-            content: "";
+          .coaching-print-divider {
+            display: block !important;
             position: absolute;
             bottom: 0;
             left: 50%;
             top: 0;
-            width: 0.35mm;
-            background: #d7deea;
-            transform: translateX(-0.175mm);
+            width: 0.45mm;
+            background: #9aa8ba;
+            transform: translateX(-0.225mm);
+            z-index: 0;
           }
           .coaching-print-question {
             min-height: 0;
@@ -733,7 +745,7 @@ export function AdminCoachingClient() {
                 <button
                   type="button"
                   disabled={extracted.length === 0 || matching}
-                  onClick={findRelated}
+                  onClick={() => void findRelated()}
                   className="mt-3 w-full rounded-md bg-ink px-4 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
                   {matching ? "벡터 검색 중..." : "관련문제 문제지 구성"}
@@ -792,20 +804,30 @@ export function AdminCoachingClient() {
                 <section className="rounded-lg border border-line bg-white p-5 shadow-soft">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <h3 className="text-sm font-black text-ink">관련문제 구성 결과</h3>
-                    <button
-                      type="button"
-                      disabled={relatedSelected.length === 0}
-                      onClick={() =>
-                        setSheet({
-                          title: "관련문제 데일리 테스트",
-                          subtitle: `업로드 ${extracted.length}문제 · 문제당 ${perProblem}개`,
-                          questions: relatedSelected,
-                        })
-                      }
-                      className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
-                    >
-                      미리보기 갱신
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        disabled={matching || relatedSelected.length === 0}
+                        onClick={() => void findRelated(true)}
+                        className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
+                      >
+                        다른 문제로 구성
+                      </button>
+                      <button
+                        type="button"
+                        disabled={relatedSelected.length === 0}
+                        onClick={() =>
+                          setSheet({
+                            title: "관련문제 데일리 테스트",
+                            subtitle: `업로드 ${extracted.length}문제 · 문제당 ${perProblem}개`,
+                            questions: relatedSelected,
+                          })
+                        }
+                        className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
+                      >
+                        미리보기 갱신
+                      </button>
+                    </div>
                   </div>
                   <div className="mt-4 space-y-4">
                     {relatedGroups.map((group, index) => (
@@ -1060,6 +1082,7 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
             </p>
           </div>
           <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
+            <div className="coaching-print-divider" aria-hidden="true" />
             {questions.map((question, index) => (
               <div key={question.id} className="coaching-print-question px-3 py-2">
                 <div className="flex items-start gap-2">
