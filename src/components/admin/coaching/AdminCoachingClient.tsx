@@ -106,6 +106,12 @@ function stripLeadingQuestionNumber(value: string): string {
   return value.replace(/^\s*(?:\d+|[①-⑳])[\).\s]+/, "").trimStart();
 }
 
+function pdfFileName(title: string): string {
+  const safeTitle = title.replace(/[\\/:*?"<>|]+/g, "-").trim() || "문제지";
+  const date = new Date().toISOString().slice(0, 10);
+  return `${safeTitle}-${date}.pdf`;
+}
+
 function printGridPosition(index: number): CSSProperties {
   return {
     "--coaching-print-column": index < 3 ? "1" : "2",
@@ -194,6 +200,7 @@ export function AdminCoachingClient() {
 
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
+  const [savingPdf, setSavingPdf] = useState(false);
 
   const unitOptions = useMemo(
     () => SUBJECT_UNITS[unitSubject as keyof typeof SUBJECT_UNITS] ?? [],
@@ -546,6 +553,44 @@ export function AdminCoachingClient() {
     window.print();
   }
 
+  async function saveSheetPdf() {
+    if (!sheet || savingPdf) return;
+
+    const pageElements = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-coaching-print-page]")
+    );
+    if (pageElements.length === 0) return;
+
+    setSavingPdf(true);
+    document.documentElement.classList.add("coaching-pdf-exporting");
+    try {
+      await document.fonts?.ready;
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      for (let index = 0; index < pageElements.length; index++) {
+        const canvas = await html2canvas(pageElements[index], {
+          backgroundColor: "#ffffff",
+          scale: Math.min(2, window.devicePixelRatio || 1.5),
+          useCORS: true,
+        });
+        const imageData = canvas.toDataURL("image/png");
+        if (index > 0) pdf.addPage("a4", "portrait");
+        pdf.addImage(imageData, "PNG", 0, 0, 210, 297);
+      }
+
+      pdf.save(pdfFileName(sheet.title));
+    } finally {
+      document.documentElement.classList.remove("coaching-pdf-exporting");
+      setSavingPdf(false);
+    }
+  }
+
   return (
     <main className="coaching-workspace mx-auto max-w-7xl px-5 py-8">
       <style jsx global>{`
@@ -572,6 +617,59 @@ export function AdminCoachingClient() {
         .coaching-print-page .coaching-print-question,
         .coaching-print-page .coaching-print-question * {
           color: #f8fafc !important;
+        }
+        .coaching-pdf-exporting .coaching-print-area {
+          margin: 0 !important;
+          background: #ffffff !important;
+        }
+        .coaching-pdf-exporting .coaching-print-page {
+          width: 210mm !important;
+          min-height: 297mm !important;
+          padding: 12mm !important;
+          background: #ffffff !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          box-shadow: none !important;
+        }
+        .coaching-pdf-exporting .coaching-print-grid {
+          display: grid !important;
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+          column-gap: 8mm !important;
+          row-gap: 7mm !important;
+          height: 255mm !important;
+          padding-top: 9mm !important;
+          box-sizing: border-box !important;
+          position: relative !important;
+        }
+        .coaching-pdf-exporting .coaching-print-divider {
+          display: block !important;
+          position: absolute !important;
+          bottom: 0 !important;
+          left: 50% !important;
+          top: 0 !important;
+          width: 0.45mm !important;
+          background: #9aa8ba !important;
+          transform: translateX(-0.225mm) !important;
+          z-index: 0 !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question {
+          min-height: 0 !important;
+          overflow: hidden !important;
+          border: 0 !important;
+          border-radius: 0 !important;
+          padding: 0 3mm !important;
+          font-size: 9.5pt !important;
+          line-height: 1.42 !important;
+          grid-column: var(--coaching-print-column) !important;
+          grid-row: var(--coaching-print-row) !important;
+        }
+        .coaching-pdf-exporting .coaching-print-page .coaching-print-question,
+        .coaching-pdf-exporting .coaching-print-page .coaching-print-question * {
+          color: #000000 !important;
+        }
+        .coaching-pdf-exporting .coaching-print-question img {
+          max-height: 36mm !important;
         }
         @media (min-width: 1024px) {
           .coaching-print-question {
@@ -688,10 +786,18 @@ export function AdminCoachingClient() {
               </label>
               <button
                 type="button"
-                onClick={printSheet}
+                onClick={() => void saveSheetPdf()}
+                disabled={savingPdf}
                 className="rounded-md bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-800"
               >
-                PDF 저장/인쇄
+                {savingPdf ? "PDF 저장 중..." : "PDF 저장"}
+              </button>
+              <button
+                type="button"
+                onClick={printSheet}
+                className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
+              >
+                PDF 인쇄
               </button>
             </div>
           ) : null}
@@ -1154,7 +1260,11 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
   return (
     <section className="coaching-print-area mt-6 space-y-6">
       {pages.map((questions, pageIndex) => (
-        <div key={`${sheet.sourceLabel ?? sheet.title}-${pageIndex}`} className="coaching-print-page rounded-lg border border-line bg-white p-6 shadow-soft">
+        <div
+          key={`${sheet.sourceLabel ?? sheet.title}-${pageIndex}`}
+          data-coaching-print-page
+          className="coaching-print-page rounded-lg border border-line bg-white p-6 shadow-soft"
+        >
           <div className="mb-5 flex items-end justify-between border-b border-line pb-3">
             <div>
               <h2 className="text-xl font-black text-ink">{sheet.title}</h2>
