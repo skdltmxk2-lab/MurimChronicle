@@ -73,16 +73,25 @@ export function questionRowsToRecords(rows: Record<string, unknown>[]): Question
   return rows.map(fromQuestionDb);
 }
 
+function answerTextFromOption(options: QuestionRecord["options"], correctOptionId: string) {
+  return options.find((option) => option.id === correctOptionId || option.label === correctOptionId)?.text;
+}
+
 export function fromQuestionDb(row: DbRow): QuestionRecord {
   const tags = (row.tags ?? []) as string[];
   const dbType = row.question_type as QuestionRecord["questionType"] | null | undefined;
-  const questionType: QuestionRecord["questionType"] =
+  const storedQuestionType: QuestionRecord["questionType"] =
     dbType ?? (tags.includes("subjective") ? "subjective" : "multiple_choice");
-  const options = (row.options ?? []) as QuestionRecord["options"];
+  const rawOptions = (row.options ?? []) as QuestionRecord["options"];
+  const correctOptionId = (row.correct_option_id as string) ?? "";
+  const oversizedOptionBank = storedQuestionType !== "subjective" && rawOptions.length > 5;
+  const questionType: QuestionRecord["questionType"] =
+    oversizedOptionBank ? "subjective" : storedQuestionType;
+  const options = questionType === "subjective" ? [] : rawOptions;
   const dbAnswer = (row.answer_text ?? null) as string | null;
   const answerText =
     dbAnswer ??
-    (questionType === "subjective" && options.length > 0 ? options[0]?.text : undefined);
+    (questionType === "subjective" ? answerTextFromOption(rawOptions, correctOptionId) : undefined);
 
   return {
     id: row.id as string,
@@ -97,7 +106,7 @@ export function fromQuestionDb(row: DbRow): QuestionRecord {
     questionImage: (row.question_image ?? undefined) as string | undefined,
     questionType,
     options,
-    correctOptionId: row.correct_option_id as string,
+    correctOptionId: questionType === "subjective" ? "" : correctOptionId,
     answerText: answerText ?? undefined,
     explanation: row.explanation as string,
     explanationContentType: (row.explanation_content_type ?? undefined) as QuestionRecord["explanationContentType"],

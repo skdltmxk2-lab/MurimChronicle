@@ -24,6 +24,10 @@ function normalizeOptions(options: QuestionDraft["options"]) {
   }));
 }
 
+function answerTextFromOption(options: QuestionRecord["options"], correctOptionId: string) {
+  return options.find((option) => option.id === correctOptionId || option.label === correctOptionId)?.text;
+}
+
 function draftToRow(draft: QuestionDraft) {
   const isSubj = draft.questionType === "subjective";
   return {
@@ -83,14 +87,19 @@ function fromDb(row: DbRow): QuestionRecord {
   // question_type 컬럼이 없으면 'subjective' 태그로 추론 (마이그레이션 이전 호환)
   const tags = (row.tags ?? []) as string[];
   const dbType = row.question_type as QuestionRecord["questionType"] | null | undefined;
-  const questionType: QuestionRecord["questionType"] =
+  const storedQuestionType: QuestionRecord["questionType"] =
     dbType ?? (tags.includes("subjective") ? "subjective" : "multiple_choice");
   // answer_text 컬럼이 없으면 단답형의 첫 옵션 텍스트로 fallback
-  const options = (row.options ?? []) as QuestionRecord["options"];
+  const rawOptions = (row.options ?? []) as QuestionRecord["options"];
+  const correctOptionId = (row.correct_option_id as string) ?? "";
+  const oversizedOptionBank = storedQuestionType !== "subjective" && rawOptions.length > 5;
+  const questionType: QuestionRecord["questionType"] =
+    oversizedOptionBank ? "subjective" : storedQuestionType;
+  const options = questionType === "subjective" ? [] : rawOptions;
   const dbAnswer = (row.answer_text ?? null) as string | null;
   const answerText =
     dbAnswer ??
-    (questionType === "subjective" && options.length > 0 ? options[0]?.text : undefined);
+    (questionType === "subjective" ? answerTextFromOption(rawOptions, correctOptionId) : undefined);
 
   return {
     id: row.id as string,
@@ -105,7 +114,7 @@ function fromDb(row: DbRow): QuestionRecord {
     questionImage: (row.question_image ?? undefined) as string | undefined,
     questionType,
     options,
-    correctOptionId: row.correct_option_id as string,
+    correctOptionId: questionType === "subjective" ? "" : correctOptionId,
     answerText: answerText ?? undefined,
     explanation: row.explanation as string,
     explanationContentType: (row.explanation_content_type ?? undefined) as QuestionRecord["explanationContentType"],

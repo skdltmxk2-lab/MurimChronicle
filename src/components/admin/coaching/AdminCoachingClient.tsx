@@ -169,12 +169,6 @@ function parseViewBlock(value: string): ParsedViewBlock | null {
   return { prompt, items, tail: "" };
 }
 
-function pdfFileName(title: string): string {
-  const safeTitle = title.replace(/[\\/:*?"<>|]+/g, "-").trim() || "문제지";
-  const date = new Date().toISOString().slice(0, 10);
-  return `${safeTitle}-${date}.pdf`;
-}
-
 function parseOptionalNumberInput(value: string): OptionalNumber {
   const trimmed = value.trim();
   if (trimmed === "") return "";
@@ -272,7 +266,6 @@ export function AdminCoachingClient() {
 
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
-  const [savingPdf, setSavingPdf] = useState(false);
 
   const unitOptions = useMemo(
     () => SUBJECT_UNITS[unitSubject as keyof typeof SUBJECT_UNITS] ?? [],
@@ -709,42 +702,8 @@ export function AdminCoachingClient() {
     window.print();
   }
 
-  async function saveSheetPdf() {
-    if (!sheet || savingPdf) return;
-
-    const pageElements = Array.from(
-      document.querySelectorAll<HTMLElement>("[data-coaching-print-page]")
-    );
-    if (pageElements.length === 0) return;
-
-    setSavingPdf(true);
-    document.documentElement.classList.add("coaching-pdf-exporting");
-    try {
-      await document.fonts?.ready;
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
-        import("jspdf"),
-      ]);
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      for (let index = 0; index < pageElements.length; index++) {
-        const canvas = await html2canvas(pageElements[index], {
-          backgroundColor: "#ffffff",
-          scale: Math.min(2, window.devicePixelRatio || 1.5),
-          useCORS: true,
-        });
-        const imageData = canvas.toDataURL("image/png");
-        if (index > 0) pdf.addPage("a4", "portrait");
-        pdf.addImage(imageData, "PNG", 0, 0, 210, 297);
-      }
-
-      pdf.save(pdfFileName(sheet.title));
-    } finally {
-      document.documentElement.classList.remove("coaching-pdf-exporting");
-      setSavingPdf(false);
-    }
+  function saveSheetPdf() {
+    printSheet();
   }
 
   return (
@@ -823,120 +782,6 @@ export function AdminCoachingClient() {
         .coaching-print-viewitem-text {
           min-width: 0;
           flex: 1;
-        }
-        .coaching-pdf-exporting .coaching-print-area {
-          margin: 0 !important;
-          background: #ffffff !important;
-        }
-        .coaching-pdf-exporting .coaching-print-page {
-          width: 210mm !important;
-          height: 297mm !important;
-          min-height: 0 !important;
-          padding: 12mm !important;
-          box-sizing: border-box !important;
-          display: flex !important;
-          flex-direction: column !important;
-          background: #ffffff !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          box-shadow: none !important;
-        }
-        .coaching-pdf-exporting .coaching-print-header {
-          display: none !important;
-        }
-        .coaching-pdf-exporting .coaching-print-grid {
-          display: grid !important;
-          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          column-gap: 0 !important;
-          flex: 1 1 auto !important;
-          height: auto !important;
-          min-height: 0 !important;
-          padding-top: 8mm !important;
-          box-sizing: border-box !important;
-          position: relative !important;
-          background-image: none !important;
-        }
-        .coaching-pdf-exporting .coaching-print-column {
-          min-width: 0 !important;
-          display: grid !important;
-          grid-template-rows: repeat(3, minmax(max-content, 1fr)) !important;
-          gap: 4mm !important;
-          align-items: start !important;
-        }
-        .coaching-pdf-exporting .coaching-print-column-left {
-          padding: 0 6mm 0 0 !important;
-        }
-        .coaching-pdf-exporting .coaching-print-column-right {
-          border-left: 0.35mm solid #111111 !important;
-          padding: 0 0 0 6mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-divider {
-          display: none !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question {
-          min-height: 0 !important;
-          overflow: visible !important;
-          border: 0 !important;
-          border-radius: 0 !important;
-          padding: 0 !important;
-          font-size: 8pt !important;
-          line-height: 1.48 !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question-body {
-          display: flex !important;
-          align-items: flex-start !important;
-          gap: 2mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question-number {
-          flex: 0 0 auto !important;
-          font-size: 8pt !important;
-          line-height: 1.48 !important;
-        }
-        .coaching-pdf-exporting .coaching-print-content {
-          font-size: 8pt !important;
-          line-height: 1.48 !important;
-          word-break: keep-all !important;
-          overflow-wrap: break-word !important;
-        }
-        .coaching-pdf-exporting .coaching-print-page .coaching-print-question,
-        .coaching-pdf-exporting .coaching-print-page .coaching-print-question * {
-          color: #000000 !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question img {
-          max-height: 36mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-option {
-          gap: 2mm !important;
-          line-height: 1.45 !important;
-          break-inside: avoid !important;
-        }
-        .coaching-pdf-exporting .coaching-print-option-label {
-          width: 4mm !important;
-          flex: 0 0 4mm !important;
-          text-align: left !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question .katex {
-          font-size: 1em !important;
-          white-space: normal !important;
-        }
-        .coaching-pdf-exporting .coaching-print-question .katex-display {
-          margin: 0.15em 0 !important;
-          overflow: visible !important;
-          text-align: left !important;
-        }
-        .coaching-pdf-exporting .coaching-print-viewbox {
-          border: 0.25mm solid #111111 !important;
-          padding: 1.8mm 2.2mm 2mm !important;
-          margin: 1.8mm 0 1.4mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-viewbox-title {
-          margin-bottom: 1.2mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-viewitems {
-          gap: 1.2mm !important;
-        }
-        .coaching-pdf-exporting .coaching-print-viewitem {
-          gap: 1.8mm !important;
         }
         @media (min-width: 1024px) {
           .coaching-print-grid {
@@ -1113,11 +958,10 @@ export function AdminCoachingClient() {
               </label>
               <button
                 type="button"
-                onClick={() => void saveSheetPdf()}
-                disabled={savingPdf}
+                onClick={saveSheetPdf}
                 className="rounded-md bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-800"
               >
-                {savingPdf ? "PDF 저장 중..." : "PDF 저장"}
+                PDF 저장
               </button>
               <button
                 type="button"
