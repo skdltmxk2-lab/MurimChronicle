@@ -714,7 +714,9 @@ export function AdminCoachingClient() {
           margin: 0;
         }
         .coaching-print-area {
-          display: block;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
         }
         .coaching-print-page {
           box-sizing: border-box;
@@ -816,19 +818,31 @@ export function AdminCoachingClient() {
             margin: 0 !important;
           }
           .coaching-print-area {
+            display: block !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          .coaching-print-area > .coaching-print-page,
+          .coaching-print-area > .coaching-print-page + .coaching-print-page {
             margin: 0 !important;
           }
           .coaching-print-page {
             width: 210mm;
-            height: 297mm;
+            height: 296mm;
+            max-height: 296mm;
             min-height: 0;
             padding: 12mm;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
             break-after: page;
             page-break-after: always;
+            break-inside: avoid;
+            page-break-inside: avoid;
             border: 0 !important;
+            border-radius: 0 !important;
             box-shadow: none !important;
           }
           .coaching-print-header {
@@ -1492,7 +1506,7 @@ function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
 function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers: boolean }) {
   const pages = chunk(sheet.questions, 6);
   return (
-    <section className="coaching-print-area mt-6 space-y-6">
+    <section className="coaching-print-area mt-6">
       {pages.map((questions, pageIndex) => (
         <div
           key={`${sheet.sourceLabel ?? sheet.title}-${pageIndex}`}
