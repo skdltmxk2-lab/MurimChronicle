@@ -131,7 +131,7 @@ type ParsedViewBlock = {
 
 function parseViewBlock(value: string): ParsedViewBlock | null {
   const text = normalizePrintableText(value);
-  const markerPattern = /(?:\(([ㄱ-ㅎ가-힣a-eA-E])\)|\b([a-eA-E])\.|(^|[\s\n])([가-힣ㄱ-ㅎ])\.)\s*/gm;
+  const markerPattern = /(?:\(([ㄱㄴㄷㄹㅁ가나다라마a-eA-E])\)|\b([a-eA-E])\.|(^|[\s\n])([가나다라마ㄱㄴㄷㄹㅁ])\.)\s*/gm;
   const markers = [...text.matchAll(markerPattern)];
   if (markers.length < 2) return null;
 
