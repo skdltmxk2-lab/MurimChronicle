@@ -255,6 +255,7 @@ export function AdminCoachingClient() {
   const [unitPool, setUnitPool] = useState<PoolFilter>("all");
   const [unitLoading, setUnitLoading] = useState(false);
   const [unitMsg, setUnitMsg] = useState("");
+  const [replacingUnitQuestionId, setReplacingUnitQuestionId] = useState("");
 
   const [twinImage, setTwinImage] = useState<UploadPage | null>(null);
   const [twinSourceText, setTwinSourceText] = useState("");
@@ -286,6 +287,15 @@ export function AdminCoachingClient() {
     return typeof unitCount === "number" && Number.isFinite(unitCount)
       ? clampInteger(unitCount, 1, 60)
       : null;
+  }
+
+  function unitSheetFromQuestions(questions: QuestionRecord[]): PrintSheet {
+    return {
+      title: `${unit} 단원 모의고사`,
+      subtitle: `${unitSubject} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
+      questions,
+      sourceLabel: "unit-mock",
+    };
   }
 
   function relatedSheetFromGroups(groups: CoachingRelatedGroup[]): PrintSheet | null {
@@ -593,8 +603,8 @@ export function AdminCoachingClient() {
     }
   }
 
-  async function generateUnitMock() {
-    if (unitLoading) return;
+  async function generateUnitMock(excludeCurrent = false) {
+    if (unitLoading || replacingUnitQuestionId) return;
     const resolvedCount = currentUnitCount();
     if (!resolvedCount) {
       setUnitMsg("문항 수를 입력해 주세요.");
@@ -603,10 +613,15 @@ export function AdminCoachingClient() {
     setUnitCount(resolvedCount);
     setUnitLoading(true);
     setUnitMsg("");
+    const excludeIds =
+      excludeCurrent && sheet?.sourceLabel === "unit-mock"
+        ? sheet.questions.map((question) => question.id)
+        : [];
     try {
       const json = await ensureOk<{
         questions: QuestionRecord[];
         available: number;
+        candidateCount?: number;
         requestedCount: number;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
@@ -617,20 +632,68 @@ export function AdminCoachingClient() {
             count: resolvedCount,
             difficulty: unitDifficulty,
             pool: unitPool,
+            excludeIds,
           }),
         })
       );
-      setUnitMsg(`DB ${json.available}문항 중 ${json.questions.length}문항을 뽑았습니다.`);
-      setSheet({
-        title: `${unit} 단원 모의고사`,
-        subtitle: `${unitSubject} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
-        questions: json.questions,
-        sourceLabel: "unit-mock",
-      });
+      const candidateText =
+        typeof json.candidateCount === "number" && excludeIds.length > 0
+          ? ` · 제외 후 후보 ${json.candidateCount}문항`
+          : "";
+      setUnitMsg(`DB ${json.available}문항 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}`);
+      setSheet(unitSheetFromQuestions(json.questions));
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
     } finally {
       setUnitLoading(false);
+    }
+  }
+
+  async function replaceUnitQuestion(questionId: string) {
+    if (unitLoading || replacingUnitQuestionId || sheet?.sourceLabel !== "unit-mock") return;
+    const targetIndex = sheet.questions.findIndex((question) => question.id === questionId);
+    if (targetIndex < 0) return;
+
+    setReplacingUnitQuestionId(questionId);
+    setUnitMsg("");
+    try {
+      const excludeIds = sheet.questions.map((question) => question.id);
+      const json = await ensureOk<{
+        questions: QuestionRecord[];
+        available: number;
+        candidateCount?: number;
+        requestedCount: number;
+      }>(
+        await adminFetch("/api/admin/coaching/unit-mock", {
+          method: "POST",
+          body: JSON.stringify({
+            subject: unitSubject,
+            unit,
+            count: 1,
+            difficulty: unitDifficulty,
+            pool: unitPool,
+            excludeIds,
+          }),
+        })
+      );
+      const replacement = json.questions[0];
+      if (!replacement) {
+        setUnitMsg("교체할 문제를 찾지 못했습니다.");
+        return;
+      }
+      setSheet((current) => {
+        if (current?.sourceLabel !== "unit-mock") return current;
+        return {
+          ...unitSheetFromQuestions(
+            current.questions.map((question, index) => (index === targetIndex ? replacement : question))
+          ),
+        };
+      });
+      setUnitMsg("문항 1개를 교체했습니다.");
+    } catch (error) {
+      setUnitMsg(error instanceof Error ? error.message : "문항 교체에 실패했습니다.");
+    } finally {
+      setReplacingUnitQuestionId("");
     }
   }
 
@@ -1328,13 +1391,59 @@ export function AdminCoachingClient() {
             </div>
             <button
               type="button"
-              onClick={generateUnitMock}
+              onClick={() => void generateUnitMock()}
               disabled={unitLoading || unitCount === ""}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
               {unitLoading ? "문제 뽑는 중..." : "단원별 모고 만들기"}
             </button>
             {unitMsg ? <p className="mt-4 text-sm font-bold text-slate-600">{unitMsg}</p> : null}
+            {sheet?.sourceLabel === "unit-mock" ? (
+              <section className="mt-5 rounded-lg border border-line bg-slate-50 p-4">
+                <div className="flex flex-wrap items-end justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-black text-ink">단원별 모고 구성 결과</h3>
+                    <p className="mt-1 text-xs font-bold text-slate-500">
+                      {sheet.questions.length}문항 · 개별 문항을 교체하거나 전체를 다시 뽑을 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+                <ol className="mt-4 grid gap-2 lg:grid-cols-2">
+                  {sheet.questions.map((question, index) => (
+                    <li key={question.id} className="rounded-md border border-line bg-white p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-xs font-black text-slate-500">
+                            {index + 1}. {question.concept || question.unit}
+                          </p>
+                          <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
+                            {normalizePrintableText(stripLeadingQuestionNumber(question.question))}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={unitLoading || replacingUnitQuestionId !== ""}
+                          onClick={() => void replaceUnitQuestion(question.id)}
+                          className="shrink-0 rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {replacingUnitQuestionId === question.id ? "교체 중..." : "이 문제 교체"}
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    disabled={unitLoading || replacingUnitQuestionId !== "" || sheet.questions.length === 0 || unitCount === ""}
+                    onClick={() => void generateUnitMock(true)}
+                    className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    {unitLoading ? "다시 뽑는 중..." : "전체 다른문제로 구성"}
+                  </button>
+                </div>
+              </section>
+            ) : null}
           </section>
         ) : null}
 

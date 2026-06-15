@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         difficulty?: "all" | Difficulty;
         pool?: "all" | QuestionPool;
         count?: number;
+        excludeIds?: unknown[];
       }
     | null;
 
@@ -38,6 +39,11 @@ export async function POST(request: Request) {
   const difficulty = body?.difficulty ?? "all";
   const pool = body?.pool ?? "all";
   const count = Math.max(1, Math.min(60, Math.round(Number(body?.count ?? 12))));
+  const excludeIds = new Set(
+    Array.isArray(body?.excludeIds)
+      ? body.excludeIds.filter((id): id is string => typeof id === "string")
+      : []
+  );
 
   if (!isKnownSubject(subject)) {
     return NextResponse.json({ ok: false, message: "과목을 선택해 주세요." }, { status: 400 });
@@ -65,10 +71,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   }
 
-  const questions = shuffle(questionRowsToRecords((data ?? []) as unknown as Record<string, unknown>[]));
+  const allQuestions = questionRowsToRecords((data ?? []) as unknown as Record<string, unknown>[]);
+  const questions = shuffle(allQuestions.filter((question) => !excludeIds.has(question.id)));
   return NextResponse.json({
     ok: true,
-    available: questions.length,
+    available: allQuestions.length,
+    candidateCount: questions.length,
     questions: questions.slice(0, count),
     requestedCount: count,
   });
