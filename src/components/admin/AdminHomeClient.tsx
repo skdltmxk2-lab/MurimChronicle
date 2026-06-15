@@ -92,8 +92,8 @@ export function AdminHomeClient() {
     },
     {
       href: "/admin/coaching",
-      title: "학생지도",
-      desc: "관련문제 PDF·단원 모고·쌍둥이 문제",
+      title: "코칭 스튜디오",
+      desc: "관련문제 PDF·단원 모고·쌍둥이 문제 자동 구성",
       emoji: "🎯",
     },
     {

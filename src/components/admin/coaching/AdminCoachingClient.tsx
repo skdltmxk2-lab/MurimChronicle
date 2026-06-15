@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type FocusEvent, type KeyboardEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
@@ -52,6 +52,8 @@ type TwinResult = {
   question?: QuestionRecord;
   embedded?: boolean;
 };
+
+type OptionalNumber = number | "";
 
 function hasExtension(file: File, extensions: string[]): boolean {
   const name = file.name.toLowerCase();
@@ -173,6 +175,21 @@ function pdfFileName(title: string): string {
   return `${safeTitle}-${date}.pdf`;
 }
 
+function parseOptionalNumberInput(value: string): OptionalNumber {
+  const trimmed = value.trim();
+  if (trimmed === "") return "";
+  const parsed = Number(trimmed);
+  return Number.isFinite(parsed) ? parsed : "";
+}
+
+function clampInteger(value: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, Math.round(value)));
+}
+
+function selectNumberInput(event: FocusEvent<HTMLInputElement>) {
+  event.currentTarget.select();
+}
+
 function hasEditablePasteTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
@@ -232,13 +249,14 @@ export function AdminCoachingClient() {
   const [matching, setMatching] = useState(false);
   const [relatedMsg, setRelatedMsg] = useState("");
   const [extracted, setExtracted] = useState<CoachingExtractedProblem[]>([]);
-  const [expectedProblemCount, setExpectedProblemCount] = useState<number | "">("");
-  const [perProblem, setPerProblem] = useState(2);
+  const [expectedProblemCount, setExpectedProblemCount] = useState<OptionalNumber>("");
+  const [perProblem, setPerProblem] = useState<OptionalNumber>(2);
   const [relatedGroups, setRelatedGroups] = useState<CoachingRelatedGroup[]>([]);
+  const [replacingRelatedKey, setReplacingRelatedKey] = useState("");
 
   const [unitSubject, setUnitSubject] = useState<string>(SUBJECT_NAMES[0]);
   const [unit, setUnit] = useState<string>(SUBJECT_UNITS[SUBJECT_NAMES[0]][0]);
-  const [unitCount, setUnitCount] = useState(12);
+  const [unitCount, setUnitCount] = useState<OptionalNumber>(12);
   const [unitDifficulty, setUnitDifficulty] = useState<"all" | Difficulty>("all");
   const [unitPool, setUnitPool] = useState<PoolFilter>("all");
   const [unitLoading, setUnitLoading] = useState(false);
@@ -264,6 +282,37 @@ export function AdminCoachingClient() {
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
   );
+
+  function currentPerProblem(): number | null {
+    return typeof perProblem === "number" && Number.isFinite(perProblem)
+      ? clampInteger(perProblem, 1, 6)
+      : null;
+  }
+
+  function currentUnitCount(): number | null {
+    return typeof unitCount === "number" && Number.isFinite(unitCount)
+      ? clampInteger(unitCount, 1, 60)
+      : null;
+  }
+
+  function relatedSheetFromGroups(groups: CoachingRelatedGroup[]): PrintSheet | null {
+    const questions = groups.flatMap((group) => group.matches.map((match) => match.question));
+    if (questions.length === 0) return null;
+    const resolvedPerProblem =
+      currentPerProblem() ??
+      groups.reduce((max, group) => Math.max(max, group.matches.length), 1);
+    return {
+      title: "관련문제 데일리 테스트",
+      subtitle: `업로드 ${extracted.length}문제 · 문제당 ${resolvedPerProblem}개`,
+      questions,
+      sourceLabel: "vector-related",
+    };
+  }
+
+  function updateRelatedSheet(groups: CoachingRelatedGroup[]) {
+    const nextSheet = relatedSheetFromGroups(groups);
+    if (nextSheet) setSheet(nextSheet);
+  }
 
   useEffect(() => {
     tabRef.current = tab;
@@ -324,7 +373,7 @@ export function AdminCoachingClient() {
     setPages((prev) => prev.filter((page) => page.id !== pageId));
     clearRelatedOutputs(
       pagesRef.current.length > 1
-        ? "업로드 페이지를 삭제했습니다. 문제 갯수를 다시 확인해 주세요."
+        ? "업로드 페이지를 삭제했습니다. 문제 인식을 다시 실행해 주세요."
         : ""
     );
     if (relatedFileRef.current) relatedFileRef.current.value = "";
@@ -383,7 +432,7 @@ export function AdminCoachingClient() {
         reachedLimit
           ? `최대 ${MAX_UPLOAD_PAGES}페이지까지만 준비됩니다.`
           : currentCount > 0
-            ? "업로드 페이지를 추가했습니다. 문제 갯수를 다시 확인해 주세요."
+            ? "업로드 페이지를 추가했습니다. 문제 인식을 다시 실행해 주세요."
             : ""
       );
     } catch (error) {
@@ -435,6 +484,10 @@ export function AdminCoachingClient() {
     setExtracting(true);
     setRelatedMsg("");
     setRelatedGroups([]);
+    const expectedCount =
+      typeof expectedProblemCount === "number"
+        ? clampInteger(expectedProblemCount, 1, 200)
+        : undefined;
     try {
       const images = await Promise.all(
         pages.map(async (page) => ({
@@ -449,16 +502,15 @@ export function AdminCoachingClient() {
           method: "POST",
           body: JSON.stringify({
             images,
-            expectedProblemCount:
-              typeof expectedProblemCount === "number" ? expectedProblemCount : undefined,
+            expectedProblemCount: expectedCount,
           }),
         })
       );
       setExtracted(json.problems ?? []);
       const recognizedCount = json.count ?? json.problems?.length ?? 0;
       setRelatedMsg(
-        typeof expectedProblemCount === "number" && recognizedCount !== expectedProblemCount
-          ? `인식된 문제: ${recognizedCount}개 · 입력한 총 ${expectedProblemCount}개와 다릅니다.`
+        typeof expectedCount === "number" && recognizedCount !== expectedCount
+          ? `인식된 문제: ${recognizedCount}개 · 입력한 총 ${expectedCount}개와 다릅니다.`
           : `인식된 문제: ${recognizedCount}개`
       );
     } catch (error) {
@@ -470,6 +522,12 @@ export function AdminCoachingClient() {
 
   async function findRelated(excludeCurrent = false) {
     if (extracted.length === 0 || matching) return;
+    const resolvedPerProblem = currentPerProblem();
+    if (!resolvedPerProblem) {
+      setRelatedMsg("원문 1문제당 관련문제 수를 입력해 주세요.");
+      return;
+    }
+    setPerProblem(resolvedPerProblem);
     setMatching(true);
     setRelatedMsg("");
     const excludeIds = excludeCurrent ? relatedSelected.map((question) => question.id) : [];
@@ -482,21 +540,15 @@ export function AdminCoachingClient() {
       }>(
         await adminFetch("/api/admin/coaching/related", {
           method: "POST",
-          body: JSON.stringify({ problems: extracted, perProblem, excludeIds }),
+          body: JSON.stringify({ problems: extracted, perProblem: resolvedPerProblem, excludeIds }),
         })
       );
-      setRelatedGroups(json.groups ?? []);
+      const nextGroups = json.groups ?? [];
+      setRelatedGroups(nextGroups);
       const selected = json.selectedCount ?? 0;
       const skipped = json.skippedCount ?? 0;
       setRelatedMsg(`문제지 구성: ${selected}문항${skipped ? ` · 건너뜀 ${skipped}개` : ""}`);
-      if (selected > 0) {
-        setSheet({
-          title: "관련문제 데일리 테스트",
-          subtitle: `업로드 ${extracted.length}문제 · 문제당 ${perProblem}개`,
-          questions: (json.groups ?? []).flatMap((group) => group.matches.map((match) => match.question)),
-          sourceLabel: "vector-related",
-        });
-      }
+      if (selected > 0) updateRelatedSheet(nextGroups);
     } catch (error) {
       setRelatedMsg(error instanceof Error ? error.message : "관련문제 검색에 실패했습니다.");
     } finally {
@@ -504,8 +556,58 @@ export function AdminCoachingClient() {
     }
   }
 
+  async function replaceRelatedMatch(groupIndex: number, matchIndex: number) {
+    const group = relatedGroups[groupIndex];
+    const currentMatch = group?.matches[matchIndex];
+    if (!group || !currentMatch || replacingRelatedKey) return;
+
+    const key = `${groupIndex}-${matchIndex}`;
+    setReplacingRelatedKey(key);
+    setRelatedMsg("");
+    try {
+      const excludeIds = relatedSelected.map((question) => question.id);
+      const json = await ensureOk<{
+        groups: CoachingRelatedGroup[];
+        selectedCount: number;
+        skippedCount: number;
+      }>(
+        await adminFetch("/api/admin/coaching/related", {
+          method: "POST",
+          body: JSON.stringify({ problems: [group.source], perProblem: 1, excludeIds }),
+        })
+      );
+      const replacement = json.groups?.[0]?.matches?.[0];
+      if (!replacement) {
+        setRelatedMsg("교체할 관련문제를 찾지 못했습니다.");
+        return;
+      }
+      const nextGroups = relatedGroups.map((item, itemIndex) => {
+        if (itemIndex !== groupIndex) return item;
+        return {
+          ...item,
+          skipped: false,
+          reason: undefined,
+          matches: item.matches.map((match, index) => (index === matchIndex ? replacement : match)),
+        };
+      });
+      setRelatedGroups(nextGroups);
+      updateRelatedSheet(nextGroups);
+      setRelatedMsg("관련문제를 1개 교체했습니다.");
+    } catch (error) {
+      setRelatedMsg(error instanceof Error ? error.message : "관련문제 교체에 실패했습니다.");
+    } finally {
+      setReplacingRelatedKey("");
+    }
+  }
+
   async function generateUnitMock() {
     if (unitLoading) return;
+    const resolvedCount = currentUnitCount();
+    if (!resolvedCount) {
+      setUnitMsg("문항 수를 입력해 주세요.");
+      return;
+    }
+    setUnitCount(resolvedCount);
     setUnitLoading(true);
     setUnitMsg("");
     try {
@@ -519,7 +621,7 @@ export function AdminCoachingClient() {
           body: JSON.stringify({
             subject: unitSubject,
             unit,
-            count: unitCount,
+            count: resolvedCount,
             difficulty: unitDifficulty,
             pool: unitPool,
           }),
@@ -997,9 +1099,9 @@ export function AdminCoachingClient() {
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">관리자 콘솔</p>
         <div className="mt-1 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-3xl font-black text-ink">학생지도</h1>
+            <h1 className="text-3xl font-black text-ink">코칭 스튜디오</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              업로드 문제 인식은 Gemini Vision, 관련문제 검색은 임베딩 벡터, 문제 출력은 인쇄용 PDF 화면을 사용합니다.
+              업로드 문제 인식, 관련문제 구성, 단원별 모고, 쌍둥이 문제 생성을 한곳에서 처리합니다.
             </p>
           </div>
           {sheet ? (
@@ -1111,11 +1213,12 @@ export function AdminCoachingClient() {
                   min={1}
                   max={200}
                   value={expectedProblemCount}
-                  onChange={(event) => {
-                    const value = event.target.value;
-                    setExpectedProblemCount(
-                      value === "" ? "" : Math.max(1, Math.min(200, Number(value) || 1))
-                    );
+                  onFocus={selectNumberInput}
+                  onChange={(event) => setExpectedProblemCount(parseOptionalNumberInput(event.target.value))}
+                  onBlur={() => {
+                    if (typeof expectedProblemCount === "number") {
+                      setExpectedProblemCount(clampInteger(expectedProblemCount, 1, 200));
+                    }
                   }}
                   className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
                   placeholder="예: 6"
@@ -1127,7 +1230,7 @@ export function AdminCoachingClient() {
                 onClick={extractProblems}
                 className="mt-4 w-full rounded-md bg-brand-600 px-4 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                {extracting ? "문제 인식 중..." : uploading ? "파일 읽는 중..." : "문제 갯수 확인"}
+                {extracting ? "문제 인식 중..." : uploading ? "파일 읽는 중..." : "문제 인식"}
               </button>
 
               <div className="mt-5 border-t border-line pt-5">
@@ -1137,12 +1240,18 @@ export function AdminCoachingClient() {
                   min={1}
                   max={6}
                   value={perProblem}
-                  onChange={(event) => setPerProblem(Math.max(1, Math.min(6, Number(event.target.value) || 1)))}
+                  onFocus={selectNumberInput}
+                  onChange={(event) => setPerProblem(parseOptionalNumberInput(event.target.value))}
+                  onBlur={() => {
+                    if (typeof perProblem === "number") {
+                      setPerProblem(clampInteger(perProblem, 1, 6));
+                    }
+                  }}
                   className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm"
                 />
                 <button
                   type="button"
-                  disabled={extracted.length === 0 || matching}
+                  disabled={extracted.length === 0 || matching || perProblem === ""}
                   onClick={() => void findRelated()}
                   className="mt-3 w-full rounded-md bg-ink px-4 py-3 text-sm font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
                 >
@@ -1198,7 +1307,7 @@ export function AdminCoachingClient() {
                   </span>
                 </div>
                 {extracted.length === 0 ? (
-                  <p className="mt-4 text-sm text-slate-500">PDF/이미지를 올리고 문제 갯수를 확인해 주세요.</p>
+                  <p className="mt-4 text-sm text-slate-500">PDF/이미지를 올리고 문제 인식을 실행해 주세요.</p>
                 ) : (
                   <div className="mt-4 space-y-3">
                     {extracted.map((problem, index) => (
@@ -1224,7 +1333,7 @@ export function AdminCoachingClient() {
                     <div className="flex flex-wrap gap-2">
                       <button
                         type="button"
-                        disabled={matching || relatedSelected.length === 0}
+                        disabled={matching || replacingRelatedKey !== "" || relatedSelected.length === 0}
                         onClick={() => void findRelated(true)}
                         className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
                       >
@@ -1233,13 +1342,7 @@ export function AdminCoachingClient() {
                       <button
                         type="button"
                         disabled={relatedSelected.length === 0}
-                        onClick={() =>
-                          setSheet({
-                            title: "관련문제 데일리 테스트",
-                            subtitle: `업로드 ${extracted.length}문제 · 문제당 ${perProblem}개`,
-                            questions: relatedSelected,
-                          })
-                        }
+                        onClick={() => updateRelatedSheet(relatedGroups)}
                         className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
                       >
                         미리보기 갱신
@@ -1259,11 +1362,23 @@ export function AdminCoachingClient() {
                           <ol className="mt-3 space-y-2">
                             {group.matches.map((match, matchIndex) => (
                               <li key={match.question.id} className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-                                <b className="text-ink">{matchIndex + 1}. {match.question.unit}</b>
-                                <span className="ml-2">{match.question.concept}</span>
-                                {typeof match.similarity === "number" ? (
-                                  <span className="ml-2 text-slate-400">유사도 {match.similarity.toFixed(3)}</span>
-                                ) : null}
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <b className="text-ink">{matchIndex + 1}. {match.question.unit}</b>
+                                    <span className="ml-2">{match.question.concept}</span>
+                                    {typeof match.similarity === "number" ? (
+                                      <span className="ml-2 text-slate-400">유사도 {match.similarity.toFixed(3)}</span>
+                                    ) : null}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    disabled={matching || replacingRelatedKey !== ""}
+                                    onClick={() => void replaceRelatedMatch(index, matchIndex)}
+                                    className="rounded-md border border-line bg-white px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                                  >
+                                    {replacingRelatedKey === `${index}-${matchIndex}` ? "교체 중..." : "이 문제 교체"}
+                                  </button>
+                                </div>
                               </li>
                             ))}
                           </ol>
@@ -1319,7 +1434,13 @@ export function AdminCoachingClient() {
                   min={1}
                   max={60}
                   value={unitCount}
-                  onChange={(event) => setUnitCount(Math.max(1, Math.min(60, Number(event.target.value) || 1)))}
+                  onFocus={selectNumberInput}
+                  onChange={(event) => setUnitCount(parseOptionalNumberInput(event.target.value))}
+                  onBlur={() => {
+                    if (typeof unitCount === "number") {
+                      setUnitCount(clampInteger(unitCount, 1, 60));
+                    }
+                  }}
                   className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
                 />
               </label>
@@ -1353,7 +1474,7 @@ export function AdminCoachingClient() {
             <button
               type="button"
               onClick={generateUnitMock}
-              disabled={unitLoading}
+              disabled={unitLoading || unitCount === ""}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
               {unitLoading ? "문제 뽑는 중..." : "단원별 모고 만들기"}
