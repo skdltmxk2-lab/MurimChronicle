@@ -739,6 +739,15 @@ export function AdminCoachingClient() {
           padding-top: 9mm !important;
           box-sizing: border-box !important;
           position: relative !important;
+          background-image: linear-gradient(
+            to right,
+            transparent calc(50% - 0.225mm),
+            #111111 calc(50% - 0.225mm),
+            #111111 calc(50% + 0.225mm),
+            transparent calc(50% + 0.225mm)
+          ) !important;
+          background-repeat: no-repeat !important;
+          background-size: 100% 100% !important;
         }
         .coaching-pdf-exporting .coaching-print-column {
           min-width: 0 !important;
@@ -828,6 +837,15 @@ export function AdminCoachingClient() {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             column-gap: 2rem;
             min-height: 820px;
+            background-image: linear-gradient(
+              to right,
+              transparent calc(50% - 0.5px),
+              #c2ccda calc(50% - 0.5px),
+              #c2ccda calc(50% + 0.5px),
+              transparent calc(50% + 0.5px)
+            );
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
           }
           .coaching-print-divider {
             display: block;
@@ -878,6 +896,15 @@ export function AdminCoachingClient() {
             padding-top: 9mm;
             box-sizing: border-box;
             position: relative;
+            background-image: linear-gradient(
+              to right,
+              transparent calc(50% - 0.225mm),
+              #111111 calc(50% - 0.225mm),
+              #111111 calc(50% + 0.225mm),
+              transparent calc(50% + 0.225mm)
+            ) !important;
+            background-repeat: no-repeat !important;
+            background-size: 100% 100% !important;
           }
           .coaching-print-column {
             min-width: 0;
