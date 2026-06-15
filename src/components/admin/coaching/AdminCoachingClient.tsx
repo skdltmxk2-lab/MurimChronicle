@@ -757,6 +757,9 @@ export function AdminCoachingClient() {
         .coaching-print-area {
           display: block;
         }
+        .coaching-print-page {
+          box-sizing: border-box;
+        }
         .coaching-print-grid {
           position: relative;
           padding-top: 1.25rem;
@@ -764,9 +767,10 @@ export function AdminCoachingClient() {
         }
         .coaching-print-column {
           min-width: 0;
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-rows: repeat(3, minmax(max-content, 1fr));
           gap: 1.5rem;
+          align-items: start;
         }
         .coaching-print-divider {
           display: none;
@@ -826,54 +830,55 @@ export function AdminCoachingClient() {
         }
         .coaching-pdf-exporting .coaching-print-page {
           width: 210mm !important;
-          min-height: 297mm !important;
+          height: 297mm !important;
+          min-height: 0 !important;
           padding: 12mm !important;
+          box-sizing: border-box !important;
+          display: flex !important;
+          flex-direction: column !important;
           background: #ffffff !important;
           border: 0 !important;
           border-radius: 0 !important;
           box-shadow: none !important;
         }
+        .coaching-pdf-exporting .coaching-print-header {
+          display: none !important;
+        }
         .coaching-pdf-exporting .coaching-print-grid {
           display: grid !important;
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-          column-gap: 8mm !important;
-          height: 255mm !important;
-          padding-top: 9mm !important;
+          column-gap: 0 !important;
+          flex: 1 1 auto !important;
+          height: auto !important;
+          min-height: 0 !important;
+          padding-top: 8mm !important;
           box-sizing: border-box !important;
           position: relative !important;
-          background-image: linear-gradient(
-            to right,
-            transparent calc(50% - 0.225mm),
-            #111111 calc(50% - 0.225mm),
-            #111111 calc(50% + 0.225mm),
-            transparent calc(50% + 0.225mm)
-          ) !important;
-          background-repeat: no-repeat !important;
-          background-size: 100% 100% !important;
+          background-image: none !important;
         }
         .coaching-pdf-exporting .coaching-print-column {
           min-width: 0 !important;
-          display: flex !important;
-          flex-direction: column !important;
-          gap: 7mm !important;
+          display: grid !important;
+          grid-template-rows: repeat(3, minmax(max-content, 1fr)) !important;
+          gap: 4mm !important;
+          align-items: start !important;
+        }
+        .coaching-pdf-exporting .coaching-print-column-left {
+          padding: 0 6mm 0 0 !important;
+        }
+        .coaching-pdf-exporting .coaching-print-column-right {
+          border-left: 0.35mm solid #111111 !important;
+          padding: 0 0 0 6mm !important;
         }
         .coaching-pdf-exporting .coaching-print-divider {
-          display: block !important;
-          position: absolute !important;
-          bottom: 0 !important;
-          left: 50% !important;
-          top: 0 !important;
-          width: 0.45mm !important;
-          background: #9aa8ba !important;
-          transform: translateX(-0.225mm) !important;
-          z-index: 0 !important;
+          display: none !important;
         }
         .coaching-pdf-exporting .coaching-print-question {
           min-height: 0 !important;
           overflow: visible !important;
           border: 0 !important;
           border-radius: 0 !important;
-          padding: 0 3mm !important;
+          padding: 0 !important;
           font-size: 8pt !important;
           line-height: 1.48 !important;
         }
@@ -937,28 +942,19 @@ export function AdminCoachingClient() {
           .coaching-print-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            column-gap: 2rem;
+            column-gap: 0;
             min-height: 820px;
-            background-image: linear-gradient(
-              to right,
-              transparent calc(50% - 0.5px),
-              #c2ccda calc(50% - 0.5px),
-              #c2ccda calc(50% + 0.5px),
-              transparent calc(50% + 0.5px)
-            );
-            background-repeat: no-repeat;
-            background-size: 100% 100%;
+            background-image: none;
+          }
+          .coaching-print-column-left {
+            padding-right: 2rem;
+          }
+          .coaching-print-column-right {
+            border-left: 1px solid #c2ccda;
+            padding-left: 2rem;
           }
           .coaching-print-divider {
-            display: block;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            top: 0;
-            width: 1px;
-            background: #c2ccda;
-            transform: translateX(-0.5px);
-            z-index: 0;
+            display: none;
           }
         }
         @media print {
@@ -979,12 +975,19 @@ export function AdminCoachingClient() {
           }
           .coaching-print-page {
             width: 210mm;
-            min-height: 297mm;
+            height: 297mm;
+            min-height: 0;
             padding: 12mm;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
             break-after: page;
             page-break-after: always;
             border: 0 !important;
             box-shadow: none !important;
+          }
+          .coaching-print-header {
+            display: none !important;
           }
           .coaching-print-page:last-child {
             break-after: auto;
@@ -993,37 +996,31 @@ export function AdminCoachingClient() {
           .coaching-print-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            column-gap: 8mm;
-            height: 255mm;
-            padding-top: 9mm;
+            column-gap: 0;
+            flex: 1 1 auto;
+            height: auto;
+            min-height: 0;
+            padding-top: 8mm;
             box-sizing: border-box;
             position: relative;
-            background-image: linear-gradient(
-              to right,
-              transparent calc(50% - 0.225mm),
-              #111111 calc(50% - 0.225mm),
-              #111111 calc(50% + 0.225mm),
-              transparent calc(50% + 0.225mm)
-            ) !important;
-            background-repeat: no-repeat !important;
-            background-size: 100% 100% !important;
+            background-image: none !important;
           }
           .coaching-print-column {
             min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 7mm;
+            display: grid;
+            grid-template-rows: repeat(3, minmax(max-content, 1fr));
+            gap: 4mm;
+            align-items: start;
+          }
+          .coaching-print-column-left {
+            padding: 0 6mm 0 0;
+          }
+          .coaching-print-column-right {
+            border-left: 0.35mm solid #111111;
+            padding: 0 0 0 6mm;
           }
           .coaching-print-divider {
-            display: block !important;
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            top: 0;
-            width: 0.45mm;
-            background: #9aa8ba;
-            transform: translateX(-0.225mm);
-            z-index: 0;
+            display: none !important;
           }
           .coaching-print-question {
             min-height: 0;
@@ -1032,7 +1029,7 @@ export function AdminCoachingClient() {
             page-break-inside: avoid;
             border: 0 !important;
             border-radius: 0 !important;
-            padding: 0 3mm;
+            padding: 0;
             font-size: 8pt;
             line-height: 1.48;
           }
@@ -1658,7 +1655,7 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
           data-coaching-print-page
           className="coaching-print-page rounded-lg border border-line bg-white p-6 shadow-soft"
         >
-          <div className="mb-5 flex items-end justify-between border-b border-line pb-3">
+          <div className="coaching-print-header mb-5 flex items-end justify-between border-b border-line pb-3">
             <div>
               <h2 className="text-xl font-black text-ink">{sheet.title}</h2>
               <p className="mt-1 text-xs font-bold text-slate-500">{sheet.subtitle}</p>
@@ -1667,10 +1664,15 @@ function PrintableSheet({ sheet, showAnswers }: { sheet: PrintSheet; showAnswers
               {pageIndex + 1} / {pages.length}
             </p>
           </div>
-          <div className="coaching-print-grid grid gap-y-6 lg:grid-cols-2 lg:gap-x-8">
+          <div className="coaching-print-grid">
             <div className="coaching-print-divider" aria-hidden="true" />
             {[questions.slice(0, 3), questions.slice(3, 6)].map((columnQuestions, columnIndex) => (
-              <div key={columnIndex} className="coaching-print-column">
+              <div
+                key={columnIndex}
+                className={`coaching-print-column ${
+                  columnIndex === 0 ? "coaching-print-column-left" : "coaching-print-column-right"
+                }`}
+              >
                 {columnQuestions.map((question, index) => {
                   const questionNumber = pageIndex * 6 + columnIndex * 3 + index + 1;
                   return (
