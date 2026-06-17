@@ -23,6 +23,7 @@ const SCHOOL_OPTIONS: Array<{ code: string; ko: string }> = [
 ];
 const YEAR_OPTIONS = ["2025","2024","2023","2022","2021","2020","2019","2018","2017","2016"];
 import { questionRepo } from "@/lib/questions/questionRepository";
+import { adminFetch } from "@/lib/api/adminFetch";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
@@ -41,6 +42,16 @@ const sourceTypeStyles: Record<QuestionSourceType, string> = {
   ai: "bg-mint-50 text-mint-600"
 };
 
+const PAGE_SIZE = 100;
+
+async function ensureOk(res: Response) {
+  const json = (await res.json().catch(() => null)) as { ok?: boolean; message?: string } | null;
+  if (!res.ok || json?.ok === false) {
+    throw new Error(json?.message ?? `HTTP ${res.status}`);
+  }
+  return json;
+}
+
 // 목록에서 KaTeX 렌더링은 비싸므로 본문/풀이의 LaTeX 수식을 평문 [수식]으로 치환.
 // 클릭 시 미리보기 모달에서 ContentRenderer로 정상 렌더링.
 function stripLatexForPreview(text: string): string {
@@ -51,10 +62,21 @@ function stripLatexForPreview(text: string): string {
     .replace(/\\\\/g, " ");
 }
 
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+function hasQuestionImageHint(question: QuestionRecord) {
+  return Boolean(question.questionImage) || question.contentType === "image" || question.contentType === "mixed";
+}
+
 export function AdminQuestionsClient() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [questions, setQuestions] = useState<QuestionRecord[]>([]);
+  const [listLoading, setListLoading] = useState(false);
+  const [detailLoadingId, setDetailLoadingId] = useState<string | null>(null);
+  const [actionMsg, setActionMsg] = useState("");
   const [filters, setFilters] = useState<QuestionFilters>({
     subject: "",
     unit: "",
@@ -64,6 +86,7 @@ export function AdminQuestionsClient() {
     year: "",
   });
   const [view, setView] = useState<QuestionPool>("general");
+  const [page, setPage] = useState(1);
   const [modalMode, setModalMode] = useState<"create" | "edit" | null>(null);
   const [editingQuestion, setEditingQuestion] = useState<QuestionRecord | null>(null);
   const [previewQuestion, setPreviewQuestion] = useState<QuestionRecord | null>(null);
@@ -73,9 +96,13 @@ export function AdminQuestionsClient() {
       const admin = isAdminUser(user);
       setIsAdmin(admin);
       setAuthChecked(true);
-      if (admin) questionRepo.list().then(setQuestions);
+      if (admin) void loadQuestions();
     });
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [filters, view]);
 
   const filterUnitOptions = useMemo(
     () => unitsForSubject(filters.subject),
@@ -107,15 +134,63 @@ export function AdminQuestionsClient() {
     () => questionRepo.filter(viewQuestions, filters),
     [filters, viewQuestions]
   );
+  const totalPages = Math.max(1, Math.ceil(visibleQuestions.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pagedQuestions = useMemo(
+    () => visibleQuestions.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [currentPage, visibleQuestions]
+  );
+
+  async function loadQuestions() {
+    setListLoading(true);
+    try {
+      const json = (await ensureOk(await adminFetch("/api/admin/questions"))) as {
+        questions?: QuestionRecord[];
+      };
+      setQuestions(json.questions ?? []);
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 목록을 불러오지 못했습니다."));
+    } finally {
+      setListLoading(false);
+    }
+  }
+
+  async function fetchQuestionDetail(id: string) {
+    const json = (await ensureOk(await adminFetch(`/api/admin/questions/${encodeURIComponent(id)}`))) as {
+      question?: QuestionRecord;
+    };
+    if (!json.question) throw new Error("문제를 찾을 수 없습니다.");
+    return json.question;
+  }
+
+  async function openPreviewModal(question: QuestionRecord) {
+    setActionMsg("");
+    setDetailLoadingId(question.id);
+    try {
+      setPreviewQuestion(await fetchQuestionDetail(question.id));
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 상세를 불러오지 못했습니다."));
+    } finally {
+      setDetailLoadingId(null);
+    }
+  }
 
   function openCreateModal() {
     setEditingQuestion(null);
     setModalMode("create");
   }
 
-  function openEditModal(question: QuestionRecord) {
-    setEditingQuestion(question);
-    setModalMode("edit");
+  async function openEditModal(question: QuestionRecord) {
+    setActionMsg("");
+    setDetailLoadingId(question.id);
+    try {
+      setEditingQuestion(await fetchQuestionDetail(question.id));
+      setModalMode("edit");
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 상세를 불러오지 못했습니다."));
+    } finally {
+      setDetailLoadingId(null);
+    }
   }
 
   function closeModal() {
@@ -124,32 +199,58 @@ export function AdminQuestionsClient() {
   }
 
   async function saveDraft(draft: QuestionDraft) {
-    if (modalMode === "edit" && editingQuestion) {
-      await questionRepo.update(editingQuestion.id, draft);
-    } else {
-      await questionRepo.create(draft);
+    setActionMsg("");
+    try {
+      if (modalMode === "edit" && editingQuestion) {
+        await ensureOk(await adminFetch(`/api/admin/questions/${editingQuestion.id}`, {
+          method: "PUT",
+          body: JSON.stringify({ draft }),
+        }));
+      } else {
+        await ensureOk(await adminFetch("/api/admin/questions", {
+          method: "POST",
+          body: JSON.stringify({ draft }),
+        }));
+      }
+      await loadQuestions();
+      closeModal();
+      setActionMsg("문제 저장을 완료했습니다.");
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 저장에 실패했습니다."));
     }
-    setQuestions(await questionRepo.list());
-    closeModal();
   }
 
   async function resetData() {
     if (!window.confirm("문제 데이터를 mockData 기준으로 초기화할까요?")) return;
-    setQuestions(await questionRepo.reset());
-    setFilters({
-      subject: "",
-      unit: "",
-      difficulty: "all",
-      pool: "all",
-      school: "",
-      year: "",
-    });
+    setActionMsg("");
+    try {
+      const res = await adminFetch("/api/admin/questions/reset", { method: "POST" });
+      await ensureOk(res);
+      await loadQuestions();
+      setFilters({
+        subject: "",
+        unit: "",
+        difficulty: "all",
+        pool: "all",
+        school: "",
+        year: "",
+      });
+      setActionMsg("문제 데이터를 초기화했습니다.");
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 초기화에 실패했습니다."));
+    }
   }
 
   async function deleteQuestion(id: string) {
     if (!window.confirm("이 문제를 삭제할까요?")) return;
-    await questionRepo.deleteQuestion(id);
-    setQuestions((current) => current.filter((q) => q.id !== id));
+    setActionMsg("");
+    try {
+      await ensureOk(await adminFetch(`/api/admin/questions/${id}`, { method: "DELETE" }));
+      setQuestions((current) => current.filter((q) => q.id !== id));
+      setActionMsg("문제를 삭제했습니다.");
+    } catch (error) {
+      setActionMsg(errorMessage(error, "문제 삭제에 실패했습니다."));
+    }
   }
 
   if (!authChecked) {
@@ -212,6 +313,11 @@ export function AdminQuestionsClient() {
             </button>
           </div>
         </div>
+        {actionMsg ? (
+          <div className="mt-4 rounded-md bg-brand-50 px-4 py-3 text-sm font-bold text-brand-700">
+            {actionMsg}
+          </div>
+        ) : null}
       </section>
 
       <section className="mb-5 flex gap-2 rounded-lg border border-line bg-white p-2 shadow-soft">
@@ -344,6 +450,11 @@ export function AdminQuestionsClient() {
             문제 목록 <span className="text-brand-600">{visibleQuestions.length}</span>
             <span className="text-slate-400"> / {viewQuestions.length}</span>
           </div>
+          <div className="text-xs font-bold text-slate-500">
+            {listLoading
+              ? "목록 불러오는 중"
+              : `${currentPage} / ${totalPages}페이지 · ${pagedQuestions.length}개 표시`}
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -360,11 +471,13 @@ export function AdminQuestionsClient() {
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
-              {visibleQuestions.map((question) => (
+              {pagedQuestions.map((question) => (
                 <tr
                   key={question.id}
-                  className="align-top cursor-pointer hover:bg-slate-50/70"
-                  onClick={() => setPreviewQuestion(question)}
+                  className={`align-top cursor-pointer hover:bg-slate-50/70 ${
+                    detailLoadingId === question.id ? "opacity-60" : ""
+                  }`}
+                  onClick={() => void openPreviewModal(question)}
                 >
                   <td className="px-4 py-4">
                     <span
@@ -385,9 +498,9 @@ export function AdminQuestionsClient() {
                   <td className="px-4 py-4">
                     <div className="line-clamp-2 text-sm font-semibold leading-6 text-ink">
                       {stripLatexForPreview(question.question)}
-                      {question.questionImage ? (
+                      {hasQuestionImageHint(question) ? (
                         <span className="ml-1 rounded-full bg-mint-50 px-1.5 py-0.5 text-[10px] font-black text-mint-600">
-                          🖼 그림
+                          그림
                         </span>
                       ) : null}
                     </div>
@@ -419,10 +532,11 @@ export function AdminQuestionsClient() {
                     <div className="flex gap-1.5">
                       <button
                         type="button"
-                        onClick={() => openEditModal(question)}
+                        onClick={() => void openEditModal(question)}
+                        disabled={detailLoadingId === question.id}
                         className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-700 hover:bg-white"
                       >
-                        수정
+                        {detailLoadingId === question.id ? "로딩" : "수정"}
                       </button>
                       <button
                         type="button"
@@ -438,13 +552,37 @@ export function AdminQuestionsClient() {
               {visibleQuestions.length === 0 ? (
                 <tr>
                   <td className="px-4 py-10 text-center text-sm font-bold text-slate-500" colSpan={7}>
-                    조건에 맞는 문제가 없습니다.
+                    {listLoading ? "문제 목록을 불러오는 중입니다." : "조건에 맞는 문제가 없습니다."}
                   </td>
                 </tr>
               ) : null}
             </tbody>
           </table>
         </div>
+        {visibleQuestions.length > PAGE_SIZE ? (
+          <div className="flex items-center justify-between border-t border-line px-5 py-3">
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={currentPage <= 1}
+              className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              이전
+            </button>
+            <span className="text-xs font-bold text-slate-500">
+              {((currentPage - 1) * PAGE_SIZE) + 1}-
+              {Math.min(currentPage * PAGE_SIZE, visibleQuestions.length)} / {visibleQuestions.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+              disabled={currentPage >= totalPages}
+              className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              다음
+            </button>
+          </div>
+        ) : null}
       </section>
 
       {modalMode ? (
@@ -581,7 +719,8 @@ export function AdminQuestionsClient() {
                 onClick={() => {
                   const target = previewQuestion;
                   setPreviewQuestion(null);
-                  openEditModal(target);
+                  setEditingQuestion(target);
+                  setModalMode("edit");
                 }}
                 className="rounded-md border border-line px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
