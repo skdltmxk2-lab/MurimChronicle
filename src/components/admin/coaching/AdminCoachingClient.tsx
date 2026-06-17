@@ -47,6 +47,28 @@ type PrintSheet = {
   sourceLabel?: string;
 };
 
+type UnitMockSection = {
+  id: string;
+  subject: string;
+  unit: string;
+  count: OptionalNumber;
+};
+
+type UnitMockRequestSection = {
+  subject: string;
+  unit: string;
+  count: number;
+};
+
+type UnitMockBreakdown = {
+  subject: string;
+  unit: string;
+  requestedCount: number;
+  available: number;
+  candidateCount: number;
+  selectedCount: number;
+};
+
 type TwinResult = {
   draft: QuestionDraft;
   question?: QuestionRecord;
@@ -184,6 +206,19 @@ function selectNumberInput(event: FocusEvent<HTMLInputElement>) {
   event.currentTarget.select();
 }
 
+function unitsForUnitMockSubject(subject: string): readonly string[] {
+  return SUBJECT_UNITS[subject as keyof typeof SUBJECT_UNITS] ?? [];
+}
+
+function createUnitMockSection(subject: string = SUBJECT_NAMES[0], count: OptionalNumber = 6): UnitMockSection {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    subject,
+    unit: unitsForUnitMockSubject(subject)[0] ?? "",
+    count,
+  };
+}
+
 function hasEditablePasteTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   if (target.isContentEditable) return true;
@@ -248,9 +283,9 @@ export function AdminCoachingClient() {
   const [relatedGroups, setRelatedGroups] = useState<CoachingRelatedGroup[]>([]);
   const [replacingRelatedKey, setReplacingRelatedKey] = useState("");
 
-  const [unitSubject, setUnitSubject] = useState<string>(SUBJECT_NAMES[0]);
-  const [unit, setUnit] = useState<string>(SUBJECT_UNITS[SUBJECT_NAMES[0]][0]);
-  const [unitCount, setUnitCount] = useState<OptionalNumber>(12);
+  const [unitSections, setUnitSections] = useState<UnitMockSection[]>(() => [
+    createUnitMockSection(SUBJECT_NAMES[0], 12),
+  ]);
   const [unitDifficulty, setUnitDifficulty] = useState<"all" | Difficulty>("all");
   const [unitPool, setUnitPool] = useState<PoolFilter>("all");
   const [unitLoading, setUnitLoading] = useState(false);
@@ -268,10 +303,16 @@ export function AdminCoachingClient() {
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [showAnswers, setShowAnswers] = useState(false);
 
-  const unitOptions = useMemo(
-    () => SUBJECT_UNITS[unitSubject as keyof typeof SUBJECT_UNITS] ?? [],
-    [unitSubject]
+  const unitTotalCount = useMemo(
+    () =>
+      unitSections.reduce(
+        (total, section) =>
+          total + (typeof section.count === "number" && Number.isFinite(section.count) ? section.count : 0),
+        0
+      ),
+    [unitSections]
   );
+  const unitHasBlankCount = unitSections.some((section) => section.count === "");
   const relatedSelected = useMemo(
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
@@ -283,19 +324,108 @@ export function AdminCoachingClient() {
       : null;
   }
 
-  function currentUnitCount(): number | null {
-    return typeof unitCount === "number" && Number.isFinite(unitCount)
-      ? clampInteger(unitCount, 1, 60)
-      : null;
-  }
-
-  function unitSheetFromQuestions(questions: QuestionRecord[]): PrintSheet {
+  function unitSheetFromQuestions(questions: QuestionRecord[], sections: UnitMockRequestSection[]): PrintSheet {
+    const allocation = sections
+      .map((section) => `${section.subject} ${section.unit} ${section.count}문항`)
+      .join(" · ");
     return {
-      title: `${unit} 단원 모의고사`,
-      subtitle: `${unitSubject} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
+      title: sections.length === 1 ? `${sections[0].unit} 단원 모의고사` : "복합 단원 모의고사",
+      subtitle: `${allocation} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
       questions,
       sourceLabel: "unit-mock",
     };
+  }
+
+  function updateUnitSectionCount(sectionId: string, value: OptionalNumber) {
+    setUnitSections((current) =>
+      current.map((section) => (section.id === sectionId ? { ...section, count: value } : section))
+    );
+  }
+
+  function clampUnitSectionCount(sectionId: string) {
+    setUnitSections((current) =>
+      current.map((section) =>
+        section.id === sectionId && typeof section.count === "number"
+          ? { ...section, count: clampInteger(section.count, 1, 60) }
+          : section
+      )
+    );
+  }
+
+  function updateUnitSectionSubject(sectionId: string, subject: string) {
+    setUnitSections((current) =>
+      current.map((section) =>
+        section.id === sectionId
+          ? {
+              ...section,
+              subject,
+              unit: unitsForUnitMockSubject(subject)[0] ?? "",
+            }
+          : section
+      )
+    );
+  }
+
+  function updateUnitSectionUnit(sectionId: string, unitName: string) {
+    setUnitSections((current) =>
+      current.map((section) => (section.id === sectionId ? { ...section, unit: unitName } : section))
+    );
+  }
+
+  function addUnitSection() {
+    setUnitSections((current) => {
+      const subject = current.at(-1)?.subject ?? SUBJECT_NAMES[0];
+      return [...current, createUnitMockSection(subject, 6)];
+    });
+  }
+
+  function removeUnitSection(sectionId: string) {
+    setUnitSections((current) =>
+      current.length <= 1
+        ? [createUnitMockSection(SUBJECT_NAMES[0], 12)]
+        : current.filter((section) => section.id !== sectionId)
+    );
+  }
+
+  function resolveUnitSections(): UnitMockRequestSection[] | null {
+    if (unitSections.length === 0) {
+      setUnitMsg("단원 구성을 1개 이상 추가해 주세요.");
+      return null;
+    }
+
+    const resolved: UnitMockRequestSection[] = [];
+    for (const section of unitSections) {
+      const subject = section.subject.trim();
+      const unitName = section.unit.trim();
+      const availableUnits = unitsForUnitMockSubject(subject);
+      if (!availableUnits.includes(unitName)) {
+        setUnitMsg("각 행의 과목과 단원을 확인해 주세요.");
+        return null;
+      }
+      if (typeof section.count !== "number" || !Number.isFinite(section.count)) {
+        setUnitMsg("각 단원별 문항 수를 입력해 주세요.");
+        return null;
+      }
+      resolved.push({
+        subject,
+        unit: unitName,
+        count: clampInteger(section.count, 1, 60),
+      });
+    }
+
+    const total = resolved.reduce((sum, section) => sum + section.count, 0);
+    if (total > 60) {
+      setUnitMsg("복합 모고 총 문항 수는 60문항 이하로 설정해 주세요.");
+      return null;
+    }
+
+    setUnitSections((current) =>
+      current.map((section, index) => ({
+        ...section,
+        count: resolved[index]?.count ?? section.count,
+      }))
+    );
+    return resolved;
   }
 
   function relatedSheetFromGroups(groups: CoachingRelatedGroup[]): PrintSheet | null {
@@ -605,12 +735,8 @@ export function AdminCoachingClient() {
 
   async function generateUnitMock(excludeCurrent = false) {
     if (unitLoading || replacingUnitQuestionId) return;
-    const resolvedCount = currentUnitCount();
-    if (!resolvedCount) {
-      setUnitMsg("문항 수를 입력해 주세요.");
-      return;
-    }
-    setUnitCount(resolvedCount);
+    const resolvedSections = resolveUnitSections();
+    if (!resolvedSections) return;
     setUnitLoading(true);
     setUnitMsg("");
     const excludeIds =
@@ -623,13 +749,12 @@ export function AdminCoachingClient() {
         available: number;
         candidateCount?: number;
         requestedCount: number;
+        breakdown?: UnitMockBreakdown[];
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
           body: JSON.stringify({
-            subject: unitSubject,
-            unit,
-            count: resolvedCount,
+            sections: resolvedSections,
             difficulty: unitDifficulty,
             pool: unitPool,
             excludeIds,
@@ -640,8 +765,15 @@ export function AdminCoachingClient() {
         typeof json.candidateCount === "number" && excludeIds.length > 0
           ? ` · 제외 후 후보 ${json.candidateCount}문항`
           : "";
-      setUnitMsg(`DB ${json.available}문항 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}`);
-      setSheet(unitSheetFromQuestions(json.questions));
+      const breakdownText = (json.breakdown ?? [])
+        .map((item) => `${item.unit} ${item.selectedCount}/${item.requestedCount}`)
+        .join(" · ");
+      setUnitMsg(
+        `DB ${json.available}문항 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${
+          breakdownText ? ` (${breakdownText})` : ""
+        }`
+      );
+      setSheet(unitSheetFromQuestions(json.questions, resolvedSections));
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
     } finally {
@@ -658,6 +790,7 @@ export function AdminCoachingClient() {
     setUnitMsg("");
     try {
       const excludeIds = sheet.questions.map((question) => question.id);
+      const targetQuestion = sheet.questions[targetIndex];
       const json = await ensureOk<{
         questions: QuestionRecord[];
         available: number;
@@ -667,9 +800,13 @@ export function AdminCoachingClient() {
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
           body: JSON.stringify({
-            subject: unitSubject,
-            unit,
-            count: 1,
+            sections: [
+              {
+                subject: targetQuestion.subject,
+                unit: targetQuestion.unit,
+                count: 1,
+              },
+            ],
             difficulty: unitDifficulty,
             pool: unitPool,
             excludeIds,
@@ -684,9 +821,8 @@ export function AdminCoachingClient() {
       setSheet((current) => {
         if (current?.sourceLabel !== "unit-mock") return current;
         return {
-          ...unitSheetFromQuestions(
-            current.questions.map((question, index) => (index === targetIndex ? replacement : question))
-          ),
+          ...current,
+          questions: current.questions.map((question, index) => (index === targetIndex ? replacement : question)),
         };
       });
       setUnitMsg("문항 1개를 교체했습니다.");
@@ -951,7 +1087,7 @@ export function AdminCoachingClient() {
             page-break-inside: avoid;
             border: 0 !important;
             border-radius: 0 !important;
-            padding: 0;
+            padding: 1.6mm 0 0;
             font-size: 8pt;
             line-height: 1.48;
           }
@@ -959,6 +1095,7 @@ export function AdminCoachingClient() {
             display: flex;
             align-items: flex-start;
             gap: 2mm;
+            overflow: visible;
           }
           .coaching-print-question-number {
             flex: 0 0 auto;
@@ -970,6 +1107,7 @@ export function AdminCoachingClient() {
             line-height: 1.48;
             word-break: keep-all;
             overflow-wrap: break-word;
+            overflow: visible;
           }
           .coaching-print-page .coaching-print-question,
           .coaching-print-page .coaching-print-question * {
@@ -981,6 +1119,15 @@ export function AdminCoachingClient() {
           .coaching-print-question .katex {
             font-size: 1em;
             white-space: normal;
+            overflow: visible !important;
+          }
+          .coaching-print-question .katex-html,
+          .coaching-print-question .base,
+          .coaching-print-question .strut,
+          .coaching-print-question .vlist-t,
+          .coaching-print-question .vlist-r,
+          .coaching-print-question .vlist {
+            overflow: visible !important;
           }
           .coaching-print-question .katex-display {
             margin: 0.15em 0 !important;
@@ -1316,52 +1463,79 @@ export function AdminCoachingClient() {
             <p className="mt-1 text-sm text-slate-500">
               DB에 저장된 문제를 과목/단원 기준으로 뽑아 6문항 단위 인쇄용 문제지로 만듭니다.
             </p>
-            <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-              <label className="text-xs font-black text-slate-600">
-                과목
-                <select
-                  value={unitSubject}
-                  onChange={(event) => {
-                    const next = event.target.value;
-                    setUnitSubject(next);
-                    setUnit(SUBJECT_UNITS[next as keyof typeof SUBJECT_UNITS]?.[0] ?? "");
-                  }}
-                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
+            <section className="mt-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="text-xs font-black text-slate-600">단원 구성</div>
+                <button
+                  type="button"
+                  onClick={addUnitSection}
+                  className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700"
                 >
-                  {SUBJECT_NAMES.map((subject) => (
-                    <option key={subject} value={subject}>{subject}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs font-black text-slate-600">
-                단원
-                <select
-                  value={unit}
-                  onChange={(event) => setUnit(event.target.value)}
-                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
-                >
-                  {unitOptions.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                  ))}
-                </select>
-              </label>
-              <label className="text-xs font-black text-slate-600">
-                문항 수
-                <input
-                  type="number"
-                  min={1}
-                  max={60}
-                  value={unitCount}
-                  onFocus={selectNumberInput}
-                  onChange={(event) => setUnitCount(parseOptionalNumberInput(event.target.value))}
-                  onBlur={() => {
-                    if (typeof unitCount === "number") {
-                      setUnitCount(clampInteger(unitCount, 1, 60));
-                    }
-                  }}
-                  className="mt-2 w-full rounded-md border border-line px-3 py-2 text-sm font-normal"
-                />
-              </label>
+                  + 단원 추가
+                </button>
+              </div>
+              <div className="mt-3 space-y-3">
+                {unitSections.map((section, index) => {
+                  const options = unitsForUnitMockSubject(section.subject);
+                  return (
+                    <div
+                      key={section.id}
+                      className="grid gap-3 rounded-lg border border-line bg-slate-50 p-3 md:grid-cols-[1fr_1fr_120px_auto]"
+                    >
+                      <label className="text-xs font-black text-slate-600">
+                        과목
+                        <select
+                          value={section.subject}
+                          onChange={(event) => updateUnitSectionSubject(section.id, event.target.value)}
+                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-normal"
+                        >
+                          {SUBJECT_NAMES.map((subject) => (
+                            <option key={subject} value={subject}>{subject}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="text-xs font-black text-slate-600">
+                        단원
+                        <select
+                          value={section.unit}
+                          onChange={(event) => updateUnitSectionUnit(section.id, event.target.value)}
+                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-normal"
+                        >
+                          {options.map((item) => (
+                            <option key={item} value={item}>{item}</option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="text-xs font-black text-slate-600">
+                        문항 수
+                        <input
+                          type="number"
+                          min={1}
+                          max={60}
+                          value={section.count}
+                          onFocus={selectNumberInput}
+                          onChange={(event) =>
+                            updateUnitSectionCount(section.id, parseOptionalNumberInput(event.target.value))
+                          }
+                          onBlur={() => clampUnitSectionCount(section.id)}
+                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-normal"
+                        />
+                      </label>
+                      <div className="flex items-end">
+                        <button
+                          type="button"
+                          onClick={() => removeUnitSection(section.id)}
+                          className="w-full rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-coral-500 hover:text-coral-600"
+                        >
+                          {unitSections.length === 1 ? "초기화" : `${index + 1}행 삭제`}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="text-xs font-black text-slate-600">
                 난이도
                 <select
@@ -1392,10 +1566,10 @@ export function AdminCoachingClient() {
             <button
               type="button"
               onClick={() => void generateUnitMock()}
-              disabled={unitLoading || unitCount === ""}
+              disabled={unitLoading || unitHasBlankCount}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
-              {unitLoading ? "문제 뽑는 중..." : "단원별 모고 만들기"}
+              {unitLoading ? "문제 뽑는 중..." : `단원별 모고 만들기 (${unitTotalCount}문항)`}
             </button>
             {unitMsg ? <p className="mt-4 text-sm font-bold text-slate-600">{unitMsg}</p> : null}
             {sheet?.sourceLabel === "unit-mock" ? (
@@ -1435,7 +1609,7 @@ export function AdminCoachingClient() {
                 <div className="mt-4 flex justify-end">
                   <button
                     type="button"
-                    disabled={unitLoading || replacingUnitQuestionId !== "" || sheet.questions.length === 0 || unitCount === ""}
+                    disabled={unitLoading || replacingUnitQuestionId !== "" || sheet.questions.length === 0 || unitHasBlankCount}
                     onClick={() => void generateUnitMock(true)}
                     className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >
