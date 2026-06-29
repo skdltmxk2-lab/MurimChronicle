@@ -26,7 +26,7 @@ type RawSegment = Segment & {
   raw: string;
 };
 
-const VIEW_MARKER = "\\((?:가|나|다|라|마|바|사|아|ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ|ㅅ|ㅇ|A|B|C|D|E|F)\\)";
+const VIEW_MARKER = "\\((?:가|나|다|라|마|바|사|아|ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ|ㅅ|ㅇ)\\)";
 const VIEW_MARKER_LINE_RX = new RegExp(`^\\s*${VIEW_MARKER}\\s*`);
 const VIEW_TITLE_LINE_RX = /^\s*(?:<\s*보기\s*>|\[\s*보기\s*\]|보기)\s*$/;
 
@@ -132,7 +132,7 @@ function normalizeMathDelimiters(content: string) {
 
 function normalizeTextBreaks(text: string, forceNumericBreaks = false) {
   let normalized = text
-    .replace(/\s*\\q?quad\s*(?=\((?:[1-9]|가|나|다|라|마|바|ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ|A|B|C|D|E)\))/g, "\n")
+    .replace(/\s*\\q?quad\s*(?=\((?:[1-9]|가|나|다|라|마|바|ㄱ|ㄴ|ㄷ|ㄹ|ㅁ|ㅂ)\))/g, "\n")
     .replace(new RegExp(`[ \\t]+(${VIEW_MARKER})`, "g"), "\n$1")
     .replace(/([?？])\s+(\((?:1|가|ㄱ|A)\))/g, "$1\n\n$2");
 
@@ -159,12 +159,21 @@ function stripViewTitle(text: string) {
   return text.trim();
 }
 
+function isViewMarkerStatementLine(line: string) {
+  if (!VIEW_MARKER_LINE_RX.test(line)) return false;
+  const body = line
+    .replace(VIEW_MARKER_LINE_RX, "")
+    .replace(/^[,，、/]+|[,，、/]+$/g, "")
+    .trim();
+  return body.length >= 3;
+}
+
 function countViewMarkerLines(lines: string[], start: number) {
   let count = 0;
   for (let i = start; i < lines.length; i += 1) {
     const line = lines[i];
     if (!line.trim()) break;
-    if (VIEW_MARKER_LINE_RX.test(line)) count += 1;
+    if (isViewMarkerStatementLine(line)) count += 1;
   }
   return count;
 }
@@ -183,7 +192,7 @@ function splitRenderBlocks(content: string): RenderBlock[] {
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i];
     const startsViewTitle = VIEW_TITLE_LINE_RX.test(line);
-    const startsViewMarkers = VIEW_MARKER_LINE_RX.test(line) && countViewMarkerLines(lines, i) >= 2;
+    const startsViewMarkers = isViewMarkerStatementLine(line) && countViewMarkerLines(lines, i) >= 2;
 
     if (startsViewTitle || startsViewMarkers) {
       flushNormal();
