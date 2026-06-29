@@ -250,8 +250,8 @@ export function KaTeXRenderer({ content, className }: KaTeXRendererProps) {
             key={`${keyPrefix}-${index}`}
             className={
               segment.display
-                ? "my-3 max-w-full overflow-x-auto overflow-y-visible py-1"
-                : "inline-block max-w-full overflow-x-auto overflow-y-visible py-0.5 align-middle"
+                ? "my-3 max-w-full overflow-visible py-1"
+                : "inline-block max-w-full overflow-visible py-0.5 align-middle"
             }
             dangerouslySetInnerHTML={{ __html: segment.html }}
           />
