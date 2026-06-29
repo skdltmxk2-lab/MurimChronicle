@@ -173,6 +173,7 @@ export function WrongQuestionsClient() {
             return (
               <li
                 key={it.problemId}
+                data-print-card="true"
                 className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft"
               >
                 <div className="flex flex-wrap items-center gap-2 border-b border-line bg-slate-50 px-5 py-3 text-xs">
@@ -268,7 +269,7 @@ export function WrongQuestionsClient() {
                   </button>
 
                   {open ? (
-                    <div className="mt-5 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
+                    <div data-print-card="true" className="mt-5 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
                       <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">
                         풀이
                       </p>

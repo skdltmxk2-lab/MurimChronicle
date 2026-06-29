@@ -173,50 +173,34 @@ export function UnitTestRunnerPage() {
           // 네트워크 오류 시 폴백 알고리즘으로 진행
         }
 
-        // 2) assignment 없으면 라운드 로빈 (use_count 적은 문제 우선)
+        // 2) 관리자 지정이 없으면 날짜 기반 결정적 로테이션으로 출제.
+        //    주의: daily_usage(use_count)는 학생 응시 시 증가하지 않아(관리자 페이지에서만 갱신)
+        //    이에 의존해 정렬하면 매일 같은 문제(use_count 0 → id 최소)만 나온다.
+        //    → 풀 전체를 날짜로 순환시켜, 모두에게 동일하되 매일 다른 5문항을 출제한다.
         if (!pickedIds || pickedIds.length === 0) {
+          // 데일리 정책: 하(easy)/중하(easyMedium)만 출제 (중 이상 금지).
+          //   풀에 중급 이상이 섞여 있어도 자동 출제에서는 제외한다.
+          //   (관리자가 명시적으로 지정한 assignment 경로는 위에서 통과하므로 영향 없음.)
+          const DAILY_DIFFICULTIES = new Set(["easy", "easyMedium"]);
+          const easyPool = dailyPool.filter((q) => DAILY_DIFFICULTIES.has(q.difficulty));
           // 월별 학습 범위로 데일리 풀 좁히기 (아직 안 배운 과목 제외).
-          // 관리자가 명시적으로 지정한 assignment 경로는 위에서 통과하므로 영향 없음.
           const allowedSubjects = new Set<string>(allowedSubjectsForMonth(monthFromDateString(dateParam)));
-          const scopedPool = dailyPool.filter((q) => allowedSubjects.has(q.subject));
-          // 범위 내 문제가 0개면 안전상 전체 풀로 폴백 (서비스 중단 방지).
-          const randomPool = scopedPool.length > 0 ? scopedPool : dailyPool;
-          const randomCount = Math.min(5, randomPool.length);
-          let usageMap = new Map<string, { useCount: number; lastUsedDate: string }>();
-          try {
-            const { data: usageRows } = await supabase
-              .from("daily_usage")
-              .select("question_id, last_used_date, use_count")
-              .in("question_id", randomPool.map((q) => q.id));
-            for (const row of usageRows ?? []) {
-              usageMap.set(row.question_id as string, {
-                useCount: (row.use_count as number) ?? 0,
-                lastUsedDate: (row.last_used_date as string) ?? "0000-00-00",
-              });
-            }
-          } catch {
-            usageMap = new Map();
+          const scopedPool = easyPool.filter((q) => allowedSubjects.has(q.subject));
+          // 범위 내 문제가 0개면 난이도 조건 → 전체 데일리 순으로 폴백 (서비스 중단 방지).
+          const rotationPool = scopedPool.length > 0 ? scopedPool : easyPool.length > 0 ? easyPool : dailyPool;
+          const ordered = [...rotationPool].sort((a, b) => a.id.localeCompare(b.id));
+          const pickCount = Math.min(5, ordered.length);
+          // 풀을 pickCount 크기 블록으로 나눠 하루에 한 블록씩 순환 출제.
+          // 연속한 날은 겹치지 않는 다음 블록을 받으므로 풀을 모두 소진하기 전엔 중복이 없다.
+          const dayIndex = Math.floor(new Date(`${dateParam}T00:00:00`).getTime() / 86400000);
+          const blockCount = Math.max(1, Math.ceil(ordered.length / pickCount));
+          const block = ((dayIndex % blockCount) + blockCount) % blockCount;
+          const start = block * pickCount;
+          const window = ordered.slice(start, start + pickCount);
+          if (window.length < pickCount) {
+            window.push(...ordered.slice(0, pickCount - window.length));
           }
-          // 폴백: 사용 이력 정보가 모두 비어있으면 기존 날짜 시드 알고리즘 유지
-          if (usageMap.size === 0) {
-            const sorted = [...randomPool].sort((a, b) => a.id.localeCompare(b.id));
-            const dayIndex = Math.floor(new Date(`${dateParam}T00:00:00`).getTime() / 86400000);
-            const start = sorted.length > 0 ? (dayIndex * randomCount) % sorted.length : 0;
-            pickedIds = [...sorted.slice(start), ...sorted.slice(0, start)].slice(0, randomCount).map((q) => q.id);
-          } else {
-            const sortedPool = [...randomPool].sort((a, b) => {
-              const ua = usageMap.get(a.id);
-              const ub = usageMap.get(b.id);
-              const ca = ua?.useCount ?? 0;
-              const cb = ub?.useCount ?? 0;
-              if (ca !== cb) return ca - cb;
-              const da = ua?.lastUsedDate ?? "0000-00-00";
-              const db = ub?.lastUsedDate ?? "0000-00-00";
-              if (da !== db) return da < db ? -1 : 1;
-              return a.id.localeCompare(b.id);
-            });
-            pickedIds = sortedPool.slice(0, randomCount).map((q) => q.id);
-          }
+          pickedIds = window.map((q) => q.id);
         }
 
         filtered = pickedIds.map((id) => dailyById.get(id)!).filter(Boolean);

@@ -23,18 +23,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const { error } = await auth.supabase.from("community_comments").delete().eq("id", id);
   if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
 
-  // 댓글수 감소 (best-effort)
-  const { data: post } = await auth.supabase
-    .from("community_posts")
-    .select("comment_count")
-    .eq("id", comment.post_id)
-    .maybeSingle();
-  if (post) {
-    await auth.supabase
-      .from("community_posts")
-      .update({ comment_count: Math.max(0, ((post.comment_count as number) ?? 1) - 1) })
-      .eq("id", comment.post_id);
-  }
-
+  // 게시글 댓글수는 community_comments 트리거(trg_comment_count)가 원자적으로 -1 한다.
   return NextResponse.json({ ok: true });
 }

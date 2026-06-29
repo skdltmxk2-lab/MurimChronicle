@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS community_posts (
   user_name text NOT NULL,
   title text NOT NULL,
   content text NOT NULL,
-  category text NOT NULL DEFAULT 'question' CHECK (category IN ('question', 'info')),
+  category text NOT NULL DEFAULT 'question' CHECK (category IN ('question', 'info', 'free')),
   like_count integer DEFAULT 0,
   comment_count integer DEFAULT 0,
   created_at timestamptz DEFAULT now(),
@@ -43,7 +43,9 @@ CREATE POLICY "likes_read_all" ON community_post_likes FOR SELECT USING (true);
 -- 로그인 사용자만 작성
 CREATE POLICY "posts_insert_auth" ON community_posts FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "posts_delete_own" ON community_posts FOR DELETE USING (auth.uid() = user_id);
-CREATE POLICY "posts_update_own" ON community_posts FOR UPDATE USING (auth.uid() = user_id OR true);
+-- 작성자 본인만 UPDATE. 좋아요/댓글 카운터는 toggle_post_like RPC 와 댓글 트리거가 갱신한다.
+-- (20260614_community_fixes.sql 참고)
+CREATE POLICY "posts_update_own" ON community_posts FOR UPDATE USING (auth.uid() = user_id);
 
 CREATE POLICY "comments_insert_auth" ON community_comments FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 CREATE POLICY "comments_delete_own" ON community_comments FOR DELETE USING (auth.uid() = user_id);

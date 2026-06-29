@@ -1,0 +1,256 @@
+1)
+$\left|\begin{array}{ccc}1 & 0 & -3 \\ y & -x^{2} & \cos z \\ 3 & 4 & 0\end{array}\right|=2 \quad \Leftrightarrow\left|\begin{array}{ccc}1 & 0 & 0 \\ y & -x^{2} & 3 y+\cos z \\ 3 & 4 & 9\end{array}\right|=2$
+$\Leftrightarrow-9 x^{2}-12 y-4 \cos z=2 \Leftrightarrow f(x, y, z)=2$
+이므로 $\frac{\partial z}{\partial y}=-\frac{f_{y}}{f_{z}}=-\frac{-12}{4 \sin z}$ 이다.
+2)
+
+정답 : (4)
+![](https://cdn.mathpix.com/cropped/1fae6457-f93e-4fb0-a7f5-bbb71b888826-1.jpg?height=339&width=412&top_left_y=807&top_left_x=175)
+
+감마함수의 그래프
+ᄀ. $n>0$ 에 대하여 증가함수는 아니다.
+따라서 $\Gamma(n)<\Gamma(n+1)$ 라고 할 수 없다. (거짓)
+ㄴ. $\lim _{n \rightarrow 0+} \Gamma(n)=+\infty$ (참)
+ㄷ. $\lim _{n \rightarrow \infty} \Gamma(n)=+\infty$ (참)
+ㄹ. $\Gamma(n+1)=n \Gamma(n)$ 이므로
+$\Gamma\left(\frac{5}{2}\right)=\frac{3}{2} \Gamma\left(\frac{3}{2}\right)=\frac{3}{2} \times \frac{1}{2} \Gamma\left(\frac{1}{2}\right)=\frac{3}{4} \sqrt{\pi}$ 이다. (거짓)
+정답 : (3)
+3) $\lim _{x \rightarrow 0} \frac{f^{-1}(2+x)-2 f^{-1}(2)+f^{-1}(2-x)}{x^{2}}$
+$=\left(f^{-1}\right)^{\prime \prime}(2)=\frac{-f^{\prime \prime}(1)}{\left(f^{\prime}(1)\right)^{3}}=\left.\frac{\frac{1}{x^{2}}}{\left(2+\frac{1}{x}\right)^{3}}\right|_{x=1}=\frac{1}{27}$
+4) ᄀ. $\lim _{(x, y) \rightarrow(1,0)} \frac{x y^{2}-y^{2}}{x^{2}-2 x+1+y^{4}}=\lim _{(x, y) \rightarrow(1,0)} \frac{(x-1) y^{2}}{(x-1)^{2}+y^{4}}$
+$=\lim _{(X, Y) \rightarrow(0,0)} \frac{X Y^{2}}{X^{2}+Y^{4}} \quad(\because x-1=X, y=Y)$
+1) $X=0$ 일 때, $\lim _{(X, Y) \rightarrow(0,0)} \frac{X Y^{2}}{X^{2}+Y^{4}}=\lim _{Y \rightarrow 0} \frac{0}{0+Y^{4}}=0$
+2) $Y=0$ 일 때, $\lim _{(X, Y) \rightarrow(0,0)} \frac{X Y^{2}}{X^{2}+Y^{4}}=\lim _{X \rightarrow 0} \frac{0}{X^{2}+0}=0$
+3) $X=m Y^{2}$ 일 때,
+$\lim _{(X, Y) \rightarrow(0,0)} \frac{X Y^{2}}{X^{2}+Y^{4}}=\lim _{Y \rightarrow 0} \frac{m Y^{4}}{\left(m^{2}+1\right) Y^{4}}=\frac{m}{m^{2}+1} \neq 0$
+따라서 극한값은 존재하지 않는다.
+ㄴ. $\lim _{(x, y) \rightarrow(0,0)} \frac{y^{3}}{x^{2}+y^{2}}=0 \quad(\because$ 동차 $)$
+ᄃ. $\lim _{(x, y) \rightarrow(1,0)} \frac{2 x^{2} y-4 x y+2 y}{x^{2}-2 x+1+y^{2}}=\lim _{(x, y) \rightarrow(1,0)} \frac{2 y(x-1)^{2}}{(x-1)^{2}+y^{2}}$
+$$=\lim _{(X, Y) \rightarrow(0,0)} \frac{2 X^{2} Y}{X^{2}+Y^{2}} \quad(\because x-1=X, y=Y)$$
+
+답 : (4)
+$=0 \quad(\because$ 동차 $)$
+ㄹ. $\lim _{(x, y) \rightarrow(1,1)} \frac{x^{2}-y^{2}-2 x+2 y}{x^{2}+y^{2}-2 x-2 y+2}$
+$=\lim _{(x, y) \rightarrow(1,1)} \frac{(x-1)^{2}-(y-1)^{2}}{(x-1)^{2}+(y-1)^{2}}$
+$=\lim _{(X, Y) \rightarrow(0,0)} \frac{X^{2}-Y^{2}}{X^{2}+Y^{2}} \quad(\because x-1=X, y-1=Y)$
+$=$ 존재하지 않는다. $(\because$ 동차 $)$
+정답 : (2)
+5) $y=\cos 2 x+2 \sin x+1=-2 \sin ^{2} x+2 \sin x+2$ 이므로
+$\sin x=t$ 라 하면 $f(t)=-2 t^{2}+2 t+2,-1 \leq t \leq 1$ 에서
+최대 및 최소를 구하면 된다.
+$f^{\prime}(t)=-4 t+2$ 이므로 $t=\frac{1}{2}$ 에서 임계점을 갖는다.
+따라서 $f\left(\frac{1}{2}\right)=\frac{5}{2}, f(-1)=-2, f(1)=2$ 이므로
+최댓값은 $\frac{5}{2}$, 최솟값은 -2 이다.
+즉, $M m=-5$
+정답 : (1)
+6) $S_{x}=2 \pi \int_{0}^{1} y \sqrt{\left(x^{\prime}\right)^{2}+\left(y^{\prime}\right)^{2}} d t=2 \pi \int_{0}^{1} t^{2} \sqrt{\left(t^{2}-1\right)^{2}+4 t^{2}} d t$
+$=2 \pi \int_{0}^{1} t^{2} \sqrt{\left(t^{2}+1\right)^{2}} d t=2 \pi \int_{0}^{1} t^{2}\left(t^{2}+1\right) d t$
+$=2 \pi\left[\frac{1}{5} t^{5}+\frac{1}{3} t^{3}\right]_{0}^{1}=\frac{16}{15} \pi$
+7)
+
+정답 : (1)
+$r(t)=\left(\cos ^{2} t, \cos t \sin t\right)$
+$\Leftrightarrow x=\cos ^{2} t, y=\cos t \sin t, 0 \leq t \leq \pi$
+은 $r=\cos \theta, 0 \leq \theta \leq \pi$ 의 그래프와 동일한 단순폐곡선이다.
+또한 $F$ 가 보존적 벡터장이므로 $\int_{C} F \cdot d r=0$ 이다.
+정답 : (1)
+8) $z=1-x$ 을 대입하면,
+$x^{2}+y^{2}=1$ 일 때, $g(x, y)=2 x+2 y+1$ 의 최댓값을 구하면 된다.
+$$\left(2^{2}+2^{2}\right)\left(x^{2}+y^{2}\right) \geq(2 x+2 y)^{2}$$
+$\Leftrightarrow 8 \geq(2 x+2 y)^{2}$
+$\Leftrightarrow-2 \sqrt{2} \leq 2 x+2 y \leq 2 \sqrt{2}$
+이므로 $2 x+2 y+1 \leq 2 \sqrt{2}+1$ 이다.
+즉, 최댓값은 $1+2 \sqrt{2}$ 이다.
+9) $\iint_{S} F \cdot d S=\iiint_{E} 3 y^{2}+3 z^{2} d x d y d z \quad(\because$ 발산정리)
+
+정답 : (5)
+$$\begin{aligned}
+& =\int_{0}^{2 \pi} \int_{0}^{1} \int_{-1}^{2} 3 r^{3} d x d r d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} 9 r^{3} d r d \theta=\frac{9}{2} \pi
+\end{aligned}$$
+
+정답 : (1)
+10) $x z-y z^{3}+y z^{2}=2 \Leftrightarrow f(x, y, z)=2$ 라 하면
+$\nabla f(x, y, z)=\left(z,-z^{3}+z^{2}, x-3 y z^{2}+2 y z\right)$ 이므로
+$\nabla f(P)=(1,0,3), \quad \nabla f(Q)=(1,0,1)$ 이다.
+따라서 $\cos \theta=\frac{\nabla f(P) \cdot \nabla f(Q)}{|\nabla f(P)||\nabla f(Q)|}=\frac{4}{\sqrt{10} \sqrt{2}}=\frac{2}{\sqrt{5}}$ 이다.
+정답 : (3)
+11) $\int_{0}^{3} \frac{x^{3}}{\left(3+x^{2}\right)^{2} \sqrt{3+x^{2}}} d x\left(\because \sqrt{3+x^{2}}=t\right)$
+$=\int_{\sqrt{3}}^{2 \sqrt{3}} \frac{t^{2}-3}{t^{4}} t d t=\int_{\sqrt{3}}^{2 \sqrt{3}} \frac{1}{t^{2}}-\frac{3}{t^{4}} t d t$
+$=\left[-\frac{1}{t}+\frac{1}{t^{3}}\right]_{\sqrt{3}}^{2 \sqrt{3}}=\frac{5}{24 \sqrt{3}}$
+12) $\Gamma\left(\frac{5}{2}\right)=\int_{0}^{\infty} x \sqrt{x} e^{-x} d x$ 이므로 $\Gamma\left(\frac{5}{2}\right)=\frac{3}{2} \Gamma\left(\frac{3}{2}\right)=\frac{3}{2} \times \frac{1}{2} \Gamma\left(\frac{1}{2}\right)=\frac{3}{4} \sqrt{\pi}$ 이다.
+13)
+
+정답 : (1)
+![](https://cdn.mathpix.com/cropped/1fae6457-f93e-4fb0-a7f5-bbb71b888826-2.jpg?height=359&width=364&top_left_y=926&top_left_x=173)
+$$\begin{aligned}
+V_{x} & =\pi \int_{0}^{1} y_{1}^{2}-y_{2}^{2} d x=\pi \int_{0}^{1}(1-x)-(1-x)^{2} d x \\
+& =\pi\left[-\frac{1}{2}(1-x)^{2}+\frac{1}{3}(1-x)^{3}\right]_{0}^{1}=\frac{\pi}{6} \\
+V_{y} & =\pi \int_{0}^{1} x_{1}^{2}-x_{2}^{2} d y=\pi \int_{0}^{1}\left(1-y^{2}\right)^{2}-(1-y)^{2} d y \\
+& =\pi \int_{0}^{1} 2 y-3 y^{2}+y^{4} d y=\frac{\pi}{5}
+\end{aligned}$$
+
+이므로 $\frac{V_{x}}{V_{y}}=\frac{\frac{\pi}{6}}{\frac{\pi}{5}}=\frac{5}{6}$ 이다.
+14)
+$9 x^{2}-8 \sqrt{3} x y+7 y^{2}=64$
+$\Leftrightarrow(x y)\left(\begin{array}{cc}9 & -4 \sqrt{3} \\ -4 \sqrt{3} & 7\end{array}\right)\binom{x}{y}=64$
+$\Leftrightarrow v^{T} A v=64$ 이므로 $A$ 의 고유방정식을 구하면
+$\lambda^{2}-16 \lambda+15=0$ 이므로 $\lambda=1$ 과 15 이다.
+따라서 주축정리에 의하여
+$u^{2}+15 v^{2}=64 \Leftrightarrow \frac{u^{2}}{64}+\frac{v^{2}}{\frac{64}{15}}=1$ 이다.
+즉, 내부영역의 넓이는 $\pi \times 8 \times \frac{8}{\sqrt{15}}=\frac{64}{\sqrt{15}} \pi$ 이다.
+정답 : (1)
+15)
+$x=(2+2 \cos \theta) \cos \theta=r \cos \theta, y=(2+2 \cos \theta) \sin \theta=r \sin \theta$,
+$0 \leq \theta \leq \frac{\pi}{2}$ 이므로 $r=2+2 \cos \theta$ 의 길이를 구하면 된다.
+$$\int_{0}^{\frac{\pi}{2}} \sqrt{r^{2}+\left(r^{\prime}\right)^{2}} d \theta=\int_{0}^{\frac{\pi}{2}} \sqrt{(2+2 \cos \theta)^{2}+(-2 \sin \theta)^{2}} d \theta$$
+
+정답 : (2)
+
+정답 : (5)
+$=\int_{0}^{\frac{\pi}{2}} \sqrt{8+8 \cos \theta} d \theta=\int_{0}^{\frac{\pi}{2}} 4 \cos \frac{\theta}{2} d \theta=\left[8 \sin \frac{\theta}{2}\right]_{0}^{\frac{\pi}{2}}=4 \sqrt{2}$
+[별해]
+$r=a+a \cos \theta, 0 \leq \theta \leq \frac{\pi}{2}$ 에 대한 곡선의 길은 $2 \sqrt{2} a$ 이다. 따라서 주어진 문제의 길이는 $4 \sqrt{2}$ 이다.
+16) $D_{u} f(0,0)=\lim _{h \rightarrow 0^{+}} \frac{f\left(\frac{h}{\sqrt{5}}, \frac{2 h}{\sqrt{5}}\right)-f(0,0)}{h}$
+$$\begin{aligned}
+& \frac{\frac{4 h^{2}}{5}\left(\tan ^{-1} \frac{h}{\sqrt{5}}\right)^{2}}{\frac{h^{3}}{5 \sqrt{5}}+\frac{8 h^{3}}{5 \sqrt{5}}}=\lim _{h \rightarrow 0^{+}} \frac{4\left(\tan ^{-1} \frac{h}{\sqrt{5}}\right)^{2}}{\frac{9 h^{2}}{\sqrt{5}}} \\
+= & \lim _{h \rightarrow 0^{+}} \frac{4\left(\frac{h}{\sqrt{5}}-\cdots\right)^{2}}{\frac{9 h^{2}}{\sqrt{5}}}=\frac{4 \sqrt{5}}{45}
+\end{aligned}$$
+
+정답 : (5)
+
+정답 : (1)
+17) $r(t)=\left(1, t, t^{2}\right)$ 일 때, $r^{\prime}(t)=(0,1,2 t), r^{\prime \prime}(t)=(0,0,2)$ 이다.
+$P(1,1,1) \Leftrightarrow t=1$ 에서 $r^{\prime} \times r^{\prime \prime}=\left|\begin{array}{lll}i & j & k \\ 0 & 1 & 2 \\ 0 & 0 & 2\end{array}\right|=(2,0,0)$ 이다.
+그러므로 $B(1)=(1,0,0)$ 이고, $T(1)=\frac{1}{\sqrt{5}}(0,1,2)$ 이므로
+$N(1)=B(1) \times T(1)=\frac{1}{\sqrt{5}}\left|\begin{array}{lll}i & j & k \\ 1 & 0 & 0 \\ 0 & 1 & 2\end{array}\right|=\frac{1}{\sqrt{5}}(0,-2,1)$ 이다.
+정답 : (5)
+18) 동심원의 반지름을 $r$ 이라 하면 $\frac{d r}{d t}=15$ 이고,
+$t=5$ 일 때, $r=75$ 이다.
+즉, $S=\pi r^{2}$ 이므로 $\frac{d S}{d t}=2 \pi r \frac{d r}{d t}=2 \pi \times 75 \times 15=2250 \pi$ 이다.
+19)
+
+정답 : (2)
+![](https://cdn.mathpix.com/cropped/1fae6457-f93e-4fb0-a7f5-bbb71b888826-2.jpg?height=373&width=252&top_left_y=1905&top_left_x=1088)
+$\lambda \nabla h+\mu \nabla g=\nabla f$ 이고, $\nabla h \times \nabla g$ 와 $v$ 는 평행상태이다.
+ㄱ. $\nabla f$ 는 $v$ 는 수직관계이므로 실수배로 나타낼 수 없다. (거짓)
+ᄂ. $\lambda \nabla h+\mu \nabla g=\nabla f$ 이므로 $\nabla f, \nabla g, \nabla h$ 는 일차종속이다.
+(참)
+ㄷ. $v$ 는 $\nabla g$ 와 $\nabla h$ 와 같은 평면에 존재하지 않으므로 일차결합으로 표현할 수 없다. (거짓)
+ᄅ. $\{v \times(\nabla g \times(\nabla h \times \nabla f))+\nabla g \times \nabla h\} \cdot v$
+$=v \times(\nabla g \times(\nabla h \times \nabla f)) \cdot v+\nabla g \times \nabla h \cdot v$
+$=(v \times w) \cdot v+(k v) \cdot v(\because \nabla g \times(\nabla h \times \nabla f)=w, k$ 는 실수 $)$
+$$=k|v|^{2} \neq 0 \text { (거짓) }$$
+20)
+
+정답 : (2) $y=\frac{x}{1+\frac{x}{1+\frac{x}{1+\cdots}}}$ 라 하면,
+$y=\frac{x}{1+y} \quad \Leftrightarrow \quad y^{2}+y=x \quad \Leftrightarrow \quad\left(y+\frac{1}{2}\right)^{2}=x+\frac{1}{4} \quad$ 이므로 $y=-\frac{1}{2}+\sqrt{x+\frac{1}{4}} \quad(\because y>0) \quad$ 이다.
+$$\begin{aligned}
+& \int_{0}^{1} \frac{x}{1+\frac{x}{1+\frac{x}{1+\cdots}}} d x=\int_{0}^{1}-\frac{1}{2}+\sqrt{x+\frac{1}{4}} d x \\
+= & {\left[-\frac{x}{2}+\frac{2}{3}\left(x+\frac{1}{4}\right)^{\frac{3}{2}}\right]_{0}^{1}=-\frac{7}{12}+\frac{5 \sqrt{5}}{12} }
+\end{aligned}$$
+
+정답 : (1)
+21)
+$$\begin{aligned}
+& f(n)=\lim _{x \rightarrow 0} \frac{x}{\sin x+\sin 2 x+\sin 3 x+\cdots+\sin n x} \\
+& \quad=\lim _{x \rightarrow 0} \frac{1}{\frac{\sin x}{x}+\frac{\sin 2 x}{x}+\frac{\sin 3 x}{x}+\cdots+\frac{\sin n x}{x}} \\
+& \quad=\frac{1}{1+2+3+\cdots+n}=\frac{2}{n(n+1)} \text { 이므로 } \\
+& \quad \sum_{n=1}^{\infty} f(n)=\sum_{n=1}^{\infty} \frac{2}{n(n+1)}=\lim _{k \rightarrow \infty} 2 \sum_{n=1}^{k} \frac{1}{n}-\frac{1}{n+1} \\
+& =\lim _{k \rightarrow \infty} 2\left[\left(1-\frac{1}{2}\right)+\left(\frac{1}{2}-\frac{1}{3}\right)+\left(\frac{1}{3}-\frac{1}{4}\right)+\cdots+\left(\frac{1}{k}-\frac{1}{k+1}\right)\right] \\
+& =2 \text { 이다. }
+\end{aligned}$$
+
+정답 : (4)
+22) $q(x, y, z)=x^{2}+y^{2}+z^{2}+14 x z$
+$$=\left(\begin{array}{lll}
+x & y & z
+\end{array}\right)\left(\begin{array}{lll}
+1 & 0 & 7 \\
+0 & 1 & 0 \\
+7 & 0 & 1
+\end{array}\right)\left(\begin{array}{l}
+x \\
+y \\
+z
+\end{array}\right)=v^{T} A v$$
+
+이므로 $A$ 의 고유치를 구하면 $1,8,-6$ 이다.
+따라서 주축정리에 의하여 $q(x, y, z)=X^{2}+8 Y^{2}-6 Z^{2}$ 이므로 $a_{1} a_{2}+a_{1} a_{3}+a_{2} a_{3}-a_{1} a_{2} a_{3}=8-6-48+48=2$ 이다.
+23)
+
+정답 : (2)
+ᄀ. $A$ 의 $n$ 개의 고유벡터가 정규직교집합을 가지면 직교대각화가 가능하므로 $A$ 는 대칭행렬이다. (참)
+ᄂ. $A A^{T}$ 는 대칭행렬이므로 직교대각화가 가능하다. (참)
+ㄷ. $A^{T} A$ 는 대칭행렬이므로 직교대각화가 가능하다. (참)
+ㄹ. $A-A^{T}$ 는 교대행렬이므로 직교대각화가 가능하지 않다.
+(거짓)
+정답 : (4)
+24)
+$V=\left\{(x, y, z) \left\lvert\, \frac{x^{2}}{4}+\frac{y^{2}}{9}+\frac{z^{2}}{16} \leq 1\right.\right\}$ 일 때, $\iiint_{V}|x y z| d x d y d z$ 은
+$V^{\prime}=\left\{(x, y, z) \left\lvert\, \frac{x^{2}}{4}+\frac{y^{2}}{9}+\frac{z^{2}}{16} \leq 1\right., x \geq 0, y \geq 0, z \geq 0\right\}$ 에 대하여
+$8 \iiint_{V^{\prime}}|x y z| d x d y d z$ 와 같다.
+$\iiint_{V^{\prime}}|x y z| d x d y d z=\iiint_{V^{\prime}} x y z d x d y d z$
+$=\iiint_{v^{*}} 24 u v w \times 24 d u d v d w(\because x=2 u, y=3 v, z=4 w)$
+$=24^{2} \int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{2}} \int_{0}^{1} \rho \sin \phi \cos \theta \times \rho \sin \phi \sin \theta \rho \cos \phi \rho^{2} \sin \phi d \rho d \phi d \theta$
+$$\left(\because V^{*}=\left\{(u, v, w) \mid u^{2}+v^{2}+w^{2} \leq 1, u \geq 0, v \geq 0, w \geq 0\right\}\right)$$
+$=24^{2} \int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{2}} \int_{0}^{1} \rho^{5} \sin ^{3} \phi \cos \phi \cos \theta \sin \theta d \rho d \phi d \theta$
+$=24^{2} \times \frac{1}{6} \times \frac{1}{4}\left[\sin ^{4} \phi\right]_{0}^{\frac{\pi}{2}} \times \frac{1}{2}\left[\sin ^{2} \theta\right]_{0}^{\frac{\pi}{2}}$
+$=12$
+즉, $\iiint_{V}|x y z| d x d y d z=8 \times 12=96$
+정답 : (2)
+25) $v_{1}=\left(\begin{array}{c}-1 \\ 2 \\ 1\end{array}\right), v_{2}=\left(\begin{array}{l}1 \\ 0 \\ 1\end{array}\right), b=\left(\begin{array}{l}1 \\ 1 \\ 0\end{array}\right)$ 라 하면
+$\left(\begin{array}{cc}-1 & 1 \\ 2 & 0 \\ 1 & 1\end{array}\right)\binom{x}{y}=\left(\begin{array}{l}1 \\ 1 \\ 0\end{array}\right) \Leftrightarrow A\binom{x}{y}=b \Leftrightarrow v_{1} x+v_{2} y=b$ 이므로
+최소제곱해를 구하면
+$A^{T} A\binom{\bar{x}}{\bar{y}}=A^{T} b \Leftrightarrow\left(\begin{array}{ll}6 & 0 \\ 0 & 2\end{array}\right)\binom{\bar{x}}{\bar{y}}=\binom{1}{1}$ 이므로 $\bar{x}=\frac{1}{6}, \bar{y}=\frac{1}{2}$ 이다.
+따라서 가장 가까운벡터(사영벡터)를 구하면
+$\bar{b}=v_{1} \bar{x}+v_{2} \bar{y}=\frac{1}{6}\left(\begin{array}{c}-1 \\ 2 \\ 1\end{array}\right)+\frac{1}{2}\left(\begin{array}{l}1 \\ 0 \\ 1\end{array}\right)=\frac{1}{3}\left(\begin{array}{l}1 \\ 1 \\ 2\end{array}\right)$ 이다.
+따라서 $b-\bar{b}=\left(\begin{array}{l}1 \\ 1 \\ 0\end{array}\right)-\frac{1}{3}\left(\begin{array}{l}1 \\ 1 \\ 2\end{array}\right)=\frac{2}{3}\left(\begin{array}{c}1 \\ 1 \\ -1\end{array}\right)$ 이므로 최소오차는 $|b-\bar{b}|=\frac{2}{3} \sqrt{3}$ 이다.
+
+정답 : (2)
+26)
+
+ᄀ. $\lim _{n \rightarrow \infty} 1+\frac{1}{2^{3}}+\frac{1}{3^{3}}+\cdots+\frac{1}{n^{3}}=\sum_{k=1}^{\infty} \frac{1}{k^{3}}$ 은 수렴하므로
+$\sum_{n=1}^{\infty}\left(1+\frac{1}{2^{3}}+\frac{1}{3^{3}}+\cdots+\frac{1}{n^{3}}\right) \frac{\ln \left(n^{2}+3\right)}{n}$
+$\approx \sum_{n=1}^{\infty} \frac{\ln \left(n^{2}+3\right)}{n} \approx \sum_{n=1}^{\infty} \frac{1}{n}$ 이므로 발산한다.
+ᄂ. $\lim _{n \rightarrow \infty} \frac{\tan ^{-1}\left(\sin \left(\tan \left(\frac{1}{n}\right)\right)\right)}{\frac{1}{n}}=1$ 이므로 극한비교판정법에 의하여 $\sum_{n=1}^{\infty} \tan ^{-1}\left(\sin \left(\tan \left(\frac{1}{n}\right)\right)\right)$ 와 $\sum_{n=1}^{\infty} \frac{1}{n}$ 은 동시에 수렴, 발산한다.
+따라서 $\sum_{n=1}^{\infty} \frac{1}{n}$ 은 발산하므로 $\sum_{n=1}^{\infty} \tan ^{-1}\left(\sin \left(\tan \left(\frac{1}{n}\right)\right)\right)$ 도 발산나다.
+ᄃ. $\int_{0}^{\infty} \cos \left(x^{\alpha}\right) d x$ 일 때, $\alpha>1$ 은 수렴하므로 $\int_{0}^{\infty} \cos \left(x^{-2}\right) d x$ 은 발산한다.
+ᄅ. $\int_{0}^{\infty} \sin \left(x^{\alpha}\right) d x$ 일 때, $|\alpha|>1$ 은 수렴하므로
+$$\int_{0}^{\infty} \sin \left(x^{2}\right) d x \text { 은 수렴한다. }$$
+
+정답 : (4)
+27)
+
+원 $x^{2}+y^{2}=9^{n}+1$ 위의 점 $P_{n}\left(3^{n}, 1\right)$ 에서 접선의 방정식은 $3^{n} x+y=9^{n}+1$ 이다.
+$y=0$ 이면 $x=\frac{9^{n}+1}{3^{n}}$ 이므로 $Q_{n}\left(\frac{9^{n}+1}{3^{n}}, 0\right)$ 이므로
+삼각형의 넓이는 $S_{n}=\frac{1}{2} \times\left(\frac{9^{n}+1}{3^{n}}\right) \times 1$ 이다.
+따라서 $\sum_{n=1}^{\infty} \frac{S_{n}}{9^{n}+1}=\frac{1}{2} \sum_{n=1}^{\infty} \frac{1}{3^{n}}=\frac{1}{2} \times \frac{\frac{1}{3}}{1-\frac{1}{3}}=\frac{1}{4}$ 이다.
+정답 : (4)
+28)
+
+곡선 $C$ 의 질량
+$=\int_{C} \sqrt{y} d s$
+$=\int_{0}^{\pi} \sin t \sqrt{\left(\cos ^{2} t-\sin ^{2} t\right)^{2}+(2 \sin t \cos t)^{2}+(-\sin t)^{2}} d t$
+$=\int_{0}^{\pi} \sin t \sqrt{\cos ^{2} 2 t+\sin ^{2} 2 t+\sin ^{2} t} d t$
+$=\int_{0}^{\pi} \sin t \sqrt{1+\sin ^{2} t} d t=\int_{0}^{\pi} \sin t \sqrt{2-\cos ^{2} t} d t$
+$=\int_{-1}^{1} \sqrt{2-k^{2}} d k \quad(\because \cos t=k)$
+$=2 \int_{0}^{1} \sqrt{2-k^{2}} d k=4 \int_{0}^{\frac{\pi}{4}} \cos ^{2} \theta d \theta \quad(\because k=\sqrt{2} \sin \theta)$
+$=2 \int_{0}^{\frac{\pi}{4}} 1+\cos 2 \theta d \theta=2\left[\theta+\frac{1}{2} \sin 2 \theta\right]_{0}^{\frac{\pi}{4}}=2\left(\frac{\pi}{4}+\frac{1}{2}\right)$
+정답 : (2)
+29)
+$\frac{1}{1-x}=\sum_{n=0}^{\infty} x^{n}$ 이므로 미분하면 $\frac{1}{(1-x)^{2}}=\sum_{n=1}^{\infty} n x^{n-1}$ 이다.
+또한 이 식을 다시 미분하면
+$\frac{2}{(1-x)^{3}}=\sum_{n=2}^{\infty} n(n-1) x^{n-2}=\sum_{n=0}^{\infty}(n+2)(n+1) x^{n}$ 이다.
+따라서 $a_{n}=\frac{(n+2)(n+1)}{2}$ 이므로
+$$\begin{aligned}
+\sum_{n=1}^{\infty} \frac{1}{a_{n}} & =\lim _{k \rightarrow \infty} \sum_{n=1}^{k} \frac{2}{(n+2)(n+1)}=\lim _{k \rightarrow \infty} 2 \sum_{n=1}^{k} \frac{1}{n+1}-\frac{1}{n+2} \\
+= & 2 \lim _{k \rightarrow \infty}\left(\frac{1}{2}-\frac{1}{3}\right)+\left(\frac{1}{3}-\frac{1}{4}\right)+\left(\frac{1}{4}-\frac{1}{5}\right)+\cdots+\left(\frac{1}{k+1}-\frac{1}{k+2}\right) \\
+& =2 \lim _{k \rightarrow \infty} \frac{1}{2}-\frac{1}{k+2}=1 \text { 이다. }
+\end{aligned}$$
+
+정답 : (2)
+30) $T(3,1)=(1,4,2)=\frac{8}{3}(1,0,-1)+\frac{5}{3}(-1,2,2)+\frac{2}{3}(0,1,2)$,
+$T(5,2)=(2,7,3)=5(1,0,-1)+3(-1,2,2)+1(0,1,2)$ 이다.
+그러므로 $[T]_{\alpha}^{\beta}=\left(\begin{array}{ll}a_{11} & a_{12} \\ a_{21} & a_{22} \\ a_{31} & a_{32}\end{array}\right)=\frac{1}{3}\left[\begin{array}{rr}8 & 15 \\ 5 & 9 \\ 2 & 3\end{array}\right]$ 이다.
+즉, $a_{11}+a_{21}+a_{32}=\frac{8+5+3}{3}=\frac{16}{3}$

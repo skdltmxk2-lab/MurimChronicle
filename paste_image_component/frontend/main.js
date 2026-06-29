@@ -3,28 +3,76 @@ function sendValue(value) {
 }
 
 function blobToDataUrl(blob) {
+  if (!blob) {
+    sendValue("error: empty clipboard blob");
+    return;
+  }
   const reader = new FileReader();
-  reader.readAsDataURL(blob);
   reader.onloadend = function () {
-    sendValue(reader.result);
+    if (typeof reader.result === "string") {
+      sendValue(reader.result);
+    } else {
+      sendValue("error: clipboard blob decode failed");
+    }
   };
+  reader.onerror = function () {
+    sendValue("error: clipboard blob decode failed");
+  };
+  reader.readAsDataURL(blob);
 }
 
-function handlePaste(event) {
+function looksLikeImageFile(file) {
+  if (!file) return false;
+  if (file.type && file.type.startsWith("image/")) return true;
+  if (!file.type) return true;
+  return /\.(png|jpe?g|webp|bmp|tiff?)$/i.test(file.name || "");
+}
+
+async function imageFromHtml(clipboard) {
+  const html = clipboard.getData && clipboard.getData("text/html");
+  if (!html) return false;
+  const document = new DOMParser().parseFromString(html, "text/html");
+  const src = document.querySelector("img")?.getAttribute("src");
+  if (!src) return false;
+  try {
+    const response = await fetch(src);
+    if (!response.ok) return false;
+    blobToDataUrl(await response.blob());
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function handlePaste(event) {
   const clipboard = event.clipboardData || window.clipboardData;
-  if (!clipboard || !clipboard.items) {
+  if (!clipboard) {
     sendValue("error: clipboard unavailable");
     return;
   }
 
-  for (const item of clipboard.items) {
-    if (item.type && item.type.startsWith("image/")) {
+  for (const file of Array.from(clipboard.files || [])) {
+    if (looksLikeImageFile(file)) {
       event.preventDefault();
-      blobToDataUrl(item.getAsFile());
+      blobToDataUrl(file);
       return;
     }
   }
 
+  for (const item of Array.from(clipboard.items || [])) {
+    if (item.kind !== "file") continue;
+    const file = item.getAsFile();
+    if (looksLikeImageFile(file)) {
+      event.preventDefault();
+      blobToDataUrl(file);
+      return;
+    }
+  }
+
+  if (await imageFromHtml(clipboard)) {
+    event.preventDefault();
+    return;
+  }
   sendValue("error: no image found in clipboard");
 }
 

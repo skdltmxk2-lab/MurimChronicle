@@ -4,7 +4,6 @@ import base64
 import hashlib
 import io
 import json
-import math
 import os
 import re
 import shutil
@@ -18,7 +17,7 @@ import fitz
 import numpy as np
 import streamlit as st
 import streamlit.components.v1 as components
-from PIL import Image, ImageFilter, ImageGrab, ImageOps
+from PIL import Image, ImageEnhance, ImageGrab, ImageOps
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -50,6 +49,9 @@ SOLUTION_DIR = DATA_DIR / "solutions"
 TESSDATA_DIR = DATA_DIR / "tessdata"
 DB_PATH = DATA_DIR / "problems.sqlite3"
 PASTE_COMPONENT_DIR = APP_DIR / "paste_image_component" / "frontend"
+PDF_RENDER_DPI = 288
+MIN_CROP_SIZE = 32
+IMAGE_DEBUG = os.getenv("STREAMLIT_IMAGE_DEBUG", "").lower() in {"1", "true", "yes", "on"}
 
 for directory in (DATA_DIR, UPLOAD_DIR, PAGE_DIR, CROP_DIR, CANDIDATE_DIR, SOLUTION_DIR, TESSDATA_DIR):
     directory.mkdir(parents=True, exist_ok=True)
@@ -280,7 +282,18 @@ def save_upload(uploaded_file: Any) -> Path | None:
     return target
 
 
-def render_pdf_pages(pdf_path: Path, original_name: str, dpi: int = 180) -> list[PageImage]:
+def normalize_document_image(image: Image.Image) -> Image.Image:
+    image = ImageOps.exif_transpose(image)
+    if image.mode in {"RGBA", "LA"} or (image.mode == "P" and "transparency" in image.info):
+        rgba = image.convert("RGBA")
+        background = Image.new("RGBA", rgba.size, "white")
+        image = Image.alpha_composite(background, rgba).convert("RGB")
+    else:
+        image = image.convert("RGB")
+    return image
+
+
+def render_pdf_pages(pdf_path: Path, original_name: str, dpi: int = PDF_RENDER_DPI) -> list[PageImage]:
     if not pdf_path.exists() or pdf_path.stat().st_size == 0:
         st.warning(f"빈 PDF라 건너뜁니다: {original_name}")
         return []
@@ -297,7 +310,7 @@ def render_pdf_pages(pdf_path: Path, original_name: str, dpi: int = 180) -> list
     for page_index in range(len(doc)):
         page = doc.load_page(page_index)
         pix = page.get_pixmap(matrix=matrix, alpha=False)
-        page_path = PAGE_DIR / f"{pdf_path.stem}_p{page_index + 1}.png"
+        page_path = PAGE_DIR / f"{pdf_path.stem}_p{page_index + 1}_dpi{dpi}.png"
         if not page_path.exists():
             pix.save(page_path)
         pages.append(
@@ -308,13 +321,15 @@ def render_pdf_pages(pdf_path: Path, original_name: str, dpi: int = 180) -> list
                 image_path=page_path,
             )
         )
+    doc.close()
     return pages
 
 
 def register_image_page(image_path: Path, original_name: str) -> PageImage:
     target = PAGE_DIR / f"{image_path.stem}_p1.png"
     if not target.exists():
-        Image.open(image_path).convert("RGB").save(target)
+        with Image.open(image_path) as opened:
+            normalize_document_image(opened).save(target)
     return PageImage(
         original_filename=original_name,
         stored_filename=image_path.name,
@@ -325,7 +340,7 @@ def register_image_page(image_path: Path, original_name: str) -> PageImage:
 
 def image_to_png_bytes(image: Image.Image) -> bytes:
     buffer = io.BytesIO()
-    image.convert("RGB").save(buffer, format="PNG")
+    normalize_document_image(image).save(buffer, format="PNG")
     return buffer.getvalue()
 
 
@@ -339,7 +354,8 @@ def data_url_to_image(data_url: str) -> Image.Image | None:
         return None
     try:
         _, encoded = data_url.split(";base64,", 1)
-        return Image.open(io.BytesIO(base64.b64decode(encoded))).convert("RGB")
+        with Image.open(io.BytesIO(base64.b64decode(encoded))) as opened:
+            return normalize_document_image(opened)
     except Exception as exc:
         st.warning(f"붙여넣은 이미지를 읽을 수 없습니다: {exc}")
         return None
@@ -366,13 +382,14 @@ def grab_clipboard_image() -> Image.Image | None:
         return None
 
     if isinstance(clipboard, Image.Image):
-        return clipboard.convert("RGB")
+        return normalize_document_image(clipboard)
 
     if isinstance(clipboard, list):
         for item in clipboard:
             path = Path(item)
-            if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".bmp"} and path.exists():
-                return Image.open(path).convert("RGB")
+            if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"} and path.exists():
+                with Image.open(path) as opened:
+                    return normalize_document_image(opened)
 
     st.warning("클립보드에 이미지가 없습니다. 캡처하거나 이미지를 복사한 뒤 다시 눌러주세요.")
     return None
@@ -381,7 +398,7 @@ def grab_clipboard_image() -> Image.Image | None:
 def save_clipboard_image(image: Image.Image, prefix: str) -> Path:
     filename = f"{prefix}_{uuid.uuid4().hex}.png"
     target = UPLOAD_DIR / filename
-    image.convert("RGB").save(target)
+    normalize_document_image(image).save(target)
     return target
 
 
@@ -394,7 +411,7 @@ def load_pages_for_uploads(uploaded_files: list[Any]) -> list[PageImage]:
         suffix = saved_path.suffix.lower()
         if suffix == ".pdf":
             pages.extend(render_pdf_pages(saved_path, uploaded_file.name))
-        elif suffix in {".png", ".jpg", ".jpeg", ".webp"}:
+        elif suffix in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}:
             pages.append(register_image_page(saved_path, uploaded_file.name))
     return pages
 
@@ -405,18 +422,30 @@ def uploaded_file_kinds(uploaded_files: list[Any]) -> set[str]:
         suffix = Path(uploaded_file.name).suffix.lower()
         if suffix == ".pdf":
             kinds.add("pdf")
-        elif suffix in {".png", ".jpg", ".jpeg", ".webp"}:
+        elif suffix in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}:
             kinds.add("image")
     return kinds
 
 
+def clamp_bbox(bbox: dict[str, int], width: int, height: int) -> dict[str, int]:
+    min_width = min(MIN_CROP_SIZE, width)
+    min_height = min(MIN_CROP_SIZE, height)
+    x1 = max(0, min(width - min_width, int(bbox["x1"])))
+    y1 = max(0, min(height - min_height, int(bbox["y1"])))
+    x2 = max(x1 + min_width, min(width, int(bbox["x2"])))
+    y2 = max(y1 + min_height, min(height, int(bbox["y2"])))
+    if x2 - x1 < min_width:
+        x1 = max(0, x2 - min_width)
+    if y2 - y1 < min_height:
+        y1 = max(0, y2 - min_height)
+    return {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
+
+
 def crop_image(image_path: Path, bbox: dict[str, int]) -> Image.Image:
-    image = Image.open(image_path).convert("RGB")
-    width, height = image.size
-    x1 = max(0, min(width - 1, bbox["x1"]))
-    y1 = max(0, min(height - 1, bbox["y1"]))
-    x2 = max(x1 + 1, min(width, bbox["x2"]))
-    y2 = max(y1 + 1, min(height, bbox["y2"]))
+    with Image.open(image_path) as opened:
+        image = normalize_document_image(opened)
+    safe_bbox = clamp_bbox(bbox, image.width, image.height)
+    x1, y1, x2, y2 = (safe_bbox[key] for key in ("x1", "y1", "x2", "y2"))
     return image.crop((x1, y1, x2, y2))
 
 
@@ -448,15 +477,40 @@ def tesseract_config() -> str:
 
 
 def preprocess_for_ocr(image: Image.Image) -> Image.Image:
-    image = image.convert("RGB")
+    image = normalize_document_image(image)
     width, height = image.size
-    scale = 2 if max(width, height) < 1800 else 1
-    if scale > 1:
-        image = image.resize((width * scale, height * scale), Image.Resampling.LANCZOS)
+    scale = min(3.0, max(1.0, 1800 / max(1, width)))
+    scale = min(scale, 6000 / max(1, width), 6000 / max(1, height))
+    if abs(scale - 1) > 0.01:
+        image = image.resize(
+            (max(1, round(width * scale)), max(1, round(height * scale))),
+            Image.Resampling.LANCZOS,
+        )
     gray = ImageOps.grayscale(image)
-    gray = ImageOps.autocontrast(gray)
-    gray = gray.filter(ImageFilter.SHARPEN)
+    gray = ImageOps.autocontrast(gray, cutoff=0.5)
+    gray = ImageEnhance.Contrast(gray).enhance(1.12)
+    gray = ImageEnhance.Sharpness(gray).enhance(1.2)
     return gray
+
+
+def prepare_ai_image(image: Image.Image) -> tuple[Image.Image, list[str]]:
+    prepared = normalize_document_image(image)
+    width, height = prepared.size
+    changes = ["투명 배경/EXIF 방향을 흰 배경 RGB로 정규화"]
+    scale = min(3.0, max(1.0, 1600 / max(1, width)))
+    scale = min(scale, 4096 / max(1, width), 6000 / max(1, height))
+    if abs(scale - 1) > 0.01:
+        prepared = prepared.resize(
+            (max(1, round(width * scale)), max(1, round(height * scale))),
+            Image.Resampling.LANCZOS,
+        )
+        changes.append(f"문서 판독 크기로 {scale:.2f}배 조정")
+    prepared = ImageOps.autocontrast(prepared, cutoff=0.5)
+    prepared = ImageEnhance.Contrast(prepared).enhance(1.08)
+    prepared = ImageEnhance.Sharpness(prepared).enhance(1.12)
+    prepared = ImageOps.expand(prepared, border=20, fill="white")
+    changes.extend(["약한 대비/선명도 보정", "흰색 안전 여백 20px 추가"])
+    return prepared, changes
 
 
 def run_ocr(image: Image.Image) -> str:
@@ -478,7 +532,18 @@ def run_ocr(image: Image.Image) -> str:
 
     try:
         config = f"{tesseract_config()} --psm 6"
-        return pytesseract.image_to_string(preprocess_for_ocr(image), lang="kor+eng", config=config)
+        processed = preprocess_for_ocr(image)
+        text = pytesseract.image_to_string(processed, lang="kor+eng", config=config)
+        if IMAGE_DEBUG:
+            print(
+                "[ocr-debug]",
+                {
+                    "source_size": image.size,
+                    "processed_size": processed.size,
+                    "recognized_text_length": len(text.strip()),
+                },
+            )
+        return text
     except pytesseract.TesseractError as exc:
         return (
             "OCR 실패: Tesseract는 찾았지만 한국어/영어 언어팩 또는 설정에 문제가 있습니다.\n\n"
@@ -693,6 +758,9 @@ def ai_classification_prompt(
 이미지 속 수학 문제를 보고 아래 단원 체계 안에서 분류 추천값을 JSON으로만 반환해라.
 
 규칙:
+- 분류하기 전에 이미지 전체를 위에서 아래로 확인하고 문제 번호, 본문, 조건식, 보기 ①②③④⑤, 표와 그림을 빠짐없이 읽는다.
+- 수식의 첨자, 지수, 적분 구간, 행렬, 표의 행과 열을 임의로 생략하지 않는다.
+- 이미지가 잘렸거나 흐려 핵심 내용이 불명확하면 needs_review=true로 표시하고 reason에 누락 가능 부분을 적는다.
 - 자동 분류는 확정이 아니라 추천이다.
 - 과목은 반드시 다음 중 하나: {", ".join(TAXONOMY.keys())}
 - 대단원/소단원은 선택한 과목의 단원 체계 안에서 고른다.
@@ -769,7 +837,11 @@ def ai_classify_problem_openai(
                 "role": "user",
                 "content": [
                     {"type": "input_text", "text": prompt},
-                    {"type": "input_image", "image_url": image_to_data_url(image), "detail": "high"},
+                    {
+                        "type": "input_image",
+                        "image_url": image_to_data_url(prepare_ai_image(image)[0]),
+                        "detail": "high",
+                    },
                 ],
             }
         ],
@@ -796,7 +868,19 @@ def ai_classify_problem_gemini(
 
     client = genai.Client(api_key=api_key)
     prompt = ai_classification_prompt(ocr_text, latex, source_filename)
-    image_bytes = image_to_png_bytes(image)
+    prepared_image, preprocessing = prepare_ai_image(image)
+    image_bytes = image_to_png_bytes(prepared_image)
+    if IMAGE_DEBUG:
+        print(
+            "[image-debug]",
+            {
+                "source_size": image.size,
+                "output_size": prepared_image.size,
+                "mime_type": "image/png",
+                "bytes": len(image_bytes),
+                "preprocessing": preprocessing,
+            },
+        )
     response = client.models.generate_content(
         model=model,
         contents=[
@@ -1260,12 +1344,11 @@ def bbox_sliders(image: Image.Image) -> dict[str, int]:
         y1 = st.slider("위쪽 y1", 0, height - 1, 0)
     with col2:
         x2 = st.slider("오른쪽 x2", 1, width, width)
-        y2 = st.slider("아래쪽 y2", 1, height, min(height, math.floor(height * 0.35)))
-    if x2 <= x1:
-        x2 = min(width, x1 + 1)
-    if y2 <= y1:
-        y2 = min(height, y1 + 1)
-    return {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
+        y2 = st.slider("아래쪽 y2", 1, height, height)
+    safe_bbox = clamp_bbox({"x1": x1, "y1": y1, "x2": x2, "y2": y2}, width, height)
+    if safe_bbox != {"x1": x1, "y1": y1, "x2": x2, "y2": y2}:
+        st.caption(f"선택 영역은 최소 {MIN_CROP_SIZE}px 이상이며 이미지 경계 안으로 자동 보정됩니다.")
+    return safe_bbox
 
 
 def full_image_bbox(image: Image.Image) -> dict[str, int]:
@@ -1280,6 +1363,46 @@ def detect_problem_starts(lines: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if match:
             starts.append({"number": match.group(1), "line": line})
     return starts
+
+
+def bbox_center_x(item: dict[str, Any]) -> float:
+    bbox = item["line"]["bbox"]
+    return (bbox["x1"] + bbox["x2"]) / 2
+
+
+def line_center(line: dict[str, Any]) -> tuple[float, float]:
+    bbox = line["bbox"]
+    return ((bbox["x1"] + bbox["x2"]) / 2, (bbox["y1"] + bbox["y2"]) / 2)
+
+
+def group_problem_starts_by_column(
+    starts: list[dict[str, Any]],
+    page_width: int,
+) -> list[list[dict[str, Any]]]:
+    if len(starts) < 3:
+        return [sorted(starts, key=lambda item: (item["line"]["bbox"]["y1"], item["line"]["bbox"]["x1"]))]
+
+    centers = sorted((bbox_center_x(start), index) for index, start in enumerate(starts))
+    gaps = [
+        (centers[index + 1][0] - centers[index][0], index)
+        for index in range(len(centers) - 1)
+    ]
+    if not gaps:
+        return [sorted(starts, key=lambda item: (item["line"]["bbox"]["y1"], item["line"]["bbox"]["x1"]))]
+
+    largest_gap, split_index = max(gaps, key=lambda item: item[0])
+    # Two-column PDFs produce a large x gap between left/right question numbers.
+    # Without this split, the right-column first problem can truncate the left-column first problem.
+    if largest_gap < page_width * 0.18:
+        return [sorted(starts, key=lambda item: (item["line"]["bbox"]["y1"], item["line"]["bbox"]["x1"]))]
+
+    groups: list[list[dict[str, Any]]] = []
+    for grouped_centers in (centers[: split_index + 1], centers[split_index + 1 :]):
+        group = [starts[index] for _, index in grouped_centers]
+        if group:
+            groups.append(sorted(group, key=lambda item: (item["line"]["bbox"]["y1"], item["line"]["bbox"]["x1"])))
+
+    return sorted(groups, key=lambda group: min(bbox_center_x(item) for item in group))
 
 
 def infer_candidate_kind(text: str, source_filename: str = "") -> str:
@@ -1298,28 +1421,51 @@ def auto_problem_boxes(image: Image.Image) -> list[dict[str, Any]]:
 
     boxes: list[dict[str, Any]] = []
     page_width, page_height = image.size
-    for index, start in enumerate(starts):
-        y1 = max(0, start["line"]["bbox"]["y1"] - 12)
-        y2 = page_height
-        if index + 1 < len(starts):
-            y2 = max(y1 + 20, starts[index + 1]["line"]["bbox"]["y1"] - 12)
+    column_groups = group_problem_starts_by_column(starts, page_width)
+    column_centers = [
+        sum(bbox_center_x(item) for item in group) / len(group)
+        for group in column_groups
+    ]
+    column_cuts = [
+        int((column_centers[index] + column_centers[index + 1]) / 2)
+        for index in range(len(column_centers) - 1)
+    ]
 
-        in_range_lines = [
-            line for line in lines if y1 <= line["bbox"]["y1"] < y2
-        ]
-        if in_range_lines:
-            x1 = max(0, min(line["bbox"]["x1"] for line in in_range_lines) - 16)
-            x2 = min(page_width, max(line["bbox"]["x2"] for line in in_range_lines) + 16)
-            y2 = min(page_height, max(line["bbox"]["y2"] for line in in_range_lines) + 18)
-        else:
-            x1, x2 = 0, page_width
+    vertical_padding = max(12, round(page_height * 0.006))
+    for column_index, column_starts in enumerate(column_groups):
+        column_x1 = 0 if column_index == 0 else column_cuts[column_index - 1]
+        column_x2 = page_width if column_index == len(column_groups) - 1 else column_cuts[column_index]
+        column_width = max(1, column_x2 - column_x1)
+        horizontal_padding = max(32, round(column_width * 0.08))
 
-        boxes.append(
-            {
-                "problem_number": start["number"],
-                "bbox": {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
-            }
-        )
+        for index, start in enumerate(column_starts):
+            y1 = max(0, start["line"]["bbox"]["y1"] - vertical_padding)
+            y2 = page_height
+            if index + 1 < len(column_starts):
+                y2 = max(y1 + MIN_CROP_SIZE, column_starts[index + 1]["line"]["bbox"]["y1"] - vertical_padding)
+
+            in_range_lines = []
+            for line in lines:
+                center_x, center_y = line_center(line)
+                if y1 <= center_y < y2 and column_x1 <= center_x < column_x2:
+                    in_range_lines.append(line)
+
+            if in_range_lines:
+                x1 = max(column_x1, min(line["bbox"]["x1"] for line in in_range_lines) - horizontal_padding)
+                x2 = min(column_x2, max(line["bbox"]["x2"] for line in in_range_lines) + horizontal_padding)
+            else:
+                x1, x2 = column_x1, column_x2
+
+            boxes.append(
+                {
+                    "problem_number": start["number"],
+                    "bbox": clamp_bbox(
+                        {"x1": x1, "y1": y1, "x2": x2, "y2": y2},
+                        page_width,
+                        page_height,
+                    ),
+                }
+            )
     return boxes
 
 
@@ -1556,7 +1702,7 @@ def ingest_tab() -> None:
 
     uploaded_files = st.file_uploader(
         "PDF 또는 이미지 파일",
-        type=["pdf", "png", "jpg", "jpeg", "webp"],
+        type=["pdf", "png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"],
         accept_multiple_files=True,
     )
 
@@ -1662,7 +1808,8 @@ def ingest_tab() -> None:
     if page is None:
         return
 
-    image = Image.open(page.image_path).convert("RGB")
+    with Image.open(page.image_path) as opened:
+        image = normalize_document_image(opened)
 
     with st.expander("여러 문제가 있는 페이지 자동 분리", expanded=False):
         st.caption("현재 페이지에서 문제 번호를 찾아 문제별 영역을 자동으로 잘라 저장합니다. 스캔 품질과 번호 형식에 따라 결과를 확인해야 합니다.")
@@ -1693,6 +1840,25 @@ def ingest_tab() -> None:
         st.image(crop, caption="저장될 문제 영역", width="stretch")
         if st.button("OCR 참고 텍스트 가져오기"):
             st.session_state["ocr_text"] = run_ocr(crop)
+
+    if IMAGE_DEBUG:
+        prepared_crop, preprocessing = prepare_ai_image(crop)
+        with st.expander("개발용 이미지 디버그", expanded=False):
+            st.json(
+                {
+                    "original_size": image.size,
+                    "selection_original_pixels": bbox,
+                    "crop_size": crop.size,
+                    "ai_output_size": prepared_crop.size,
+                    "ai_mime_type": "image/png",
+                    "preprocessing": preprocessing,
+                }
+            )
+            debug_left, debug_right = st.columns(2)
+            with debug_left:
+                st.image(crop, caption="전처리 전 crop", width="stretch")
+            with debug_right:
+                st.image(prepared_crop, caption="AI 전송 전처리본", width="stretch")
 
     with st.expander("선택 입력: 텍스트/수식/선택지", expanded=False):
         st.caption("이미지 유사도 검색만 쓸 거면 비워둬도 됩니다. OCR은 참고용이라 수식은 틀릴 수 있습니다.")
@@ -1851,12 +2017,17 @@ def search_tab() -> None:
             st.session_state["query_ocr_text"] = run_ocr(clipboard_image)
             st.success("클립보드 이미지를 검색 입력으로 가져왔습니다.")
 
-    query_image_file = st.file_uploader("검색할 문제 캡처 이미지", type=["png", "jpg", "jpeg", "webp"])
+    query_image_file = st.file_uploader(
+        "검색할 문제 캡처 이미지",
+        type=["png", "jpg", "jpeg", "webp", "bmp", "tif", "tiff"],
+    )
     query_image: Image.Image | None = None
     if query_image_file is not None:
-        query_image = Image.open(query_image_file).convert("RGB")
+        with Image.open(query_image_file) as opened:
+            query_image = normalize_document_image(opened)
     elif st.session_state.get("query_clipboard_image"):
-        query_image = Image.open(io.BytesIO(st.session_state["query_clipboard_image"])).convert("RGB")
+        with Image.open(io.BytesIO(st.session_state["query_clipboard_image"])) as opened:
+            query_image = normalize_document_image(opened)
 
     if query_image is not None:
         st.image(query_image, caption="입력 문제 이미지", width=420)

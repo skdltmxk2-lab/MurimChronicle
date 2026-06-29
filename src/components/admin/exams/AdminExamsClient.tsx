@@ -520,7 +520,7 @@ export function AdminExamsClient() {
                 />
                 {examCategory === "subject" && subjectMockSubject && !customTitle ? (
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    저장된 과목별 모의고사 중 제목이 "{subjectMockSubject} 모의고사 N회"인 시험만 회차로 계산합니다.
+                    저장된 과목별 모의고사 중 제목이 &quot;{subjectMockSubject} 모의고사 N회&quot;인 시험만 회차로 계산합니다.
                   </p>
                 ) : null}
               </label>

@@ -188,7 +188,7 @@ const problems = [
   }),
   build({
     num: 25, subject: "다변수함수", unit: "선적분과 면적분", concept: "그린정리(반원)", difficulty: "medium",
-    question: "$xy$평면의 곡선 $C$가 그림과 같이 점 $(-1,0)$에서 출발하여 선분을 따라 점 $(0,0)$까지 진행한 뒤, 원 $x^2+(y-1)^2=1$의 오른쪽 반원을 따라 점 $(0,2)$까지 진행한다. 이때, 선적분 $\\displaystyle\\int_C(xy+1)dx+x\\,dy$를 구하세요.",
+    question: "$xy$평면의 곡선 $C$가 점 $(-1,0)$에서 출발하여 선분을 따라 점 $(0,0)$까지 진행한 뒤, 원 $x^2+(y-1)^2=1$의 오른쪽 반원을 따라 점 $(0,2)$까지 진행한다. 이때, 선적분 $\\displaystyle\\int_C(xy+1)dx+x\\,dy$를 구하세요.",
     options: [o("1","$\\dfrac{\\pi}{2}+\\dfrac{1}{3}$"), o("2","$\\pi+1$"), o("3","$\\dfrac{\\pi}{2}+\\dfrac{2}{3}$"), o("4","$\\dfrac{\\pi}{2}-\\dfrac{2}{3}$"), o("5","$\\dfrac{\\pi}{2}-\\dfrac{1}{3}$")],
     answer: 1,
     explanation: "두 부분 합산: ① $(-1,0)\\to(0,0)$ 직선 위 적분 $=1$. ② 반원 위 적분: 매개화 $(\\cos t,\\sin t+1),\\,-\\pi/2\\le t\\le\\pi/2$. 계산하면 $\\tfrac{\\pi}{2}-\\tfrac{2}{3}$. 합 $=\\dfrac{\\pi}{2}+\\dfrac{1}{3}$."

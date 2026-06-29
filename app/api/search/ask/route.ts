@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { GEMINI_MODEL, generateWithRetry, friendlyAiError } from "@/lib/ai/gemini";
 import { requireTier } from "@/lib/auth/requireTier";
-import { getDailyUsage, bumpDailyUsage } from "@/lib/ai/usage";
+import { reserveDailyUsage, refundDailyUsage } from "@/lib/ai/usage";
 
 const MAX_TURNS = 20;
 const ASK_LIMIT = 20;
@@ -10,7 +10,9 @@ type Recommendation = { n: number; question: string; answer?: string; explanatio
 
 type ProblemContext = {
   problemText?: string;
+  rawTranscription?: string;
   options?: string;
+  figureDescription?: string;
   explanation?: string;
   answerText?: string;
   subject?: string;
@@ -32,6 +34,8 @@ function buildProblemContext(p: ProblemContext): string {
   if (p.subject || p.unit) parts.push(`[과목/단원] ${p.subject ?? ""} ${p.unit ?? ""}`.trim());
   if (p.problemText) parts.push(`[문제]\n${p.problemText}`);
   if (p.options) parts.push(`[보기]\n${p.options}`);
+  if (p.figureDescription) parts.push(`[그림/표]\n${p.figureDescription}`);
+  if (p.rawTranscription) parts.push(`[원본 전사 참고]\n${p.rawTranscription}`);
   if (p.answerText) parts.push(`[정답]\n${p.answerText}`);
   if (p.explanation) parts.push(`[공식 해설]\n${p.explanation}`);
   if (p.solution) parts.push(`[이 문제의 AI 풀이]\n${p.solution}`);
@@ -76,9 +80,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "질문이 필요합니다." }, { status: 400 });
   }
 
+  // 한도를 원자적으로 선점한다. AI 호출 실패 시 catch 에서 환불.
   if (!auth.isAdmin) {
-    const used = await getDailyUsage(auth.supabase, auth.userId, "ask");
-    if (used >= ASK_LIMIT) {
+    const reserved = await reserveDailyUsage(auth.supabase, auth.userId, "ask", ASK_LIMIT);
+    if (!reserved.ok) {
       return NextResponse.json(
         { ok: false, message: `오늘 AI 튜터 질문 한도(${ASK_LIMIT}회)를 모두 사용했어요. 내일 다시 이용해 주세요.` },
         { status: 429 }
@@ -103,12 +108,12 @@ export async function POST(request: Request) {
       },
     });
     const answer = (result.text ?? "").trim();
-    if (!auth.isAdmin) await bumpDailyUsage(auth.supabase, auth.userId, "ask");
     return NextResponse.json({
       ok: true,
       answer: answer || "답변을 생성하지 못했어요. 다시 질문해 주세요.",
     });
   } catch (e) {
+    if (!auth.isAdmin) await refundDailyUsage(auth.supabase, auth.userId, "ask");
     return NextResponse.json({ ok: false, message: friendlyAiError(e) }, { status: 502 });
   }
 }

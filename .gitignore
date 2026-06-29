@@ -6,4 +6,5 @@ streamlit.combined.log
 tsconfig.tsbuildinfo
 scripts/questions_dump.json
 .claude/settings.local.json
+.claude/worktrees/
 .tmp/

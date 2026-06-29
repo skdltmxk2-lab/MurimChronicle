@@ -1,0 +1,97 @@
+{
+  "title": "Daily TEST 1 — 미분학·역삼각함수",
+  "schoolSlug": "",
+  "year": "",
+  "idPrefix": "q-daily-r1-",
+  "source": "ROUTE 2027 미분학 데일리테스트 1 (문제+답지)",
+  "createdAt": "2026-05-18",
+  "problems": [
+    {
+      "id": "q-daily-r1-1",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "tan⁻¹x + tan⁻¹(1/x) = π/2",
+      "difficulty": "easy",
+      "question": "$a_n=\\tan^{-1}n$, $b_n=\\tan^{-1}\\dfrac{1}{n}$일 때, 다음 중 모든 자연수 $n$에 대하여 옳은 것은?",
+      "options": [
+        {"id":"1","label":"1","text":"$a_n+b_n=\\dfrac{\\pi}{2}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$a_n-b_n=\\dfrac{\\pi}{4}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$a_n b_n=1$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$a_n b_n=\\dfrac{\\pi}{4}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "공식 $\\tan^{-1}x+\\tan^{-1}\\dfrac{1}{x}=\\dfrac{\\pi}{2}$ ($x>0$).\n따라서 $a_n+b_n=\\dfrac{\\pi}{2}$.",
+      "tags": ["daily","미분학","역삼각함수"]
+    },
+    {
+      "id": "q-daily-r1-2",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "tan⁻¹x + cot⁻¹x = π/2",
+      "difficulty": "easy",
+      "question": "$\\tan^{-1}2+\\cot^{-1}2$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\pi}{2}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "공식 $\\tan^{-1}x+\\cot^{-1}x=\\dfrac{\\pi}{2}$.",
+      "tags": ["daily","미분학","역삼각함수","단답형"]
+    },
+    {
+      "id": "q-daily-r1-3",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "cos⁻¹(x/r) + cos⁻¹(y/r) = π/2 (x²+y²=r²)",
+      "difficulty": "easyMedium",
+      "question": "$\\cos^{-1}\\dfrac{4}{5}+\\cos^{-1}\\dfrac{3}{5}$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\pi}{2}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "$4^2+3^2=5^2$이므로 공식 $\\cos^{-1}\\dfrac{x}{r}+\\cos^{-1}\\dfrac{y}{r}=\\dfrac{\\pi}{2}$ (단, $x^2+y^2=r^2$)에 의해 $\\dfrac{\\pi}{2}$.",
+      "tags": ["daily","미분학","역삼각함수","단답형"]
+    },
+    {
+      "id": "q-daily-r1-4",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "cos(tan⁻¹x) 계산",
+      "difficulty": "easy",
+      "question": "$\\cos\\!\\left(\\tan^{-1}\\dfrac{2}{3}\\right)$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{3}{\\sqrt{13}}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "$\\tan^{-1}\\dfrac{2}{3}=\\alpha$ ⇒ $\\tan\\alpha=\\dfrac{2}{3}$. 직각삼각형 빗변 $\\sqrt{13}$.\n$\\cos\\alpha=\\dfrac{3}{\\sqrt{13}}$.",
+      "tags": ["daily","미분학","역삼각함수","단답형"]
+    },
+    {
+      "id": "q-daily-r1-5",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "cos(sin⁻¹x), 우함수 활용",
+      "difficulty": "easyMedium",
+      "question": "$\\cos\\!\\left(\\sin^{-1}\\!\\left(-\\dfrac{1}{4}\\right)\\right)$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\sqrt{15}}{4}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "$\\sin^{-1}\\!\\left(-\\dfrac{1}{4}\\right)=\\alpha$ ⇒ $\\sin\\alpha=-\\dfrac{1}{4}$ ($\\alpha$는 4사분면각).\n$\\cos\\alpha=\\dfrac{\\sqrt{15}}{4}$.\n또는 $\\cos$는 우함수: $\\cos\\!\\left(-\\sin^{-1}\\dfrac{1}{4}\\right)=\\cos\\!\\left(\\sin^{-1}\\dfrac{1}{4}\\right)=\\dfrac{\\sqrt{15}}{4}$.",
+      "tags": ["daily","미분학","역삼각함수","단답형"]
+    },
+    {
+      "id": "q-daily-r1-6",
+      "subject": "미분학",
+      "unit": "역삼각함수",
+      "concept": "sin²(cos⁻¹x) = 1 - x²",
+      "difficulty": "easy",
+      "question": "$\\sin^2\\!\\left(\\cos^{-1}\\dfrac{2}{3}\\right)$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{5}{9}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "$\\cos\\alpha=\\dfrac{2}{3}$이므로 $\\sin^2\\alpha=1-\\cos^2\\alpha=1-\\dfrac{4}{9}=\\dfrac{5}{9}$.",
+      "tags": ["daily","미분학","역삼각함수","단답형"]
+    }
+  ]
+}

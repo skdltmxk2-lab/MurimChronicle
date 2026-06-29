@@ -1,0 +1,209 @@
+1) $x y^{\prime}-y=\sqrt{x^{2}-y^{2}} \Rightarrow y^{\prime}-\frac{y}{x}=\sqrt{1-\left(\frac{y}{x}\right)^{2}}$ 이므로
+$\frac{y}{x}=u$ 라 놓으면 $y^{\prime}=u^{\prime} x+u$ 이고 대입하면,
+따라서 $x \frac{d u}{d x}=\sqrt{1-u^{2}}$
+$\Rightarrow \int \frac{1}{\sqrt{1-u^{2}}} d u=\int \frac{1}{x} d x$
+$\Rightarrow \sin ^{-1} u=\ln x+c$
+$\Rightarrow \frac{y}{x}=u=\sin (\ln x+c)$
+$\Rightarrow y=x \sin (\ln x+c)$
+이다.
+답 : (3)
+2) $\{(\rho, \phi, \theta) \mid \rho \leq 2 \cos \phi, 0 \leq \rho \leq \sec \phi\}$
+$=\left\{(x, y, z) \mid x^{2}+y^{2}+z^{2} \leq 2 z, 0 \leq z \leq 1\right\}$ 이므로
+영역의 부피는 $\frac{4}{3} \pi \times 1^{3} \times \frac{1}{2}$ 이다.
+답 : (1)
+3) $\lim _{n \rightarrow \infty}\left(\frac{n^{2}}{n^{2}+1^{2}}\right)^{\frac{1}{n^{2}+1^{2}}}\left(\frac{n^{2}}{n^{2}+2^{2}}\right)^{\frac{2}{n^{2}+2^{2}}} \ldots\left(\frac{n^{2}}{n^{2}+4 n^{2}}\right)^{\frac{2 n}{n^{2}+4 n^{2}}}$
+$=\lim _{n \rightarrow \infty} e^{\ln \left(\frac{n^{2}}{n^{2}+1^{2}}\right)^{\frac{1}{n^{2}+1^{2}}}\left(\frac{n^{2}}{n^{2}+2^{2}}\right)^{\frac{2}{n^{2}+2^{2}}} \cdots\left(\frac{n^{2}}{n^{2}+4 n^{2}}\right)^{\frac{2 n}{n^{2}+4 n^{2}}}}$
+$=\lim _{n \rightarrow \infty} e^{\ln \left(\frac{n^{2}}{n^{2}+1^{2}}\right)^{\frac{1}{n^{2}+1^{2}}}+\ln \left(\frac{n^{2}}{n^{2}+2^{2}}\right)^{\frac{2}{n^{2}+2^{2}}}+\cdots+\ln \left(\frac{n^{2}}{n^{2}+4 n^{2}}\right)^{\frac{2 n}{n^{2}+4 n^{2}}}}$
+$=\lim _{n \rightarrow \infty} e^{\frac{1}{n^{2}+1^{2}} \ln \left(\frac{n^{2}}{n^{2}+1^{2}}\right)+\frac{2}{n^{2}+2^{2}} \ln \left(\frac{n^{2}}{n^{2}+2^{2}}\right)+\cdots+\frac{2 n}{n^{2}+4 n^{2}} \ln \left(\frac{n^{2}}{n^{2}+4 n^{2}}\right)}$
+$=\lim _{n \rightarrow \infty} e^{\sum_{k=1}^{2 n} \frac{k}{n^{2}+k^{2}} \ln \left(\frac{n^{2}}{n^{2}+k^{2}}\right)}=\lim _{n \rightarrow \infty} e^{\sum_{k=1}^{2 n} \frac{\frac{k}{n}}{1+\left(\frac{k}{n}\right)^{2}} \ln \frac{1}{1+\left(\frac{k}{n}\right)^{2}} \frac{1}{n}}$
+$=e^{\int_{0}^{2} \frac{x}{1+x^{2}} \ln \frac{1}{1+x^{2}} d x} \quad\left(\because \frac{k}{n}=x, \frac{1}{n}=d x\right)$
+$=e^{-\int_{0}^{2} \frac{x}{1+x^{2}} \ln \left(1+x^{2}\right) d x}$
+$=e^{-\frac{1}{2} \int_{0}^{\ln 5} t d x}\left(\because \ln \left(1+x^{2}\right)=t\right)$
+$=e^{-\frac{1}{4}(\ln 5)^{2}}$
+답 : (5)
+4) $\oint_{C} 3 y^{3} d x+\left(x-\frac{4}{3} x^{3}\right) d y=\iint_{D} 1-4 x^{2}-9 y^{2} d x d y$ 의
+
+최댓값은 $D: 4 x^{2}+9 y^{2} \leq 1$ 일 때 갖는다.
+따라서 $2 x=u, 3 y=v$ 라 하면 $D^{\prime}: u^{2}+v^{2} \leq 1$ 이므로
+$\frac{1}{6} \iint_{D^{\prime}}\left(1-u^{2}-v^{2}\right) d u d v=\frac{\pi}{12}$ 이다.
+답 : (1)
+5) 정규직교기저는
+$\left\{v_{1}, v_{2}, v_{3}\right\}=\left\{\frac{1}{\sqrt{2}}(1,0,1), \frac{1}{\sqrt{3}}(1,1,-1), \frac{1}{\sqrt{6}}(-1,2,1)\right\}$
+이다.
+따라서
+$u=\left(u \cdot v_{1}\right) v_{1}+\left(u \cdot v_{2}\right) v_{2}+\left(u \cdot v_{3}\right) v_{3}$
+$=\frac{4}{\sqrt{2}} v_{1}+\frac{4}{\sqrt{3}} v_{2}+\frac{2}{\sqrt{6}} v_{3}$
+이므로 계수들의 곱은 $\frac{4}{\sqrt{2}} \times \frac{4}{\sqrt{3}} \times \frac{2}{\sqrt{6}}=\frac{16}{3}$ 이다.
+답 : (1)
+6) $y=0$ 일 때, $f(x, 0)=\left\{\begin{array}{cl}x \sin \left(\frac{1}{x}\right) & , x \neq 0 \\ 0 & , x=0\end{array}\right.$ 이다.
+
+이때, $f(x)=\left\{\begin{array}{cc}x^{a} \sin \left(\frac{1}{x^{b}}\right), & x \neq 0 \\ 0, & x=0\end{array}\right.$ 에서
+$a=1$ 이면 $x=0$ 에서 미분이 불가능하다.
+답 : (5)
+7) $r=1-\sqrt{2} \sin \theta-\sqrt{2} \cos \theta=1-2 \sin \left(\theta+\frac{\pi}{4}\right)$ 은
+$r=1-2 \sin \theta$ 를 시계방향으로 $\frac{\pi}{4}$ 만큼 회전한 그래프이다.
+따라서 넓이는 동일하므로 $r=1-2 \sin \theta$ 의 작은 부분을 구하면 된다.
+작은 루프의 넓이는 $a^{2}\left(\pi-\frac{3}{2} \sqrt{3}\right)$ 이므로 구하는 부분의 값은 $\pi-\frac{3}{2} \sqrt{3}$ 이다.
+
+답 : (1)
+8) $\int_{1}^{\sqrt{3}} \frac{x^{3}-1}{x^{4}+x^{2}} d x=\int_{1}^{\sqrt{3}} \frac{x^{3}-1}{x^{2}\left(x^{2}+1\right)} d x$
+$=\int_{1}^{\sqrt{3}} \frac{x}{x^{2}+1}-\frac{1}{x^{2}\left(x^{2}+1\right)} d x$
+$=\int_{1}^{\sqrt{3}} \frac{x}{x^{2}+1}-\frac{1}{x^{2}}+\frac{1}{x^{2}+1} d x$
+$=\left[\frac{1}{2} \ln \left(x^{2}+1\right)+\frac{1}{x}+\tan ^{-1} x\right]_{1}^{\sqrt{3}}$
+$=\ln \sqrt{2}+\frac{1}{\sqrt{3}}+\frac{\pi}{12}-1$
+답 : (4)
+9) $y^{(3)}+2 y^{\prime \prime}+4 y^{\prime}+8 y=e^{-3 x}+8 x^{2}$
+$\Rightarrow\left(D^{3}+2 D^{2}+4 D+8\right) y=e^{-3 x}+8 x^{2}$
+$\Rightarrow y_{p}=\frac{1}{D^{3}+2 D^{2}+4 D+8}\left(e^{-3 x}+8 x^{2}\right)$
+$$\begin{aligned}
+& =\frac{1}{-13} e^{-3 x}+\frac{1}{8\left(\frac{D^{3}}{8}+\frac{D^{2}}{4}+\frac{D}{2}+1\right)} 8 x^{2} \\
+& =\frac{1}{-13} e^{-3 x}+\frac{1}{8}\left(1-\frac{D}{2}+0 D^{2}+\cdots\right) 8 x^{2}
+\end{aligned}$$
+$$=-\frac{1}{13} e^{-3 x}+x^{2}-x$$
+
+즉, $y_{p}(2)=-\frac{1}{13} e^{-6}+2$
+답 : (4)
+10) $2 y+4 z=5,4 x^{2}+4 y^{2}-z^{2}=0$ 일 때,
+$\sqrt{x^{2}+y^{2}+z^{2}}$ 의 최소값을 라그랑즈 승수법으로 구하면 다음과 같다.
+$$\begin{aligned}
+\left|\begin{array}{ccc}
+0 & 2 & 4 \\
+8 x & 8 y & -2 z \\
+2 x & 2 y & 2 z
+\end{array}\right|=0 & \Leftrightarrow\left|\begin{array}{ccc}
+0 & 2 & 4 \\
+0 & 0 & -10 z \\
+2 x & 2 y & 2 z
+\end{array}\right|=0 \\
+& \Leftrightarrow-40 x z=0 \text { 이므로 }
+\end{aligned}$$
+1) $z=0$ 을 평면에 대입하면 $y=\frac{5}{2}$ 이다.
+
+그런데 원뿔에 대입하면 만족하지 않으므로 이러한 경우는 존재하지 않는다.
+2) $x=0$ 이면 $z^{2}=4 y^{2}, 2 y+4 z=5$ 을 만족한다.
+$z=2 y$ 일 때 $x=0, y=\frac{1}{2}, z=1$ 이고,
+$z=-2 y$ 일 때 $x=0, y=-\frac{5}{6}, z=\frac{5}{3}$ 이다.
+즉, 최소거리가 나오는 점은 $(a, b, c)=\left(0, \frac{1}{2}, 1\right)$ 이므로 $a+b+c=\frac{3}{2}$ 이다.
+
+답 : (4)
+11) ᄀ. $-\sqrt{a^{2}+b^{2}} \leq a \sin \theta+b \cos \theta \leq \sqrt{a^{2}+b^{2}}$ 이므로
+$0 \leq(a \sin \theta+b \cos \theta)^{2} \leq a^{2}+b^{2}$ 이다. (참)
+ㄴ. $\left(a_{1}+a_{2}+\cdots+a_{n}\right)\left(\frac{1}{a_{1}}+\frac{1}{a_{2}}+\cdots+\frac{1}{a_{n}}\right)$
+$$\begin{gathered}
+\geq\left(\sqrt{a_{1}} \frac{1}{\sqrt{a_{1}}}+\sqrt{a_{2}} \frac{1}{\sqrt{a_{2}}}+\cdots+\sqrt{a_{n}} \frac{1}{\sqrt{a_{n}}}\right)^{2} \\
+\Leftrightarrow\left(a_{1}+a_{2}+\cdots+a_{n}\right)\left(\frac{1}{a_{1}}+\frac{1}{a_{2}}+\cdots+\frac{1}{a_{n}}\right) \geq n^{2} \quad \text { (참) }
+\end{gathered}$$
+
+ㄷ. (반례)
+$f(x)=1, g(x)=x$ 라 하면
+$\int_{0}^{1} f(x) g(x) d x=\frac{1}{2}, \quad \int_{0}^{1} f^{2}(x) d x=1, \quad \int_{0}^{1} g^{2}(x) d x=\frac{1}{3}$
+이다.
+$\left[\int_{0}^{1} f(x) g(x) d x\right]^{2}<\int_{0}^{1} f^{2}(x) d x \int_{0}^{1} g^{2}(x) d x$ (거짓)
+ㄹ. $\frac{x+\frac{1}{x}}{2} \geq \sqrt{x \times \frac{1}{x}} \Leftrightarrow x+\frac{1}{x} \geq 2$ 이므로
+$$\begin{aligned}
+& \frac{\left(x^{2}+1\right)\left(y^{2}+1\right)\left(z^{2}+1\right)}{x y z} \\
+= & \left(\frac{x^{2}+1}{x}\right)\left(\frac{y^{2}+1}{y}\right)\left(\frac{z^{2}+1}{z}\right) \\
+= & \left(x+\frac{1}{x}\right)\left(y+\frac{1}{y}\right)\left(z+\frac{1}{z}\right) \geq 8 \text { 이다. (참) }
+\end{aligned}$$
+12) $f(t)=(\cos t, \sin t, \ln \sin t)$ 일 때,
+$f^{\prime}(t)=(-\sin t, \cos t, \cot t)$,
+$f^{\prime \prime}(t)=\left(-\cos t,-\sin t,-\csc ^{2} t\right)$ 이므로
+점 $(0,1,0) \Leftrightarrow t=\frac{\pi}{2}$ 에서 구해보면,
+$f^{\prime}\left(\frac{\pi}{2}\right) \times f^{\prime \prime}\left(\frac{\pi}{2}\right)=\left|\begin{array}{ccc}i & j & k \\ -1 & 0 & 0 \\ 0 & -1 & -1\end{array}\right|=(0,-1,1)$ 이므로
+(1) 점 $P$ 에서의 곡률은 $\kappa\left(\frac{\pi}{2}\right)=\frac{\left|f^{\prime} \times f^{\prime \prime}\right|}{\left|f^{\prime}\right|^{3}}=\sqrt{2}$ 이다. (참)
+(2) $a=\frac{f^{\prime} \cdot f^{\prime \prime}}{\left|f^{\prime}\right|} T(t)+\frac{\left|f^{\prime} \times f^{\prime \prime}\right|}{\left|f^{\prime}\right|} N(t)$ 이므로 $t=\frac{\pi}{2}$ 에서 구하면 $a=0 T+\sqrt{2} N$ 이다.
+따라서 수평성분(진행방향의 성분)의 크기는 0 이고, 수직방향의 성분의 크기는 $\sqrt{2}$ 이다. (참)
+(3) 점 $P$ 에서의 접촉평면의 법선벡터는 $(0,-1,1)$ 이므로 접촉평면은 $y-z=1$ 이다. (참)
+(4) $T\left(\frac{\pi}{2}\right)=(-1,0,0), B\left(\frac{\pi}{2}\right)=\frac{1}{\sqrt{2}}(0,-1,1)$ 이므로
+$N\left(\frac{\pi}{2}\right)=B\left(\frac{\pi}{2}\right) \times T\left(\frac{\pi}{2}\right)=\frac{1}{\sqrt{2}}\left|\begin{array}{rrr}i & j & k \\ 0 & -1 & 1 \\ -1 & 0 & 0\end{array}\right|=\frac{1}{\sqrt{2}}(0,-1,-1)$
+이다. (거짓)
+(5) $f^{\prime}\left(\frac{\pi}{2}\right)=(-1,0,0)$ 이므로 속도벡터는 $(-1,0,0)$ 이다. (참)
+
+답 : (4)
+13) $\sum_{n=1}^{\infty} \frac{1}{n(n+1)} x^{n}=\frac{(1-x) \ln (1-x)+x}{x}$
+$\Leftrightarrow \sum_{n=1}^{\infty} \frac{1}{n(n+1)} x^{n+1}=(1-x) \ln (1-x)+x$ 을 양변 적분하면
+$$\begin{aligned}
+& \sum_{n=1}^{\infty} \frac{1}{n(n+1)(n+2)} x^{n+2} \\
+& =-\frac{1}{2}(1-x)^{2} \ln (1-x)+\frac{1}{4}(1-x)^{2}+\frac{1}{2} x^{2}+C \text { 이다. }
+\end{aligned}$$
+$x=0$ 을 대입하면 $C=-\frac{1}{4}$ 이다.
+$\sum_{n=1}^{\infty} \frac{1}{n(n+1)(n+2)} x^{n+2}$
+$=-\frac{1}{2}(1-x)^{2} \ln (1-x)+\frac{1}{4}(1-x)^{2}+\frac{1}{2} x^{2}-\frac{1}{4}$ 이므로
+$\sum_{n=1}^{\infty} \frac{1}{n(n+1)(n+2)} x^{n}$
+$=\frac{-\frac{1}{2}(1-x)^{2} \ln (1-x)+\frac{1}{4}(1-x)^{2}+\frac{1}{2} x^{2}-\frac{1}{4}}{x^{2}}$ 이다
+즉, $\sum_{n=1}^{\infty} \frac{1}{n(n+1)(n+2) 2^{n}}=\frac{1}{2} \ln 2-\frac{1}{4}$
+[별해]
+$\sum_{n=1}^{\infty} \frac{1}{n(n+1)(n+2) 2^{n}}=\sum_{n=1}^{\infty} \frac{(n+2)-n}{n(n+1)(n+2) 2^{n+1}}$
+$=\sum_{n=1}^{\infty}\left[\frac{1}{n(n+1)}-\frac{1}{(n+1)(n+2)}\right]\left(\frac{1}{2}\right)^{n+1}$
+$$\begin{aligned}
+& =\sum_{n=1}^{\infty} \frac{1}{n(n+1)}\left(\frac{1}{2}\right)^{n+1}-\sum_{n=1}^{\infty} \frac{1}{(n+1)(n+2)}\left(\frac{1}{2}\right)^{n+1} \\
+& =\sum_{n=1}^{\infty} \frac{1}{n(n+1)}\left(\frac{1}{2}\right)^{n+1}-\sum_{n=2}^{\infty} \frac{1}{n(n+1)}\left(\frac{1}{2}\right)^{n} \\
+& =\left(\frac{1}{2} \ln \frac{1}{2}+\frac{1}{2}\right)-\left(\frac{\frac{1}{2} \ln \frac{1}{2}+\frac{1}{2}}{\frac{1}{2}}-\frac{1}{4}\right) \\
+& =\frac{1}{2} \ln 2-\frac{1}{4}
+\end{aligned}$$
+14) $3 x^{2}-2 x y+3 y^{2}=8 \Leftrightarrow(x y)\left(\begin{array}{cc}3 & -1 \\ -1 & 3\end{array}\right)\binom{x}{y}=8$ 일 때,
+$A=\left(\begin{array}{cc}3 & -1 \\ -1 & 3\end{array}\right)$ 의 고유치를 구하면 2,4 이고 각각에 대응하는 고유벡터는 $\binom{1}{1},\binom{-1}{1}$ 이다.
+따라서 $\binom{x}{y}=\frac{1}{\sqrt{2}}\left(\begin{array}{cc}1 & -1 \\ 1 & 1\end{array}\right)\binom{X}{Y}$ 의 주축정리를 적용하면 $\left(\begin{array}{ll}x & y\end{array}\right)\left(\begin{array}{cc}3 & -1 \\ -1 & 3\end{array}\right)\binom{x}{y}=8 \Leftrightarrow 2 X^{2}+4 Y^{2}=8 \Leftrightarrow \frac{X^{2}}{4}+\frac{Y^{2}}{2}=1$ 이므로 영역의 넓이는 $2 \sqrt{2} \pi$ 이다.
+
+답 : (2)
+15) 원기둥의 밑면의 반지름을 $r$, 높이를 $h$ 라 하면
+$V=\pi r^{2} h=600 \pi$ 이므로
+$S=2 \pi r^{2}+2 \pi r h=2 \pi r^{2}+\frac{1200 \pi}{r}\left(\because h=\frac{600}{r^{2}}\right)$ 이다.
+$\frac{d S}{d t}=\left(4 \pi r-\frac{1200 \pi}{r^{2}}\right) \frac{d r}{d t}$ 이고, $\frac{d r}{d t}=-\frac{1}{2}, r=5$ 이므로 $\frac{d S}{d t}=14 \pi$ 이다.
+
+답 : (2)
+16) $\binom{5}{1}=3\binom{1}{1}+2\binom{1}{-1}$ 이므로
+$$\begin{aligned}
+A^{10}\binom{5}{1} & =A^{10}\left[3\binom{1}{1}+2\binom{1}{-1}\right]=3 A^{10}\binom{1}{1}+2 A^{10}\binom{1}{-1} \\
+& =3 \times 3^{10}\binom{1}{1}+2 \times(-1)^{10}\binom{1}{-1}=\binom{3^{11}}{3^{11}}+\binom{2}{-2}
+\end{aligned}$$
+
+이다.
+즉, $u_{1}-u_{2}=4$
+답 : (5)
+17) $\left\|\left(A X^{t}\right)^{t}\right\|$ 의 최댓값은 $A^{T} A$ 의 고유치에서 발생한다.
+$A^{T} A=\left(\begin{array}{cc}3 & -1 \\ 1 & 3 \\ 1 & 1\end{array}\right)\left(\begin{array}{rcc}3 & 1 & 1 \\ -1 & 3 & 1\end{array}\right)=\left(\begin{array}{ccc}10 & 0 & 2 \\ 0 & 10 & 4 \\ 2 & 4 & 2\end{array}\right)$ 의 고유치를 구해보면 $0,10,12$ 이다.
+다만, $A A^{T}=\left(\begin{array}{rcc}3 & 1 & 1 \\ -1 & 3 & 1\end{array}\right)\left(\begin{array}{lc}3 & -1 \\ 1 & 3 \\ 1 & 1\end{array}\right)=\left(\begin{array}{cc}11 & 1 \\ 1 & 11\end{array}\right)$ 의 고유치를 구해보면 10,12 를 이용해서 12 를 구해도 된다.
+따라서 $\|X\|=2$ 일 때, $\left\|\left(A X^{t}\right)^{t}\right\|=\left\|\left(A X^{t}\right)\right\|$ 의 최댓값은 $\sqrt{12} \times 2$ 이다.
+
+답 : (5)
+18) $\iint_{S}\left(x^{4}+y^{4}+z^{4}\right) d S=4 \iint_{S}\left(x^{3}, y^{3}, z^{3}\right) \cdot \frac{1}{4}(x, y, z) d S$
+$=4 \iint_{S} F \cdot n d S=4 \iiint_{T} 3 x^{2}+3 y^{2}+3 z^{2} d V \quad(\because$ 발산정 리 $)$
+$=12 \int_{0}^{2 \pi} \int_{0}^{\pi} \int_{0}^{4} \rho^{2} \times \rho^{2} \sin \phi d \rho d \phi d \theta$
+$=12 \int_{0}^{2 \pi} \int_{0}^{\pi} \int_{0}^{4} \rho^{2} \times \rho^{2} \sin \phi d \rho d \phi d \theta$
+$=\frac{3}{5} \times 4^{7} \times \pi$
+답 : (1)
+19) $\iint_{S} F \cdot \vec{n} d S=\iiint_{T} x+2 y d V \quad(\because$ 발 산정 리 $)$
+$$=\bar{x} \times(T \text { 의 부피 })+2 \times \bar{y} \times(T \text { 의 부피 })=0$$
+
+답 : (3)
+20) $x^{2}+y^{2}-z^{2}=1$ 에 $z=\frac{3}{5} y$ 을 대입하면 $x^{2}+\frac{16}{25} y^{2}=1$ 이므로 $D: x^{2}+\frac{16}{25} y^{2} \leq 1$ 이다.
+$\int_{C} F \cdot d r=\iint_{S} c u r l F \cdot n d S(\because$ 스톡스 정리 $)$
+$$\begin{aligned}
+& =\iint_{D}(*, 3 x, 1-x) \cdot\left(0,-\frac{3}{5}, 1\right) d x d y \\
+& =\iint_{D}-\frac{14}{5} x+1 d x d y \\
+& =-\frac{14}{5} \times \bar{x} \times(D \text { 의 면적 })+(D \text { 의 면 적 }) \\
+& =\frac{5}{4} \pi
+\end{aligned}$$
+
+답 : (2)
+21) $\mathscr{L}\left\{t e^{-t} \sin 2 t\right\}=\mathcal{L}\{t \sin 2 t\}_{s+1}=\left.\frac{4 s}{\left(s^{2}+4\right)^{2}}\right|_{s+1}$
+$$=\frac{4(s+1)}{\left[(s+1)^{2}+4\right]^{2}}=\frac{4 s+4}{\left(s^{2}+2 s+5\right)^{2}}$$
+22) $\nabla f_{(1,1,1)}=\left.\left(4 x^{3}+6 y-6+3 y z,-2 y+6 x+3 x z, 3 x y\right)\right|_{(1,1,1)} =(7,7,3)$ 이므로 최댓값은
+$\left|\nabla f_{(1,1,1)}\right|=\sqrt{49+49+9}=\sqrt{107}$ 이다.
+답 : (1)
+23) 기본 행 연산에 의하여
+$\left[\begin{array}{cccc}1 & 2 & 3 & 4 \\ 4 & 5 & 6 & 7 \\ 7 & 8 & 9 & 10 \\ 10 & 11 & 12 & 13\end{array}\right] \rightarrow\left[\begin{array}{llll}1 & 2 & 3 & 4 \\ 3 & 3 & 3 & 3 \\ 6 & 6 & 6 & 6 \\ 9 & 9 & 9 & 9\end{array}\right] \rightarrow\left[\begin{array}{llll}1 & 1 & 1 & 1 \\ 1 & 2 & 3 & 4 \\ 6 & 6 & 6 & 6 \\ 9 & 9 & 9 & 9\end{array}\right] \rightarrow\left[\begin{array}{llll}1 & 1 & 1 & 1 \\ 0 & 1 & 2 & 3 \\ 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0\end{array}\right]$ 이므로 행렬 $\left[\begin{array}{cccc}1 & 2 & 3 & 4 \\ 4 & 5 & 6 & 7 \\ 7 & 8 & 9 & 10 \\ 10 & 11 & 12 & 13\end{array}\right]$ 의 계수는
+2 이다. 따라서 행공간의 차원은 2 차원이다.
+답 : (3)
+24) $\int_{0}^{\infty} \frac{d x}{\sqrt{x}(1+x)} \quad(\because \sqrt{x}=t)$
+$$=\int_{0}^{\infty} \frac{2 t}{t\left(1+t^{2}\right)} d t=2 \int_{0}^{\infty} \frac{1}{1+t^{2}} d t=2\left[\tan ^{-1} t\right]_{0}^{\infty}=\pi$$
+25) $\left\{\begin{array}{l}y_{1}{ }^{\prime}=y_{1}+12 y_{2} \\ y_{2}{ }^{\prime}=3 y_{1}+y_{2}\end{array} \Leftrightarrow\binom{y_{1}{ }^{\prime}}{y_{2}{ }^{\prime}}=\left(\begin{array}{cc}1 & 12 \\ 3 & 1\end{array}\right)\binom{y_{1}}{y_{2}}\right.$ 이고
+$\left|\begin{array}{cc}1-\lambda & 12 \\ 3 & 1-\lambda\end{array}\right|=\lambda^{2}-2 \lambda-35=(\lambda+5)(\lambda-7)$
+이므로 $\lambda=-5, \lambda=7$ 이다.
+( i ) $\lambda=-5$ 일 때, $\left(\begin{array}{cc}6 & 12 \\ 3 & 6\end{array}\right)\binom{y_{1}}{y_{2}}=\binom{0}{0}$ 이므로 고유벡터는 $\binom{2}{-1}$ 이다.
+(ii) $\lambda=7$ 일 때, $\left(\begin{array}{cc}-6 & 12 \\ 3 & -6\end{array}\right)\binom{y_{1}}{y_{2}}=\binom{0}{0}$ 이므로 고유벡터는 $\binom{2}{1}$ 이다.
+따라서 $\left\{\begin{array}{l}y_{1}{ }^{\prime}=y_{1}+12 y_{2} \\ y_{2}{ }^{\prime}=3 y_{1}+y_{2}\end{array}\right.$ 의 일반해는
+$\binom{y_{1}}{y_{2}}=c_{1}\binom{2}{-1} e^{-5 t}+c_{2}\binom{2}{1} e^{7 t}$ 이고 $y_{1}(0) \neq 0, y_{2}(0) \neq 0$ 이므로
+$c_{1}$ 과 $c_{2}$ 는 동시에 0 값이 될 수 없다.
+그러므로 극한 $\lim _{t \rightarrow \infty} \frac{y_{1}(t)}{y_{2}(t)}$ 의 값은 2 또는 -2 이다.

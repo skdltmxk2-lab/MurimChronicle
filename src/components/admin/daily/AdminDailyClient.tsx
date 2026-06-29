@@ -361,7 +361,7 @@ export function AdminDailyClient() {
             {todayLoading ? (
               <p className="mt-3 text-sm text-slate-500">불러오는 중...</p>
             ) : todayPreview.length === 0 ? (
-              <p className="mt-3 text-sm text-slate-500">데일리 풀이 비어있습니다. "데일리 풀" 탭에서 추가해주세요.</p>
+              <p className="mt-3 text-sm text-slate-500">데일리 풀이 비어있습니다. &quot;데일리 풀&quot; 탭에서 추가해주세요.</p>
             ) : (
               <div className="mt-3 space-y-2">
                 {todayPreview.map((q, i) => (

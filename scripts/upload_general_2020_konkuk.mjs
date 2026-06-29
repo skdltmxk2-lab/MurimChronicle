@@ -211,8 +211,8 @@ const problems = [
     options: [
       o("1","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{-u+3/2}\\dfrac{8u}{v}\\,dv\\,du$"),
       o("2","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{u}{8v}\\,dv\\,du$"),
-      o("3","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{8u}{v}\\,dv\\,du$"),
-      o("4","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{u}{8v}\\,dv\\,du$"),
+      o("3","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{8v}{u}\\,dv\\,du$"),
+      o("4","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{v}{8u}\\,dv\\,du$"),
       o("5","$\\displaystyle\\int_{1/4}^{5/4}\\!\\!\\int_{1/4}^{3/2-u}\\dfrac{u}{v}\\,dv\\,du$")
     ],
     answer: 1,

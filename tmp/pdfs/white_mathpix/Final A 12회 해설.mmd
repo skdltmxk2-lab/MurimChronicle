@@ -1,0 +1,202 @@
+\section*{학교별 실전 모의고사 12회 해설}
+1) $\int_{0}^{\infty} \int_{0}^{\infty} x^{2} e^{-\left(x^{2}+y^{2}\right)} d x d y$
+$=\int_{0}^{\infty} \int_{0}^{\infty} x^{2} e^{-x^{2}} e^{-y^{2}} d x d y=\int_{0}^{\infty} \frac{\sqrt{\pi}}{4} e^{-y^{2}} d y$
+$=\frac{\sqrt{\pi}}{4} \times \frac{\sqrt{\pi}}{2}=\frac{\pi}{8}$
+답 : (1)
+2) $\Omega=\left\{(x, y) \left\lvert\, \frac{x^{2}}{4}+\frac{y^{2}}{9} \leq 1\right., x \geq 0, y \geq 0\right\}$ 일 때,
+$x=2 u, y=3 v$ 라 하면
+$\Omega^{\prime}=\left\{(u, v) \mid u^{2}+v^{2} \leq 1, u \geq 0, v \geq 0\right\}$ 이고 $J=6$ 이다.
+$\frac{1}{18} \iint_{\Omega} \frac{y}{\sqrt{\frac{x^{2}}{4}+\frac{y^{2}}{9}}} d x d y=\frac{1}{18} \iint_{\Omega^{\prime}} \frac{18 v}{\sqrt{u^{2}+v^{2}}} d u d v$
+$=\int_{0}^{\frac{\pi}{2}} \int_{0}^{1} \frac{r^{2} \sin \theta}{r} d r d \theta=\frac{1}{2}$
+답 : (2)
+3) $\lim _{n \rightarrow \infty} n^{2} a_{n}=1$ 이려면 $a_{n}=\frac{1}{n^{2}+a n+b}$ 같은 형태이다.
+
+ㄱ. $\sum_{n=1}^{\infty} \sqrt{a_{n}}=\sum_{n=1}^{\infty} \frac{1}{\sqrt{n^{2}+a n+b}} \approx \sum_{n=1}^{\infty} \frac{1}{n}$ : 발산
+ㄴ. $\sum_{n=1}^{\infty} a_{n}=\sum_{n=1}^{\infty} \frac{1}{n^{2}+a n+b} \approx \sum_{n=1}^{\infty} \frac{1}{n^{2}}$ : 수렴
+ᄃ. $\sum_{n=1}^{\infty} a_{n}^{2}=\sum_{n=1}^{\infty} \frac{1}{\left(n^{2}+a n+b\right)^{2}} \approx \sum_{n=1}^{\infty} \frac{1}{n^{4}}$ : 수렴
+ㄹ. $\sum_{n=1}^{\infty} n^{a_{n}}=\sum_{n=1}^{\infty} n^{\frac{1}{n^{2}+a n+b}}$ 일 때,
+$\lim _{n \rightarrow \infty} n^{\frac{1}{n^{2}+a n+b}}=\lim _{n \rightarrow \infty} e^{\ln n^{\frac{1}{n^{2}+a n+b}}}=\lim _{n \rightarrow \infty} e^{\frac{\ln n}{n^{2}+a n+b}}=1 \neq 0$
+이므로 발산판정법에 의하여 $\sum_{n=1}^{\infty} n^{a_{n}}$ 은 발산한다.
+답 : (3)
+4) $\lim _{x \rightarrow 1} \frac{g(x)-4}{\tan ^{-1} x-\frac{\pi}{4}}=\frac{g(1)-4}{0}$ 가 수렴하려면
+$\lim _{x \rightarrow 1} g(x)=g(1)=4$ 이다. $f^{-1}(1)=4$ 이므로 $f(4)=1$ 이다.
+$\lim _{x \rightarrow 1} \frac{g(x)-4}{\tan ^{-1} x-\frac{\pi}{4}}=\lim _{x \rightarrow 1} \frac{g^{\prime}(x)}{\frac{1}{1+x^{2}}}\left(\because \frac{0}{0}\right.$ : 로피탈 정 리 $) =2 g^{\prime}(1)=\frac{2}{f^{\prime}(4)}=1$
+즉, $f^{\prime}(4)=2$
+답 : (4)
+5) $E(0,0,0), B(1,0,0), C(1,1,0), D(0,1,0), A\left(\frac{1}{2}, \frac{1}{2}, \frac{\sqrt{2}}{2}\right)$
+
+라 하면, 점 $A$ 와 $C$ 를 지나는 직선의 방향벡터는 $\overrightarrow{d_{1}}=(1,0,0)$,
+
+점 $E$ 와 $B$ 를 지나는 직선의 방향벡터는
+$\overrightarrow{d_{2}}=\left(\frac{1}{2}, \frac{1}{2},-\frac{\sqrt{2}}{2}\right) / /(1,1,-\sqrt{2})$ 이다.
+따라서 $\vec{n}=\overrightarrow{d_{1}} \times \overrightarrow{d_{2}}=\left|\begin{array}{ccc}i & j & k \\ 1 & 0 & 0 \\ 1 & 1 & -\sqrt{2}\end{array}\right|=(0, \sqrt{2}, 1)$ 이며
+$\overrightarrow{E C}=(1,1,0)$ 이다.
+그러므로 두 직선 사이의 최단거리는
+$\mid$ 스칼라사영 $\left|=\left|\frac{\vec{n} \cdot \overrightarrow{E C}}{|\vec{n}|}\right|=\frac{\sqrt{2}}{\sqrt{3}}\right.$ 이다.
+답 : (4)
+6)
+![](https://cdn.mathpix.com/cropped/55c7d3cf-5010-4b67-9ff4-5d2e8a8b4966-1.jpg?height=279&width=334&top_left_y=1022&top_left_x=1303)
+$\int_{C} F \cdot d r=\iint_{S} \operatorname{curlF} \cdot n d S=\iint_{D}\left(0,0,3 x^{2}+3 y^{2}\right) \cdot(1,1,1) d x d y$
+$=\iint_{D} 3 x^{2}+3 y^{2} d x d y=\int_{0}^{2 \pi} \int_{0}^{1} 3 r^{3} d r d \theta$
+$=\frac{3}{4} \times 2 \pi=\frac{3}{2} \pi$
+답 : (4)
+7) ᄀ. $\int_{-2}^{0} \frac{1}{3 x^{2}+6 x+3} d x=\int_{-2}^{0} \frac{1}{3(x+1)^{2}} d x$ 은 $p=2$ 이므로 발산한다.
+ㄴ. $\int_{1}^{\infty} \frac{x^{3}}{x^{4}+2 x+2} d x \approx \int_{1}^{\infty} \frac{1}{x} d x$ 이므로 발산한다.
+ㄷ. $\int_{0}^{\infty} \frac{\ln x}{1+x^{2}} d x=\int_{0}^{1} \frac{\ln x}{1+x^{2}} d x+\int_{1}^{\infty} \frac{\ln x}{1+x^{2}} d x$ 이므로
+$\int_{0}^{1} \frac{\ln x}{1+x^{2}} d x \approx \int_{0}^{1} \ln x d x=-1$ 은 수렴한다.
+또한 $\int_{1}^{\infty} \frac{\ln x}{1+x^{2}} d x \approx \int_{1}^{\infty} \frac{1}{x^{2}} d x$ 은 $p=2$ 이므로 수렴한다.
+ᄅ. $\int_{0}^{1}(\cos x)^{2}|\ln x| d x \approx \int_{0}^{1}|\ln x| d x=1$ 은 수렴한다.
+ㅁ. $\int_{-1}^{1} \frac{x+1}{\sqrt[3]{x^{4}}} d x=\int_{-1}^{1} \frac{x+1}{x^{\frac{4}{3}}} d x \approx \int_{-1}^{1} \frac{1}{x^{\frac{4}{3}}} d x$ 은 $p=\frac{4}{3}$ 이므로 발산한다.
+
+답 : (3)
+8) $f(x)=\int_{2 x}^{3 \cos x} e^{t^{2}+x t} d t$ 일 때,
+$f^{\prime}(x)=e^{9 \cos ^{2} x+3 x \cos x} \times(-3 \sin x)-e^{6 x^{2}} \times 2+\int_{2 x}^{3 \cos x} t e^{t^{2}+x t} d t$ 이다.
+$$\text { 즉, } \begin{aligned}
+f^{\prime}(0) & =-2+\int_{0}^{3} t e^{t^{2}} d t=-2+\frac{1}{2}\left[e^{t^{2}}\right]_{0}^{3} \\
+& =-2+\frac{1}{2}\left(e^{9}-1\right)=\frac{1}{2}\left(e^{9}-5\right)
+\end{aligned}$$
+9) $f(x)=\left(x^{2}-k x+k\right) e^{-x}$ 일 때,
+$$\begin{aligned}
+f^{\prime}(x) & =(2 x-k) e^{-x}-\left(x^{2}-k x+k\right) e^{-x} \\
+& =-e^{-x}\left\{x^{2}-(2+k) x+2 k\right\}=-e^{-x}(x-2)(x-k)
+\end{aligned}$$
+
+이므로 1 계도함수를 확인해보면 $x=k$ 은 극소, $x=2$ 은 극대이다.
+따라서 극솟값 $g(k)=k e^{-k}$ 의 최댓값을 구하면 된다.
+$g^{\prime}(k)=e^{-k}-k e^{-k}=e^{-k}(1-k)$ 이므로 1 계도함수를 확인해보면 $x=1$ 에서 극대값이자 최대값을 갖는다.
+즉, $g(k)$ 의 최댓값은 $g(1)=e^{-1}$ 이다.
+답 : (2)
+10) $g(t)=(f \circ r)(t)=f(r(t))$ 이므로
+$f(x, y, z)=x+y^{2}+z^{2}, x=2-t, y=\cos t, z=\sin t$ 이다.
+따라서 $g^{\prime}(t)=1 \times(-1)+2 y \times(-\sin t)+2 z \times \cos t$ 이므로
+$t=1, x=1, y=\cos 1, z=\sin 1$ 을 대입하면
+$g^{\prime}(1)=-1-2 \cos 1 \sin 1+2 \sin 1 \cos 1=-1$ 이다.
+답 : (1)
+11) $E=\left\{(x, y, z) \mid x^{2}+y^{2}+z^{2}<1\right\}$ 일 때,
+$\iiint_{E} \frac{1}{\left(x^{2}+y^{2}+z^{2}\right)^{\frac{n}{2}}} d V=\int_{0}^{2 \pi} \int_{0}^{\pi} \int_{0}^{1} \frac{1}{\rho^{n}} \times \rho^{2} \sin \phi d \rho d \phi d \theta$
+$=4 \pi \times \int_{0}^{1} \frac{1}{\rho^{n-2}} d \rho$ 이다
+즉, 삼중적분 값이 존재(수렴)하려면 $n-2<1 \Leftrightarrow n<3$ 이다.
+답 : (3)
+12) (1) $\sum_{n=0}^{\infty} \frac{(3-2 x)^{2 n}}{\sqrt{2 n+1}} \approx \sum_{n=0}^{\infty}(3-2 x)^{2 n}$ 을 비율판정법 적용하면
+$|3-2 x|^{2}<1 \Leftrightarrow|2 x-3|<1$
+$\Leftrightarrow 2\left|x-\frac{3}{2}\right|<1 \Leftrightarrow\left|x-\frac{3}{2}\right|<\frac{1}{2}$ 이므로 $R=\frac{1}{2}$ 이다.
+(2) $\sum_{n=1}^{\infty} \frac{3^{n}(x-4)^{n}}{\sqrt{n}} \approx \sum_{n=0}^{\infty} 3^{n}(x-4)^{n}$ 을 비율판정법 적용하면 $3|x-4|<1 \Leftrightarrow|x-4|<\frac{1}{3}$ 이므로 $R=\frac{1}{3}$ 이다.
+(3) $\sum_{n=0}^{\infty} \frac{n!(2 n)!}{(3 n)!}(1-2 x)^{n}$ 을 비율판정법 적용하면
+$$\lim _{n \rightarrow \infty} \frac{n \times 2^{2} n^{2}}{3^{3} n^{3}}|1-2 x|<1$$
+$\Leftrightarrow \frac{4}{27}|2 x-1|<1 \Leftrightarrow \frac{8}{27}\left|x-\frac{1}{2}\right|<1 \Leftrightarrow\left|x-\frac{1}{2}\right|<\frac{27}{8}$
+이므로 $R=\frac{27}{8}$ 이다.
+(4) $\sum_{n=1}^{\infty} \frac{n!x^{n}}{1 \cdot 3 \cdot 5 \cdot \cdots \cdot(2 n-1)}$ 을 비율판정법 적용하면
+$$\lim _{n \rightarrow \infty} \frac{n+1}{2 n+1}|x|<1 \Leftrightarrow \frac{1}{2}|x|<1 \Leftrightarrow|x|<2$$
+
+이므로 $R=2$ 이다.
+(5) $\sum_{n=1}^{\infty} n!(2 x-1)^{n}$ 가 수렴하는 경우는 $x=\frac{1}{2}$ 이므로 $R=0$ 이다.
+
+답 : (3)
+13)
+![](https://cdn.mathpix.com/cropped/55c7d3cf-5010-4b67-9ff4-5d2e8a8b4966-2.jpg?height=268&width=423&top_left_y=693&top_left_x=1259)
+$3 x+y=u, x-y=v$ 라 하면 $J=\frac{1}{\left|\begin{array}{cc}3 & 1 \\ 1 & -1\end{array}\right|}=\frac{1}{-4}$ 이고
+$D=\left\{(x, y) \mid(3 x+y)^{2}+(x-y)^{2} \leq 4\right\}$ 은
+$D^{\prime}=\left\{(u, v) \mid u^{2}+v^{2} \leq 4\right\}$ 이다.
+$V=\iint_{D} 4-(3 x+y)^{2}-(x-y)^{2} d x d y$
+$=\frac{1}{4} \iint_{D^{\prime}} 4-u^{2}-v^{2} d u d v=\frac{1}{4} \int_{0}^{2 \pi} \int_{0}^{2}\left(4-r^{2}\right) r d r d \theta$
+$=\frac{1}{4}\left[2 r^{2}-\frac{1}{4} r^{4}\right]_{0}^{2} \times 2 \pi=2 \pi$
+
+\section*{[별해]}
+$z \leq c-a x^{2}-b y^{2}, z \geq 0$ 일 때, 부피는 $\frac{\pi}{2 \sqrt{a b}} c^{2}$ 이므로
+$D^{\prime}=\left\{(u, v) \mid u^{2}+v^{2} \leq 4\right\}$ 일 때,
+$\frac{1}{4} \iint_{D^{\prime}} 4-u^{2}-v^{2} d u d v=\frac{1}{4} \times \frac{\pi}{2} \times 4^{2}=2 \pi$ 이다.
+답 : (3)
+14) $\sum_{n=1}^{\infty} n x^{n}=\frac{x}{(1-x)^{2}}$ 이므로
+$\sum_{n=1}^{\infty} \frac{2 n}{(\sqrt{3})^{2 n-1}}=2 \sqrt{3} \sum_{n=1}^{\infty} \frac{n}{3^{n}}=2 \sqrt{3} \times \frac{\frac{1}{3}}{\frac{4}{9}}=\frac{3}{2} \sqrt{3}$ 이다.
+답 : (5)
+15) $\int_{0}^{1} \sin \left(x^{2}\right) d x=\int_{0}^{1} x^{2}-\frac{x^{6}}{3!}+\frac{x^{10}}{5!}-\frac{x^{14}}{7!}+\cdots d x$
+$=\left[\frac{1}{3} x^{3}-\frac{x^{7}}{7 \times 3!}+\frac{x^{11}}{11 \times 5!}-\frac{x^{15}}{15 \times 7!}+\cdots\right]_{0}^{1}$
+$=\frac{1}{3}-\frac{1}{7 \times 3!}+\frac{1}{11 \times 5!}-\frac{1}{15 \times 7!}+\cdots$
+$\approx \frac{1}{3}-\frac{1}{7 \times 3!}$ 을 근사값이라 하면,
+오차 $=\frac{1}{11 \times 5!}-\frac{1}{15 \times 7!}+\cdots<\frac{1}{11 \times 5!}<0.001$ 이다.
+즉, 적분의값의 근사값은 0.31 이다.
+답 : (3)
+16) $T(x, y, z)=\frac{k}{\sqrt{x^{2}+y^{2}+z^{2}}}$ (단, $k$ 는 비례상수)
+
+이고, 점 $(1,2,2)$ 에서 온도는 $120^{\circ}$ 이므로
+$T(1,2,2)=\frac{k}{\sqrt{1^{2}+2^{2}+2^{2}}}=120 \Rightarrow k=360$ 이다.
+그러므로 온도함수 $T$ 는 다음과 같다.
+$T(x, y, z)=\frac{360}{\sqrt{x^{2}+y^{2}+z^{2}}}$
+점 $P(1,2,2)$ 에서 점 $Q(2,1,3)$ 방향으로 단위방향벡터는
+$\vec{u}=\left\langle\frac{1}{\sqrt{3}},-\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right\rangle$ 이므로 점 $(1,2,2)$ 에서 온도 변화율은 다음과 같다.
+$D_{\vec{u}}(1,2,2)=\nabla T(1,2,2) \cdot \vec{u}$
+$=-\left.\frac{360}{\left(x^{2}+y^{2}+z^{2}\right)^{3 / 2}}\langle x, y, z\rangle \cdot\left\langle\frac{1}{\sqrt{3}},-\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right\rangle\right|_{(1,2,2)}$
+$=-\frac{40}{3}<1,2,2>\cdot\left\langle\frac{1}{\sqrt{3}},-\frac{1}{\sqrt{3}}, \frac{1}{\sqrt{3}}\right\rangle$
+$=-\frac{40}{3 \sqrt{3}}$
+답 : (2)
+17) $f(x, y)=\frac{x}{\left(x^{2}+y^{2}\right)^{\frac{1}{2}}}$ 일 때,
+$\frac{\partial f}{\partial x}=\frac{\left(x^{2}+y^{2}\right)^{\frac{1}{2}}-x^{2}\left(x^{2}+y^{2}\right)^{-\frac{1}{2}}}{\left(x^{2}+y^{2}\right)}=\frac{y^{2}}{\left(x^{2}+y^{2}\right)^{\frac{3}{2}}}$
+$\frac{\partial f}{\partial y}=\frac{-x y}{\left(x^{2}+y^{2}\right)^{\frac{3}{2}}}$ 이다.
+직선 $y=k x$ 위의 점을 $(1, k)$ 를 대입하면
+$\frac{\partial f}{\partial x}(1, k)=\frac{k^{2}}{\left(1^{2}+k^{2}\right)^{\frac{3}{2}}}, \frac{\partial f}{\partial y}(1, k)=\frac{-k}{\left(1^{2}+k^{2}\right)^{\frac{3}{2}}}$ 이고
+직선 $y=k x$ 위의 모든 점에서 $\frac{\partial f}{\partial x}=\frac{\partial f}{\partial y}$ 가 성립하므로
+$k^{2}=-k$ 이다. 즉, $k=-1$ 이다.
+답 : (1)
+18) (i) $x^{2}+y^{2}<1$ 일 때,
+$\left\{\begin{array}{l}f_{x}=6 x^{2}=0 \\ f_{y}=4 y^{3}=0\end{array} \Leftrightarrow(x, y)=(0,0)\right.$ 이므로
+$(0,0)$ 은 $f$ 의 임계점이다. 따라서 $f(0,0)=0$ 이다.
+(ii) $x^{2}+y^{2}=1$ 일 때,
+
+라그랑주 승수법을 이용하면
+$\left|\begin{array}{cc}6 x^{2} & 4 y^{3} \\ 2 x & 2 y\end{array}\right|=0 \quad \Leftrightarrow 12 x^{2} y-8 x y^{3}=0$
+$$\Leftrightarrow(x y)\left(12 x-8 y^{2}\right)=0$$
+(ㄱ) $y^{2}=\frac{3}{2} x$ 을 제약조건에 대입하면
+$x^{2}+\frac{3}{2} x=1 \Leftrightarrow 2 x^{2}+3 x-2=0$
+$\therefore x=-2, \frac{1}{2}$
+$x=-2$ 일 때,
+$y^{2}=\frac{3}{2} \cdot(-2)$ 를 만족하는 $y$ 는 존재하지 않는다.
+$x=\frac{1}{2}$ 일 때,
+$y^{2}=\frac{3}{2} \cdot \frac{1}{2} \Leftrightarrow y= \pm \frac{\sqrt{3}}{2}$ 이고,
+$f\left(\frac{1}{2}, \pm \frac{\sqrt{3}}{2}\right)=\frac{13}{16}$ 이다.
+(ㄴ) $x y=0$ 일 때,
+$g(x, y)=x^{2}+y^{2}-1=0 \Leftrightarrow( \pm 1,0),(0, \pm 1)$ 이므로
+$f( \pm 1,0)= \pm 2, f(0, \pm 1)=1$ 이다.
+따라서 최솟값은 $m=f(-1,0)=-2$,
+최댓값은 $M=f(1,0)=2$ 이므로, $M+m=2-2=0$ 이다.
+
+\section*{[별해]}
+
+경계 $x^{2}+y^{2}=1 \Leftrightarrow x=\cos t, y=\sin t$ 일 때,
+$$f(x, y)=2 x^{3}+y^{4}$$
+$\Leftrightarrow g(t)=2 \cos ^{3} t+\sin ^{4} t=2 \cos ^{3} t+\left(1-\cos ^{2} t\right)^{2}$ 이므로
+$\cos t=k$ 라 하자.
+$h(k)=2 k^{3}+\left(1-k^{2}\right)^{2},-1 \leq k \leq 1$ 이므로
+$h^{\prime}(k)=6 k^{2}-4 k\left(1-k^{2}\right)=2 k\left(2 k^{2}+3 k-2\right)=2 k(2 k-1)(k+2)$
+이고, 주어진 범위에서 임계점은 $k=0, \frac{1}{2}$ 이다.
+따라서 $h(0)=1, h\left(\frac{1}{2}\right)=\frac{13}{16}, h(1)=2, h(-1)=-2$ 이다.
+즉, 경계와 제한된 범위에서 최댓값은 2 , 최솟값은 -2 이다.
+답 : (5)
+19) 곡선 $x^{2}+y^{2}=2 y$ 을 선적분 경로 $C$ 로 했을 때,
+
+높이를 $z=\sqrt{4-x^{2}-y^{2}}$ 으로 하여 1 사분면에서
+스칼라 선적분을 구하면 전체넓이의 $\frac{1}{4}$ 이 된다.
+따라서 $\int_{C} z d s$
+$$\begin{aligned}
+& =\int_{C} \sqrt{4-x^{2}-y^{2}} d s \\
+& =\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sqrt{4-(\cos t)^{2}-(\sin t+1)^{2}} \sqrt{\sin ^{2} t+\cos ^{2} t} d t \\
+& =\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sqrt{4-\cos ^{2} t-\left(\sin ^{2} t+2 \sin t+1\right)} d t \\
+& =\sqrt{2} \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \sqrt{1-\sin t} d t \quad\left(t=x-\frac{\pi}{2}\right) \\
+= & \sqrt{2} \int_{0}^{\pi} \sqrt{1-\sin \left(x-\frac{\pi}{2}\right)} d x=\sqrt{2} \int_{0}^{\pi} \sqrt{1+\cos x} d x \\
+= & \sqrt{2} \int_{0}^{\pi} \sqrt{2 \frac{1+\cos x}{2}} d x=2 \int_{0}^{\pi} \cos \frac{x}{2} d x \\
+= & 4\left[\sin \frac{x}{2}\right]_{0}^{\pi}=4
+\end{aligned}$$
+
+따라서 구하는 전체 면적은 $4 \times 4=16$ 이다.
+답 : (5)
+20) 입체 $V$ 를 평면으로 잘랐을 때 단면은 꼭짓점이 $\left(\frac{1}{4}, 0,0\right)$,
+$\left(0, \frac{1}{3}, 0\right),\left(0,0, \frac{1}{2}\right)$ 인 삼각형이다.
+$\iint_{S} F \cdot n d S=\iint_{S}(x-y, z, y) \cdot\left(2, \frac{3}{2}, 1\right) d x d y$
+$=\iint_{S}\left(x-y, \frac{1}{2}-2 x-\frac{3}{2} y, y\right) \cdot\left(2, \frac{3}{2}, 1\right) d x d y$
+$=\iint_{D}\left(2 x-2 y+\frac{3}{4}-3 x-\frac{9}{4} y+y\right) d x d y$
+( $D$ 는 $S$ 를 $x y$ 평면으로 정사영시킨 삼각형)
+$=\iint_{D}\left(\frac{3}{4}-x-\frac{13}{4} y\right) d x d y$
+$D$ 의 면적은 $\frac{1}{24}$ 이고 중심은 $(\bar{X}, \bar{Y})=\left(\frac{1}{12}, \frac{1}{9}\right)$ 인 영역이므로
+$\iint_{D}\left(\frac{3}{4}-x-\frac{13}{4} y\right) d x d y$
+$=\iint_{D} \frac{3}{4} d x d y-\iint_{D} x d x d y-\frac{13}{4} \iint_{D} y d x d y$
+$=\frac{3}{4} \times \frac{1}{24}-\frac{1}{24} \times \frac{1}{12}-\frac{13}{4} \times \frac{1}{24} \times \frac{1}{9}=\frac{11}{864}$
+답 : (5)

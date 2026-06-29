@@ -54,18 +54,6 @@ export async function POST(request: Request) {
   });
   if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
 
-  // 게시글 댓글수 +1 (best-effort)
-  const { data: post } = await auth.supabase
-    .from("community_posts")
-    .select("comment_count")
-    .eq("id", postId)
-    .maybeSingle();
-  if (post) {
-    await auth.supabase
-      .from("community_posts")
-      .update({ comment_count: ((post.comment_count as number) ?? 0) + 1 })
-      .eq("id", postId);
-  }
-
+  // 게시글 댓글수는 community_comments 트리거(trg_comment_count)가 원자적으로 +1 한다.
   return NextResponse.json({ ok: true });
 }

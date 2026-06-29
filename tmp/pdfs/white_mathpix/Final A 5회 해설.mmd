@@ -1,0 +1,192 @@
+1) $y=\frac{1-k x}{k x}=\frac{1}{k x}-1$ 이므로 $y^{\prime}=-\frac{1}{k x^{2}}$ 이다.
+
+이때, $y+1=\frac{1}{k x}$ 이므로 $y^{\prime}=-\frac{1}{\frac{1}{x(y+1)} x^{2}}=-\frac{y+1}{x}$ 이다.
+따라서 직교절선은 $\frac{d y}{d x}=\frac{x}{y+1}$ 을 만족해야하므로
+$$\begin{aligned}
+(y+1) d y=x d x & \Leftrightarrow \int(y+1) d y=\int x d x \\
+& \Leftrightarrow \frac{1}{2} y^{2}+y=\frac{1}{2} x^{2}+C
+\end{aligned}$$
+
+이다.
+답 : (4)
+$$\text { 2) } \begin{aligned}
+& \int_{0}^{1} \int_{x}^{1} \int_{x}^{z} z e^{-y^{2}} d y d z d x=\int_{0}^{1} \int_{0}^{z} \int_{x}^{z} z e^{-y^{2}} d y d x d z \\
+= & \int_{0}^{1} \int_{0}^{z} \int_{0}^{y} z e^{-y^{2}} d x d y d z=\int_{0}^{1} \int_{0}^{z} z y e^{-y^{2}} d y d z \\
+= & \frac{1}{2} \int_{0}^{1}-z\left(e^{-z^{2}}-1\right) d z=\frac{1}{2}\left[\frac{1}{2} e^{-z^{2}}+\frac{1}{2} z^{2}\right]_{0}^{1} \\
+= & \frac{1}{4} e^{-1}
+\end{aligned}$$
+3) $\int_{0}^{1} \frac{2 x^{2}+2 x+6}{x^{4}+x^{2}+1} d x=\int_{0}^{1} \frac{2 x^{2}+2 x+6}{\left(x^{2}-x+1\right)\left(x^{2}+x+1\right)} d x$
+$=\int_{0}^{1}-\frac{2 x-4}{x^{2}-x+1}+\frac{2 x+2}{x^{2}+x+1} d x$
+$=\int_{0}^{1}-\frac{2 x-1-3}{x^{2}-x+1}+\frac{2 x+1+1}{x^{2}+x+1} d x$
+$=-\left[\ln \left(x^{2}-x+1\right)\right]_{0}^{1}+\left[\ln \left(x^{2}+x+1\right)\right]_{0}^{1}$
+$$+\int_{0}^{1} \frac{3}{x^{2}-x+1}+\frac{1}{x^{2}+x+1} d x$$
+$=\ln 3+\int_{0}^{1} \frac{3}{\left(x-\frac{1}{2}\right)^{2}+\frac{3}{4}}+\frac{1}{\left(x+\frac{1}{2}\right)^{2}+\frac{3}{4}} d x$
+$=\ln 3+\left[\frac{3}{\frac{\sqrt{3}}{2}} \tan ^{-1}\left(\frac{x-\frac{1}{2}}{\frac{\sqrt{3}}{2}}\right)\right]_{0}^{1}++\left[\frac{1}{\frac{\sqrt{3}}{2}} \tan ^{-1}\left(\frac{x+\frac{1}{2}}{\frac{\sqrt{3}}{2}}\right)\right]_{0}^{1}$
+$=\ln 3+2 \sqrt{3}\left(\frac{\pi}{6}+\frac{\pi}{6}\right)+\frac{2 \sqrt{3}}{3}\left(\frac{\pi}{3}-\frac{\pi}{6}\right)$
+$=\ln 3+\frac{7 \sqrt{3}}{9} \pi$
+즉, $a+3 \sqrt{3} b=3+3 \sqrt{3} \times \frac{7 \sqrt{3}}{9}=10$
+답 : (4)
+4) $\iint_{R^{2}} \frac{d A}{\left(1+x^{2}+y^{2}\right)^{k}}=\int_{0}^{2 \pi} \int_{0}^{\infty} \frac{r}{\left(1+r^{2}\right)^{k}} d r d \theta$ 가
+
+수렴하려면 $2 k-1>1 \Leftrightarrow k>1$ 을 만족해야한다.
+
+또한 수렴값은
+$\int_{0}^{2 \pi} \int_{0}^{\infty} \frac{r}{\left(1+r^{2}\right)^{k}} d r d \theta=\int_{0}^{2 \pi} \int_{0}^{\infty} r\left(1+r^{2}\right)^{-k} d r d \theta$
+$=\int_{0}^{2 \pi}\left[\frac{1}{2(-k+1)}\left(1+r^{2}\right)^{-k+1}\right]_{0}^{\infty} d \theta$
+$=\int_{0}^{2 \pi} \frac{1}{2(k-1)} d \theta=\frac{\pi}{k-1}$ 이다.
+5) $\lim _{h \rightarrow 0} \frac{G(h)}{h^{2}}$
+$=\lim _{h \rightarrow 0} \frac{f(a+h, b+h)-f(a, b+h)-f(a+h, b)+f(a, b)}{h^{2}}$
+$=\lim _{h \rightarrow 0} \frac{1}{h}\left[\frac{f(a+h, b+h)-f(a, b+h)-f(a+h, b)+f(a, b)}{h}\right]$
+$=\lim _{h \rightarrow 0} \frac{1}{h}\left[\frac{f(a+h, b+h)-f(a, b+h)}{h}-\frac{f(a+h, b)-f(a, b)}{h}\right]$
+$=\lim _{h \rightarrow 0} \frac{1}{h}\left[f_{x}(a, b+h)-f_{x}(a, b)\right]=\lim _{h \rightarrow 0} \frac{f_{x}(a, b+h)-f_{x}(a, b)}{h}$
+$=f_{x y}(a, b)=-5$
+답 : (3)
+6) $D=\{(x, y) \mid 0 \leq x+y \leq 2,0 \leq x-y \leq+2\}$ 이므로
+$u=x+y, v=x-y$ 라 하면
+$\iint_{D}\left(x^{2}+y^{2}\right) d A=\frac{1}{2} \iint_{D}(x+y)^{2}+(x-y)^{2} d A$
+$=\frac{1}{4} \int_{0}^{2} \int_{0}^{2} u^{2}+v^{2} d u d v=\frac{8}{3}$ 이다.
+답 : (5)
+7) 가. $\int_{0}^{\infty} \frac{1}{x^{\frac{3}{2}} e^{\sqrt{x}}} d x=\int_{0}^{1} \frac{1}{x^{\frac{3}{2}} e^{\sqrt{x}}} d x+\int_{1}^{\infty} \frac{1}{x^{\frac{3}{2}} e^{\sqrt{x}}} d x$
+$$\approx \int_{0}^{1} \frac{1}{x^{\frac{3}{2}}} d x+\int_{1}^{\infty} \frac{1}{e^{\sqrt{x}}} d x$$
+
+이므로 발산한다.
+나. $\int_{2}^{\infty} \frac{x^{2} e^{x}}{\ln x} d x \approx \int_{2}^{\infty} x^{2} e^{x} d x$ 이므로 발산한다.
+다. $\int_{0}^{\infty} \frac{\sin ^{2} x}{1+e^{x}} d x \approx \int_{0}^{\infty} \frac{1}{e^{x}} d x$ 이므로 수렴한다.
+라. $\int_{2}^{\infty} \frac{x}{x^{3 / 2}-1} d x \approx \int_{2}^{\infty} \frac{1}{x^{1 / 2}} d x$ 이므로 발산한다.
+답 : (4)
+8) $(x-3)(y-8)$ 항의 계수는 $\frac{1}{2!} \times 2 f_{x y}(3,8)$ 이다.
+$f(x, y)=(1+x)^{\frac{1}{2}}(1+y)^{-\frac{1}{2}}$ 이므로
+$f_{x}=\frac{1}{2}(1+x)^{-\frac{1}{2}}(1+y)^{-\frac{1}{2}}, f_{x y}=-\frac{1}{4}(1+x)^{-\frac{1}{2}}(1+y)^{-\frac{3}{2}}$ 이다.
+즉, $f_{x y}(3,8)=-\frac{1}{216}$
+9) $\int_{0}^{1} x^{m}(\ln x)^{n} d x=\int_{0}^{\infty} e^{-m t}(-t)^{n} e^{-t} d t(\because \ln x=-t)$
+$$\begin{aligned}
+& =(-1)^{n} \int_{0}^{\infty} e^{-(m+1) t} t^{n} d t \\
+& =(-1)^{n} \mathscr{L}\left\{t^{n}\right\}_{s=m+1}=\left.(-1)^{n} \frac{n!}{s^{n+1}}\right|_{s=m+1} \\
+& =(-1)^{n} \frac{n!}{(m+1)^{n+1}}
+\end{aligned}$$
+[별해]
+$n=1, m=1$ 이면 $\int_{0}^{1} x \ln x d x=-\frac{1}{4}$ 이므로 보기 중에 가능한 것은 (1)이다.
+10) $\iiint_{E} x e^{x^{2}+y^{2}+z^{2}} d V$
+$$\begin{aligned}
+& =\int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{6}} \int_{0}^{1} \rho \sin \phi \cos \theta e^{\rho^{2}} \rho^{2} \sin \phi d \rho d \phi d \theta \\
+& =\frac{1}{2} \int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{6}} \int_{0}^{1} t e^{t} \sin ^{2} \phi \cos \theta d t d \phi d \theta\left(\because \rho^{2}=t\right) \\
+& =\frac{1}{2} \int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{6}}\left[t e^{t}-e^{t}\right]_{0}^{1} \sin ^{2} \phi \cos \theta d \phi d \theta \\
+& =\frac{1}{2} \int_{0}^{\frac{\pi}{2}} \int_{0}^{\frac{\pi}{6}} \sin ^{2} \phi \cos \theta d \phi d \theta
+\end{aligned}$$
+
+답 : (4)
+11) $f(x)=\sin \left(\tan ^{-1} \sin \left(\sqrt{\frac{\pi^{2}}{4}+x}\right)\right)$,
+$$\begin{aligned}
+f^{\prime}(x)=\cos \left(\tan ^{-1} \sin \left(\sqrt{\frac{\pi^{2}}{4}+x}\right)\right) \times & \frac{1}{1+\left\{\sin \left(\sqrt{\frac{\pi^{2}}{4}+x}\right)\right\}^{2}} \\
+& \times \cos \left(\sqrt{\frac{\pi^{2}}{4}+x}\right) \times \frac{1}{2 \sqrt{\frac{\pi^{2}}{4}+x}}
+\end{aligned}$$
+
+이므로 $a_{0}=f(0)=\frac{1}{\sqrt{2}}, a_{1}=f^{\prime}(0)=0$ 이다.
+즉, $a_{0}+a_{1}=\frac{1}{\sqrt{2}}$
+답 : (1)
+12) $\lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{n^{3}}{\left(k^{2}-2 n k+2 n^{2}\right)^{2}}=\lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\frac{\left(k^{2}-2 n k+2 n^{2}\right)^{2}}{n^{4}}} \frac{1}{n}$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\left\{\left(\frac{k}{n}\right)^{2}-2\left(\frac{k}{n}\right)+2\right\}^{2}} \frac{1}{n} \\
+& =\int_{0}^{1} \frac{1}{\left(x^{2}-2 x+2\right)^{2}}\left(\because \frac{k}{n}=x, \frac{1}{n}=d x\right) \\
+& =\int_{0}^{1} \frac{1}{\left((x-1)^{2}+1\right)^{2}} d x \\
+& =\int_{-\frac{\pi}{4}}^{0} \frac{1}{\sec ^{4} \theta} \sec ^{2} \theta d \theta(\because x-1=\tan \theta) \\
+& =\int_{-\frac{\pi}{4}}^{0} \cos ^{2} \theta d \theta=\frac{\pi}{8}+\frac{1}{4}
+\end{aligned}$$
+13) $x\left(\begin{array}{c}1 \\ 0 \\ -1 \\ -1\end{array}\right)+y\left(\begin{array}{l}0 \\ 1 \\ 1 \\ 0\end{array}\right)=\left(\begin{array}{l}1 \\ 2 \\ 1 \\ 2\end{array}\right)$
+$\Rightarrow\left(\begin{array}{cc}1 & 0 \\ 0 & 1 \\ -1 & 1 \\ -1 & 0\end{array}\right)\binom{x}{y}=\left(\begin{array}{l}1 \\ 2 \\ 1 \\ 2\end{array}\right)$ 이므로 $A X=B$ 의 최소제곱해를 구하면,
+$\Rightarrow\left(\begin{array}{cccc}1 & 0 & -1 & -1 \\ 0 & 1 & 1 & 0\end{array}\right)\left(\begin{array}{cc}1 & 0 \\ 0 & 1 \\ -1 & 1 \\ -1 & 0\end{array}\right)\binom{\bar{x}}{\bar{y}}=\left(\begin{array}{cccc}1 & 0 & -1 & -1 \\ 0 & 1 & 1 & 0\end{array}\right)\left(\begin{array}{l}1 \\ 2 \\ 1 \\ 2\end{array}\right)$
+$\Rightarrow\left(\begin{array}{cc}3 & -1 \\ -1 & 2\end{array}\right)\binom{\bar{x}}{\bar{y}}=\binom{-2}{3}$ 이므로 $\binom{\bar{x}}{\bar{y}}=\binom{-\frac{1}{5}}{\frac{7}{5}}$ 이다.
+따라서 $v=-\frac{1}{5}\left(\begin{array}{c}1 \\ 0 \\ -1 \\ -1\end{array}\right)+\frac{7}{5}\left(\begin{array}{l}0 \\ 1 \\ 1 \\ 0\end{array}\right)=\frac{1}{5}\left(\begin{array}{c}-1 \\ 7 \\ 8 \\ 1\end{array}\right)$ 이다.
+즉, $\vec{v}$ 의 모든 성분의 합 3 이다.
+답 : (4)
+14)
+![](https://cdn.mathpix.com/cropped/3de66739-a98e-49de-85ce-9679d0337bcf-2.jpg?height=325&width=647&top_left_y=1853&top_left_x=1154)
+$x^{2}+y^{2}+z^{2}=4$ 은 중심이 $(0,0,0)$ 이고 반지름이 2 인 구이다. $(x-2)^{2}+(y+5)^{2}+(z-3)^{2}=9$ 은 중심이 $(2,-5,3)$ 이고
+반지름이 3 인 구이다.
+따라서 두 중심의 거리는 $\sqrt{38}$ 이므로 $P, Q$ 사이의 거리의 최댓값은 $\sqrt{38}+5$ 이다.
+
+답 : (3)
+15) $n=2$ 인 경우, $A=\left(\begin{array}{ll}1 & 2 \\ 2 & 2\end{array}\right)$ 이므로 $\operatorname{det} A=-2$ 이이므로 보기 중 가능한 것은 (5)번이다.
+
+답 : (5)
+16) $A_{n \times n}$ 의 계수(rank)가 $n$ 이므로 $A$ 는 가역행렬이다.
+(1) $A X=b$ 에서 $X=A^{-1} b$ 이므로 유일한 해만을 갖는다. 따라서 해가 존재하지 않는 경우가 없다. (거짓)
+(2) $\left|A^{T} A\right|=\left|A^{T}\right||A|=|A|^{2} \neq 0$ (참)
+(3) $\operatorname{rank} A=n$ 이므로 치역은 $R^{n}$ 이다. (참)
+(4) $A$ 의 행공간의 차원이 $n$ 이므로 행공간이 $R^{n}$ 이다.
+
+따라서 행렬 $A$ 의 행공간의 직교여공간은 $\{0\}$ 이다. (참)
+(5) nullity $A=n-\operatorname{rank} A=0$ (참)
+17) $v(x, y)=u_{x}(x, y)+u_{y}(x, y)$ 일 때,
+$v_{x}=u_{x x}+u_{y x}, v_{y}=u_{x y}+u_{y y}$ 이므로
+$\nabla v(0, \pi)=\left(v_{x}, v_{y}\right)_{(0, \pi)}=\left(u_{x x}+u_{y x}, u_{x y}+u_{y y}\right)_{(0, \pi)}$ 이다.
+점 $(0, \pi)$ 에서 $v$ 함수가 벡터 $(1,-1)$ 방향으로의
+방향도함수를 구하면 다음과 같다.
+$$\begin{aligned}
+& \nabla v(0, \pi) \cdot \frac{1}{\sqrt{2}}(1,-1) \\
+= & \left(u_{x x}+u_{y x}, u_{x y}+u_{y y}\right)_{(0, \pi)} \cdot \frac{1}{\sqrt{2}}(1,-1) \\
+= & \frac{1}{\sqrt{2}}\left(u_{x x}+u_{y x}-u_{x y}-u_{y y}\right)_{(0, \pi)} \\
+= & \frac{1}{\sqrt{2}}\left(u_{x x}-u_{y y}\right)_{(0, \pi)}=\frac{1}{\sqrt{2}}\left(u_{x x}-u_{y y}\right)_{(0, \pi)} \\
+= & \frac{1}{\sqrt{2}}\left[\cos x-\sin \left(y+\frac{\pi}{2}\right)+2 \cos x \sin (\pi+x)\right]_{(0, \pi)}=\frac{2}{\sqrt{2}}
+\end{aligned}$$
+18) $y^{\prime \prime}-y^{\prime}=x e^{x}$ 일 때, $\left(D^{2}-D\right) y=x e^{x}$ 이므로
+$y_{c}=c_{1}+c_{2} e^{x}$ 이고,
+$$\begin{aligned}
+y_{p} & =\frac{1}{D^{2}-D} x e^{x}=e^{x} \frac{1}{(D+1)^{2}-(D+1)} x \\
+& =e^{x} \frac{1}{D^{2}+D} x=e^{x} \int \frac{1}{D+1} x \\
+& =e^{x} \int\left(1-D+D^{2}-\cdots\right)_{x} \\
+& =e^{x} \int x-1=e^{x}\left(\frac{1}{2} x^{2}-x\right) \text { 이다. }
+\end{aligned}$$
+
+따라서 $y=c_{1}+c_{2} e^{x}+e^{x}\left(\frac{1}{2} x^{2}-x\right)$ 이므로
+$y(0)=2, y^{\prime}(0)=1$ 을 대입하면 $c_{1}=0, c_{2}=2$ 이다.
+즉, $y(2)=2 e^{2}$
+20)
+![](https://cdn.mathpix.com/cropped/3de66739-a98e-49de-85ce-9679d0337bcf-3.jpg?height=332&width=601&top_left_y=456&top_left_x=1127)
+
+탱크의 소금의 양을 $y(t)$ 라 하면 $y(0)=20$ 이고,
+$y^{\prime}=0.75-\frac{25}{5000} y$ 이다.
+$y^{\prime}+\frac{1}{200} y=\frac{3}{4}$ 는 1 계 선형 미분방정식이므로
+$y=e^{-\frac{1}{200} t}\left(\int \frac{3}{4} e^{\frac{1}{200} t} d t+c\right)=e^{-\frac{1}{200} t}\left(150 e^{\frac{1}{200} t}+c\right) =150+c e^{-\frac{1}{200} t}$ 이다.
+또한 $y(0)=20$ 이므로 $c=-130$ 이다.
+즉, $y(200)=150-130 e^{-1}$
+21) $\lim _{x \rightarrow 0}\left[\frac{1}{3 x^{3}} \int_{-x}^{0} \ln \left(1+\tan ^{-1}\left(t^{2}\right)\right) d t\right]$
+$=\lim _{x \rightarrow 0} \frac{\int_{-x}^{0} \ln \left(1+\tan ^{-1}\left(t^{2}\right)\right) d t}{3 x^{3}} \quad\left(\because \frac{0}{0}:\right.$ 로피탈의 정리 $)$
+$=\lim _{x \rightarrow 0} \frac{\ln \left(1+\tan ^{-1}\left(x^{2}\right)\right)}{9 x^{2}} \quad\left(\because \frac{0}{0}:\right.$ 로피탈의 정리 $)$
+$=\lim _{x \rightarrow 0} \frac{\frac{1}{1+\tan ^{-1}\left(x^{2}\right)} \times \frac{2 x}{1+x^{4}}}{18 x} \quad\left(\because \frac{0}{0}\right.$ : 로피탈 의 정리 $)$
+$=\frac{1}{9}$
+답 : (3)
+22) $\sum_{n=1}^{2025} \int_{n-1}^{n} e^{x-[x]} d x=\int_{0}^{2025} e^{x-[x]} d x$
+$$\begin{aligned}
+& =\int_{0}^{1} e^{x} d x+\int_{1}^{2} e^{x-1} d x+\cdots+\int_{2024}^{2025} e^{x-2024} d x \\
+& =2025 \int_{0}^{1} e^{x} d x=2025(e-1)
+\end{aligned}$$
+19) 양변을 미분하면 $y^{\prime \prime \prime}-2 y^{\prime}-2 x y^{\prime \prime}+y^{\prime}=0$ 이므로 $x=0$ 을 대입하면 $y^{\prime \prime \prime}(0)=1$ 이다.
+따라서 $c_{3}=\frac{y^{(3)}(0)}{3!}=\frac{1}{6}$ 이다.
+답 : (3)
+23) $\mathscr{L}^{-1}\left\{\frac{\frac{s}{2}+\frac{5}{3}}{s^{2}+4 s+6}\right\}$
+$$\begin{aligned}
+& =\mathscr{L}^{-1}\left(\frac{1}{2} \cdot \frac{s+2}{(s+2)^{2}+2}+\frac{2}{3} \cdot \frac{1}{(s+2)^{2}+2}\right) \\
+& =\frac{1}{2} \mathscr{L}^{-1}\left\{\frac{s+2}{(s+2)^{2}+2}\right\}+\frac{2}{3} \mathscr{L}^{-1}\left\{\frac{1}{(s+2)^{2}+2}\right\} \\
+& =\frac{1}{2} \mathscr{L}\left(\frac{s}{s^{2}+2}\right)_{s \rightarrow s+2}+\frac{\sqrt{2}}{3} \mathscr{L}\left(\frac{\sqrt{2}}{s^{2}+2}\right)_{s \rightarrow s+2}
+\end{aligned}$$
+$=\frac{1}{2} e^{-2 t} \cos (\sqrt{2} t)+\frac{\sqrt{2}}{3} e^{-2 t} \sin (\sqrt{2} t)$
+$\therefore f\left(\frac{\pi}{\sqrt{2}}\right)=-\frac{1}{2} e^{-\sqrt{2} \pi}$
+답 : (4)
+24) $\left\{\begin{array}{l}x^{\prime \prime}(t)+y^{\prime}(t)=e^{2 t}, \\ x^{\prime}(t)+y^{\prime \prime}(t)=2 e^{2 t}\end{array}\right.$ 이므로 $x^{\prime \prime}+y^{\prime \prime}+x^{\prime}+y^{\prime}=3 e^{2 t}$ 이다.
+$f(t)=x(t)+y(t)$ 라 놓으면 $f^{\prime \prime}(t)+f^{\prime}(t)=3 e^{2 t}$ 이다.
+$\left(D^{2}+D\right) f(t)=3 e^{2 t}$ 일 때, $f_{p}(t)=\frac{1}{D^{2}+D} 3 e^{2 t}=\frac{1}{2} e^{2 t}$
+이므로 $f(t)=c_{1}+c_{2} e^{-t}+\frac{1}{2} e^{2 t}$ 이다.
+또한 $f(0)=0, f^{\prime}(0)=0$ 이므로 $c_{1}+c_{2}=-\frac{1}{2}, c_{2}=1$ 이다.
+따라서 $f(t)=-\frac{3}{2}+e^{-t}+\frac{1}{2} e^{2 t}$ 이므로
+$f(1)=-\frac{3}{2}+e^{-1}+\frac{1}{2} e^{2}$ 이다.
+답 : (4)
+25) $\partial E$ 는 폐구간에서의 경계곡면이므로 발산정리에 의해
+$$\begin{aligned}
+\iint_{\partial E} v \cdot n d S & =\iiint_{E} d i v(v) d V=\iiint_{E} y^{2}+x^{2} d V \\
+& =\int_{0}^{2 \pi} \int_{0}^{2} \int_{r^{2}}^{4} r^{2} r d z d r d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{2}\left(4-r^{2}\right) r^{3} d r d \theta \\
+& =\int_{0}^{2 \pi}\left[r^{4}-\frac{1}{6} r^{6}\right]_{0}^{2} d \theta=\frac{32}{3} \pi
+\end{aligned}$$
+
+이다.

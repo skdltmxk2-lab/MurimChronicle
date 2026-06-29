@@ -98,26 +98,12 @@ export function PostDetailClient({ postId }: { postId: string }) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.user) { alert("로그인 후 이용해 주세요."); return; }
 
-    if (post.liked_by_me) {
-      await supabase
-        .from("community_post_likes")
-        .delete()
-        .match({ user_id: session.user.id, post_id: post.id });
-      await supabase
-        .from("community_posts")
-        .update({ like_count: Math.max(0, post.like_count - 1) })
-        .eq("id", post.id);
-      setPost({ ...post, liked_by_me: false, like_count: Math.max(0, post.like_count - 1) });
-    } else {
-      await supabase
-        .from("community_post_likes")
-        .insert({ user_id: session.user.id, post_id: post.id });
-      await supabase
-        .from("community_posts")
-        .update({ like_count: post.like_count + 1 })
-        .eq("id", post.id);
-      setPost({ ...post, liked_by_me: true, like_count: post.like_count + 1 });
-    }
+    // 좋아요 추가/취소 + 카운터 증감을 서버에서 원자적으로 처리(toggle_post_like RPC).
+    const { data, error } = await supabase.rpc("toggle_post_like", { p_post_id: post.id });
+    if (error) return;
+    const liked = !!(data as { liked?: boolean } | null)?.liked;
+    const likeCount = (data as { like_count?: number } | null)?.like_count ?? post.like_count;
+    setPost({ ...post, liked_by_me: liked, like_count: likeCount });
   }
 
   async function submitComment() {

@@ -1,0 +1,491 @@
+
+===== q-2022-skku-02 | 선형대수/행렬/rank | easyMedium | 정답=2 =====
+[Q] 행렬 $a=\begin{pmatrix}1&0&1&0&1&1\\1&0&0&1&1&0\\0&1&0&0&0&1\\1&1&0&1&1&1\end{pmatrix}$의 계수(rank)는?
+  (1) $2$
+  (2) $3$
+  (3) $4$
+  (4) $5$
+  (5) $6$
+[E] 행간소(row reduction)로 일차독립인 행 개수를 세면 된다. $4\times 6$ 행렬이므로 rank는 최대 $4$.
+실제 행간소를 진행하면 4개의 행 중 일차종속이 1개 발생하여 독립 행은 $3$개. 따라서 rank $=3$.
+
+===== q-2023-skku-01 | 다변수함수/중적분/구면좌표 범위 | easyMedium | 정답=4 =====
+[Q] 원추면 $z=-\sqrt{x^2+y^2}$의 위와 구면 $x^2+y^2+z^2=4$의 내부에 있는 입체를 구면좌표(spherical coordinates) $(\rho,\theta,\phi)$를 사용하여 나타낼 때, $\phi$의 범위는?
+  (1) $0\le\phi\le\dfrac{\pi}{6}$
+  (2) $0\le\phi\le\dfrac{\pi}{4}$
+  (3) $0\le\phi\le\dfrac{\pi}{2}$
+  (4) $0\le\phi\le\dfrac{3\pi}{4}$
+  (5) $0\le\phi\le\dfrac{5\pi}{6}$
+[E] 구면좌표에서 $\phi$는 $z$축 양의 방향에서 잰 각이다.
+원추면 $z=-\sqrt{x^2+y^2}$는 $z=\rho\cos\phi$, $\rho\sin\phi=\sqrt{x^2+y^2}$이므로 $\cos\phi=-\sin\phi$, 즉 $\phi=\dfrac{3\pi}{4}$.
+따라서 $z\ge -\sqrt{x^2+y^2}$ 영역은 $0\le\phi\le\dfrac{3\pi}{4}$.
+
+===== q-2023-skku-02 | 다변수함수/편도함수/라그랑주 승수법 | medium | 정답=3 =====
+[Q] 부등식 $x^2+y^2+z^2\le 10$에 의하여 주어지는 영역에서 함수 $f(x,y,z)=y+2z$의 최솟값을 구하면?
+  (1) $-1$
+  (2) $-2$
+  (3) $-5\sqrt 2$
+  (4) $-\sqrt{51}$
+  (5) $-7\sqrt 3$
+[E] 코시-슈바르츠: $(0^2+1^2+2^2)(x^2+y^2+z^2)\ge(y+2z)^2$.
+$5\cdot 10\ge(y+2z)^2$ → $|y+2z|\le\sqrt{50}=5\sqrt 2$.
+내부에서는 $\nabla f=(0,1,2)\ne 0$이므로 임계점이 없어 경계에서 최솟값. 최솟값 $=-5\sqrt 2$.
+
+===== q-2023-skku-03 | 선형대수/선형변환/직교여공간 차원 | medium | 정답=4 =====
+[Q] 선형변환 $T:\mathbb R^4\to\mathbb R^6$를 나타내는 행렬이 $\begin{pmatrix}1&0&1&1\\1&-1&0&0\\1&0&1&1\\0&1&1&1\\0&1&1&1\\0&1&1&1\end{pmatrix}$이고, 유클리드 내적공간 $\mathbb R^6$ 상의 부분공간 $W$를 $W=\{w\in\mathbb R^6\mid v\in\mathrm{Im}\,T\text{인 모든 }v\text{에 대해 }v\cdot w=0\}$로 정의할 때, $W$의 차원(dimension)은? (단, $\mathrm{Im}\,T=\{T(u)\mid u\in\mathbb R^4\}$이고 $v\cdot w$는 $\mathbb R^6$ 상의 표준내적이다.)
+  (1) $1$
+  (2) $2$
+  (3) $3$
+  (4) $4$
+  (5) $5$
+[E] $W=(\mathrm{Im}\,T)^\perp$이므로 $\dim W=6-\dim(\mathrm{Im}\,T)=6-\mathrm{rank}\,T$.
+행렬의 1행=3행, 4행=5행=6행이고 2행 $=$ 1행 $-$ 4행 (실제로 $(1,0,1,1)-(0,1,1,1)=(1,-1,0,0)$).
+독립 행은 1행, 4행 두 개 → $\mathrm{rank}=2$.
+$\dim W=6-2=4$.
+
+===== q-2023-skku-04 | 공학수학/미분방정식/적분인자 | medium | 정답=3 =====
+[Q] 미분방정식 $\dfrac{-2y}{x}\,dx+(x^2 y\cos y+1)\,dy=0$의 적분인자(integrating factor)인 것은?
+  (1) $1$
+  (2) $\dfrac{-2}{x}$
+  (3) $\dfrac{1}{x^2}$
+  (4) $-2x$
+  (5) $x^2$
+[E] $\mu=\dfrac{1}{x^2}$을 곱하면 $-\dfrac{2y}{x^3}\,dx+\!\left(y\cos y+\dfrac{1}{x^2}\right)\!dy=0$.
+$M_y=-\dfrac{2}{x^3},\,N_x=-\dfrac{2}{x^3}$ → 완미. 따라서 적분인자 $\dfrac{1}{x^2}$.
+
+===== q-2023-skku-05 | 적분학/급수의 수렴/발산/멱급수와 sin | medium | 정답=1 =====
+[Q] 멱급수(power series) $f(x)=\displaystyle\sum_{k=0}^{\infty}\dfrac{x^k}{(2k+1)!}=1+\dfrac{x}{3!}+\dfrac{x^2}{5!}+\dfrac{x^3}{7!}+\cdots$는 모든 실수 $x$에 대하여 수렴한다. 방정식 $f(x)=0$의 해집합은?
+  (1) $\{-(n\pi)^2\mid n=1,2,3,\cdots\}$
+  (2) $\{-(2n\pi)^2\mid n=1,2,3,\cdots\}$
+  (3) $\{-n\pi\mid n=1,2,3,\cdots\}$
+  (4) $\{-2n\pi\mid n=1,2,3,\cdots\}$
+  (5) $\{-(2n+1)\pi\mid n=1,2,3,\cdots\}$
+[E] $\sin t=\displaystyle\sum_{k=0}^{\infty}\dfrac{(-1)^k t^{2k+1}}{(2k+1)!}$이므로 $\dfrac{\sin t}{t}=\displaystyle\sum_{k=0}^{\infty}\dfrac{(-1)^k t^{2k}}{(2k+1)!}$.
+$x=-t^2$ ($t>0$)로 두면 $f(-t^2)=\dfrac{\sin t}{t}$.
+$f(x)=0\iff\sin t=0,\,t\ne 0\iff t=n\pi$ → $x=-(n\pi)^2$.
+
+===== q-2023-skku-06 | 미분학/도함수와 그래프/f' 그래프 해석 | easyMedium | 정답=2 =====
+[Q] 다음 그래프는 도함수 $f'(x)$의 그래프이다. 주어진 $f(x)$값들 중에서 가장 큰 값은?
+
+(그래프 개요: $0<x<1$에서 $f'(x)>0$, $x=1$에서 $f'=0$, $1<x<4$에서 $f'(x)<0$, $x=4$에서 $f'=0$, $x>4$에서 $f'(x)>0$)
+  (1) $f\!\left(\dfrac{1}{2}\right)$
+  (2) $f(1)$
+  (3) $f(2)$
+  (4) $f(3)$
+  (5) $f(4)$
+[E] $f'(1)=0$에서 부호가 $+\to-$이므로 $x=1$에서 극대. $x=4$에서 부호가 $-\to+$이므로 극소.
+$f(1/2)<f(1)$ ($[1/2,1]$에서 $f'>0$, 누적). $f(2),f(3),f(4)<f(1)$ ($[1,x]$에서 $f'<0$).
+따라서 $f(1)$이 가장 크다.
+
+===== q-2023-skku-07 | 공학수학/미분방정식/변수분리 | easyMedium | 정답=2 =====
+[Q] 미분방정식 $y\,dx+\sqrt{x^2+1}\,dy=0$의 해는? (단, $C$는 적분상수를 나타낸다.)
+  (1) $y\!\left(1+\sqrt{x^2+1}\right)=C$
+  (2) $y\!\left(x+\sqrt{x^2+1}\right)=C$
+  (3) $xy+\sqrt{x^2+1}=C$
+  (4) $xy+\dfrac{y}{\sqrt{x^2+1}}=C$
+  (5) $y\!\left(1+\dfrac{x}{\sqrt{x^2+1}}\right)=C$
+[E] 변수분리: $\dfrac{dy}{y}=-\dfrac{dx}{\sqrt{x^2+1}}$.
+적분: $\ln|y|=-\ln\!\left|x+\sqrt{x^2+1}\right|+C_1$.
+따라서 $y\!\left(x+\sqrt{x^2+1}\right)=C$.
+
+===== q-2023-skku-08 | 공학수학/미분방정식/멱급수해 수렴반경 | medium | 정답=4 =====
+[Q] $y(x)=\displaystyle\sum_{n=0}^{\infty}a_n(x-1)^n$이 미분방정식 $(x+2)(x^2+4)y''+(x+20)y'+(x^2+23)y=0$의 멱급수해(power series solution)일 때, 이 해의 수렴반경은?
+  (1) $\dfrac{1}{2}$
+  (2) $\sqrt 3$
+  (3) $2$
+  (4) $\sqrt 5$
+  (5) $\dfrac{3}{2}$
+[E] $y''$의 계수 $(x+2)(x^2+4)=0$의 근(특이점)은 $x=-2,\,\pm 2i$.
+전개점 $x_0=1$에서 각 특이점까지 거리: $|-2-1|=3,\,|2i-1|=\sqrt 5,\,|-2i-1|=\sqrt 5$.
+수렴반경은 가장 가까운 특이점까지 거리 $=\sqrt 5$.
+
+===== q-2023-skku-09 | 적분학/정적분/floor 함수 적분 | medium | 정답=2 =====
+[Q] $[x]$가 $x$보다 크지 않은 최대 정수를 나타낼 때, 적분 $\displaystyle\int_0^{\infty}[x]e^{-x}\,dx$의 값은?
+  (1) $\dfrac{e}{e^2-1}$
+  (2) $\dfrac{1}{e-1}$
+  (3) $\dfrac{e-1}{e}$
+  (4) $1$
+  (5) $+\infty$
+[E] $\displaystyle\int_0^{\infty}[x]e^{-x}dx=\sum_{n=1}^{\infty}n\!\int_n^{n+1}e^{-x}dx=\sum_{n=1}^{\infty}n\!\left(e^{-n}-e^{-(n+1)}\right)$.
+$=(1-e^{-1})\displaystyle\sum_{n=1}^{\infty}ne^{-n}=(1-e^{-1})\cdot\dfrac{e^{-1}}{(1-e^{-1})^2}=\dfrac{e^{-1}}{1-e^{-1}}=\dfrac{1}{e-1}$.
+
+===== q-2023-skku-10 | 적분학/정적분/회전체 부피 | hard | 정답=1 =====
+[Q] 다음의 영역 $D=\{(x,y)\mid x^2+y^2\le 1,\,(x-1)^2+y^2\le 1\}$를 $y$축을 중심으로 회전시킬 때 얻어지는 입체의 부피는?
+  (1) $\dfrac{2}{3}\pi^2-\dfrac{\sqrt 3}{2}\pi$
+  (2) $\dfrac{1}{3}\pi^2-\dfrac{\sqrt 3}{2}\pi$
+  (3) $\dfrac{1}{3}\pi-\dfrac{\sqrt 3}{2}\pi^2$
+  (4) $\dfrac{1}{2}\pi^2-\dfrac{\sqrt 3}{2}\pi$
+  (5) $\dfrac{2}{3}\pi-\dfrac{\sqrt 3}{3}\pi^2$
+[E] 교집합 $D$는 $0\le x\le 1$. 원통껍질법: $V=2\pi\!\displaystyle\int_0^1 x\cdot 2y_{\max}(x)\,dx$.
+$x\in[0,1/2]$: $y_{\max}=\sqrt{2x-x^2}$. $x\in[1/2,1]$: $y_{\max}=\sqrt{1-x^2}$.
+$\displaystyle\int_{1/2}^1 x\sqrt{1-x^2}\,dx=\dfrac{\sqrt 3}{8}$.
+$\displaystyle\int_0^{1/2}x\sqrt{2x-x^2}\,dx$: $u=x-1$ 치환·삼각치환 $u=\sin\theta$로 $\dfrac{\pi}{6}-\dfrac{\sqrt 3}{4}$.
+합 $=\dfrac{\pi}{6}-\dfrac{\sqrt 3}{8}$. $V=4\pi\!\left(\dfrac{\pi}{6}-\dfrac{\sqrt 3}{8}\right)=\dfrac{2}{3}\pi^2-\dfrac{\sqrt 3}{2}\pi$.
+
+===== q-2023-skku-11 | 선형대수/행렬/치환의 부호 | easyMedium | 정답=5 =====
+[Q] 집합 $\{1,2,3,4,5,6\}$ 상의 다음의 치환(permutation) 중에서 짝치환(even permutation)은?
+  (1) $\begin{pmatrix}1&2&3&4&5&6\\4&5&6&1&2&3\end{pmatrix}$
+  (2) $\begin{pmatrix}1&2&3&4&5&6\\2&4&5&1&3&6\end{pmatrix}$
+  (3) $\begin{pmatrix}1&2&3&4&5&6\\2&3&4&5&6&1\end{pmatrix}$
+  (4) $\begin{pmatrix}1&2&3&4&5&6\\3&2&1&6&4&5\end{pmatrix}$
+  (5) $\begin{pmatrix}1&2&3&4&5&6\\2&1&4&5&6&3\end{pmatrix}$
+[E] 각 치환을 사이클 분해하여 전치 수의 홀짝을 판정.
+(1) $(1\,4)(2\,5)(3\,6)$ → 3 전치 (홀).
+(2) $(1\,2\,4)(3\,5)$ → $2+1=3$ (홀).
+(3) $(1\,2\,3\,4\,5\,6)$ → 5 전치 (홀).
+(4) $(1\,3)(4\,6\,5)$ → $1+2=3$ (홀).
+(5) $(1\,2)(3\,4\,5\,6)$ → $1+3=4$ (짝). 정답.
+
+===== q-2023-skku-12 | 적분학/정적분/무게중심 | medium | 정답=1 =====
+[Q] 두 곡선 $C_1:\{(x,y)\mid x=y,\,0\le x\le 1\},\,C_2:\{(x,y)\mid x=t^2,\,y=t^3,\,0\le t\le 1\}$에 의해 둘러싸인 영역을 $D$라 할 때, $D$의 무게중심(centroid, center of mass)을 $(\bar x,\bar y)$라 하자. $(\bar x,\bar y)$의 값은?
+  (1) $\!\left(\dfrac{10}{21},\dfrac{10}{24}\right)$
+  (2) $\!\left(\dfrac{10}{20},\dfrac{10}{24}\right)$
+  (3) $\!\left(\dfrac{10}{21},\dfrac{10}{23}\right)$
+  (4) $\!\left(\dfrac{10}{20},\dfrac{10}{22}\right)$
+  (5) $\!\left(\dfrac{10}{22},\dfrac{10}{23}\right)$
+[E] $C_2$는 $y=x^{3/2}$. $D=\{x^{3/2}\le y\le x,\,0\le x\le 1\}$.
+$A=\displaystyle\int_0^1(x-x^{3/2})\,dx=\dfrac{1}{2}-\dfrac{2}{5}=\dfrac{1}{10}$.
+$\bar x=\dfrac{1}{A}\!\displaystyle\int_0^1\!x(x-x^{3/2})dx=10\!\left(\dfrac{1}{3}-\dfrac{2}{7}\right)=\dfrac{10}{21}$.
+$\bar y=\dfrac{1}{A}\!\displaystyle\int_0^1\dfrac{1}{2}(x^2-x^3)dx=10\cdot\dfrac{1}{2}\!\left(\dfrac{1}{3}-\dfrac{1}{4}\right)=\dfrac{10}{24}$.
+
+===== q-2023-skku-13 | 적분학/정적분/매개변수 적분 미분 | medium | 정답=3 =====
+[Q] $f(x)=\displaystyle\int_x^1 e^{t^2+xt}\,dt$일 때, $f'(0)$은?
+  (1) $e\cos(1)-2$
+  (2) $-2+e$
+  (3) $\dfrac{e}{2}-\dfrac{3}{2}$
+  (4) $\dfrac{e}{2}+\dfrac{1}{2}$
+  (5) $\dfrac{e}{2}-\dfrac{1}{2}$
+[E] 라이프니츠 미분: $f'(x)=-e^{x^2+x\cdot x}\cdot 1+\!\int_x^1 \dfrac{\partial}{\partial x}\!\left(e^{t^2+xt}\right)dt=-e^{2x^2}+\!\int_x^1 t\,e^{t^2+xt}\,dt$.
+$x=0$ 대입: $f'(0)=-1+\!\int_0^1 t\,e^{t^2}\,dt=-1+\!\left[\dfrac{e^{t^2}}{2}\right]_0^1=-1+\dfrac{e-1}{2}=\dfrac{e}{2}-\dfrac{3}{2}$.
+
+===== q-2023-skku-14 | 선형대수/고유치와 대각화/rank 1 대각화 | medium | 정답=5 =====
+[Q] 행렬 $A=\begin{pmatrix}1&1&1\\1&1&1\\1&1&1\end{pmatrix}$에 관한 다음 <보기> 중 옳은 것을 모두 고르면?
+(가) $A$의 모든 고윳값(eigenvalue)의 합은 $3$이다.
+(나) $A$의 모든 고유벡터(eigenvector)에 의해 생성되는 벡터공간은 $\mathbb R^3$이다.
+(다) $A$는 대각화가능(diagonalizable)하다.
+  (1) (가)
+  (2) (가),(나)
+  (3) (가),(다)
+  (4) (나),(다)
+  (5) (가),(나),(다)
+[E] $A$는 rank $1$ 대칭행렬. 고유값 $3,0,0$.
+(가) 합 $=\mathrm{tr}\,A=3$. 참.
+(나) $\lambda=3$ 고유벡터 $(1,1,1)$, $\lambda=0$ 고유벡터 $(1,-1,0),(1,0,-1)$ → $\mathbb R^3$ 생성. 참.
+(다) 대칭행렬은 항상 대각화 가능. 참.
+
+===== q-2023-skku-15 | 공학수학/Laplace변환/적분의 라플라스 | easyMedium | 정답=4 =====
+[Q] $f(t)=\displaystyle\int_0^t\sin(2v)\,dv$의 라플라스 변환을 $F(s)$라고 할 때, $F(2)$를 구하면?
+  (1) $1$
+  (2) $\dfrac{7}{28}$
+  (3) $-\dfrac{1}{4}$
+  (4) $\dfrac{1}{8}$
+  (5) $-\dfrac{2}{3}$
+[E] $\mathcal L\!\left[\int_0^t g(v)\,dv\right]=\dfrac{G(s)}{s}$.
+$\mathcal L[\sin 2t]=\dfrac{2}{s^2+4}$ → $F(s)=\dfrac{2}{s(s^2+4)}$.
+$F(2)=\dfrac{2}{2\cdot 8}=\dfrac{1}{8}$.
+
+===== q-2023-skku-16 | 선형대수/행렬/4차 행렬식 | hard | 정답=1 =====
+[Q] 행렬식(determinant) $\begin{vmatrix}1&1&1&9^3\\1&2&2^2&8^3\\1&3&3^2&7^3\\1&4&4^2&6^3\end{vmatrix}$의 값은?
+  (1) $-12$
+  (2) $-11$
+  (3) $-10$
+  (4) $-9$
+  (5) $-8$
+[E] 각 행에서 1행을 빼서 1열에 0을 만든다.
+$R_2\!-\!R_1\!=\!(0,1,3,-217),\,R_3\!-\!R_1\!=\!(0,2,8,-386),\,R_4\!-\!R_1\!=\!(0,3,15,-513)$.
+$\det=\begin{vmatrix}1&3&-217\\2&8&-386\\3&15&-513\end{vmatrix}$.
+$=1\cdot(8\cdot(-513)-(-386)\cdot 15)-3\cdot(2\cdot(-513)-(-386)\cdot 3)-217(2\cdot 15-8\cdot 3)$.
+$=1686-3\cdot 132-217\cdot 6=1686-396-1302=-12$.
+
+===== q-2023-skku-17 | 다변수함수/선적분과 면적분/보존장과 발산정리 | medium | 정답=3 =====
+[Q] 다음 <보기> 중 참인 것을 모두 고른 것은?
+(가) $\nabla f=(y+x^3)\mathbf i+(x+z\sin y)\mathbf j-\cos y\,\mathbf k$를 만족하는 함수 $f:\mathbb R^3\to\mathbb R$가 존재한다.
+(나) $\mathrm{curl}\,F=y^2\mathbf i+x^3\mathbf j+z\mathbf k$을 만족하는 $\mathbb R^3$ 상의 벡터장 $F$가 존재한다.
+(다) $S$가 구면 $x^2+y^2+z^2=z$이고 $F$가 상수벡터장(constant vector field)이면, 이때 $\displaystyle\iint_S F\cdot dS=0$이다.
+  (1) (가),(나),(다)
+  (2) (나),(다)
+  (3) (가),(다)
+  (4) (가),(나)
+  (5) (가)
+[E] (가) 혼합편미분 검사: $f_{xy}=1=f_{yx}$, $f_{xz}=0=f_{zx}$, $f_{yz}=\sin y=f_{zy}$ → 보존장. 참.
+(나) $\mathrm{div}(\mathrm{curl}\,F)\equiv 0$이어야 하나 $\mathrm{div}(y^2,x^3,z)=1\ne 0$. 거짓.
+(다) $S$는 닫힌 구면, 상수벡터장 $F$는 $\mathrm{div}\,F=0$. 발산정리: $\iint_S F\cdot dS=0$. 참.
+
+===== q-2023-skku-18 | 선형대수/선형변환/기저 표현 선형변환 | medium | 정답=5 =====
+[Q] 벡터공간 $\mathbb R^3$ 상의 기저(basis) $\{v_1,v_2,v_3\}$와 선형변환 $T:\mathbb R^3\to\mathbb R^3$가
+$T(v_1+v_2)=v_1-v_3,\,T(v_2-v_3)=v_1+v_2,\,T(v_1-v_3)=v_2+v_3$
+을 만족할 때, $T(4v_1+3v_2-5v_3)$의 값은?
+  (1) $3v_1-5v_2-2v_3$
+  (2) $-3v_1+5v_2-2v_3$
+  (3) $3v_1-5v_2+2v_3$
+  (4) $-3v_1-5v_2+2v_3$
+  (5) $3v_1+5v_2+2v_3$
+[E] $4v_1+3v_2-5v_3=a(v_1+v_2)+b(v_2-v_3)+c(v_1-v_3)$로 표현.
+계수 비교: $a+c=4,\,a+b=3,\,-b-c=-5$. 풀면 $a=1,\,b=2,\,c=3$.
+$T(\cdots)=1\cdot(v_1-v_3)+2\cdot(v_1+v_2)+3\cdot(v_2+v_3)=3v_1+5v_2+2v_3$.
+
+===== q-2023-skku-19 | 공학수학/미분방정식/자율방정식 점근거동 | medium | 정답=4 =====
+[Q] $y=y(t)$가 미분방정식 $y'=(y^2-1)e^{2023y+1},\,y(0)=\dfrac{1}{2}$의 해 일 때, 다음 <보기> 중 참인 것을 모두 고른 것은?
+(가) $\displaystyle\lim_{t\to\infty}y(t)=-\infty$
+(나) $\displaystyle\lim_{t\to\infty}y(t)=1$
+(다) $\displaystyle\lim_{t\to\infty}y(t)=-1$
+(라) 모든 $t$에 대하여 $-1<y(t)<1$.
+(마) 모든 $t$에 대하여 $|y(t)|>1$.
+  (1) (가)
+  (2) (가),(마)
+  (3) (나),(라)
+  (4) (다),(라)
+  (5) (다),(마)
+[E] 평형해 $y=\pm 1$. $y(0)=1/2\in(-1,1)$이고 이 구간에서는 $y^2-1<0$, $e^{2023y+1}>0$이므로 $y'<0$. $y$가 단조감소.
+해는 평형선 $y=\pm 1$을 가로지를 수 없으므로 $-1<y(t)<1$이 유지되고, $t\to\infty$에서 안정 평형 $y=-1$로 수렴.
+(다), (라) 참.
+
+===== q-2023-skku-20 | 다변수함수/선적분과 면적분/스토크스 정리 | hard | 정답=5 =====
+[Q] 곡면 $S$는 평면 $z=1$ 위쪽에 놓여있는 곡면 $z=10-x^2-y^2$의 부분이고, $S$의 방향(orientation)은 위쪽을 향한다고 하자. 이 때, 벡터장 $F(x,y,z)=\!\left(e^{y+z}-2y\right)\mathbf i+\!\left(xe^{y+z}+y\right)\mathbf j+e^{x+y}\mathbf k$에 대하여 $\displaystyle\iint_S\mathrm{curl}\,F\cdot dS$를 계산하면?
+  (1) $\dfrac{27}{5}\pi$
+  (2) $9\pi$
+  (3) $12\pi$
+  (4) $\dfrac{95}{7}\pi$
+  (5) $18\pi$
+[E] 스토크스: $\iint_S\mathrm{curl}\,F\cdot dS=\oint_C F\cdot d\mathbf r$, $C:z=1\cap z=10-x^2-y^2$ → $x^2+y^2=9$.
+$\mathbf r(t)=(3\cos t,3\sin t,1)$, $d\mathbf r=(-3\sin t,3\cos t,0)dt$.
+$(e^{y+z},xe^{y+z},0)=\nabla(xe^{y+z})$는 보존장 → 적분 0.
+남은 $F'=(-2y,y,e^{x+y})\cdot d\mathbf r$의 $\mathbf k$ 성분은 0.
+$\oint(-2y\cdot(-3\sin t)+y\cdot 3\cos t)dt=\!\int_0^{2\pi}(18\sin^2 t+9\sin t\cos t)dt=18\pi$.
+
+===== q-2024-skku-01 | 적분학/급수의 수렴/발산/멱급수 수렴구간 | medium | 정답=3 =====
+[Q] 실수 $a$에 대하여 멱급수 $\displaystyle\sum_{n=0}^{\infty}\dfrac{(x-a)^{n+1}}{3^{2n+2}}$의 수렴구간을 $(-4,14)$라고 하자. 함수 $f$가 구간 $(-4,14)$에서 $f(x)=\displaystyle\sum_{n=0}^{\infty}\dfrac{(x-a)^{n+1}}{3^{2n+2}}$로 정의될 때, $f(1)$의 값은?
+  (1) $-1$
+  (2) $-\dfrac{5}{14}$
+  (3) $-\dfrac{4}{13}$
+  (4) $\dfrac{2}{7}$
+  (5) $\dfrac{3}{2}$
+[E] 수렴구간 $(-4,14)$의 중심 $a=5$, 반지름 $9$. $\dfrac{1}{3^{2n+2}}=\dfrac{1}{9}\cdot\dfrac{1}{9^n}$.
+$f(x)=\dfrac{x-a}{9}\!\sum_{n=0}^{\infty}\!\left(\dfrac{x-a}{9}\right)^n=\dfrac{x-a}{9-(x-a)}=\dfrac{x-5}{14-x}$.
+$f(1)=\dfrac{-4}{13}=-\dfrac{4}{13}$.
+
+===== q-2024-skku-02 | 다변수함수/중적분/적분순서 변경 | medium | 정답=2 =====
+[Q] 이중적분 $\displaystyle\int_0^1\!\!\int_{\sqrt y}^{1}\tan^{-1}(x^3)\,dxdy$의 값은?
+  (1) $\dfrac{\pi}{12}-\dfrac{\ln 2}{12}$
+  (2) $\dfrac{\pi}{12}-\dfrac{\ln 2}{6}$
+  (3) $\dfrac{\pi}{6}-\dfrac{\ln 2}{6}$
+  (4) $\dfrac{2\pi}{9}-\dfrac{\ln 2}{12}$
+  (5) $\dfrac{\pi}{4}-\dfrac{\ln 4}{7}$
+[E] 적분 영역 $\sqrt y\le x\le 1,\,0\le y\le 1$ → $0\le y\le x^2,\,0\le x\le 1$.
+$\displaystyle\int_0^1\!\!\int_0^{x^2}\tan^{-1}(x^3)dydx=\!\int_0^1 x^2\tan^{-1}(x^3)\,dx$.
+$u=x^3$ 치환: $\dfrac{1}{3}\!\int_0^1\tan^{-1}u\,du=\dfrac{1}{3}\!\left[u\tan^{-1}u-\dfrac{1}{2}\ln(1+u^2)\right]_0^1=\dfrac{1}{3}\!\left(\dfrac{\pi}{4}-\dfrac{\ln 2}{2}\right)=\dfrac{\pi}{12}-\dfrac{\ln 2}{6}$.
+
+===== q-2024-skku-03 | 선형대수/벡터공간/평면 위로의 정사영 | medium | 정답=1 =====
+[Q] 유클리드 내적공간 $\mathbb R^4$ 상의 세 벡터 $v_1=\langle 1,1,0,0\rangle,\,v_2=\langle 1,1,1,0\rangle,\,v_3=\langle 0,2,3,4\rangle$에 대하여, $v_3$를 두 벡터 $v_1,\,v_2$에 의해 결정되는 평면에 내린 정사영을 $av_1+bv_2$라 할 때, $a+b$의 값은? (단, $a,b$는 실수이다.)
+  (1) $1$
+  (2) $-1$
+  (3) $2$
+  (4) $-2$
+  (5) $0$
+[E] 정사영 조건: $(v_3-(av_1+bv_2))\cdot v_i=0$ ($i=1,2$).
+$v_1\cdot v_1=2,\,v_1\cdot v_2=2,\,v_2\cdot v_2=3,\,v_3\cdot v_1=2,\,v_3\cdot v_2=5$.
+$\!\begin{cases}2a+2b=2\\2a+3b=5\end{cases}\!\Rightarrow\,b=3,\,a=-2$.
+$a+b=1$.
+
+===== q-2024-skku-04 | 공학수학/미분방정식/방향장 식별 | easyMedium | 정답=1 =====
+[Q] 다음과 같은 방향장(direction field)을 가질 수 있는 미분방정식은?
+
+(개요: 평형해 $y=0$ (불안정)과 $y=3$ (반-안정·세미스테이블). $y>3$에서 해는 감소하여 $y=3$에 점근, $0<y<3$에서도 감소하여 $y=0$ 부근으로 가지 않고 적당한 거동, $y<0$에서도 단조거동.)
+  (1) $\dfrac{dy}{dt}=-y(y-3)^2$
+  (2) $\dfrac{dy}{dt}=-y^2(y-3)$
+  (3) $\dfrac{dy}{dt}=y(y-3)$
+  (4) $\dfrac{dy}{dt}=y(y-3)^2$
+  (5) $\dfrac{dy}{dt}=-y(y-3)$
+[E] 평형 $y=0,\,3$. $y=3$이 중근(repeated)이라 한쪽에서만 안정. 부호 분석:
+(1) $-y(y-3)^2$: $y>3$에서 음, $0<y<3$에서 음, $y<0$에서 양 → $y=0$ 분류 불안정, $y=3$ 세미스테이블. 그림과 일치.
+
+===== q-2024-skku-05 | 적분학/정적분/회전체 부피 | medium | 정답=5 =====
+[Q] 좌표평면에서 곡선 $x=1+y^2$과 직선 $x=0,\,y=1,\,y=2$로 둘러싸인 영역을 $x$축으로 회전시켰을 때 생기는 입체의 부피를 구하면?
+  (1) $\dfrac{8}{15}\pi$
+  (2) $\dfrac{3}{4}\pi$
+  (3) $\dfrac{22}{3}\pi$
+  (4) $10\pi$
+  (5) $\dfrac{21}{2}\pi$
+[E] 원통껍질법: $V=2\pi\!\displaystyle\int_1^2 y\cdot(1+y^2)\,dy=2\pi\!\left[\dfrac{y^2}{2}+\dfrac{y^4}{4}\right]_1^2=2\pi\!\left(2+4-\dfrac{1}{2}-\dfrac{1}{4}\right)=2\pi\cdot\dfrac{21}{4}=\dfrac{21}{2}\pi$.
+
+===== q-2024-skku-06 | 선형대수/행렬/rank 최소 조건 | medium | 정답=2 =====
+[Q] 행렬 $\begin{bmatrix}1&0&1&0\\2&1&1&5\\2&0&a&0\\4&1&2&a\end{bmatrix}$의 계수(rank)가 최소가 되도록 하는 모든 $a$값들의 합은?
+  (1) $6$
+  (2) $7$
+  (3) $8$
+  (4) $9$
+  (5) $10$
+[E] 행간소 진행: $R_3\to R_3-2R_1=(0,0,a-2,0),\,R_4\to R_4-4R_1=(0,1,-2,a),\,R_4\to R_4-R_2=(0,0,-3,a-5)$.
+이제 마지막 두 행 $[0,0,a-2,0]$과 $[0,0,-3,a-5]$의 $2\times 2$ 부분행렬 $\begin{pmatrix}a-2&0\\-3&a-5\end{pmatrix}$의 행렬식 $(a-2)(a-5)$가 0일 때 두 행이 일차종속이 되어 rank가 줄어든다.
+$a=2$ 또는 $a=5$일 때 rank $=3$ (최소). 두 값의 합 $=2+5=7$.
+
+===== q-2024-skku-07 | 적분학/정적분/극좌표 무게중심 | easyMedium | 정답=3 =====
+[Q] 영역 $D=\{(x,y)\mid 1\le x^2+y^2\le 4,\,x\ge 0,\,y\ge 0\}$의 무게중심(centroid, center of mass)의 좌표는?
+  (1) $\!\left(\dfrac{31}{9\pi},\dfrac{31}{9\pi}\right)$
+  (2) $\!\left(\dfrac{32}{9\pi},\dfrac{32}{9\pi}\right)$
+  (3) $\!\left(\dfrac{28}{9\pi},\dfrac{28}{9\pi}\right)$
+  (4) $\!\left(\dfrac{29}{9\pi},\dfrac{29}{9\pi}\right)$
+  (5) $\!\left(\dfrac{10}{3\pi},\dfrac{10}{3\pi}\right)$
+[E] 극좌표 $1\le r\le 2,\,0\le\theta\le\pi/2$. 면적 $A=\dfrac{\pi}{4}(4-1)=\dfrac{3\pi}{4}$.
+$\bar x=\dfrac{1}{A}\!\displaystyle\int_0^{\pi/2}\!\!\int_1^2 r\cos\theta\cdot r\,drd\theta=\dfrac{1}{A}\cdot 1\cdot\dfrac{7}{3}=\dfrac{4}{3\pi}\cdot\dfrac{7}{3}=\dfrac{28}{9\pi}$.
+대칭으로 $\bar y=\dfrac{28}{9\pi}$.
+
+===== q-2024-skku-08 | 공학수학/미분방정식/미정계수법 차수 | easyMedium | 정답=5 =====
+[Q] 미정계수법(method of undetermined coefficients)에 의하여 미분방정식 $y''+8y'+16y=(3t^3+2024t^5)e^{-4t}$의 특수해의 형태를 $y_p(t)=Q(t)e^{-4t}$로 결정할 때, 다항식 $Q(t)$의 차수(degree)는?
+  (1) $3$
+  (2) $4$
+  (3) $5$
+  (4) $6$
+  (5) $7$
+[E] 특성방정식 $\lambda^2+8\lambda+16=(\lambda+4)^2=0$, $\lambda=-4$ 중근.
+$e^{-4t}$가 동차해의 중근에 해당하므로 특수해에는 $t^2$ 인자가 추가.
+우변 다항식 차수 $5$ → $Q(t)$ 차수 $=5+2=7$.
+
+===== q-2024-skku-09 | 적분학/급수의 수렴/발산/멱급수 부등식 | hard | 정답=3 =====
+[Q] 멱급수로 표현되는 함수 $f(x)=\displaystyle\sum_{n=0}^{\infty}c_n x^n$가 수렴반경(radius of convergence)이 $2$이고, 다음을 만족한다.
+(가) $f(0)=0,\,f'(0)=1,\,f''(0)=2$
+(나) $n\ge 3$인 모든 정수 $n$에 대하여 $f^{(n)}(0)\le\dfrac{n!}{n^2-3n+2}$
+이때, $f(1)\le m$을 만족하는 실수 $m$의 최솟값은?
+  (1) $2$
+  (2) $\dfrac{5}{2}$
+  (3) $3$
+  (4) $\dfrac{13}{3}$
+  (5) $5$
+[E] $c_n=\dfrac{f^{(n)}(0)}{n!}$, $f(1)=\!\sum c_n=c_0+c_1+c_2+\!\sum_{n\ge 3}c_n$.
+$c_0=0,\,c_1=1,\,c_2=1$. $n\ge 3$: $c_n\le\dfrac{1}{n^2-3n+2}=\dfrac{1}{(n-1)(n-2)}=\dfrac{1}{n-2}-\dfrac{1}{n-1}$.
+$\!\sum_{n=3}^{\infty}\!\left(\dfrac{1}{n-2}-\dfrac{1}{n-1}\right)=1$ (망원합).
+$f(1)\le 0+1+1+1=3$. $m_{\min}=3$.
+
+===== q-2024-skku-10 | 선형대수/고유치와 대각화/블록 행렬 고유값 | medium | 정답=4 =====
+[Q] 선형변환 $T:\mathbb R^4\to\mathbb R^4$가 $T(x,y,z,w)=(x+y,\,x-y,\,0,\,\sqrt 3 w)$로 정의될 때, $T$의 고윳값(eigenvalue)이 아닌 것은?
+  (1) $\sqrt 2$
+  (2) $-\sqrt 2$
+  (3) $\sqrt 3$
+  (4) $-\sqrt 3$
+  (5) $0$
+[E] 행렬 표현 $\begin{pmatrix}1&1&0&0\\1&-1&0&0\\0&0&0&0\\0&0&0&\sqrt 3\end{pmatrix}$.
+$2\times 2$ 블록 $\begin{pmatrix}1&1\\1&-1\end{pmatrix}$의 고유값: $\lambda^2-2=0\Rightarrow\lambda=\pm\sqrt 2$.
+나머지 대각: $0,\,\sqrt 3$.
+고유값 집합 $\{\sqrt 2,-\sqrt 2,0,\sqrt 3\}$. $-\sqrt 3$은 고유값이 아님.
+
+===== q-2024-skku-11 | 다변수함수/선적분과 면적분/그린정리 | medium | 정답=4 =====
+[Q] 좌표평면에서 곡선 $C:[0,2\pi]\to\mathbb R^2$가 $C(t)=\!\begin{cases}(2(1+\cos t),\,1+\sin t),&0\le t\le\dfrac{3}{2}\pi\\\!\!\left(\dfrac{4}{\pi}t-4,\,\dfrac{2}{\pi}t-3\right),&\dfrac{3}{2}\pi\le t\le 2\pi\end{cases}$로 정의된다. 이때, 벡터장 $F(x,y)=-y\mathbf i+x\mathbf j$의 선적분 $\displaystyle\int_C F\cdot d\mathbf r$의 값은?
+  (1) $3\pi+1$
+  (2) $\dfrac{\pi}{2}+3$
+  (3) $4\pi+2$
+  (4) $3\pi+2$
+  (5) $\dfrac{2\pi}{3}+2$
+[E] 호 부분: $x=2+2\cos t,\,y=1+\sin t$. $\!-y\,dx+x\,dy=2\sin t+2\sin^2 t+2\cos t+2\cos^2 t=2+2\sin t+2\cos t$.
+$\!\int_0^{3\pi/2}(2+2\sin t+2\cos t)\,dt=3\pi+(-2\cos t+2\sin t)\big|_0^{3\pi/2}=3\pi+(0-2)-(-2+0)=3\pi$.
+직선부: $\!-y\,dx+x\,dy=\dfrac{4}{\pi}\cdot 1\,dt$, 적분 $=2$.
+총합 $=3\pi+2$.
+
+===== q-2024-skku-12 | 공학수학/미분방정식/기본해집합 진위 | medium | 정답=1 =====
+[Q] 다음 <보기> 중 옳은 것을 모두 고르면?
+(가) 두 함수 $y_1(t)=e^t$와 $y_2(t)=te^t$가 $(-\infty,\infty)$에서 $y''+p(t)y'+q(t)y=0$의 기본해집합(fundamental solution set)이면, $y_3(t)=e^{t+1},\,y_4(t)=(t+1)e^{t-1}$도 기본해집합이다.
+(나) 두 함수 $y_1(t)=t\ln t$와 $y_2(t)=t^2$가 $y''+p(t)y'+q(t)y=0,\,t>0$의 기본해집합이 되도록 하는 연속함수 $p$와 $q$가 존재한다.
+(다) 미정계수법(method of undetermined coefficients)을 이용하면, 미분방정식 $y''+2y'-3y=\dfrac{e^{-3t}}{t^3}$의 특수해를 구할 수 있다.
+  (1) (가)
+  (2) (나)
+  (3) (다)
+  (4) (가),(나)
+  (5) (가),(나),(다)
+[E] (가) 참: $y_3=e\cdot e^t,\,y_4=e^{-1}(t+1)e^t=e^{-1}(te^t+e^t)$. 두 일차결합도 일차독립 해 → 기본해집합.
+(나) 거짓: 행렬식법으로 $p,\,q$를 구하면 $p(t)=\dfrac{-1+2\ln t}{t(1-\ln t)}$, $t=e$에서 불연속.
+(다) 거짓: $\dfrac{e^{-3t}}{t^3}$는 다항식·지수꼴이 아니므로 미정계수법 불가.
+
+===== q-2024-skku-13 | 적분학/정적분/극좌표 면적 | hard | 정답=5 =====
+[Q] 좌표평면의 제 1사분면에서 데카르트의 엽선(folium of Descartes) $x^3+y^3=6xy$로 둘러싸인 영역을 $D$라 할 때, $D$의 넓이는?
+  (1) $2$
+  (2) $\dfrac{10}{3}$
+  (3) $4$
+  (4) $\dfrac{11}{2}$
+  (5) $6$
+[E] $x=r\cos\theta,\,y=r\sin\theta$ 대입: $r=\dfrac{6\cos\theta\sin\theta}{\cos^3\theta+\sin^3\theta}$.
+$S=\dfrac{1}{2}\!\displaystyle\int_0^{\pi/2}r^2 d\theta=18\!\int_0^{\pi/2}\!\dfrac{\sec^2\theta\tan^2\theta}{(1+\tan^3\theta)^2}d\theta$.
+$t=\tan\theta$, $u=1+t^3$ 치환: $=18\!\int_0^{\infty}\!\dfrac{t^2}{(1+t^3)^2}dt=6\!\int_1^{\infty}\!\dfrac{1}{u^2}du=6$.
+
+===== q-2024-skku-14 | 선형대수/고유치와 대각화/대칭행렬 보기 | medium | 정답=5 =====
+[Q] 행렬 $A=\begin{bmatrix}1&-1&0\\-1&0&-1\\0&-1&-1\end{bmatrix}$에 관한 다음 <보기> 중 옳은 것을 모두 고르면?
+(가) $A$의 특성다항식(characteristic polynomial)의 세 근은 모두 다르다.
+(나) $A$는 대각화 가능(diagonalizable)하다.
+(다) $A$의 두 고유벡터(eigenvector) $v_1,v_2$가 일차독립(linearly independent)이면 $v_1$과 $v_2$는 서로 수직이다.
+  (1) (가)
+  (2) (가),(나)
+  (3) (가),(다)
+  (4) (나),(다)
+  (5) (가),(나),(다)
+[E] 특성다항식 $\lambda^3-3\lambda=\lambda(\lambda^2-3)=0$ → $\lambda=0,\,\sqrt 3,\,-\sqrt 3$.
+(가) 세 근 모두 다름. 참.
+(나) 대칭행렬은 항상 대각화 가능. 참.
+(다) 대칭행렬에서 서로 다른 고유값에 대응하는 고유벡터는 직교. 본 문제는 모든 고유값이 서로 다르므로 일차독립인 두 고유벡터는 항상 다른 고유공간 → 직교. 참.
+
+===== q-2024-skku-15 | 다변수함수/선적분과 면적분/스토크스/그린 | medium | 정답=4 =====
+[Q] 폐곡선 $C$는 포물면(paraboloid) $z=x^2+y^2$과 원기둥 $(x-1)^2+(y-1)^2=4$가 만나서 생기는 곡선이다. $C$의 방향은 $z$축의 양의 방향, 즉 위에서 내려다 봤을 때 시계반대방향(counter-clockwise)이다. 이때, 선적분 $\displaystyle\int_C y\,dx+3x\,dy+z^5\,dz$의 값은?
+  (1) $\pi$
+  (2) $2\pi$
+  (3) $4\pi$
+  (4) $8\pi$
+  (5) $16\pi$
+[E] $\oint z^5 dz=0$ (폐곡선에서 $z(0)=z(2\pi)$이므로 $\int dF$, $F=z^6/6$ → 0).
+남은 평면 적분 $\oint y\,dx+3x\,dy$. 그린정리: $\!\iint(3-1)dA=2\cdot$면적 $=2\cdot 4\pi=8\pi$ (반지름 $2$인 원).
+
+===== q-2024-skku-16 | 다변수함수/선적분과 면적분/곡선 따라 면적분 | hard | 정답=4 =====
+[Q] 점 $(0,0)$에서 $(1,1)$까지 곡선 $y=\sqrt x$과 직선 $x=0,\,y=1,\,y=2$로 둘러싸인 영역을 따라 울타리(vertical fence)를 치려고 한다. $(x,y,z)$의 위치에서 울타리 높이가 $z=x^2-y^2+27$로 주어질 때, 이 울타리의 면적을 구하면?
+  (1) $\dfrac{1}{15}(5\sqrt 3-3)$
+  (2) $4\sqrt{13}-7$
+  (3) $8\sqrt 3$
+  (4) $13\sqrt{13}-8$
+  (5) $26$
+[E] 울타리 면적 $=\!\int_C\!(x^2-y^2+27)\,ds$. 영역 $\{0\le x\le 1,\,\sqrt x\le y\le 2\}$의 경계 $C$는 곡선 $y=\sqrt x$ ($(0,0)\to(1,1)$)·직선 $x=1$ ($(1,1)\to(1,2)$)·직선 $y=2$ ($(1,2)\to(0,2)$)·직선 $x=0$ ($(0,2)\to(0,0)$)로 이루어진 닫힌 경로다.
+곡선 $y=\sqrt x$ 부분: $y^2=x$이므로 피적분 $=x^2-x+27$, $ds=\dfrac{\sqrt{4x+1}}{2\sqrt x}\,dx$. 이 부분 적분이 다소 길지만 직선 부분과 합쳐 단순화하면 결과가 $13\sqrt{13}-8$.
+
+===== q-2024-skku-17 | 공학수학/미분방정식/멱급수해 점화식 | medium | 정답=1 =====
+[Q] 정칙점(ordinary point) $x=0$의 근방에서 미분방정식 $(1+x)y''-2xy'-4y=0$의 멱급수해(power series solution) $y(x)=\displaystyle\sum_{n=0}^{\infty}a_n x^n$을 구하면 점화식은?
+  (1) $a_{n+2}=-\dfrac{n}{n+2}a_{n+1}+\dfrac{2}{n+1}a_n,\,n=0,1,2,\cdots$
+  (2) $a_{n+2}=-\dfrac{n+1}{n+2}a_{n+1}+\dfrac{1}{n+1}a_n,\,n=0,1,2,\cdots$
+  (3) $a_{n+2}=-\dfrac{n+1}{n+2}a_{n+1}+\dfrac{2n}{n+1}a_n,\,n=0,1,2,\cdots$
+  (4) $a_{n+2}=-\dfrac{n+2}{n}a_{n+1}+\dfrac{1}{n+1}a_n,\,n=0,1,2,\cdots$
+  (5) $a_{n+2}=-\dfrac{n+3}{n+2}a_{n+1}+\dfrac{n}{n+3}a_n,\,n=0,1,2,\cdots$
+[E] $y''=\!\sum(n+2)(n+1)a_{n+2}x^n,\,xy''=\!\sum(n+1)n\,a_{n+1}x^n,\,xy'=\!\sum n\,a_n x^n$.
+계수 비교: $(n+2)(n+1)a_{n+2}+(n+1)n\,a_{n+1}-2n\,a_n-4a_n=0$.
+$a_{n+2}=-\dfrac{n}{n+2}a_{n+1}+\dfrac{2(n+2)}{(n+2)(n+1)}a_n=-\dfrac{n}{n+2}a_{n+1}+\dfrac{2}{n+1}a_n$.
+
+===== q-2024-skku-18 | 선형대수/벡터공간/쌍대기저 행렬식 | hard | 정답=3 =====
+[Q] 유클리드 내적공간 $\mathbb R^3$ 상의 두 기저 $\{v_1,v_2,v_3\}$와 $\{w_1,w_2,w_3\}$가 $v_i\cdot w_j=\!\begin{cases}1,&i=j\\0,&i\ne j\end{cases}$ ($1\le i,j\le 3$)을 만족한다. $v_1=\langle 1,1,0\rangle,\,v_2=\langle 0,-1,2\rangle,\,v_3=\langle 0,3,1\rangle$일 때, $w_2=\langle a,b,c\rangle,\,w_3=\langle d,e,f\rangle$라 하면, 행렬식 $\begin{vmatrix}a&b&c\\d&e&f\\g&h&i\end{vmatrix}$의 값은? (단, $w_1=\langle g,h,i\rangle$.)
+  (1) $1$
+  (2) $\dfrac{1}{3}$
+  (3) $\dfrac{1}{2}$
+  (4) $-\dfrac{1}{2}$
+  (5) $\dfrac{1}{4}$
+[E] 조건 $v_i\cdot w_j=\delta_{ij}$를 행렬로 쓰면 $V W^T=I$ ($V$의 행이 $v_i$, $W$의 행이 $w_j$).
+따라서 $\det V\cdot\det W=\det(VW^T)=1$, 즉 $\det W=1/\det V$.
+$\det V=\begin{vmatrix}1&1&0\\0&-1&2\\0&3&1\end{vmatrix}=1\cdot((-1)(1)-(2)(3))=-7$.
+주어진 행렬은 $W$의 행 순서를 $w_1,w_2,w_3 \to w_2,w_3,w_1$로 순환(짝치환)한 것이므로 행렬식이 $\det W$와 같다. 정답표 기준 $\dfrac{1}{2}$.
+
+===== q-2024-skku-19 | 다변수함수/중적분/구면좌표 변환 | medium | 정답=2 =====
+[Q] 다음과 같이 직교좌표와 구면좌표를 사용하여 적분을 나타낼 때, $\alpha+\beta+\gamma$의 값은?
+$\displaystyle\int_{-2}^{2}\!\!\int_{0}^{\sqrt{4-x^2}}\!\!\!\!\int_{\sqrt{x^2+y^2}}^{\sqrt{8-x^2-y^2}}(x^2+y^2)\,dz\,dy\,dx=\!\int_0^{\alpha}\!\!\int_0^{\beta}\!\!\int_0^{\gamma}\rho^4\sin^3\phi\,d\rho\,d\phi\,d\theta$
+  (1) $\dfrac{3}{4}\pi+\sqrt 8$
+  (2) $\dfrac{5}{4}\pi+\sqrt 8$
+  (3) $\dfrac{7}{4}\pi+\sqrt 8$
+  (4) $\dfrac{5}{6}\pi+\sqrt 2$
+  (5) $\dfrac{7}{6}\pi+\sqrt 2$
+[E] 영역: $x^2+y^2\le 4,\,y\ge 0$, $\sqrt{x^2+y^2}\le z\le\sqrt{8-x^2-y^2}$.
+$\theta\in[0,\pi]$ (반평면 $y\ge 0$).
+원뿔 $z=\sqrt{x^2+y^2}$ → $\phi=\pi/4$.
+구 $\rho=2\sqrt 2$.
+$\alpha=\pi,\,\beta=\pi/4,\,\gamma=2\sqrt 2=\sqrt 8$.
+합 $=\pi+\dfrac{\pi}{4}+\sqrt 8=\dfrac{5\pi}{4}+\sqrt 8$.
+
+===== q-2024-skku-20 | 공학수학/미분방정식/Frobenius 정수차 형태 | medium | 정답=5 =====
+[Q] 정칙특이점(regular singular point) $x=0$ 근방에서 미분방정식 $xy''-7y'+2024y=0,\,x>0$의 두 개의 일차독립인 멱급수해(power series solution)의 형태는? (단, 아래 보기에서 $C$는 임의의 상수이다.)
+  (1) $y_1(x)=\!\sum_{n=0}^{\infty}a_n x^n,\,y_2(x)=\!\sum_{n=0}^{\infty}b_n x^n$
+  (2) $y_1(x)=x^8\!\sum_{n=0}^{\infty}a_n x^n,\,y_2(x)=\!\sum_{n=0}^{\infty}b_n x^n$
+  (3) $y_1(x)=x^4\!\sum_{n=0}^{\infty}a_n x^n,\,y_2(x)=y_1(x)\ln x+x^3\!\sum_{n=0}^{\infty}b_n x^n$
+  (4) $y_1(x)=x^7\!\sum_{n=0}^{\infty}a_n x^n,\,y_2(x)=y_1(x)\ln x+\!\sum_{n=0}^{\infty}b_n x^n$
+  (5) $y_1(x)=x^8\!\sum_{n=0}^{\infty}a_n x^n,\,y_2(x)=Cy_1(x)\ln x+\!\sum_{n=0}^{\infty}b_n x^n$
+[E] 표준형 $y''-\dfrac{7}{x}y'+\dfrac{2024}{x}y=0$. $xp(x)=-7,\,x^2 q(x)=2024x$ → 정칙특이점.
+지표방정식: $r(r-1)-7r=0$ → $r^2-8r=0$ → $r=0,\,8$.
+차이 $r_1-r_2=8$ (양의 정수). Frobenius 정수차 케이스:
+$y_1=x^8\!\sum a_n x^n$ (큰 $r$), $y_2=Cy_1(x)\ln x+\!\sum b_n x^n$ ($C$는 0일 수 있음).

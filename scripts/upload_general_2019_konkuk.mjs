@@ -68,7 +68,7 @@ const problems = [
   build({
     num: 26, subject: "미분학", unit: "도함수의 응용", concept: "음함수 + 곡률", difficulty: "medium",
     question: "곡선 $y=f(x)$ 상의 점 $(x,f(x))$에서의 곡률은 $\\kappa=\\dfrac{|y''|}{(1+(y')^2)^{3/2}}$이다. 곡선의 방정식이 $x^3+y^3=1$일 때 점 $(0,1)$에서의 곡률은?",
-    options: [o("1","$0$"), o("2","$\\dfrac{1}{\\sqrt 2}$"), o("3","$\\dfrac{1}{\\sqrt 2}$"), o("4","$\\dfrac{1}{2}$"), o("5","$1$")],
+    options: [o("1","$0$"), o("2","$\\dfrac{1}{\\sqrt 2}$"), o("3","$\\dfrac{1}{\\sqrt 3}$"), o("4","$\\dfrac{1}{2}$"), o("5","$1$")],
     answer: 1,
     explanation: "음함수 미분 1계: $3x^2+3y^2 y'=0 \\Rightarrow y'=-\\dfrac{x^2}{y^2}$. $(0,1)$ 대입: $y'(0)=0$. 2계: $y''=\\dfrac{d}{dx}\\!\\left(-\\dfrac{x^2}{y^2}\\right)=-\\dfrac{2xy^2-x^2\\cdot 2y y'}{y^4}$. $(0,1)$에서 $y'=0$이므로 $y''(0)=-\\dfrac{0-0}{1}=0$. 곡률 $=\\dfrac{0}{1}=0$."
   }),

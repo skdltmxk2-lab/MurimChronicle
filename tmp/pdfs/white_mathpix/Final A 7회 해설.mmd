@@ -1,0 +1,201 @@
+1) (1) 구간 $\left(-\frac{\pi}{2}, \frac{\pi}{2}\right)$ 에서 $y=\tan ^{-1}(\tan x)=x$ 이므로 연속함수이다. (참)
+(2) 모든 실수 $x$ 에 대하여 $f(x)=\tan ^{-1} x+\cot ^{-1} x=\frac{\pi}{2}$ 이므로 연속함수이다. (참)
+(3) 모든 실수 $x$ 에 대하여 $f(x)=\sin ^{-1}(\sin x)$ 의 그래프를 그려보면, 연속함수이지만 $x=\cdots,-\frac{\pi}{2} \frac{\pi}{2}, \frac{3}{2} \pi, \cdots$ 에서 미분이 불가능하다. (거짓)
+(4) $\cos x$ 는 모든 실수 $x$ 에 대하여 $[-1,1]$ 에 속하기 때문에 $\cos \left(\cos ^{-1}(\cos x)\right)=\cos x$ 가 성립한다. (참)
+(5) 구간 $[-1,1]$ 에서 $f(x)=\sin ^{-1} x+\cos ^{-1} x=\frac{\pi}{2}$ 이므로 연속함수이다. (참)
+
+답 : (3)
+2)
+![](https://cdn.mathpix.com/cropped/7857fb57-225d-43b8-a5d6-71cefb616e2c-1.jpg?height=362&width=535&top_left_y=1211&top_left_x=264)
+$f(x)=x^{2}-2 x-1$ 가 $x$ 축과 만나는 점을 구해보면 $1-\sqrt{2}$ 또는 $1+\sqrt{2}$ 이다.
+이 때, $x_{1}=3$ 을 선택하여 뉴턴의 방법을 $n \rightarrow \infty$ 적용하면
+$1+\sqrt{2}$ 로 수렴한다.
+즉, 가장 가까운 근사값은 2.4 이다.
+답 : (4)
+3) $f(x)=\sum_{n=0}^{\infty} \frac{f^{(n)}(0)}{n!} x^{n}$
+$\Rightarrow x f(x)=\sum_{n=0}^{\infty} \frac{f^{(n)}(0)}{n!} x^{n+1}$
+⇒ 미분 : $f(x)+x f^{\prime}(x)=\sum_{n=0}^{\infty} \frac{f^{(n)}(0)}{n!}(n+1) x^{n}$
+이므로 $x$ 에 $x^{2}$ 을 대입하면,
+$f\left(x^{2}\right)+x^{2} f^{\prime}\left(x^{2}\right)=\sum_{n=0}^{\infty} \frac{f^{(n)}(0)}{n!}(n+1) x^{2 n}$ 이다.
+답 : (2)
+4) $x^{2}+x y+y^{2}=1$ 일 때, $x y$ 의 최댓값 또는 최솟값을 라그랑즈 승수법을 사용한다.
+$\left|\begin{array}{cc}2 x+y & x+2 y \\ y & x\end{array}\right|=0 \quad \Leftrightarrow \quad x^{2}=y^{2}$
+1) $x=y$ 을 조건에 대입하면 $x^{2}=\frac{1}{3}$ 이다.
+
+이때, $f(x, x)=e^{x^{2}}=e^{\frac{1}{3}}$ 이다.
+2) $x=-y$ 을 조건에 대입하면 $x^{2}=1$ 이다.
+
+이때, $f(x,-x)=e^{-x^{2}}=e^{-1}$ 이다.
+즉, 최댓값과 최솟값의 곱은 $e^{-\frac{2}{3}}$ 이다.
+답 : (2)
+5) $\bar{y}=\frac{\iint_{D} y d x d y}{\iint_{D} d x d y}=\frac{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \int_{0}^{\cos ^{2} x} y d y d x}{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \int_{0}^{\cos ^{2} x} d y d x}$
+$=\frac{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \frac{1}{2} \cos ^{4} x d x}{\int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \cos ^{2} x d x}=\frac{2 \times \frac{1}{2} \times \frac{3}{4} \times \frac{1}{2} \times \frac{\pi}{2}}{2 \times \frac{1}{2} \times \frac{\pi}{2}}=\frac{3}{8}$
+답 : (4)
+6) $x=1$ 에서 선형근사식은
+$y(x) \approx y(1)+y^{\prime}(1)(x-1)=1+4(x-1)$ 이다.
+따라서 $y(1.2) \approx 1.8$ 이다.
+또한 $x=2$ 에서 선형근사식은
+$y(x) \approx y(2)+y^{\prime}(2)(x-2)=3-2(x-2)$ 이다.
+따라서 $y(2.1) \approx 2.8$ 이다.
+즉, $y(1.2)+y(2.1)$ 의 근사값은 4.6 이다.
+7) 극곡선 $r=1-\cos \theta$ 은 $\theta=\frac{5}{6} \pi$ 에서 접선의 기울기가 1 이다.
+
+그림을 그려보면 3 사분면에서 접선의 기울기가 -1 이
+나오는 점은 $\theta=\frac{7}{6} \pi$ 임을 알수 있다.
+따라서 $\left\{\begin{array}{l}x=r \cos \theta=(1-\cos \theta) \cos \theta \\ y=r \sin \theta=(1-\cos \theta) \sin \theta\end{array}\right.$ 이므로 $\theta=\frac{7}{6} \pi$ 일 때,
+직교좌표계는 $\left(-\frac{2 \sqrt{3}+3}{4},-\frac{2+\sqrt{3}}{4}\right)$ 이다.
+답 : (2)
+8) $\lim _{n \rightarrow \infty} \frac{\ln (n!)}{n \ln n}=\lim _{n \rightarrow \infty} \frac{\ln 1+\ln 2+\cdots+\ln n}{n \ln n}$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty} \frac{1}{n \ln n} \sum_{k=1}^{n} \ln k \\
+& =\lim _{n \rightarrow \infty} \frac{1}{n \ln n} \sum_{k=1}^{n}\left(\ln \frac{k}{n}+\ln n\right) \\
+& =\lim _{n \rightarrow \infty} \frac{1}{n \ln n}\left[\sum_{k=1}^{n}\left(\ln \frac{k}{n}\right)+\sum_{k=1}^{n} \ln n\right] \\
+& =\lim _{n \rightarrow \infty} \frac{1}{n \ln n}\left[\sum_{k=1}^{n}\left(\ln \frac{k}{n}\right)+n \ln n\right] \\
+& =\lim _{n \rightarrow \infty} \frac{1}{n \ln n} \sum_{k=1}^{n}\left(\ln \frac{k}{n}\right)+1 \\
+& =\lim _{n \rightarrow \infty} \frac{1}{\ln n} \sum_{k=1}^{n}\left(\ln \frac{k}{n}\right) \frac{1}{n}+1
+\end{aligned}$$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty} \frac{1}{\ln n} \int_{0}^{1} \ln x d x+1 \\
+& =\lim _{n \rightarrow \infty} \frac{-1}{\ln n}+1=1
+\end{aligned}$$
+[별해]
+$$\begin{aligned}
+\lim _{n \rightarrow \infty} \frac{\ln (n!)}{n \ln n} & =\lim _{n \rightarrow \infty} \frac{\ln \left(\sqrt{2 n \pi} e^{-n} n^{n}\right)}{n \ln n} \quad(\because \text { 스털링 근사 }) \\
+& =\lim _{n \rightarrow \infty} \frac{\frac{1}{2} \ln (2 n \pi)-n \ln e+n \ln n}{n \ln n} \\
+& =1
+\end{aligned}$$
+9) 곡면 $z=\sqrt{2-r^{2}}=\sqrt{2-x^{2}-y^{2}}$ 이므로 반지름이 $\sqrt{2}$ 인 반구면이다. $r^{2}=2 \cos 2 \theta$ 은 $x y$ 평면에서 연주형이다. 따라서 구하는 부피를 $x y$ 평면에 정사영하면 아래 그림과 같이 나온다. 해당 영역을 $D$ 라 하면 그 중 1 사분면 영역을 $D_{1}$ 이라 하자.
+![](https://cdn.mathpix.com/cropped/7857fb57-225d-43b8-a5d6-71cefb616e2c-2.jpg?height=369&width=371&top_left_y=1204&top_left_x=408)
+$$\begin{aligned}
+V & =\iint_{D} \sqrt{2-x^{2}-y^{2}} d x d y=4 \iint_{D_{1}} \sqrt{2-x^{2}-y^{2}} d x d y \\
+& =4 \int_{0}^{\frac{\pi}{4}} \int_{0}^{\sqrt{2 \cos 2 \theta}} r \sqrt{2-r^{2}} d r d \theta \\
+& =4 \int_{0}^{\frac{\pi}{4}}\left[-\frac{1}{3}\left(2-r^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{2 \cos 2 \theta}} d \theta \\
+& =-\frac{4}{3} \int_{0}^{\frac{\pi}{4}}\left\{(2-2 \cos 2 \theta)^{\frac{3}{2}}-2 \sqrt{2}\right\} d \theta \\
+& =-\frac{4}{3} \int_{0}^{\frac{\pi}{4}}\left\{\left(4 \sin ^{2} \theta\right)^{\frac{3}{2}}-2 \sqrt{2}\right\} d \theta \\
+& =-\frac{4}{3} \int_{0}^{\frac{\pi}{4}} 8 \sin ^{3} \theta-2 \sqrt{2} d \theta \\
+& =-\frac{4}{3} \int_{0}^{\frac{\pi}{4}} 8 \sin \theta\left(1-\cos ^{2} \theta\right)-2 \sqrt{2} d \theta \\
+& =-\frac{4}{3}\left\{\int_{\frac{1}{\sqrt{2}}}^{1} 8\left(1-t^{2}\right) d t-\frac{\sqrt{2} \pi}{2}\right\} \quad(\because \cos \theta=t) \\
+& =-\frac{4}{3}\left\{8\left[t-\frac{1}{3} t^{3}\right]_{\frac{1}{\sqrt{2}}}^{1}-\frac{\sqrt{2} \pi}{2}\right\} \\
+& =-\frac{4}{3}\left\{\left(\frac{16}{3}-\frac{10 \sqrt{2}}{3}\right)-\frac{\sqrt{2} \pi}{2}\right\}=-\frac{64}{9}+\frac{40 \sqrt{2}}{9}+\frac{2 \sqrt{2} \pi}{3}
+\end{aligned}$$
+10) $\int_{1}^{\sqrt{3}} \tan ^{-1} \frac{1}{x} d x$
+$=\left[x \tan ^{-1} \frac{1}{x}\right]_{1}^{\sqrt{3}}+\int_{1}^{\sqrt{3}} x \times \frac{\frac{1}{x^{2}}}{1+\left(\frac{1}{x}\right)^{2}} d x$ ( ∵ 부분적 분)
+$=\frac{\sqrt{3} \pi}{6}-\frac{\pi}{4}+\int_{1}^{\sqrt{3}} \frac{x}{x^{2}+1} d x$
+$=\frac{\sqrt{3} \pi}{6}-\frac{\pi}{4}+\frac{1}{2}\left[\ln \left(x^{2}+1\right)\right]_{1}^{\sqrt{3}}$
+$=\frac{\sqrt{3} \pi}{6}-\frac{\pi}{4}+\frac{1}{2} \ln 2$
+답 : (1)
+11) $f(x)=\sum_{n=0}^{\infty} a_{n} x^{n}=\frac{3}{(3-x)^{2}}$
+$\Rightarrow f^{\prime \prime}(x)=\sum_{n=1}^{\infty} n(n-1) a_{n} x^{n-2}$
+$\Rightarrow 3 x^{2} f^{\prime \prime}(x)=\sum_{n=1}^{\infty} 3 n(n-1) a_{n} x^{n}=\sum_{n=1}^{\infty} b_{n} x^{n}$
+즉, $\lim _{n \rightarrow \infty} \frac{n^{2} a_{n}}{b_{n}}=\lim _{n \rightarrow \infty} \frac{n^{2} a_{n}}{3 n(n-1) a_{n}}=\frac{1}{3}$
+답 : (2)
+12) $S$ 의 질량 $=\iint_{S} x z^{2} d S=\iint_{D} x z^{2} \sqrt{1+\left(y_{x}\right)^{2}+\left(y_{z}\right)^{2}} d z d x$
+$$\begin{aligned}
+& =\int_{0}^{\sqrt{2}} \int_{0}^{2} x z^{2} \sqrt{1+4 x^{2}} d z d x \\
+& =\frac{8}{3} \int_{0}^{\sqrt{2}} x \sqrt{1+4 x^{2}} d x=\frac{2}{9}\left[\left(1+4 x^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{2}} \\
+& =\frac{52}{9}
+\end{aligned}$$
+13) $\sqrt{4 n^{2}+3} \leq \sqrt{4 n^{2}+3 k} \leq \sqrt{4 n^{2}+3 n}$
+$\Leftrightarrow \frac{1}{\sqrt{4 n^{2}+3}} \geq \frac{1}{\sqrt{4 n^{2}+3 k}} \geq \frac{1}{\sqrt{4 n^{2}+3 n}}$
+$\Leftrightarrow \lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3}} \geq \lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3 k}}$
+$$\geq \lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3 n}}$$
+$\Leftrightarrow \lim _{n \rightarrow \infty} \frac{n}{\sqrt{4 n^{2}+3}} \geq \lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3 k}} \geq \lim _{n \rightarrow \infty} \frac{n}{\sqrt{4 n^{2}+3 n}}$
+$\Leftrightarrow \frac{1}{2} \geq \lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3 k}} \geq \frac{1}{2}$
+이므로 $\lim _{n \rightarrow \infty} \sum_{k=1}^{n} \frac{1}{\sqrt{4 n^{2}+3 k}}=\frac{1}{2}$ 이다.
+답 : (2)
+14) $\int_{0}^{\infty} \sin \left(x^{\alpha}\right) d x$ 가 수렴하는 $\alpha$ 의 범위는 $|\alpha|>1$ 이다.
+
+따라서 $\int_{1}^{\infty} \sin \left(x^{\alpha}\right) d x$ 이 수렴하는 범위는
+$\alpha>1$ 또는 $\alpha<-1$ 이다.
+답 : (4)
+15) $E: 4 x^{2}+x y+\frac{33 y^{2}}{16} \leq 1 \Leftrightarrow\left(2 x+\frac{y}{4}\right)^{2}+(\sqrt{2} y)^{2} \leq 1$
+
+이므로 $u=2 x+\frac{y}{4}, v=\sqrt{2} y$ 라 하면,
+$$\begin{aligned}
+& E^{\prime}: u^{2}+v^{2} \leq 1, \quad J=\frac{1}{\left|\begin{array}{cc}
+2 & \frac{1}{4} \\
+0 & \sqrt{2}
+\end{array}\right|}=\frac{1}{2 \sqrt{2}} \text { 이다. } \\
+& \iint_{E} e^{-\left(8 x^{2}+2 x y+\frac{33 y^{2}}{8}\right)} d x d y=\iint_{E} e^{-2\left\{\left(2 x+\frac{y}{4}\right)^{2}+(\sqrt{2} y)^{2}\right\}} d x d y \\
+= & \iint_{E^{\prime}} e^{-2\left(u^{2}+v^{2}\right)} \frac{1}{2 \sqrt{2}} d u d v \\
+= & \frac{1}{2 \sqrt{2}} \int_{0}^{2 \pi} \int_{0}^{1} e^{-2 r^{2}} r d r d \theta=\frac{1}{2 \sqrt{2}} \int_{0}^{2 \pi}\left[-\frac{1}{4} e^{-2 r^{2}}\right]_{0}^{1} d \theta \\
+= & \frac{\pi}{\sqrt{2}}\left(-\frac{1}{4} e^{-2}+\frac{1}{4}\right)=\frac{\pi \sqrt{2}}{8}\left(1-e^{-2}\right)
+\end{aligned}$$
+[별해]
+$4 x^{2}+x y+\frac{33 y^{2}}{16} \leq 1 \Leftrightarrow(x y)\left(\begin{array}{cc}4 & \frac{1}{2} \\ \frac{1}{2} & \frac{33}{16}\end{array}\right)\binom{x}{y} \leq 1 \Leftrightarrow V^{T} A v \leq 1$ 이므로 $\operatorname{det} A=2 \sqrt{2}$ 이다.
+$$\begin{aligned}
+& \iint_{E} e^{-2\left(4 x^{2}+x y+\frac{33 y^{2}}{16}\right)} d x d y=\frac{1}{2 \sqrt{2}} \iint_{u^{2}+v^{2} \leq 1} e^{-2\left(u^{2}+v^{2}\right)} d u d v \\
+& =\frac{1}{2 \sqrt{2}} \int_{0}^{2 \pi} \int_{0}^{1} e^{-2 r^{2}} r d r d \theta=\frac{1}{2 \sqrt{2}}\left[-\frac{1}{4} e^{-2 r^{2}}\right]_{0}^{1} \times 2 \pi \\
+& =\frac{\pi}{4 \sqrt{2}}\left(1-e^{-2}\right)
+\end{aligned}$$
+
+답 : (4)
+18) $f(t)=\int_{0}^{\sqrt{t}} \int_{y}^{\sqrt{t}} \frac{1}{2025+\cos \left(x^{2}\right)} d x d y$
+$$\begin{aligned}
+= & \int_{0}^{\sqrt{t}} \int_{0}^{x} \frac{1}{2025+\cos \left(x^{2}\right)} d y d x \\
+= & \int_{0}^{\sqrt{t}} \frac{x}{2025+\cos \left(x^{2}\right)} d x \text { 이므로 } \\
+f^{\prime}(t) & =\frac{\sqrt{t}}{2025+\cos (t)} \times \frac{1}{2 \sqrt{t}} \text { 이다. } \\
+\text { 즉, } f^{\prime} & \left(\frac{\pi}{3}\right)=\frac{1}{4051}
+\end{aligned}$$
+19)
+![](https://cdn.mathpix.com/cropped/7857fb57-225d-43b8-a5d6-71cefb616e2c-3.jpg?height=426&width=455&top_left_y=953&top_left_x=1264)
+$$\begin{aligned}
+& \iint_{D} x^{2} \sqrt{x^{2}+y^{2}} d x d y=\int_{\frac{\pi}{4}}^{\frac{2 \pi}{3}} \int_{0}^{1} r^{4} \cos ^{2} \theta d r d \theta \\
+& =\frac{1}{5} \int_{\frac{\pi}{4}}^{\frac{2 \pi}{3}} \cos ^{2} \theta d \theta=\frac{1}{10} \int_{\frac{\pi}{4}}^{\frac{2 \pi}{3}} 1+\cos 2 \theta d \theta \\
+& =\frac{1}{10}\left[\theta+\frac{1}{2} \sin 2 \theta\right]_{\frac{\pi}{4}}^{\frac{2 \pi}{3}}=\frac{1}{10}\left(\frac{5 \pi}{12}-\frac{\sqrt{3}}{4}-\frac{1}{2}\right)
+\end{aligned}$$
+16) $\quad \cosh \left(x^{2}\right)-1-\frac{1}{2} x^{4}$
+$=1+\frac{x^{4}}{2!}+\frac{x^{8}}{4!}+\frac{x^{12}}{6!}+\cdots-1-\frac{1}{2} x^{4}$
+$=\frac{x^{8}}{4!}+\frac{x^{12}}{6!}+\cdots>\frac{x^{8}}{4!} \quad(\because x>0)$
+즉, $a$ 의 최댓값은 $\frac{1}{4!}$ 이다.
+답 : (1)
+17) $F=\nabla f(x, y)=\left(\frac{x}{x^{2}+y^{2}}, \frac{y}{x^{2}+y^{2}}\right)=(P, Q)$ 이므로
+
+원점을 포함하는 임의의 단순폐곡선 $C$ 를 빠져나가는 유량은 다음과 같다.
+$$\begin{aligned}
+\int_{C} F \cdot n d S & =\int_{C} P d y-Q d x=\int_{C} \frac{x}{x^{2}+y^{2}} d y-\frac{y}{x^{2}+y^{2}} d x \\
+& =\int_{C}-\frac{y}{x^{2}+y^{2}} d x+\frac{x}{x^{2}+y^{2}} d y=\int_{C} G \cdot d r
+\end{aligned}$$
+
+따라서 벡터장 $G$ 에 대하여 단순폐곡선 $C$ 가 특이점을 포함하므로 $2 \pi$ 이다.
+
+답 : (4)
+20) 가. 반례) $a_{n}=(-1)^{n} \frac{1}{6^{n} n}$ (거짓)
+
+나. 반례) $a_{n}=(-1)^{n} \frac{1}{\sqrt{n}}, b_{n}=(-1)^{n} \frac{1}{\sqrt{n}}$ (거짓)
+다. 반례) $a_{n}=\frac{1}{n}$ (거짓)
+라. 반례) $a_{n}=\frac{1}{n}$ (거짓)
+답 : (1)
+21) $t=2$ 일 때, 공간곡선 $C: r(t)=<t^{3}, 6 \ln \left(\frac{t}{2}\right), 4 t>$ 의 접선벡터 $r^{\prime}(2)=\left.\left\langle 3 t^{3}, \frac{6}{t}, 4\right\rangle\right|_{t=2}=\langle 12,3,4\rangle$ 는 법평면의 법선벡터이다.
+따라서 점 $(8,0,8)$ 을 포함하는 법평면은
+$12 x+3 y+4 z-128=0$ 이고,
+법평면과 점 $(3,2,4)$ 과의 거리는
+$D=\frac{|36+6+16-128|}{\sqrt{144+9+16}}=\frac{70}{13}$ 이다.
+답 : (3)
+22) 가. $\sum_{n=2}^{\infty} a_{n}=\sum_{n=2}^{\infty}(-1)^{n} \frac{1}{n^{\frac{1}{2}}(\ln n)^{\frac{1}{3}}}$ 은 $\lim _{n \rightarrow \infty} \frac{1}{n^{\frac{1}{2}}(\ln n)^{\frac{1}{3}}}=0$
+
+이므로 교대급수 판정법에 의하여 수렴한다.
+나. $\sum_{n=2}^{\infty} a_{n}{ }^{2}=\sum_{n=2}^{\infty} \frac{1}{n(\ln n)^{\frac{2}{3}}}>\sum_{n=2}^{\infty} \frac{1}{n \ln n}$ 이고 $\sum_{n=2}^{\infty} \frac{1}{n \ln n}$ 이
+적분판정법에 의하여 발산하므로 비교 판정법에 의하여 발산한다.
+다. $\sum_{n=2}^{\infty} a_{n}{ }^{3}=\sum_{n=2}^{\infty}(-1)^{3 n} \frac{1}{n^{\frac{3}{2}} \ln n}=\sum_{n=2}^{\infty}(-1)^{n} \frac{1}{n^{\frac{3}{2}} \ln n}$ 은
+$\lim _{n \rightarrow \infty} \frac{1}{n^{\frac{3}{2}} \ln n}=0$ 이므로 교대급수 판정법에 의하여 수렴한다.
+라. $\sum_{n=2}^{\infty}\left|a_{n}\right|^{3}=\sum_{n=2}^{\infty}\left|(-1)^{3 n} \frac{1}{n^{\frac{3}{2}} \ln n}\right|=\sum_{n=2}^{\infty} \frac{1}{n^{\frac{3}{2}} \ln n}<\sum_{n=2}^{\infty} \frac{1}{n^{\frac{3}{2}}}$
+이고 $\sum_{n=2}^{\infty} \frac{1}{n^{\frac{3}{2}}}$ 는 $p$-급수 판정법에 의해 수렴하므로
+비교판정법에 의해 수렴한다.
+답 : (4)
+23) $\int_{C}\left(F_{1}+F_{2}\right) \cdot d r=\int_{C}(0,2 x) \cdot d r=\int_{C} 0 d x+2 x d y$
+
+여기서 점 $(1,-1)$ 에서부터 점 $(1,1)$ 을 연결하는 선분을 $l_{1}$ 이라 하자.
+$\int_{C+l_{1}} 0 d x+2 x d y=\iint_{D} 2 d x d y(\because$ 그린정리 $)$
+$$=2 \times D \text { 의 면적 }=2 \times(7)=14$$
+
+그리고 $\int_{l_{1}} 0 d x+2 x d y=\int_{-1}^{1} 2 d t=4$
+$\left(\because l_{1}: x=1, y=t,-1 \leq t \leq 1\right)$ 이므로
+$\int_{C} 0 d x+2 x d y=14-4=10$ 이다.
+답 : (5)
+24) 곡선 $C$ 의 시작점은 점 $A(1,1)$ 이고 끝점은 $F(1,-1)$ 이므로 $\int_{C} F_{3} \cdot d r=2 \pi-\frac{\pi}{2}=\frac{3 \pi}{2}$ 이다.
+
+답 : (3)
+25) $C$ 와 $C_{6}$ 를 합친 경로는 점 $(2,2)$ 를 포함하지 않는
+
+단순폐곡선이다. 따라서 $\int_{C} F_{4} \cdot d r+\int_{C_{6}} F_{4} \cdot d r=0$ 이다.

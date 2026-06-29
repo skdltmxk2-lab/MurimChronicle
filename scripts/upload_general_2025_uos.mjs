@@ -60,7 +60,7 @@ const problems = [
   }),
   build({
     num: 5, subject: "선형대수", unit: "벡터공간", concept: "부분공간 판정", difficulty: "medium",
-    question: "다음에서 차수가 $3$ 이하인 실수 계수 다항식으로 이루어진 벡터공간 $\\mathbb{P}_3$의 부분공간만을 모두 고른 것은?\n\n(가) $\\{x^3+a\\mid a\\text{는 실수}\\}$\\quad (나) $\\{f(x)\\in\\mathbb{P}_3\\mid f'(-1)=0\\}$\\quad (다) $\\{ax^2+bx+c\\mid a,b,c\\text{는 정수}\\}$",
+    question: "다음에서 차수가 $3$ 이하인 실수 계수 다항식으로 이루어진 벡터공간 $\\mathbb{P}_3$의 부분공간만을 모두 고른 것은?\n\n(가) $\\{x^3+a\\mid a\\text{는 실수}\\}$\n(나) $\\{f(x)\\in\\mathbb{P}_3\\mid f'(-1)=0\\}$\n(다) $\\{ax^2+bx+c\\mid a,b,c\\text{는 정수}\\}$",
     options: [o("1","(가)"), o("2","(나)"), o("3","(가), (나)"), o("4","(가), (다)"), o("5","(나), (다)")],
     answer: 2,
     explanation: "(가) 영성분 $0$을 포함하지 못함. **부분공간 아님**. (나) $f=0$이면 $f'(-1)=0$, 합·스칼라배에서도 $f'(-1)=0$ 보존. **부분공간**. (다) 정수 계수만 → 스칼라배 $k$가 임의 실수면 정수 보장 안 됨. **부분공간 아님**."
@@ -74,7 +74,7 @@ const problems = [
   }),
   build({
     num: 7, subject: "선형대수", unit: "고유치와 대각화", concept: "행렬 진위 판정", difficulty: "medium",
-    question: "다음에서 행렬 $A=\\begin{pmatrix}1 & 0 & 0 & -2\\\\ 3 & 1 & 2 & 2\\\\ 1 & 0 & 3 & 1\\\\ 3 & 0 & 0 & 6\\end{pmatrix}$에 대한 설명 중 옳은 것만을 모두 고른 것은?\n\n(가) $\\mathrm{rank}(A)=4$\\quad (나) $\\det\\!\\left(\\dfrac{1}{3}A\\right)=12$\\quad (다) 행렬 $A$는 대각화 가능하다.",
+    question: "다음에서 행렬 $A=\\begin{pmatrix}1 & 0 & 0 & -2\\\\ 3 & 1 & 2 & 2\\\\ 1 & 0 & 3 & 1\\\\ 3 & 0 & 0 & 6\\end{pmatrix}$에 대한 설명 중 옳은 것만을 모두 고른 것은?\n\n(가) $\\mathrm{rank}(A)=4$\n(나) $\\det\\!\\left(\\dfrac{1}{3}A\\right)=12$\n(다) 행렬 $A$는 대각화 가능하다.",
     options: [o("1","(가)"), o("2","(나)"), o("3","(가), (나)"), o("4","(가), (다)"), o("5","(나), (다)")],
     answer: 4,
     explanation: "(가) RREF 결과 모든 행 독립 → rank 4. **참**. (나) $\\det(\\tfrac{1}{3}A)=(\\tfrac{1}{3})^4\\det A=\\tfrac{36}{81}=\\tfrac{4}{9}\\ne 12$. **거짓**. (다) 고유값 $1,3,3,4$이고 $\\lambda=3$의 기하적 중복도가 $2$이므로 대각화 가능. **참**."
@@ -88,7 +88,7 @@ const problems = [
   }),
   build({
     num: 9, subject: "적분학", unit: "이상적분", concept: "수렴/발산 판정", difficulty: "medium",
-    question: "다음에서 이상적분이 수렴하는 것만을 모두 고른 것은?\n\n(가) $\\displaystyle\\int_1^{\\infty}\\dfrac{dx}{\\sqrt{x^4+x}}$\\quad (나) $\\displaystyle\\int_1^{\\infty}e^{-x^3}\\tan^{-1}x\\,dx$\\quad (다) $\\displaystyle\\int_0^1\\dfrac{e^x}{x\\sqrt{x}}dx$",
+    question: "다음에서 이상적분이 수렴하는 것만을 모두 고른 것은?\n\n(가) $\\displaystyle\\int_1^{\\infty}\\dfrac{dx}{\\sqrt{x^4+x}}$\n(나) $\\displaystyle\\int_1^{\\infty}e^{-x^3}\\tan^{-1}x\\,dx$\n(다) $\\displaystyle\\int_0^1\\dfrac{e^x}{x\\sqrt{x}}dx$",
     options: [o("1","(가)"), o("2","(나)"), o("3","(가), (나)"), o("4","(가), (다)"), o("5","(나), (다)")],
     answer: 3,
     explanation: "(가) $\\sim 1/x^2$ 수렴. (나) $e^{-x^3}$ 매우 빠르게 감소 → 수렴. (다) $\\sim e^x/x^{3/2}$이고 $x\\to 0$에서 $1/x^{3/2}$이므로 발산."
@@ -109,7 +109,7 @@ const problems = [
   }),
   build({
     num: 12, subject: "다변수함수", unit: "편도함수", concept: "다변수 극한 존재", difficulty: "medium",
-    question: "다음에서 극한이 존재하는 것만을 모두 고른 것은?\n\n(가) $\\displaystyle\\lim_{(x,y)\\to(0,0)}\\dfrac{xy^2\\cos y}{x^2+y^4}$\\quad (나) $\\displaystyle\\lim_{(x,y)\\to(0,0)}x^2 y\\sin\\!\\left(\\dfrac{1}{x^2+y^2}\\right)$\\quad (다) $\\displaystyle\\lim_{(x,y)\\to(0,0)}\\dfrac{x\\sin^{-1}y}{\\sqrt{x^2+y^2}}$",
+    question: "다음에서 극한이 존재하는 것만을 모두 고른 것은?\n\n(가) $\\displaystyle\\lim_{(x,y)\\to(0,0)}\\dfrac{xy^2\\cos y}{x^2+y^4}$\n(나) $\\displaystyle\\lim_{(x,y)\\to(0,0)}x^2 y\\sin\\!\\left(\\dfrac{1}{x^2+y^2}\\right)$\n(다) $\\displaystyle\\lim_{(x,y)\\to(0,0)}\\dfrac{x\\sin^{-1}y}{\\sqrt{x^2+y^2}}$",
     options: [o("1","(가)"), o("2","(나)"), o("3","(가), (나)"), o("4","(가), (다)"), o("5","(나), (다)")],
     answer: 5,
     explanation: "(가) $x=y^2$ 따라서 극한 $1/2$, $x$축 따라서 $0$이라 **존재 X**. (나) $|x^2 y\\sin(\\cdot)|\\le x^2|y|\\to 0$. **존재**. (다) $\\sin^{-1}y/y\\to 1$이라 $xy/\\sqrt{x^2+y^2}\\to 0$ (Cauchy-Schwarz). **존재**."

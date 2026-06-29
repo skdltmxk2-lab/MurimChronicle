@@ -1,0 +1,175 @@
+\section*{학교별 실전 모의고사 호 해설}
+1) $\lim _{x \rightarrow 0} \frac{\sqrt{2} x-\frac{2 \sqrt{2}}{3} x^{3}-\tan ^{-1} a x}{x^{5}}$
+$=\lim _{x \rightarrow 0} \frac{\sqrt{2} x-\frac{2 \sqrt{2}}{3} x^{3}-\left[a x-\frac{1}{3}(a x)^{3}+\cdots\right]}{x^{5}}$
+$=\lim _{x \rightarrow 0} \frac{(\sqrt{2}-a)_{x}-\left(\frac{2 \sqrt{2}}{3}-\frac{a^{3}}{3}\right) x^{3}+\cdots}{x^{5}}=-\frac{4 \sqrt{2}}{5}$
+가 되려면 $a=\sqrt{2}$ 를 만족해야한다.
+답 : (3)
+2) $f(1)-f(0)=\int_{0}^{1} f^{\prime}(x) d x=\int_{0}^{1} \int_{\sin ^{-1} x}^{\frac{\pi}{2}} e^{\cos t} d t d x$
+$=\int_{0}^{\frac{\pi}{2}} \int_{0}^{\sin t} e^{\cos t} d x d t \quad(\because$ 적 분순서 변 경 $)$
+$=\int_{0}^{\frac{\pi}{2}} \sin t e^{\cos t} d t=-\left[e^{\cos t}\right]_{0}^{\frac{\pi}{2}}=e-1$
+답 : (2)
+3) $\sum_{n=1}^{\infty} \frac{n+2}{(n+3)!}=\lim _{k \rightarrow \infty} \sum_{n=1}^{k} \frac{n+2}{(n+3)!}=\lim _{k \rightarrow \infty} \sum_{n=1}^{k} \frac{(n+3)-1}{(n+3)!}$
+$$\begin{aligned}
+& =\lim _{k \rightarrow \infty} \sum_{n=1}^{k} \frac{1}{(n+2)!}-\frac{1}{(n+3)!} \\
+& =\lim _{k \rightarrow \infty}\left[\left(\frac{1}{3!}-\frac{1}{4!}\right)+\left(\frac{1}{4!}-\frac{1}{5!}\right)+\left(\frac{1}{5!}-\frac{1}{6!}\right)\right. \\
+& \left.\quad \quad+\cdots+\left(\frac{1}{(k+2)!}-\frac{1}{(k+3)!}\right)\right] \\
+& =\lim _{k \rightarrow \infty} \frac{1}{3!}-\frac{1}{(k+3)!}=\frac{1}{6}
+\end{aligned}$$
+
+답 : (3)
+4) $g(2)=1, g(5)=5 \Leftrightarrow f(1)=2, f(5)=5$ 이므로 $f(x)=t$ 라 치환하면,
+$$\begin{aligned}
+\int_{1}^{5} \frac{40}{g^{\prime}(f(x))\{f(x)\}^{2}} d x & =\int_{2}^{5} \frac{40}{g^{\prime}(t) t^{2}} \frac{1}{f^{\prime}(x)} d t \\
+& =\int_{2}^{5} \frac{40}{\frac{1}{f^{\prime}(x)} t^{2}} \frac{1}{f^{\prime}(x)} d t \\
+& =\int_{2}^{5} \frac{40}{t^{2}} d t=\left[-\frac{40}{t}\right]_{2}^{5}=12
+\end{aligned}$$
+
+이다.
+답 : (2)
+5)
+![](https://cdn.mathpix.com/cropped/2455b536-2e5a-402a-8004-f5f4c003b361-1.jpg?height=334&width=368&top_left_y=2339&top_left_x=230)
+$r^{2}=a^{2} \cos 2 \theta$ 의 내부 영역 넓이는 $a^{2}$ 이므로 구하는 영역의 넓이는 $\pi \times 2^{2}-4$ 이다.
+
+답 : (5)
+6) $\lim _{n \rightarrow \infty} \frac{1}{n^{2}} \ln \left\{\left(n^{2}+1\right)\left(n^{2}+2^{2}\right)^{2} \cdots\left(n^{2}+n^{2}\right)^{n} n^{-n(n+1)}\right\}$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\ln \left(n^{2}+1\right)+\ln \left(n^{2}+2\right)^{2}+\cdots+\ln \left(n^{2}+2\right)^{n}+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\sum_{k=1}^{n} \ln \left(n^{2}+k^{2}\right)^{k}+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\sum_{k=1}^{n} k \ln \left(n^{2}+k^{2}\right)+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\sum_{k=1}^{n}\left\{k \ln \frac{\left(n^{2}+k^{2}\right)}{n^{2}} n^{2}\right\}+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\sum_{k=1}^{n} k\left\{\ln \left(1+\frac{k^{2}}{n^{2}}\right)+\ln n^{2}\right\}+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}}\left[\sum_{k=1}^{n} k \ln \left(1+\frac{k^{2}}{n^{2}}\right)+\sum_{k=1}^{n} k \ln n^{2}+\ln n^{-n(n+1)}\right]$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}} \sum_{k=1}^{n} k \ln \left(1+\frac{k^{2}}{n^{2}}\right)+\frac{1}{n^{2}} \sum_{k=1}^{n} k \ln n^{2}+\frac{1}{n^{2}} \ln n^{-n(n+1)}$
+$=\lim _{n \rightarrow \infty} \frac{1}{n^{2}} \sum_{k=1}^{n} k \ln \left(1+\frac{k^{2}}{n^{2}}\right)+\frac{2 \ln n}{n^{2}} \times \frac{n(n+1)}{2}-\frac{n(n+1)}{n^{2}} \ln n$
+$=\int_{0}^{1} x \ln \left(1+x^{2}\right) d x=\frac{1}{2} \int_{1}^{2} \ln t d t \quad\left(\because 1+x^{2}=t\right)$
+$=\frac{1}{2}[t \ln t-t]_{1}^{2}=\frac{1}{2}(2 \ln 2-1)$
+답 : (4)
+7) $\int_{0}^{\frac{\pi}{4}} x \tan ^{2} x d x=\int_{0}^{\frac{\pi}{4}} x\left(\sec ^{2} x-1\right) d x$
+$=\int_{0}^{\frac{\pi}{4}} x \sec ^{2} x d x-\frac{1}{2}\left[x^{2}\right]_{0}^{\frac{\pi}{4}}=[x \tan x]_{0}^{\frac{\pi}{4}}-\int_{0}^{\frac{\pi}{4}} \tan x d x-\frac{1}{32} \pi^{2}$
+$=[x \tan x+\ln \cos x]_{0}^{\frac{\pi}{4}}-\frac{1}{32} \pi^{2}=\frac{\pi}{4}+\ln \frac{1}{\sqrt{2}}-\frac{1}{32} \pi^{2}$
+$=\frac{\pi}{4}\left(1-\frac{\pi}{8}\right)-\frac{1}{2} \ln 2$
+답 : (2)
+8) $f(x)=\sum_{n=1}^{\infty}(-1)^{n} \frac{x^{2 n}}{n!}-\sum_{n=1}^{\infty} \frac{(1-e)^{n}}{n}$
+$=e^{-x^{2}}-1+\ln \{1-(1-e)\}=e^{-x^{2}}$
+이므로 $x=0$ 에서 최댓값을 갖는다.
+즉, 최댓값은 $f(0)=1$
+답 : (1)
+9) $\sum_{n=1}^{\infty} \frac{1}{b_{n}}$ 이 절 대수렴하므로 $\lim _{n \rightarrow \infty} \frac{1}{b_{n}}=0$ 을 만족한다.
+
+따라서 $\lim _{n \rightarrow \infty} b_{n} \neq 0$ 이므로 $\sum_{n=1}^{\infty} b_{n}$ 은 발산한다.
+또한 양항급수이므로 $\sum_{n=1}^{\infty} a_{n}$ 와 $\sum_{n=1}^{\infty} \frac{1}{b_{n}}$ 을 극한비교판정을 적용하면
+$\lim _{n \rightarrow \infty} \frac{a_{n}}{\frac{1}{b_{n}}}=\lim _{n \rightarrow \infty} a_{n} b_{n}=2$ 이므로 동시에 수렴 또는 발산한다.
+따라서 $\sum_{n=1}^{\infty} \frac{1}{b_{n}}$ 이 수렴하므로 $\sum_{n=1}^{\infty} a_{n}$ 은 수렴하며
+양항급수이므로 $\sum_{n=1}^{\infty} a_{n}$ 은 절대수렴한다.
+$\sum_{n=1}^{\infty}\left|\frac{a_{n}}{b_{n}}\right|=\sum_{n=1}^{\infty} \frac{a_{n}}{b_{n}} \leq \sum_{n=1}^{\infty} a_{n}$ 이므로 $\sum_{n=1}^{\infty} \frac{a_{n}}{b_{n}}$ 은 절 대수렴한다.
+10) $\overrightarrow{A E} \cdot \overrightarrow{B C}=|\overrightarrow{A E}||\overrightarrow{B C}| \cos \frac{2}{3} \pi=2 \times 2 \times-\frac{1}{2}=-2$
+
+답 : (3)
+11) $z=f(x, y)$ 가 $x=u^{2}+v^{2}, y=2 u v$ 일 때,
+$\frac{\partial z}{\partial u}=f_{x} \times 2 u+f_{y} \times 2 v$ 이므로
+$$\begin{aligned}
+\frac{\partial^{2} z}{\partial v \partial u}=\left(f_{x x} \times 2 v+f_{x y} \times 2 u\right) \times 2 u+\left(f_{y x} \times 2 v+f_{y y} \times 2 u\right) \times 2 v & \\
+& +f_{y} \times 2 \\
+= & 4 u v f_{x x}+4 u v f_{y y}+2 f_{y}+4\left(u^{2}+v^{2}\right) f_{x y} \\
+= & 2 y f_{x x}+2 y f_{y y}+2 f_{y}+4 x f_{x y} \text { 이다. }
+\end{aligned}$$
+
+답 : (1)
+12) $4 x^{2}+3 z^{2} \leq 1,2 y^{2}+3 z^{2} \leq 1$ 로 주어진 영역의 부피를 $T$ 라 하면,
+$$\begin{aligned}
+T= & \iiint_{T} d V=\iiint_{T^{\prime}} \frac{1}{2 \sqrt{6}} d u d v d w \\
+& \quad(\because 2 x=u, \sqrt{2} y=v, \sqrt{3} z=w) \\
+= & \frac{1}{2 \sqrt{6}} \times T^{\prime}\left(\because T^{\prime}: u^{2}+w^{2} \leq 1, v^{2}+w^{2} \leq 1\right) \\
+= & \frac{1}{2 \sqrt{6}} \times \frac{16}{3} \text { 이다. }
+\end{aligned}$$
+
+답 : (5)
+13) 직원뿔의 높이를 $h$, 밑면의 원의 반지름을 $r$ 이라 하자.
+![](https://cdn.mathpix.com/cropped/2455b536-2e5a-402a-8004-f5f4c003b361-2.jpg?height=286&width=293&top_left_y=1971&top_left_x=276)
+$r^{2}+(h-10)^{2}=10^{2} \Leftrightarrow r^{2}=-h^{2}+20 h$ 일 때,
+$\frac{d h}{d t}=2, t=2, h=4$ 인 순간에 $\frac{d V}{d t}$ 을 구하면 된다.
+$V=\frac{1}{3} \pi r^{2} h=\frac{1}{3} \pi\left(-h^{2}+20 h\right) h=\frac{\pi}{3}\left(-h^{3}+20 h^{2}\right)$ 이므로 $\frac{d V}{d t}=\frac{\pi}{3}\left(-3 h^{2}+40 h\right) \frac{d h}{d t}$ 이다.
+즉, $\frac{d V}{d t}=\frac{224}{3} \pi$
+14) $u=x-y, v=x$ 라 놓으면 $J=\left|\begin{array}{cc}1 & -1 \\ 1 & 0\end{array}\right|=1$ 이고,
+$R_{n}=\left\{(u, v) \in R^{2} \mid u^{2}+v^{2} \leq n\right\}$ 이다.
+이 때, $R_{1}=\left\{(u, v) \in R^{2} \mid u^{2}+v^{2}<1\right\}$, $R_{2}=\left\{(u, v) \in R^{2} \mid 1 \leq u^{2}+v^{2}<2\right\}$,
+$\cdots, R_{n-1}=\left\{(u, v) \in R^{2} \mid n-1 \leq u^{2}+v^{2}<n\right\}$ 이므로
+$\lim _{n \rightarrow \infty} \iint_{D_{n}} e^{-\left[(x-y)^{2}+x^{2}\right]} d x d y=\lim _{n \rightarrow \infty} \iint_{R_{n}} e^{-\left[u^{2}+v^{2}\right]} d u d v$
+$=\lim _{n \rightarrow \infty} \iint_{R_{1}} e^{-\left[u^{2}+v^{2}\right]} d u d v+\iint_{R_{2}} e^{-\left[u^{2}+v^{2}\right]} d u d v +\cdots+\iint_{R_{n-1}} e^{-\left[u^{2}+v^{2}\right]} d u d v$
+$=\lim _{n \rightarrow \infty} \iint_{R_{1}} 1 d u d v+\iint_{R_{2}} e^{-1} d u d v+\cdots+\iint_{R_{n-1}} e^{-(n-1)} d u d v$
+$=\lim _{n \rightarrow \infty} R_{1}$ 면적 $+e^{-1} \times R_{2}$ 면적 $+\cdots+e^{-(n-1)} \times R_{n-1}$ 면적
+$=\pi+e^{-1} \pi+e^{-2} \pi+\cdots=\pi\left(1+e^{-1}+e^{-2}+\cdots\right)$
+$=\pi \times \frac{1}{1-e^{-1}}=\frac{\pi e}{e-1}$
+답 : (5)
+15) $x^{2}+\frac{y^{2}}{4}+\frac{z^{2}}{9} \leq 1, x+\frac{y}{2}+\frac{z}{3} \geq 1$ 을 $T$ 라 하면,
+$T$ 의 부피 $=\iiint_{T} d V=\iiint_{T^{\prime}} 6 d u d v d w$
+$$(\because x=u, y=2 v, z=3 w)$$
+$$=6 \times T^{\prime} \text { 의 부피 }$$
+
+이다.
+이 때, $T^{\prime}: u^{2}+v^{2}+w^{2} \leq 1, u+v+w \geq 1$ 이므로 구의 중심에서 평면까지의 거리를 구하면 $\frac{1}{\sqrt{3}}$ 이다.
+$T^{\prime}$ 의 부피는 원을 $x$ 축으로 회전하여 구한 부피와 동일하므로
+$V_{x}=\pi \int_{\frac{1}{\sqrt{3}}}^{1} y^{2} d x=\pi \int_{\frac{1}{\sqrt{3}}}^{1} 1-x^{2} d x=\pi\left[x-\frac{1}{3} x^{3}\right]_{\frac{1}{\sqrt{3}}}^{1}$
+$$=\frac{2(9-4 \sqrt{3})}{27} \pi \text { 이다. }$$
+
+즉, $T$ 의 부피 $=6 \times T^{\prime}$ 의 부피 $=\frac{4(9-4 \sqrt{3})}{9} \pi$
+답 : (4)
+16) $\int_{1}^{\pi} f(x)(\sin x+x \cos x) d x$
+$=[x \sin x f(x)]_{1}^{\pi}-\int_{1}^{\pi} x \sin x f^{\prime}(x) d x \quad(\because$ 부분적분 $)$
+$=-\int_{1}^{\pi} x \sin x \times \frac{\sin x}{x} d x=-\int_{1}^{\pi} \sin ^{2} x d x$
+$=-\frac{1}{2} \int_{1}^{\pi}(1-\cos 2 x) d x=-\frac{1}{2}\left[x-\frac{1}{2} \sin 2 x\right]_{1}^{\pi}$
+$=-\frac{1}{2}\left(\pi-1+\frac{1}{2} \sin 2\right)=\frac{2-2 \pi-\sin 2}{4}$
+답 : (5)
+17) $f(x, y)=\int_{x}^{x y} \frac{e^{t x+t}}{t} d t$ 이므로 $f_{y}=\frac{e^{x^{2} y+x y}}{x y} \times x$ 이므로 $(-1,1)$ 에서 $f_{y}$ 의 값은 1 이다.
+따라서 점 $(-1,1)$ 에서의 $\vec{v}=\vec{j}=(0,1)$ 방향으로의 방향도함수는 $D_{v} f(-1,1)=\nabla f(-1,1) \cdot \vec{v}=(a, 1) \cdot(0,1)=1$ 이다.
+18) $\mathrm{r}(t)=<\cos t, \sin t+\sin 2 t, \cos t+\cos 2 t>$ 일 때, $\mathrm{r}^{\prime}(t)=<-\sin t, \cos t+2 \cos 2 t,-\sin t-2 \sin 2 t>$ 이므로 속력 $=|v(t)|$
+$$\begin{aligned}
+& =\sqrt{\sin ^{2} t+(\cos t+2 \cos 2 t)^{2}+(-\sin t-2 \sin 2 t)^{2}} \\
+& =\sqrt{\sin ^{2} t+5+4 \cos t} \text { 이다. }
+\end{aligned}$$
+
+이때, $\sin ^{2} t+5+4 \cos t=-\cos ^{2} t+4 \cos t+6$ 이므로 $\cos t=x$ 라 하면, $f(x)=-x^{2}+4 x+6,-1 \leq x \leq 1$ 에서 최대 및 최소를 구하면 된다.
+$f^{\prime}(x)=-2 x+4$ 이므로 주어진 범위에서 임계점이 존재하지 않는다.
+$f(1)=9, f(-1)=1$ 이므로 속력의 최대값은 3 , 최솟값은 1 이다.
+즉, $M m=3$
+답 : (3)
+19) $\iint_{S}\left(z x e^{y z}+z y e^{x z}+z^{4}\right) d S$
+$$=2 \iint_{S}\left(z e^{y z}, z e^{x z}, z^{3}\right) \cdot \frac{1}{2}(x, y, z) d S=2 \iint_{S} F \cdot n d S$$
+
+이때, $S_{1}: x^{2}+y^{2} \leq 4, z=0$ 이라 하면,
+$$\begin{aligned}
+\iint_{S \cup S_{1}} F \cdot n d S & =\iiint_{T} 3 z^{2} d V(\because \text { 발산정리 }) \\
+& =\int_{0}^{2 \pi} \int_{0}^{\frac{\pi}{2}} \int_{0}^{2} 3 \rho^{4} \cos ^{2} \phi \sin \phi d \rho d \phi d \theta \\
+& =\frac{3}{5} \times 2^{5} \int_{0}^{2 \pi} \int_{0}^{\frac{\pi}{2}} \cos ^{2} \phi \sin \phi d \phi d \theta \\
+& =\frac{3}{5} \times 2^{5} \int_{0}^{2 \pi}\left[-\frac{1}{3} \cos ^{3} \phi\right]_{0}^{\frac{\pi}{2}} d \theta \\
+& =\frac{1}{5} \times 2^{5} \times 2 \pi=\frac{64}{5} \pi \text { 이다. }
+\end{aligned}$$
+
+따라서 상향으로 $S_{1}: x^{2}+y^{2} \leq 4, z=0$ 에 대한 유량은
+$$\begin{aligned}
+\iint_{S_{1}} F \cdot n d S & =\iint_{D}\left(z e^{y z}, z e^{x z}, z^{3}\right) \cdot(0,0,1) d x d y \\
+& =\iint_{D} z^{3} d x d y=\iint_{D} 0 d x d y=0 \text { 이다. }
+\end{aligned}$$
+
+따라서 $\iint_{S \cup S_{1}} F \cdot n d S+\iint_{S_{1}} F \cdot n d S=\frac{64}{5} \pi$ 이다.
+즉, $2 \iint_{S} F \cdot n d S=\frac{128}{5} \pi$
+
+\section*{[별해]}
+$f(x, y, z)=z\left(x e^{y z}+y e^{x z}+z^{3}\right)$ 에서 $z x e^{y z}$ 는 구면 위에서 $x$ 에 대한 기함수이고, $z y e^{x z}$ 는 구면 위에서 $y$ 에 대한 기함수
+
+이므로 구면의 대칭성에 의해서 적분값은 0 이다.
+$$\text { 즉, } \begin{aligned}
+& \iint_{S}\left(z x e^{y z}+z y e^{x z}+z^{4}\right) d S=\iint_{S} z^{4} d S \\
+= & \int_{0}^{2 \pi} \int_{0}^{\frac{\pi}{2}} 16 \cos ^{4} \phi \times 2^{2} \sin \phi d \phi d \theta \\
+= & 64 \times-\frac{1}{5}\left[\cos ^{5} \phi\right]_{0}^{\frac{\pi}{2}} \times 2 \pi=\frac{128}{5} \pi
+\end{aligned}$$
+
+답 : (3)
+20)
+![](https://cdn.mathpix.com/cropped/2455b536-2e5a-402a-8004-f5f4c003b361-3.jpg?height=387&width=416&top_left_y=830&top_left_x=1150)
+$y=1$ 이면 경로 $C$ 는 $x^{2}+z^{2}=8$ 을 시계방향으로 회전하고 있는 경로이다.
+$\iint_{S} \operatorname{curl} \vec{F} \cdot d \vec{S}=-\int_{C} F \cdot d r \quad(C:$ 반시 계 방 향 $)$
+$=-\frac{1}{3} \int_{C} \sin z d x+(x+\sin x) d z$
+$=-\frac{1}{3} \iint_{D} 1+\cos x-\cos z d x d z\left(\because D: x^{2}+z^{2} \leq 8\right)$
+$=-\frac{1}{3} \iint_{D} 1 d x d z\left(\because \iint_{D} \cos x d x=\iint_{D} \cos z d z\right)$
+$=-\frac{8}{3} \pi$
+답 : (1)

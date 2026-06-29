@@ -393,7 +393,7 @@ const problems = [
       o("1", "$\\sqrt[3]{\\dfrac{50}{\\pi}}$"),
       o("2", "$\\sqrt[3]{\\dfrac{100}{\\pi}}$"),
       o("3", "$\\sqrt[3]{\\dfrac{25}{\\pi}}$"),
-      o("4", "$\\sqrt[3]{\\dfrac{50}{2\\pi}}$"),
+      o("4", "$\\sqrt[3]{\\dfrac{200}{\\pi}}$"),
       o("5", "$\\sqrt[3]{\\dfrac{\\pi}{50}}$")
     ],
     answer: "1",

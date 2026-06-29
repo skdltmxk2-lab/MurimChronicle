@@ -1,0 +1,283 @@
+\section*{김영편입}
+
+\section*{학교별 실전 모의고사 8회 해설}
+1) $\lim _{x \rightarrow 0+}(1+3 x)^{\cot 6 x}=\lim _{x \rightarrow 0+}(1+3 x)^{\frac{1}{\tan 6 x}}$
+$$=\lim _{x \rightarrow 0+}(1+3 x)^{\frac{1}{6 x+\cdots}}=e^{\frac{1}{2}}$$
+
+답 : (1)
+2) $\int_{0}^{1} \int_{\sin ^{-1} y}^{\frac{\pi}{2}} \sec ^{2}(\cos x) d x d y=\int_{0}^{\frac{\pi}{2}} \int_{0}^{\sin x} \sec ^{2}(\cos x) d y d x$
+$=\int_{0}^{\frac{\pi}{2}} \sin x \sec ^{2}(\cos x) d x=[-\tan (\cos x)]_{0}^{\frac{\pi}{2}}=\tan 1$
+답 : (4)
+3) $y=\left(1+x+\frac{x^{2}}{2!}+\cdots \frac{x^{n}}{n!}\right) e^{-x}$ 일 때,
+$$\begin{aligned}
+y^{\prime} & =\left(1+x+\cdots+\frac{x^{n-1}}{(n-1)!}\right) e^{-x}-\left(1+x+\cdots+\frac{x^{n}}{n!}\right) e^{-x} \\
+& =-\frac{x^{n}}{n!} e^{-x} \text { 이다. }
+\end{aligned}$$
+
+따라서 $x=0$ 에서 임계점이며, $n$ 이 홀수인 자연수이므로
+$y^{\prime}$ 의 부호는 양수에서 음수로 바낀다.
+그러므로 $x=0$ 에서 극대점이며 극대값은 $y(0)=1$ 을 갖는다.
+4) $A$ 의 고유치는 0,2 이고, $B$ 의 고유치는 1,2 이므로 $A^{n}$ 의 고유치는 $0,2^{n}$ 이고, $B^{n}$ 의 고유치는 $1,2^{n}$ 이다.
+즉, $\lim _{n \rightarrow \infty}\left\{\frac{\operatorname{tr}\left(B^{n}\right)}{\operatorname{tr}\left(A^{n}\right)}\right\}^{1 / n}=\lim _{n \rightarrow \infty}\left(\frac{2^{n}+1}{2^{n}}\right)^{\frac{1}{n}}=\lim _{n \rightarrow \infty}\left(1+\left(\frac{1}{2}\right)^{n}\right)^{\frac{1}{n}}=1$
+5) $f(x)=\sum_{n=0}^{\infty} a_{n} x^{n}$ 일 때,
+$f^{\prime}(x)=\sum_{n=1}^{\infty} n a_{n} x^{n-1}$ 이므로 $x f^{\prime}(x)=\sum_{n=1}^{\infty} n a_{n} x^{n}$ 이다
+따라서 $-f^{\prime}(-1)=\sum_{n=1}^{\infty}(-1)^{n} n a_{n}$ 이므로
+$f^{\prime}(x)=\frac{x}{(x+2)(x+3)}$ 에 대입하면 $\sum_{n=1}^{\infty}(-1)^{n} n a_{n}=\frac{1}{2}$ 이다.
+답 : (5)
+6) $\int_{0}^{\frac{\pi}{2}} \sqrt{\left(x^{\prime}\right)^{2}+\left(y^{\prime}\right)^{2}} d t$
+$$\begin{aligned}
+& =\int_{0}^{\frac{\pi}{2}} \sqrt{(-3 \sin t-3 \sin 3 t)^{2}+(3 \cos t-3 \cos 3 t)^{2}} d t \\
+& =\int_{0}^{\frac{\pi}{2}} \sqrt{18-18 \cos 4 t} d t=\int_{0}^{\frac{\pi}{2}} 6 \sin 2 t d t \quad(\because \text { 반각 공식 }) \\
+& =[-3 \cos 2 t]_{0}^{\frac{\pi}{2}}=6
+\end{aligned}$$
+[별해]
+3 배각 공식을 적용하면,
+$x=3 \cos t+\cos 3 t=4 \cos ^{3} t, y=3 \sin t-\sin 3 t=4 \sin ^{3} t$ 이다.
+따라서 1 사분면에 해당하는 성망형의 길이이므로 $6 \times 4 \times \frac{1}{4}$ 이다.
+
+답 : (1)
+7)
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-1.jpg?height=466&width=458&top_left_y=826&top_left_x=1261)
+$$\begin{aligned}
+& a_{n}=\sqrt{(8 n)^{2}+(6 n+1)^{2}}+8 n+1, \\
+& b_{n}=\sqrt{(8 n)^{2}+(6 n+1)^{2}}-8 n-1 \text { 이므로 } \\
+& \lim _{n \rightarrow \infty} \frac{a_{n}}{b_{n}}=\lim _{n \rightarrow \infty} \frac{\sqrt{(8 n)^{2}+(6 n+1)^{2}}+8 n+1}{\sqrt{(8 n)^{2}+(6 n+1)^{2}}-8 n-1}=9 \text { 이다. }
+\end{aligned}$$
+
+답 : (5)
+8) $\iiint_{E} \frac{d V}{\sqrt{x^{2}+y^{2}+(z-2)^{2}}}$
+$$\begin{aligned}
+& =\int_{0}^{2 \pi} \int_{0}^{\pi} \int_{0}^{1} \frac{\rho^{2} \sin \phi}{\sqrt{\rho^{2}-4 \rho \cos \phi+4}} d \rho d \phi d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{\pi} \int_{0}^{1} \rho^{2} \sin \phi\left(\rho^{2}-4 \rho \cos \phi+4\right)^{-\frac{1}{2}} d \rho d \phi d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} \int_{0}^{\pi} \rho^{2} \sin \phi\left(\rho^{2}-4 \rho \cos \phi+4\right)^{-\frac{1}{2}} d \phi d \rho d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} \frac{\rho}{2}\left[\left(\rho^{2}-4 \rho \cos \phi+4\right)^{\frac{1}{2}}\right]_{0}^{\pi} d \rho d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} \frac{\rho}{2}\left[\left(\rho^{2}+4 \rho \cos \phi+4\right)^{\frac{1}{2}}-\left(\rho^{2}-4 \rho \cos \phi+4\right)^{\frac{1}{2}}\right] d \rho d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} \frac{\rho}{2}(|\rho+2|-|\rho-2|) d \rho d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{1} \frac{\rho}{2} \times 2 \rho d \rho d \theta=\int_{0}^{2 \pi} \frac{1}{3} d \theta=\frac{2 \pi}{3}
+\end{aligned}$$
+9) $f(x+y)=f(x)+f(y)+6 x y$ 이므로 $x=0, y=0$ 을 대입하면 $f(0)=0$ 을 알수 있다.
+또한 $\lim _{h \rightarrow 0} \frac{f(h)}{h}=1 \Leftrightarrow \lim _{h \rightarrow 0} \frac{f(h)-f(0)}{h}=1$ 이므로 $f^{\prime}(0)=1$ 이다.
+이 때, $f(x+y)=f(x)+f(y)+6 x y$ 을 $x$ 에 대하여
+
+편미분하면 $f^{\prime}(x+y)=f^{\prime}(x)+6 y$ 이고, $x=0$ 을 대입하면 $f^{\prime}(y)=f^{\prime}(0)+6 y=1+6 y$ 이다.
+따라서 $f(y)=y+3 y^{2}+C$ 이고, $f(0)=0$ 이므로 $C=0$ 이다.
+즉, $f^{\prime}(y)=1+6 y, f(y)=y+3 y^{2}$
+ㄱ. $f^{\prime}(1)=7$ (참)
+ㄴ. $f(1)=4$ (참)
+ㄷ. 아래로 볼록한 함수이므로 극소가 존재한다. (거짓)
+답 : (3)
+10) $x z$-평면상의 직선 $z=\frac{x}{2}(x \geq 0)$ 을 $z$ 축을 중심으로 360 도 회전하여 3 차원 곡면은 $z=\frac{r}{2}=\frac{\sqrt{x^{2}+y^{2}}}{2}=\sqrt{\frac{1}{4}\left(x^{2}+y^{2}\right)}$ 이다. 따라서 구하는 부피는 아래와 같다.
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-2.jpg?height=295&width=368&top_left_y=1004&top_left_x=424)
+
+그러므로 구하는 부피는
+$\frac{4}{3} \pi \times 1^{3}\left[1-\left(\frac{\frac{1}{4}}{\frac{1}{4}+1}\right)^{2}\right](\because$ 삼사파 공식 $)$
+이다.
+답 : (5)
+11) $3^{x}=t$ 라 하면, $3^{x} \ln 3 d x=d t \Leftrightarrow d x=\frac{1}{t \ln 3} d t$ 이다.
+$$\begin{aligned}
+\int_{0}^{\frac{1}{2}} \frac{1}{3^{x}+3^{-x}} d x & =\int_{1}^{\sqrt{3}} \frac{1}{t+\frac{1}{t}} \times \frac{1}{t \ln 3} d t \\
+& =\frac{1}{\ln 3} \int_{1}^{\sqrt{3}} \frac{1}{t^{2}+1} d t=\frac{1}{\ln 3}\left[\tan ^{-1} t\right]_{1}^{\sqrt{3}} \\
+& =\frac{1}{\ln 3} \times \frac{\pi}{12}
+\end{aligned}$$
+12) $u=x, v=2 y-x$ 라 놓으면, $J=\frac{1}{\left|\begin{array}{rr}1 & 0 \\ -1 & 2\end{array}\right|}=\frac{1}{2}$ 이다.
+
+또한 $0 \leq x \leq 2, \frac{x}{2} \leq y \leq \frac{x}{2}+1$
+$\Leftrightarrow 0 \leq x \leq 2,0 \leq 2 y-x \leq 2 \Leftrightarrow 0 \leq u \leq 2,0 \leq v \leq 2$ 이다.
+$$\begin{aligned}
+& \int_{0}^{2} \int_{\frac{x}{2}}^{\frac{x}{2}+1} x^{3}(2 y-x) e^{(2 y-x)^{2}} d y d x \\
+& =\int_{0}^{2} \int_{0}^{2} u^{3} v e^{v^{2}} \frac{1}{2} d v d u=\frac{1}{2} \int_{0}^{2} u^{3}\left[\frac{1}{2} e^{v^{2}}\right]_{0}^{2} d u \\
+& =\frac{e^{4}-1}{4} \int_{0}^{2} u^{3} d u=e^{4}-1
+\end{aligned}$$
+13) $A=\left(\begin{array}{cccc}\cos \theta-\sin \theta & 0 & 0 \\ \sin \theta & \cos \theta & 0 & 0 \\ 0 & 0 & \cos \phi & -\sin \phi \\ 0 & 0 & \sin \phi & \cos \phi\end{array}\right)=\left(\begin{array}{cc}B & O \\ O & C\end{array}\right)$
+
+ᄀ. $|A|=|B||C|=\left|\begin{array}{cc}\cos \theta & -\sin \theta \\ \sin \theta & \cos \theta\end{array}\right|\left|\begin{array}{cc}\cos \phi & -\sin \phi \\ \sin \phi & \cos \phi\end{array}\right|=1$ (참)
+ᄂ. $A^{-1}=\left(\begin{array}{ll}B & O \\ O & C\end{array}\right)^{-1}=\left(\begin{array}{cc}B^{-1} & O \\ O & C^{-1}\end{array}\right)=\left(\begin{array}{cccc}\cos \theta & \sin \theta & 0 & 0 \\ -\sin \theta & \cos \theta & 0 & 0 \\ 0 & 0 & \cos \phi & \sin \phi \\ 0 & 0 & -\sin \phi & \cos \phi\end{array}\right)$ 이므로 3행 4열 원소는 $\sin \phi$ 이다. (참)
+ᄃ. $A$ 는 가역행렬이므로 항등행렬 $I$ 와 행동치 행렬이다.
+(거짓)
+ㄹ. $E_{n} E_{n-1} E_{n-2} \cdots E_{1} A=I$ 이므로
+$$\begin{aligned}
+A & =\left(E_{n} E_{n-1} E_{n-2} \cdots E_{1}\right)^{-1}=E_{1}^{-1} E_{2}^{-1} E_{3}^{-1} \cdots E_{n}^{-1} \\
+& =E_{1}^{*} E_{2}^{*} E_{3}^{*} \cdots E_{n}^{*} \text { 이다. }
+\end{aligned}$$
+
+따라서 $A$ 는 기본행렬의 곱으로 나타낼수 있다. (참)
+답 : (4)
+14) 이엽쌍곡면 $-x^{2}-y^{2}+z^{2}=1$ 과 평면 $y=x$ 의 교선 $C$ 위에서 최대 곡률은 $-x^{2}-y^{2}+z^{2}=1$ 과 평면 $y=0$ 의 교선에서 최대 곡률과 동일하다.
+
+따라서 $-x^{2}+z^{2}=1, y=0$ 이므로
+$r(t)=(\sinh t, 0, \cosh t)$ 이라 하면,
+$r^{\prime}(t)=(\cosh t, 0, \sinh t), r^{\prime \prime}(t)=(\sinh t, 0, \cosh t)$ 이다.
+이때, $r^{\prime} \times r^{\prime \prime}=\left|\begin{array}{ccc}i & j & k \\ \cosh t & 0 & \sinh t \\ \sinh t & 0 & \cosh t\end{array}\right|=(0,-1,0)$ 이므로
+$\kappa=\frac{\left|r^{\prime} \times r^{\prime \prime}\right|}{\left|r^{\prime}\right|^{3}}=\frac{1}{\left(\sinh ^{2} t+\cosh ^{2} t\right)^{\frac{3}{2}}}=\frac{1}{(\cosh 2 t)^{\frac{3}{2}}}$ 이다.
+따라서 $t=0$ 에서 최대 곡률을 갖는다.
+즉, $\kappa(0)=1$
+답 : (3)
+15) 선형변환 $T$ 의 표준행렬은 $A=\left(\begin{array}{cccc}1 & 1 & a & 1 \\ 2 & -1 & 0 & 1 \\ 4 & 1 & 6 & a\end{array}\right)$ 이다.
+
+이때,
+$A=\left(\begin{array}{cccc}1 & 1 & a & 1 \\ 2 & -1 & 0 & 1 \\ 4 & 1 & 6 & a\end{array}\right) \sim\left(\begin{array}{cccc}1 & 1 & a & 1 \\ 0 & -3 & -2 a & -1 \\ 0 & -3 & 6-4 a & a-4\end{array}\right) \sim\left(\begin{array}{cccc}1 & 1 & a & 1 \\ 0 & -3 & -2 a & -1 \\ 0 & 0 & 6-2 a & a-3\end{array}\right)$
+이므로 $n$ ullity $A=2=4-\operatorname{rank} A$ 을 만족하는 $a=3$ 이다.
+답 : (2)
+16) $F(x, y, z)=\left(y^{2}-x, 2 x y+\sin z, y \cos z+e^{3 z}\right)$ 는
+
+보존적 벡터장이므로
+$$\begin{aligned}
+\int_{C} F \cdot d r & =\left[x y^{2}-\frac{1}{2} x^{2}+y \sin z+\frac{1}{3} e^{3 z}\right]_{(0,0,0)}^{\left(1,1, \frac{\pi}{2}\right)} \\
+& =\frac{7}{6}+\frac{1}{3} e^{\frac{3 \pi}{2}}
+\end{aligned}$$
+
+이다.
+답 : (4)
+17) $x=0$ 이면 $f(0, y)=\left\{\begin{array}{rl}-y & , y \neq 0 \\ 0 & , y=0\end{array}=-y\right.$ 이므로
+$f_{y}(0,0)=-1$ 이다.
+따라서
+$f_{y}(x, y)=\left\{\begin{array}{cl}\frac{(x-2 y)(x+y)-\left(x y-y^{2}\right)}{(x+y)^{2}} & ,(x, y) \neq(0,0) \\ -1 & ,(x, y)=(0,0)\end{array}\right.$
+이므로 $y=0$ 을 대입하면 $f_{y}(x, 0)=\left\{\begin{aligned} 1 & , x \neq 0 \\ -1 & , x=0\end{aligned}\right.$ 이다.
+따라서 연속함수가 아니므로 $f_{y x}(0,0)$ 은 존재하지 않는다.
+답 : (5)
+18) ᄀ. $\sum_{n=1}^{\infty}\left|(-1)^{n} \frac{n!5^{n}}{n^{n}}\right|=\sum_{n=1}^{\infty} \frac{n!5^{n}}{n^{n}}$ 은
+
+비율판정법을 적용하면 $\frac{5}{e}>1$ 이므로 발사한다.
+ㄴ. $\sum_{n=1}^{\infty}\left|(-1)^{n} \frac{\tan ^{-1} 2 n}{4+n^{2}}\right|=\sum_{n=1}^{\infty} \frac{\tan ^{-1} 2 n}{4+n^{2}} \approx \sum_{n=1}^{\infty} \frac{1}{n^{2}}$ 은 수렴하므로 절대수렴한다.
+ㄷ. $\sum_{n=1}^{\infty}\left|(-1)^{n-1} \arctan \frac{1}{n^{2}}\right|=\sum_{n=1}^{\infty} \tan ^{-1} \frac{1}{n^{2}}$ 은
+극한비교판정법에 의하여 $\sum_{n=1}^{\infty} \frac{1}{n^{2}}$ 이 수렴하므로
+해당급수도 수렴한다.
+따라서 주어진 급수는 절대수렴한다.
+ㄹ. $\sum_{n=1}^{\infty}\left|(-1)^{n} \sin \frac{1}{n^{2}}\right|=\sum_{n=1}^{\infty} \sin \frac{1}{n^{2}}$ 은
+극한비교판정법에 의하여 $\sum_{n=1}^{\infty} \frac{1}{n^{2}}$ 이 수렴하므로
+해당급수도 수렴한다.
+따라서 주어진 급수는 절대수렴한다.
+ㅁ. $\sum_{n=2}^{\infty}\left|\frac{(-1)^{n-1}}{n^{2} \ln n}\right|=\sum_{n=2}^{\infty} \frac{1}{n^{2} \ln n} \approx \sum_{n=2}^{\infty} \frac{1}{n^{2}}$ 은
+수렴하므로 절대수렴한다.
+답 : (1)
+19) 직선의 방향벡터를 $\overrightarrow{d_{1}}, \overrightarrow{d_{2}}$ 라 하면,
+$\vec{n}=\overrightarrow{d_{1}} \times \overrightarrow{d_{2}}=\left|\begin{array}{lll}i & j & k \\ 1 & 1 & 1 \\ 1 & 3 & 5\end{array}\right|=(2,-4,2) / /(1,-2,1)$ 이다.
+직선 $l$ 위에 있는 점 $A(1,2,-3)$, 직선 $m$ 위에 있는 점 $B(0,0,0)$ 에 대하여 $\overrightarrow{B A}=(1,2,-3)$ 이다.
+따라서 두 직선의 최단 거리를 구하면
+$\left|\frac{\vec{n} \cdot \overrightarrow{B A}}{|\vec{n}|}\right|=\left|\frac{-6}{\sqrt{6}}\right|=\sqrt{6}$ 이다.
+답 : (2)
+20)
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-3.jpg?height=288&width=386&top_left_y=438&top_left_x=1223)
+
+교선 $C$ 는 $x^{2}+y^{2}=1, z=\sqrt{3}$ 이므로
+$\iint_{S} \operatorname{curl} F \cdot d S=\int_{C} F \cdot d r$
+$$\begin{aligned}
+& =\int_{C} \sqrt{3} x d x+\sqrt{3} y d y \\
+& =\iint_{D} 0 d x d y=0
+\end{aligned}$$
+
+이다.
+답 : (5)
+21) $\lim _{n \rightarrow \infty}\left\{\sum_{k=1}^{n} \sqrt{1+\cos \frac{\pi k}{n}} \sqrt{1-\cos \frac{\pi}{n}}\right\}$
+$=\lim _{n \rightarrow \infty} \sqrt{1-\cos \frac{\pi}{n}}\left\{\sum_{k=1}^{n} \sqrt{1+\cos \frac{\pi k}{n}}\right\}$
+$=\lim _{n \rightarrow \infty} \sqrt{2 \sin ^{2} \frac{\pi}{2 n}}\left\{\sum_{k=1}^{n} \sqrt{2 \cos ^{2} \frac{\pi k}{2 n}}\right\}$
+$=\lim _{n \rightarrow \infty} \sqrt{2} \sin \frac{\pi}{2 n}\left\{\sum_{k=1}^{n} \sqrt{2} \cos \frac{\pi k}{2 n}\right\}$
+$=\lim _{n \rightarrow \infty} 2 \times \frac{\sin \frac{\pi}{2 n}}{\frac{\pi}{2 n}} \times\left\{\sum_{k=1}^{n} \cos \frac{\pi k}{2 n} \frac{\pi}{2 n}\right\}$
+$=\lim _{t \rightarrow 0} 2 \times \frac{\sin t}{t} \int_{0}^{\frac{\pi}{2}} \cos x d x=2$
+답 : (3)
+22) $f:-2 x^{2}-y^{2}+z=0$ 에 대하여 $\nabla f(1,1,3)=(-4,-2,1)$
+
+이고, $\frac{x-1}{1}=\frac{y-1}{1}=\frac{z-3}{6}$ 의 방향벡터 $\vec{d}=(1,1,6)$ 이므로
+$\cos \theta=\frac{\nabla f(1,1,3) \cdot \vec{d}}{|\nabla f(1,1,3)||\vec{d}|}=0$ 이다.
+따라서 접평면의 법선벡터와 직선의 사잇각은 $\frac{\pi}{2}$ 이다.
+즉, 접평면과 직선의 사잇각은 $0^{\circ}$ 이다.
+답 : (2)
+23) $C A=B$ 이므로
+$$\begin{aligned}
+& C\left(\begin{array}{llrrc}
+1 & 1 & 1 & 1 & 0 \\
+2 & 0 & -1 & 0 & 1 \\
+0 & 1 & 0 & 0 & 0
+\end{array}\right)=\left(\begin{array}{lllrl}
+1 & 0 & 1 & 1 & 0 \\
+0 & 0 & -3 & -2 & 1 \\
+0 & 1 & 0 & 0 & 0
+\end{array}\right) \\
+\Rightarrow & C\left(\begin{array}{ccc}
+1 & 1 & 1 \\
+2 & 0 & -1 \\
+0 & 1 & 0
+\end{array}\right)=\left(\begin{array}{ccc}
+1 & 0 & 1 \\
+0 & 0 & -3 \\
+0 & 1 & 0
+\end{array}\right) \\
+\Rightarrow & \operatorname{det} C \times\left|\begin{array}{ccc}
+1 & 1 & 1 \\
+2 & 0 & -1 \\
+0 & 1 & 0
+\end{array}\right|=\left|\begin{array}{ccc}
+1 & 0 & 1 \\
+0 & 0 & -3 \\
+0 & 1 & 0
+\end{array}\right|
+\end{aligned}$$
+$\Rightarrow \operatorname{det} C=\frac{\left|\begin{array}{ccc}1 & 0 & 1 \\ 0 & 0 & -3 \\ 0 & 1 & 0\end{array}\right|}{\left|\begin{array}{ccc}1 & 1 & 1 \\ 2 & 0 & -1 \\ 0 & 1 & 0\end{array}\right|}=1$
+[별해]
+$C A=B$ 이므로 $C A A^{T}=B A^{T}$ 을 만족한다.
+$\operatorname{det}\left(C A A^{T}\right)=\operatorname{det}\left(B A^{T}\right)$
+$\Rightarrow \operatorname{det}(C)=\frac{\operatorname{det}\left(B A^{T}\right)}{\operatorname{det}\left(A A^{T}\right)}=1$
+24) $\cos x=\sum_{n=0}^{\infty} \frac{(-1)^{n}}{(2 n)!} x^{2 n}$ 이므로
+$$\sum_{n=0}^{\infty} \frac{(-1)^{n} \pi^{n}}{3^{2 n}(2 n)!}=\sum_{n=0}^{\infty} \frac{(-1)^{n}}{(2 n)!}\left(\frac{\sqrt{\pi}}{3}\right)^{2 n}=\cos \frac{\sqrt{\pi}}{3} \text { 이다. }$$
+25) 영역을 그려보면 아래와 같다.
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-4.jpg?height=450&width=439&top_left_y=1232&top_left_x=324)
+
+따라서 아래 그림의 영역 넓이를 구한 후 16 배를 적용하면 된다.
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-4.jpg?height=450&width=524&top_left_y=1766&top_left_x=319)
+$16 \times\left[\frac{1}{2} \int_{0}^{\frac{\pi}{24}} 4 \sin ^{2} 4 \theta d \theta+\frac{1}{2} \int_{\frac{\pi}{24}}^{\frac{\pi}{8}} 1^{2} d \theta\right]$
+$=8\left[\int_{0}^{\frac{\pi}{24}} 2(1-\cos 8 \theta) d \theta+\frac{\pi}{12}\right]$
+$=16\left[\theta-\frac{1}{8} \sin 8 \theta\right]_{0}^{\frac{\pi}{24}}+\frac{2 \pi}{3}=16\left(\frac{\pi}{24}-\frac{\sqrt{3}}{16}\right)+\frac{2 \pi}{3}$
+$=\frac{4 \pi}{3}-\sqrt{3}$
+26) $\nabla f_{(1,1,1)}=\left.\left(4 x^{3}+6 y-6+3 y z,-2 y+6 x+3 x z, 3 x y\right)\right|_{(1,1,1)}$
+$=(7,7,3)$ 이므로 최댓값은
+$\left|\nabla f_{(1,1,1)}\right|=\sqrt{49+49+9}=\sqrt{107}$ 이다.
+답 : (1)
+27) $\frac{d z}{d t}=2 f(x, y)\left\{f_{x}(x, y) g^{\prime}(t)+f_{y}(x, y) h^{\prime}(t)\right\}$ 이고, $t=3$ 일 때 $x=g(3)=1, y=h(3)=0$ 이므로 이를 대입하면 $\frac{d z}{d t}=28$ 이다.
+
+답 : (4)
+
+답 : (3)
+답 : (2)
+28) $f(x)=\tan x-x+\frac{\pi}{4}-\int_{0}^{x} f^{\prime}(u) \tan ^{2} u d u \cdots$ (ㄱ)에서
+$$\begin{aligned}
+& f^{\prime}(x)=\sec ^{2} x-1-f^{\prime}(x) \tan ^{2} x \\
+\Rightarrow & \left(1+\tan ^{2} x\right) f^{\prime}(x)=\sec ^{2} x-1 \\
+\Rightarrow & 1+\tan ^{2} x=\sec ^{2} x
+\end{aligned}$$
+
+따라서 $\sec ^{2} x f^{\prime}(x)=\tan ^{2} x$ 이므로 $f^{\prime}(x)=\sin ^{2} x$ 이다.
+$$\begin{aligned}
+f(x) & =\int \sin ^{2} x d x=\int \frac{1}{2}(1-\cos 2 x) d x \\
+& =\frac{1}{2}\left(x-\frac{1}{2} \sin 2 x\right)+C \text { 이고 (ㄱ)에 } x=0 \text { 을 대입하면 }
+\end{aligned}$$
+$f(0)=\tan 0-0+\frac{\pi}{4}-\int_{0}^{0} f^{\prime}(u) \tan ^{2} u d u$ 이므로
+$f(0)=\frac{\pi}{4}$ 이다. 따라서 $f(0)=0+C$ 이므로 $C=\frac{\pi}{4}$ 이다.
+$f(x)=\frac{1}{2} x-\frac{1}{4} \sin 2 x+\frac{\pi}{4}=0$ 을 만족하는 근은
+$y=\frac{1}{2} x+\frac{\pi}{4}$ 와 $y=\frac{1}{4} \sin 2 x$ 의 교점의 개수와 같다.
+따라서 그래프를 그려보면 아래와 같다.
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-4.jpg?height=325&width=624&top_left_y=1697&top_left_x=1161)
+
+이때, 교점 $x=-\frac{\pi}{2}$ 에서 1 개 발생하지만 주어진 $x$ 의 범위에 속하지 않는다.
+즉, 주어진 범위에서 방정식의 실근의 개수는 0 개다.
+답 : (1)
+29) $A=\left(\begin{array}{ccccc}0 & -1 & 0 & 0 \\ 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 5 \\ 0 & 0 & 0 & 0\end{array}\right)$ 는 블록 대각 행렬이므로
+$A=\left(\begin{array}{cc}A_{1} & O \\ O & A_{2}\end{array}\right)$ 일 때, $A^{n}=\left(\begin{array}{cc}A_{1}^{n} & O \\ O & A_{2}^{n}\end{array}\right)$ 이다.
+$A_{1}^{2}=-I$ 이고, $A_{1}^{4}=I$ 이다.
+또한, $A^{n} v=A^{n}$ 의 1 열이므로 결과는 $A_{1}^{n}$ 에만 영향을 받는다.
+$$\begin{aligned}
+& A_{1}^{2}=-I, A_{1}^{3}=-A_{1}, A_{1}^{4}=I, A_{1}^{5}=A_{1}, A_{1}^{6}=A_{1}^{2}=-I \text { 이므로 } \\
+& \left(2 A_{1}^{6}+3 A_{1}^{5}-4 A_{1}^{4}+A_{1}^{3}-2 A_{1}^{2}\right)\binom{1}{0} \\
+\Rightarrow & \left(-2 I+3 A_{1}-4 I-A_{1}+2 I\right)\binom{1}{0} \\
+\Rightarrow & \left(2 A_{1}-4 I\right)\binom{1}{0} \\
+\Rightarrow & 2\binom{0}{1}-4\binom{1}{0}=\binom{-4}{2}=(p, q)^{T} \\
+& \text { 따라서 }\left(2 A^{6}+3 A^{5}-4 A^{4}+A^{3}-2 A^{2}\right)_{v}=(p, q, r, s)^{T} \\
+& =(-4,2,0,0)^{T}
+\end{aligned}$$
+$\therefore p+q+r+s=-2$
+![](https://cdn.mathpix.com/cropped/8e45b1a6-c001-49e8-8404-40d7e1ae3b39-5.jpg?height=40&width=99&top_left_y=889&top_left_x=908)
+30) $A$ 의 고유치, 고유벡터를 구하면 고유치가 각각 $\lambda=2,2,8$ 이라는 것을 알 수 있다.
+또한 $\lambda=2$ 에 대응하는 고유벡터를 구하면 $v_{1}=(-1,1,0), v_{2}=(-1,0,1)$ 이다.
+그리고 $\lambda=8$ 에 대응하는 고유벡터를 구하면 $v_{3}=(1,1,1)$
+이다.
+따라서 $B=A^{2025}\left(\begin{array}{ccc}1 & -1 & -1 \\ 1 & 1 & 0 \\ 1 & 0 & 1\end{array}\right)=\left(\begin{array}{ccc}8^{2025} & -2^{2025} & -2^{2025} \\ 8^{2025} & 2^{2025} & 0 \\ 8^{2025} & 0 & 2^{2025}\end{array}\right)$ 이므로
+$$b_{21}+b_{13}+b_{32}=8^{2025}-2^{2025} \text { 이다. }$$

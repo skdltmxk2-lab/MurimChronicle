@@ -1,0 +1,279 @@
+\section*{김영편입 ©}
+
+\section*{학교별 실전 모의고사 13히 해설}
+1) $\int_{0}^{\frac{\pi}{2}}|\cos 2 x-\sin x| d x$
+$$\begin{aligned}
+& =\int_{0}^{\frac{\pi}{6}} \cos 2 x-\sin x d x+\int_{\frac{\pi}{6}}^{\frac{\pi}{2}} \sin x-\cos 2 x d x \\
+& =\left[\frac{1}{2} \sin 2 x+\cos x\right]_{0}^{\frac{\pi}{6}}+\left[-\cos x-\frac{1}{2} \sin 2 x\right]_{\frac{\pi}{6}}^{\frac{\pi}{2}} \\
+& =\frac{3}{2} \sqrt{3}-1
+\end{aligned}$$
+2) 운동거리 $=\int_{0}^{\sqrt{3}}|v(t)| d t=\int_{0}^{\sqrt{3}} \sqrt{\left(\frac{\cos t}{t^{2}+1}\right)^{2}+\left(\frac{\sin t}{t^{2}+1}\right)^{2}} d t$
+$$=\int_{0}^{\sqrt{3}} \frac{1}{t^{2}+1} d t=\left[\tan ^{-1} t\right]_{0}^{\sqrt{3}}=\frac{\pi}{3}$$
+
+답 : (2)
+3) 그림을 그려서 확인해보면,
+$D=\left\{(x, y) \mid x^{2}+y^{2} \leq a^{2}, x \geq 0, y \geq 0\right\}$ 위에 있는 곡면 $z=\sqrt{a^{2}-x^{2}}$ 의 겉넓이에 16 배를 하면 된다.
+$$\begin{aligned}
+\text { 겉넓이 } & =16 \int_{0}^{a} \int_{0}^{\sqrt{a^{2}-x^{2}}} \sqrt{1+\left(z_{x}\right)^{2}+\left(z_{y}\right)^{2}} d y d x \\
+& =16 \int_{0}^{a} \int_{0}^{\sqrt{a^{2}-x^{2}}} \sqrt{1+\left(\frac{-x}{\sqrt{a^{2}-x^{2}}}\right)^{2}} d y d x \\
+& =16 \int_{0}^{a} \int_{0}^{\sqrt{a^{2}-x^{2}}} \frac{a}{\sqrt{a^{2}-x^{2}}} d y d x \\
+& =16 \int_{0}^{a} a d x=16 a^{2}
+\end{aligned}$$
+[별해]
+$x^{2}+z^{2} \leq a^{2}$ 과 $x^{2}+y^{2} \leq a^{2}$ 의 교집합인 입체의 부피는 $\frac{16}{3} a^{3}$ 이고, 겉넓이는 $16 a^{2}$ 이다.
+4) $\iint_{\partial E} v \cdot n d S=\iiint_{E} x^{2}+y^{2} d V$ ( ∵ 발 산 정리)
+$$\begin{aligned}
+& =\int_{0}^{2 \pi} \int_{0}^{2} \int_{r^{2}}^{4} r^{3} d z d r d \theta=\int_{0}^{2 \pi} \int_{0}^{2} r^{3}\left(4-r^{2}\right) d r d \theta \\
+& =\int_{0}^{2 \pi}\left[r^{4}-\frac{1}{6} r^{6}\right]_{0}^{2} d \theta=\frac{32}{3} \pi
+\end{aligned}$$
+5) $\lim _{n \rightarrow \infty}\left(1+\ln \left(\frac{n}{n-1}\right)\right)^{n}=\lim _{n \rightarrow \infty}\left(1+\ln \left(\frac{1}{1-\frac{1}{n}}\right)\right)^{n}$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty}\left(1-\ln \left(1-\frac{1}{n}\right)\right)^{n}=\lim _{t \rightarrow 0}(1-\ln (1-t))^{\frac{1}{t}}\left(\because \frac{1}{n}=t\right) \\
+& =\lim _{t \rightarrow 0}(1+t+\cdots)^{\frac{1}{t}}=e
+\end{aligned}$$
+6)
+$$\begin{aligned}
+& x=r \cos \theta=(1+\sin \theta) \cos \theta, \\
+& y=r \sin \theta=(1+\sin \theta) \sin \theta \text { 일 때, } \\
+& \frac{d y}{d x}=\frac{\cos \theta \sin \theta+(1+\sin \theta) \cos \theta}{\cos ^{2} \theta-(1+\sin \theta) \sin \theta} \text { 이므로 } \\
+& \theta=\frac{\pi}{3} \text { 에서 접선의 기울기를 구하면 }-1 \text { 이다. }
+\end{aligned}$$
+
+\section*{[별해]}
+$r=1+\cos \theta$ 일 때, $\theta=\frac{\pi}{6}$ 에서 접선의 기울기가 -1 이므로 회전 후 $r=1+\sin \theta$ 을 $\theta=\frac{\pi}{3}$ 에서 접선의 기울기를 그려보면 -1 이다.
+
+답 : (5)
+7) $f(x)=x^{2} \sinh x=x^{2}\left(x+\frac{x^{3}}{3!}+\cdots\right)=\cdots+\frac{x^{5}}{3!}+\cdots$ 이므로 $f^{(5)}(0)=\frac{5!}{3!}=20$ 이다.
+
+답 : (3)
+8) $r=1+\cos \theta$ 위의 점 $\theta_{1}=\frac{\pi}{2}$ 에서 접선의 기울기를 구하면 1 이다. 따라서 $(0,1)$ 을 지나며 기울기가 1 인 직선의 $x$ 절편은 $(-1,0)$ 이다. 그리고 대칭성을 이용해서 $l_{2}$ 를 그리면 된다. 또한 $\theta_{3}=0$ 에서 접선의 기울기는 $\infty$ 이므로 수직접선을 그리면 된다. 이 내용을 참고해서 그림을 그려보면 아래와 같다.
+![](https://cdn.mathpix.com/cropped/c138900b-e125-4a34-bac6-acd75b6d2587-1.jpg?height=587&width=460&top_left_y=1588&top_left_x=1186)
+
+즉, 영역의 넓이는 $S=\frac{1}{2} \times 3 \times 6-\pi \times 1^{2}=9-\pi$ 이다.
+답 : (4)
+9) 양의 정수 $m, n$ 에 대하여
+$$\left\{\begin{array}{l}
+\int_{-\pi}^{\pi} \sin (m x) \sin (n x) d x \\
+\int_{-\pi}^{\pi} \cos (m x) \cos (n x) d x
+\end{array}=\left\{\begin{array}{l}
+\pi, m=n \\
+0, m \neq n
+\end{array}\right. \text { 이다. }\right.$$
+$$\begin{aligned}
+& \int_{-\pi}^{\pi}\{\sin (m x)+\cos (m x)\}\{\sin (n x)+\cos (n x)\} d x \\
+& =\int_{-\pi}^{\pi} \sin (m x) \sin (n x)+\sin (m x) \cos (n x) \\
+& \quad \quad+\cos (m x) \sin (n x)+\cos (m x) \cos (n x) d x \\
+& =\int_{-\pi}^{\pi} \sin (m x) \sin (n x)+\cos (m x) \cos (n x) d x \quad(\because \text { 기함수 }) \\
+& =0(\because m \neq n)
+\end{aligned}$$
+
+답 : (1)
+10) $\quad\left|\begin{array}{rrrrr}-1 & 0 & 1 & 2 & 0 \\ -1 & 2 & 0 & 1 & 2 \\ 1 & 0 & 2 & 1 & 3 \\ 0 & 1 & 0 & 3 & 2 \\ 1 & 1 & 0 & 2 & 0\end{array}\right|=\left|\begin{array}{rrrrr}-1 & 0 & 1 & 2 & 0 \\ -1 & 2 & 0 & 1 & 2 \\ 3 & 0 & 0 & -3 & 3 \\ 0 & 1 & 0 & 3 & 2 \\ 1 & 1 & 0 & 2 & 0\end{array}\right|$
+$(\because 1$ 행 $\times(-2)+3$ 행 $\rightarrow 3$ 행)
+$$\begin{aligned}
+& =\left|\begin{array}{cccc}
+-1 & 2 & 1 & 2 \\
+3 & 0 & -3 & 3 \\
+0 & 1 & 3 & 2 \\
+1 & 1 & 2 & 0
+\end{array}\right|=3\left|\begin{array}{cccc}
+-1 & 2 & 1 & 2 \\
+1 & 0 & -1 & 1 \\
+0 & 1 & 3 & 2 \\
+1 & 1 & 2 & 0
+\end{array}\right| \\
+& =3\left|\begin{array}{ccc}
+-1 & 2 & 0 \\
+1 & 0 & 0 \\
+0 & 1 & 3 \\
+1 & 1 & 3 \\
+0
+\end{array}\right|(\because 1 \text { 열 } \times(+1)+3 \text { 열 } \rightarrow 3 \text { 열 }) \\
+& =3\left|\begin{array}{cccc}
+-1 & 2 & 0 & 2 \\
+1 & 0 & 0 & 1 \\
+0 & 1 & 3 & 2 \\
+1 & 0 & 0 & -2
+\end{array}\right|(\because 3 \text { 행 } \times(-1)+4 \text { 행 } \rightarrow 4 \text { 행 }) \\
+& =3^{2}\left|\begin{array}{ccc}
+-1 & 2 & 2 \\
+1 & 0 & 1 \\
+1 & 0 & -2
+\end{array}\right|=-2 \times 3^{2}\left|\begin{array}{cc}
+1 & 1 \\
+1 & -2
+\end{array}\right|=54
+\end{aligned}$$
+
+답 : (2)
+14) 1) $V=\left\{(a, b, c, d) \in R^{4} \mid a+b+c+d=0\right\}$ 의 기저는 $\{(1,0,0,-1),(0,1,0,-1),(0,0,1,-1)\}$ 이므로 3 차원이다.
+2) $W=\left\{(a, b, c, d) \in R^{4} \mid a+b=0, c+d=0\right\}$ 의 기저는 $\{(1,-1,0,0),(0,0,1,-1)\}$ 이므로 2 차원이다.
+3) $\operatorname{dim}(V \cap W)$
+$$\begin{aligned}
+& =\left\{(a, b, c, d) \in R^{4} \mid a+b+c+d=0, a+b=0, c+d=0\right\} \\
+& =\left\{(a, b, c, d) \in R^{4}:\left(\begin{array}{llll}
+1 & 1 & 1 & 1 \\
+1 & 1 & 0 & 0 \\
+0 & 0 & 1 & 1
+\end{array}\right)\left(\begin{array}{l}
+a \\
+b \\
+c \\
+d
+\end{array}\right)=\left(\begin{array}{l}
+0 \\
+0 \\
+0
+\end{array}\right)\right\}
+\end{aligned}$$
+
+이므로 $\operatorname{rank}\left(\begin{array}{llll}1 & 1 & 1 & 1 \\ 1 & 1 & 0 & 0 \\ 0 & 0 & 1 & 1\end{array}\right)=2$ 이고, $n$ ullity $A=2$ 이다.
+즉, $\operatorname{dim}(V)+\operatorname{dim}(W)+\operatorname{dim}(V \cap W)=7$
+답 : (4)
+15) ᄀ. $F(A)=\sum_{j=1}^{n} \sum_{i=1}^{n} a_{i j}$ : 행렬 $A$ 의 모든 성분의 합을 의미한다.
+따라서 $F(A+B)=F(A)+F(B)$ 가 성립하고, $F(k A)=k F(A)$ 가 성립하기 때문에 선형사상이다. (참)
+ㄴ. $F(A)=A^{2}$ 은 $F(A+B) \neq F(A)+F(B)$ 이기 때문에 선형사상이 아니다. (거짓)
+ㄷ. $F(A)=A^{T}$ 은
+$F(A+B)=(A+B)^{T}=A^{T}+B^{T}=F(A)+F(B)$, $F(k A)=(k A)^{T}=k A^{T}=k F(A)$ 가 성립하기 때문에 선형사상이다. (참)
+
+답 : (4)
+16) $x z$ 평면에서 $x^{2}-z^{2} \leq 1$ 을 $z$ 축 중심으로 회전하여 나온 영역은 $x^{2}+y^{2}-z^{2} \leq 1$ 이고 경계면은 일엽쌍곡면이다. $-\sqrt{3} \leq z \leq \sqrt{3}$ 이므로 이 영역의 표면은 일엽쌍곡면과 원판 두 개로 이루어진 단순폐곡면이 된다. 이때, 밀도가 $|z|$ 이므로 $0 \leq z \leq \sqrt{3}$ 에서 구해서 두 배를 하면 된다.
+1) $S_{1}: z=\sqrt{3}, x^{2}+y^{2} \leq 4$ 이므로
+$S_{1}$ 의 질량은 $\sqrt{3} \times 4 \pi$ 이다.
+2) $x^{2}+y^{2}-z^{2}=1,0 \leq z \leq \sqrt{3}$ 이므로
+$S_{2}$ 의 질량은 곡면이 회전곡면이므로 회전체 공식을 이용하자.
+$x^{2}-z^{2}=1,0 \leq z \leq \sqrt{3}$ 에서 밀도를 $z$ 로 하면
+$S_{2}$ 의 질량 $=2 \pi \int_{0}^{\sqrt{3}} z \times x \times d l$
+$$\begin{aligned}
+& =2 \pi \int_{0}^{\sqrt{3}} z \times \sqrt{1+z^{2}} \times \sqrt{1+\frac{z^{2}}{1+z^{2}}} d z \\
+& =2 \pi \int_{0}^{\sqrt{3}} z \times \sqrt{1+2 z^{2}} d z \\
+& =\pi \int_{0}^{\sqrt{3}} 2 z \times\left(1+2 z^{2}\right)^{\frac{1}{2}} d z \\
+& =\frac{\pi}{2} \int_{0}^{\sqrt{3}} 4 z \times\left(1+2 z^{2}\right)^{\frac{1}{2}} d z
+\end{aligned}$$
+$$=\frac{\pi}{3}\left[\left(1+2 z^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{3}}=\frac{\pi}{3}(7 \sqrt{7}-1) \text { 이다. }$$
+
+따라서 $S$ 의 총 질량
+$=\sqrt{3} \times 4 \pi \times 2+2 \times \frac{\pi}{3}(7 \sqrt{7}-1)$
+$=\frac{2}{3} \pi(7 \sqrt{7}-1+12 \sqrt{3})$ 이다.
+17) $x(t)=\int_{0}^{t} \sin \left(2 s^{2}\right) d s, y(t)=\int_{0}^{t} \cos \left(2 s^{2}\right) d s$ 일 때,
+$$\begin{aligned}
+& x^{\prime}(t)=\sin \left(2 t^{2}\right), y^{\prime}(t)=\cos \left(2 t^{2}\right), \\
+& x^{\prime \prime}(t)=4 t \cos \left(2 t^{2}\right), y^{\prime \prime}(t)=-4 t \sin \left(2 t^{2}\right) \text { 이므로 } \\
+& \kappa=\frac{\left|x^{\prime} y^{\prime \prime}-x^{\prime \prime} y^{\prime}\right|}{\left[\left(x^{\prime}\right)^{2}+\left(y^{\prime}\right)^{2}\right]^{\frac{3}{2}}}=\frac{\left|-4 t \sin ^{2}\left(2 t^{2}\right)-4 t \cos ^{2}\left(2 t^{2}\right)\right|}{\left[\sin ^{2}\left(2 t^{2}\right)+\cos ^{2}\left(2 t^{2}\right)\right]^{\frac{3}{2}}} \\
+& \quad=|-4 t| \text { 이다. }
+\end{aligned}$$
+
+즉, $t=1$ 에서 곡률값은 4 이다.
+답 : (1)
+18) $A=\left(\begin{array}{ll}1 & 2 \\ 3 & 2\end{array}\right)$ 의 고유치는 $4,-1$ 이며 각각에 대응하는
+
+고유벡터는 $\binom{2}{3},\binom{1}{-1}$ 이다.
+이때, $A\binom{1}{1}=A\left[\frac{2}{5}\binom{2}{3}+\frac{1}{5}\binom{1}{-1}\right]=\frac{2}{5} A\binom{2}{3}+\frac{1}{5} A\binom{1}{-1}$
+$$=\frac{2}{5} \times 4^{n}\binom{2}{3}+\frac{1}{5} \times(-1)^{n}\binom{1}{-1}$$
+
+이므로 $A^{n}$ 의 모든 성분의 합 $a_{n}=2 \times 4^{n}$ 이다.
+따라서 $\sum_{n=2}^{\infty} \frac{1}{a_{n}}=\frac{1}{2} \sum_{n=2}^{\infty} \frac{1}{4^{n}}=\frac{1}{2} \times \frac{\frac{1}{4^{2}}}{1-\frac{1}{4}}=\frac{1}{24}$ 이다.
+19) $\left(y-y^{4}\right) d x+d y=0$ 이므로
+$e^{a x} y^{b}\left(y-y^{4}\right) d x+e^{a x} y^{b} d y=0 \Leftrightarrow P d x+Q d y=0$ 이라 하면
+$\frac{\partial Q}{\partial x}=a e^{a x} y^{b}, \frac{\partial P}{\partial y}=e^{a x}\left[(b+1) y^{b}-(b+4) y^{b+3}\right]$ 이므로
+$$a e^{a x} y^{b}=e^{a x}\left[(b+1) y^{b}-(b+4) y^{b+3}\right]$$
+$\Leftrightarrow a y^{b}=(b+1) y^{b}-(b+4) y^{b+3}$ 이다.
+$a=b+1, b+4=0 \Leftrightarrow a=-3, b=-4$ 이므로
+$e^{-3 x} y^{-4}\left(y-y^{4}\right) d x+e^{-3 x} y^{-4} d y=0$ 은 완전형 미분방정식 이다.
+따라서 해는 $-\frac{1}{3} e^{-3 x}\left(y^{-3}-1\right)=C$ 이고, $y(0)=1$ 이므로 $C=0$ 이다. 이때, $x=1$ 이면 $y=1$ 이다.
+즉, $a \times b \times y(1)=(-3) \times(-4) \times 1=12$
+20) $\binom{x^{\prime}(t)}{y^{\prime}(t)}=\left(\begin{array}{cc}0 & -1 \\ 1 & 0\end{array}\right)\binom{x(t)}{y(t)}+\binom{0}{2 \sin t}$
+$\Leftrightarrow x^{\prime}(t)=-y(t), y^{\prime}(t)=x(t)+2 \sin t$ 이므로 $y^{\prime}(t)=-x^{\prime \prime}(t)$ 을 대입하면 $x^{\prime \prime}(t)+x(t)=-2 \sin t$ 이다.
+$\left(D^{2}+1\right)_{x}=-2 \sin t$ 이므로 $x_{c}(t)=c_{1} \cos t+c_{2} \sin t$ 이고,
+$x_{p}(t)=\frac{1}{D^{2}+1} \times-2 \sin t=t \cos t$ 이다.
+$x(t)=c_{1} \cos t+c_{2} \sin t+t \cos t$ 이므로 $x(0)=2 \pi, x^{\prime}(0)=0$ 을 대입하면 $c_{1}=2 \pi, c_{2}=-1$ 이다.
+따라서 $x(t)=2 \pi \cos t-\sin t+t \cos t$ 을 대입하면,
+$y(t)=-x^{\prime}(t)=2 \pi \sin t+t \sin t$ 이다.
+즉, $x(2 \pi)+y\left(\frac{\pi}{2}\right)=\frac{13}{2} \pi$
+답 : (4)
+21) $e^{x} \frac{d y}{d x}+x y^{2}=0 \Leftrightarrow x e^{-x} d x+\frac{1}{y^{2}} d y=0$ 은 변수분리형이므로
+$$\begin{aligned}
+& \int x e^{-x} d x+\int \frac{1}{y^{2}} d y=C \Leftrightarrow-x e^{-x}-e^{-x}-\frac{1}{y}=C \\
+& \Leftrightarrow y=\frac{1}{-x e^{-x}-e^{-x}-C} \text { 이다. }
+\end{aligned}$$
+
+이때, $\lim _{x \rightarrow \infty} y(x)=\frac{1}{2}$ 이므로 $C=-2$ 이다.
+즉, $y=\frac{1}{-x e^{-x}-e^{-x}+2}$ 이므로 $y(0)=1$ 이다.
+답 : (5)
+22) $y^{\prime \prime}+y=\sin x$ 은 $\left(D^{2}+1\right) y=\sin x$ 이므로
+$y_{c}=c_{1} \cos x+c_{2} \sin x$ 이고, $y_{p}=\frac{1}{D^{2}+1} \sin x=-\frac{x}{2} \cos x$
+이다. 따라서 $y=c_{1} \cos x+c_{2} \sin x-\frac{x}{2} \cos x$ 이고,
+$y(0)=0, y^{\prime}(0)=0$ 이므로 $c_{1}=0, c_{2}=\frac{1}{2}$ 이다.
+즉, $y=\frac{1}{2} \sin x-\frac{x}{2} \cos x$ 이므로 $y\left(\frac{\pi}{2}\right)=\frac{1}{2}$ 이다.
+답 : (5)
+23) $f(t)=L^{-1}\left(\frac{4}{\left(s^{2}+4\right)^{2}}\right)=L^{-1}\left(\frac{2}{s^{2}+4}\right) * L^{-1}\left(\frac{2}{s^{2}+4}\right)$
+$$=\sin 2 t * \sin 2 t=-\frac{1}{2}\left(t \cos 2 t-\frac{1}{2} \sin 2 t\right)$$
+
+이므로 $f\left(\frac{\pi}{4}\right)=\frac{1}{4}$ 이다.
+답 : (4)
+24) $|a \times b|=a \cdot b$
+$\Rightarrow|a||b| \sin \theta=|a||b| \cos \theta$
+$\Rightarrow \sin \theta=\cos \theta$ ( ∵ 단위벡터)
+이므로 $0 \leq \theta \leq \pi$ 에서 $\theta=\frac{\pi}{4}$ 이다.
+![](https://cdn.mathpix.com/cropped/c138900b-e125-4a34-bac6-acd75b6d2587-3.jpg?height=295&width=275&top_left_y=2323&top_left_x=1389)
+$|a-\sqrt{2} b|^{2}=1^{2}+\sqrt{2^{2}}-2 \times 1 \times \sqrt{2} \times \cos \frac{\pi}{4}=1$ 이므로 $|a-\sqrt{2} b|=1$ 이다.
+25) 1) 임계점
+$f_{x}=2 x+2 x y=2 x(1+y)=0, f_{y}=2 y+x^{2}=0$ 을
+만족하는 임계점은 $(0,0)$ 이며 $f(0,0)=4$ 이다.
+2) 경계
+(1) $x=1,-1 \leq y \leq 1$ 이면 $g(y)=y^{2}+y+5$ 이고, $g^{\prime}\left(-\frac{1}{2}\right)=0$ 이므로 $g\left(-\frac{1}{2}\right)=\frac{19}{4}, g(-1)=5, g(1)=7$ 이다.
+(2) $x=-1,-1 \leq y \leq 1$ 이면 $g(y)=y^{2}+y+5$ 이므로 (1)과 동일하다.
+(3) $y=1,-1 \leq x \leq 1$ 이면 $g(x)=2 x^{2}+5$ 이고, $g^{\prime}(0)=0$ 이므로 $g(0)=5, g(-1)=g(1)=7$ 이다.
+(4) $y=-1,-1 \leq x \leq 1$ 이면 $g(x)=5$
+[참고] $f(1,1)=7, f(1,-1)=5, f(-1,1)=7, f(-1,-1)=5$ 이다.
+
+즉, 임계점과 경계를 확인해보면, 최댓값은 7 이고, 최솟값은 4 이다.
+
+답 : (3)
+26) ㄱ. 실수성분을 갖는 $A$ 가 대각화 가능한 행렬이지만 대칭행렬은 아닌 경우가 있다. 따라서 $A$ 의 일차독립인 고유벡터 집합은 항상 정규직교집합이라고 할 수 없다.
+(거짓)
+ᄂ. 가역행렬 $A$ 가 직교대각화 가능하면 $A$ 는 대칭행렬이다.
+이때, $\left(A^{-1}\right)^{T}=\left(A^{T}\right)^{-1}=A^{-1}$ 이므로 $A^{-1}$ 도 대칭행렬 이다.
+따라서 $A^{-1}$ 은 직교대각화가 가능하다. (참)
+ᄃ. $A$ 의 서로 다른 $n$ 개의 고윳값이 모두 0 이상이면
+$A=P\left(\begin{array}{cccc}\lambda_{1} & 0 & 0 & 0 \\ 0 & \lambda_{2} & 0 & 0 \\ 0 & 0 & \ddots & 0 \\ 0 & 0 & 0 & \lambda_{n}\end{array}\right) P^{-1}=B^{2}$ 이다.
+그러므로 $B^{2}$ 의 고유치가 $\lambda_{1}, \lambda_{2}, \cdots, \lambda_{n}$ 이므로
+$B$ 의 고유치가 $\sqrt{\lambda_{1}}, \sqrt{\lambda_{2}}, \cdots, \sqrt{\lambda_{n}}$ 이다.
+또는 $B$ 의 고유치가 $-\sqrt{\lambda_{1}}, \sqrt{\lambda_{2}}, \cdots, \sqrt{\lambda_{n}}$ 이다.
+즉, 부호는 $\pm$ 로 바껠수 있지만, $n$ 개의 서로다른 고유값이 존재한다.
+따라서 대각화가 가능하므로
+$B=P\left(\begin{array}{cccc} \pm \sqrt{\lambda_{1}} & 0 & 0 & 0 \\ 0 & \pm \sqrt{\lambda_{2}} & 0 & 0 \\ 0 & 0 & \ddots & 0 \\ 0 & 0 & 0 \pm \sqrt{\lambda_{n}}\end{array}\right) P^{-1}$ 가 존재한다. (참)
+
+ㄹ. $A, B$ 가 직교대각화 가능하므로 $A$ 와 $B$ 는 대칭행렬이고 $A B=B A$ 을 만족하면,
+$(A B)^{T}=B^{T} A^{T}=B A=A B$ 이므로 $A B$ 도 대칭행렬이다.
+따라서 $A B$ 도 직교대각화 가능하다. (참)
+답 : (4)
+27) $s=\int_{0}^{t} \sqrt{\left(3 e^{x} \sin x+3 e^{x} \cos x\right)^{2}+\left(3 e^{x} \cos x-3 e^{x} \sin x\right)^{2}} d x$
+$$(0 \leq t<\infty)$$
+$=\int_{0}^{t} \sqrt{18 e^{2 x}} d x=3 \sqrt{2} \int_{0}^{t} e^{x} d x=3 \sqrt{2}\left(e^{t}-1\right)$ 이므로
+$e^{t}=\frac{s}{3 \sqrt{2}}+1 \Leftrightarrow t=\ln \left(\frac{s}{3 \sqrt{2}}+1\right)$ 이다.
+따라서
+$$\begin{aligned}
+r(t(s))=\left(3+\frac{s}{\sqrt{2}}\right) \sin ( & \left.\ln \left(\left(1+\frac{s}{3 \sqrt{2}}\right)\right)\right) i \\
+& +\left(3+\frac{s}{\sqrt{2}}\right) \cos \left(\ln \left(\left(1+\frac{s}{3 \sqrt{2}}\right)\right)\right) j
+\end{aligned}$$
+
+이고, $a+b+c+d=3+1+3+1=8$ 이다.
+답 : (2)
+28) $C: x^{2}+y^{2}=1$ 의 내부영역을 $D: x^{2}+y^{2} \leq 1$ 이라 하면
+$$\begin{aligned}
+\oint_{C} \vec{F} \cdot \vec{n} d s & =\iint_{D} d i v F d x d y(\because \text { 발산정리 }) \\
+& =\iint_{D} 3 x^{2}+3 y^{2} d x d y=\int_{0}^{2 \pi} \int_{0}^{1} 3 r^{3} d r d \theta \\
+& =\frac{3}{2} \pi
+\end{aligned}$$
+
+답 : (5)
+29) $\iint_{D} x y d A=\int_{0}^{2} \int_{y^{2}}^{y+2} x y d x d y=\frac{1}{2} \int_{0}^{2} y\left[x^{2}\right]_{y^{2}}^{y+2} d y$
+$$\begin{aligned}
+& =\frac{1}{2} \int_{0}^{2} y\left(y^{2}+4 y+4-y^{4}\right) d y \\
+& =\frac{1}{2} \int_{0}^{2} y\left(y^{2}+4 y+4-y^{4}\right) d y=6
+\end{aligned}$$
+
+답 : (4)
+30) $A(w)=\int_{-\infty}^{\infty} f(x) \cos (w x) d x=2 \int_{0}^{\infty} e^{-x} \cos (w x) d x$
+$$=\left.\frac{2 s}{s^{2}+w^{2}}\right|_{s=1}=\frac{2}{w^{2}+1}$$

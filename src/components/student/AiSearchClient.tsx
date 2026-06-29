@@ -1,16 +1,36 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
+import { ProblemImageEditor } from "@/components/student/ProblemImageEditor";
+import {
+  blobToBase64,
+  dataUrlToBlob,
+  normalizeImageBlob,
+  renderPdfPage,
+  rotateImageBlob,
+  type NormalizedImage,
+  type PreparedProblemImage,
+} from "@/lib/images/problemImage";
 
 type Extracted = {
+  rawTranscription?: string;
   problemText: string;
+  options?: Array<{ label: string; text: string }>;
+  figureDescription?: string;
   subject: string;
   unit: string;
   concept: string;
   difficulty: string;
   keywords: string[];
+  recognition?: {
+    complete: boolean;
+    confidence: number;
+    visibleOptionCount: number;
+    missingParts: string[];
+    notes: string;
+  };
 };
 
 type Option = { id: string; label: string; text: string; contentType?: string | null; image?: string | null };
@@ -36,28 +56,27 @@ type MatchItem = {
 type ChatTurn = { role: "user" | "assistant"; content: string };
 type AnswerState = { selected: string | null; revealed: boolean };
 
-function fileToBase64(file: File): Promise<{ base64: string; mediaType: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result);
-      const comma = result.indexOf(",");
-      const meta = result.slice(0, comma);
-      const data = result.slice(comma + 1);
-      const mediaType = meta.match(/data:(.*?);/)?.[1] ?? file.type;
-      resolve({ base64: data, mediaType });
-    };
-    reader.onerror = () => reject(new Error("파일을 읽지 못했습니다."));
-    reader.readAsDataURL(file);
-  });
+type ImageSource = NormalizedImage & {
+  url: string;
+  name: string;
+  pdfFile?: File;
+  pageNumber?: number;
+  pageCount?: number;
+};
+
+function hasExtension(file: File, extensions: string[]): boolean {
+  const name = file.name.toLowerCase();
+  return extensions.some((extension) => name.endsWith(extension));
 }
 
 export function AiSearchClient() {
   const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [pending, setPending] = useState<File | null>(null);
+  const [source, setSource] = useState<ImageSource | null>(null);
+  const [prepared, setPrepared] = useState<PreparedProblemImage | null>(null);
+  const [inputLoading, setInputLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [recognitionWarning, setRecognitionWarning] = useState("");
   const [extracted, setExtracted] = useState<Extracted | null>(null);
   const [matches, setMatches] = useState<MatchItem[]>([]);
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
@@ -72,36 +91,156 @@ export function AiSearchClient() {
   const [input, setInput] = useState("");
   const [asking, setAsking] = useState(false);
 
-  function pickFile(file: File | null) {
-    if (!file) return;
-    setPending(file);
+  const debugImages = process.env.NODE_ENV !== "production";
+
+  function clearResults() {
+    setExtracted(null);
+    setMatches([]);
+    setAnswers({});
+    setChat([]);
+    setSolution(null);
+    setRecognitionWarning("");
+  }
+
+  const commitSource = useCallback(
+    (
+      image: NormalizedImage,
+      name: string,
+      pdf?: { file: File; pageNumber: number; pageCount: number }
+    ) => {
+      const url = URL.createObjectURL(image.blob);
+      setSource({
+        ...image,
+        url,
+        name,
+        pdfFile: pdf?.file,
+        pageNumber: pdf?.pageNumber,
+        pageCount: pdf?.pageCount,
+      });
+      setPrepared(null);
+      clearResults();
+    },
+    []
+  );
+
+  const loadFile = useCallback(
+    async (file: File | null) => {
+      if (!file) return;
+      setInputLoading(true);
+      setError("");
+      try {
+        if (hasExtension(file, [".hwp", ".hwpx"])) {
+          throw new Error(
+            "HWP/HWPX 원본은 브라우저에서 직접 열 수 없습니다. 한컴오피스에서 PDF 또는 PNG/JPG로 내보낸 뒤 업로드해 주세요."
+          );
+        }
+
+        const isPdf = file.type === "application/pdf" || hasExtension(file, [".pdf"]);
+        if (isPdf) {
+          const page = await renderPdfPage(file, 1);
+          commitSource(page, file.name, {
+            file,
+            pageNumber: page.pageNumber,
+            pageCount: page.pageCount,
+          });
+          return;
+        }
+
+        const image = await normalizeImageBlob(file);
+        commitSource(image, file.name || "clipboard-image.png");
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "이미지를 읽지 못했습니다.");
+      } finally {
+        setInputLoading(false);
+        if (fileRef.current) fileRef.current.value = "";
+      }
+    },
+    [commitSource]
+  );
+
+  useEffect(() => {
+    return () => {
+      if (source?.url) URL.revokeObjectURL(source.url);
+    };
+  }, [source]);
+
+  async function loadPdfPage(pageNumber: number) {
+    if (!source?.pdfFile || inputLoading) return;
+    setInputLoading(true);
     setError("");
-    setPreview(URL.createObjectURL(file));
+    try {
+      const page = await renderPdfPage(source.pdfFile, pageNumber);
+      commitSource(page, source.name, {
+        file: source.pdfFile,
+        pageNumber: page.pageNumber,
+        pageCount: page.pageCount,
+      });
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "PDF 페이지를 읽지 못했습니다.");
+    } finally {
+      setInputLoading(false);
+    }
+  }
+
+  async function rotateSource() {
+    if (!source || inputLoading) return;
+    setInputLoading(true);
+    setError("");
+    try {
+      const rotated = await rotateImageBlob(source.blob);
+      commitSource(rotated, source.name, source.pdfFile && source.pageNumber && source.pageCount
+        ? { file: source.pdfFile, pageNumber: source.pageNumber, pageCount: source.pageCount }
+        : undefined);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "이미지를 회전하지 못했습니다.");
+    } finally {
+      setInputLoading(false);
+    }
   }
 
   // 클립보드 붙여넣기(Ctrl+V)
   useEffect(() => {
     function onPaste(e: ClipboardEvent) {
-      const items = e.clipboardData?.items;
-      if (!items) return;
-      for (let i = 0; i < items.length; i++) {
-        const it = items[i];
-        if (it.kind === "file" && it.type.startsWith("image/")) {
-          const file = it.getAsFile();
-          if (file) {
-            pickFile(file);
-            e.preventDefault();
-            break;
-          }
+      const clipboard = e.clipboardData;
+      if (!clipboard) return;
+
+      const files = Array.from(clipboard.files);
+      const pastedFile = files.find(
+        (file) =>
+          file.type.startsWith("image/") ||
+          file.type === "application/pdf" ||
+          hasExtension(file, [".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff", ".pdf"])
+      );
+      if (pastedFile) {
+        e.preventDefault();
+        void loadFile(pastedFile);
+        return;
+      }
+
+      for (const item of Array.from(clipboard.items)) {
+        if (item.kind !== "file") continue;
+        const file = item.getAsFile();
+        if (file) {
+          e.preventDefault();
+          void loadFile(file);
+          return;
         }
       }
+
+      const html = clipboard.getData("text/html");
+      const src = html.match(/<img[^>]+src=["']([^"']+)["']/i)?.[1];
+      if (!src) return;
+      e.preventDefault();
+      void dataUrlToBlob(src)
+        .then((blob) => new File([blob], "clipboard-image", { type: blob.type || "image/png" }))
+        .then(loadFile)
+        .catch(() => setError("클립보드 이미지를 읽지 못했습니다. 이미지 파일로 저장한 뒤 업로드해 주세요."));
     }
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadFile]);
 
-  async function solve(problem: { problemText: string; subject: string; unit: string }) {
+  async function solve(problem: Extracted) {
     setSolving(true);
     setSolution(null);
     try {
@@ -119,19 +258,45 @@ export function AiSearchClient() {
   }
 
   async function runSearch() {
-    if (!pending || loading) return;
+    if (!prepared || loading) return;
     setLoading(true);
     setError("");
+    setRecognitionWarning("");
     setExtracted(null);
     setMatches([]);
     setAnswers({});
     setChat([]);
     setSolution(null);
     try {
-      const { base64, mediaType } = await fileToBase64(pending);
+      const base64 = await blobToBase64(prepared.blob);
+      if (debugImages) {
+        console.groupCollapsed("[AI search image]");
+        console.table({
+          cropWidth: prepared.cropSize.width,
+          cropHeight: prepared.cropSize.height,
+          outputWidth: prepared.outputSize.width,
+          outputHeight: prepared.outputSize.height,
+          mimeType: prepared.mediaType,
+          bytes: prepared.blob.size,
+        });
+        console.log("selection", prepared.selection);
+        console.log("preprocessing", prepared.preprocessing);
+        console.groupEnd();
+      }
       const res = await adminFetch("/api/search", {
         method: "POST",
-        body: JSON.stringify({ imageBase64: base64, mediaType }),
+        body: JSON.stringify({
+          imageBase64: base64,
+          mediaType: prepared.mediaType,
+          debug: debugImages
+            ? {
+                selection: prepared.selection,
+                cropSize: prepared.cropSize,
+                outputSize: prepared.outputSize,
+                preprocessing: prepared.preprocessing,
+              }
+            : undefined,
+        }),
       });
       const json = await res.json();
       if (!json.ok) {
@@ -140,9 +305,10 @@ export function AiSearchClient() {
       }
       const ex = json.extracted as Extracted;
       setExtracted(ex);
+      setRecognitionWarning(typeof json.recognitionWarning === "string" ? json.recognitionWarning : "");
       setMatches((json.matches ?? []) as MatchItem[]);
       // 토글이 켜져 있을 때만 검색과 함께 AI 풀이 생성
-      if (withSolution) solve({ problemText: ex.problemText, subject: ex.subject, unit: ex.unit });
+      if (withSolution) solve(ex);
     } catch (e) {
       setError(e instanceof Error ? e.message : "검색 중 오류가 발생했습니다.");
     } finally {
@@ -184,6 +350,9 @@ export function AiSearchClient() {
         body: JSON.stringify({
           problem: {
             problemText: extracted.problemText,
+            rawTranscription: extracted.rawTranscription,
+            options: extracted.options?.map((option) => `${option.label} ${option.text}`).join("\n"),
+            figureDescription: extracted.figureDescription,
             subject: extracted.subject,
             unit: extracted.unit,
             solution: solution && !solution.startsWith("⚠️") ? solution : undefined,
@@ -223,14 +392,49 @@ export function AiSearchClient() {
             <input
               ref={fileRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/*,application/pdf,.pdf,.hwp,.hwpx"
               className="hidden"
-              onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => void loadFile(e.target.files?.[0] ?? null)}
             />
-            {preview ? (
+            {source ? (
               <div className="space-y-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={preview} alt="업로드한 문제" className="mx-auto max-h-72 rounded-lg border border-line" />
+                {source.pdfFile && source.pageNumber && source.pageCount ? (
+                  <div className="flex items-center justify-between rounded-lg border border-line bg-slate-50 px-3 py-2">
+                    <button
+                      type="button"
+                      disabled={inputLoading || source.pageNumber <= 1}
+                      onClick={() => void loadPdfPage(source.pageNumber! - 1)}
+                      className="rounded border border-line bg-white px-3 py-1.5 text-xs font-black disabled:opacity-40"
+                    >
+                      이전 페이지
+                    </button>
+                    <span className="text-xs font-bold text-slate-600">
+                      PDF {source.pageNumber} / {source.pageCount} 페이지
+                    </span>
+                    <button
+                      type="button"
+                      disabled={inputLoading || source.pageNumber >= source.pageCount}
+                      onClick={() => void loadPdfPage(source.pageNumber! + 1)}
+                      className="rounded border border-line bg-white px-3 py-1.5 text-xs font-black disabled:opacity-40"
+                    >
+                      다음 페이지
+                    </button>
+                  </div>
+                ) : null}
+                <ProblemImageEditor
+                  sourceBlob={source.blob}
+                  sourceUrl={source.url}
+                  sourceSize={{ width: source.width, height: source.height }}
+                  sourceMeta={{
+                    sourceWidth: source.sourceWidth,
+                    sourceHeight: source.sourceHeight,
+                    sourceType: source.sourceType,
+                    scaledDown: source.scaledDown,
+                  }}
+                  debug={debugImages}
+                  onPrepared={setPrepared}
+                  onRotate={() => void rotateSource()}
+                />
                 <label className="flex cursor-pointer items-center justify-between rounded-lg border border-line px-3 py-2.5">
                   <span className="flex items-center gap-1.5 text-sm font-bold text-slate-600">🧠 AI 풀이도 함께 생성</span>
                   <input
@@ -246,15 +450,15 @@ export function AiSearchClient() {
                     onClick={() => fileRef.current?.click()}
                     className="flex-1 rounded-md border border-line py-2.5 text-sm font-black text-slate-600 hover:bg-slate-50"
                   >
-                    다른 이미지
+                    다른 파일
                   </button>
                   <button
                     type="button"
                     onClick={runSearch}
-                    disabled={loading}
+                    disabled={loading || inputLoading || !prepared}
                     className="flex-[2] rounded-md bg-brand-600 py-2.5 text-sm font-black text-white hover:bg-brand-700 disabled:opacity-50"
                   >
-                    {loading ? "분석 중..." : "이 문제로 검색"}
+                    {loading ? "분석 중..." : inputLoading || !prepared ? "이미지 준비 중..." : "이 문제로 검색"}
                   </button>
                 </div>
               </div>
@@ -265,14 +469,24 @@ export function AiSearchClient() {
                 className="flex w-full flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center hover:border-brand-400"
               >
                 <span className="text-3xl">📷</span>
-                <span className="text-sm font-bold text-slate-600">문제 이미지를 업로드하거나 붙여넣으세요</span>
-                <span className="text-xs text-slate-400">PNG · JPG · WEBP · 클립보드 붙여넣기(Ctrl+V) 가능</span>
+                <span className="text-sm font-bold text-slate-600">
+                  {inputLoading ? "문서를 읽는 중입니다..." : "문제 이미지나 PDF를 업로드하거나 붙여넣으세요"}
+                </span>
+                <span className="text-xs text-slate-400">
+                  PNG · JPG · WEBP · PDF · 클립보드 붙여넣기(Ctrl+V)
+                </span>
+                <span className="text-[11px] text-slate-400">HWP/HWPX는 한컴오피스에서 PDF 또는 이미지로 내보내 주세요.</span>
               </button>
             )}
           </section>
 
           {error ? (
             <div className="mt-4 rounded-md bg-coral-50 px-4 py-3 text-sm font-bold text-coral-600">{error}</div>
+          ) : null}
+          {recognitionWarning ? (
+            <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-800">
+              {recognitionWarning}
+            </div>
           ) : null}
 
           {/* 인식된 문제 */}
@@ -282,6 +496,21 @@ export function AiSearchClient() {
               <div className="mt-2 text-sm leading-7 text-ink">
                 <ContentRenderer contentType="latex" text={extracted.problemText} />
               </div>
+              {extracted.options?.length ? (
+                <div className="mt-3 space-y-1 rounded-lg border border-brand-100 bg-white/70 p-3 text-sm text-ink">
+                  {extracted.options.map((option, index) => (
+                    <div key={`${option.label}-${index}`} className="flex gap-2">
+                      <span className="font-black text-brand-700">{option.label}</span>
+                      <ContentRenderer contentType="latex" text={option.text} />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              {extracted.figureDescription ? (
+                <p className="mt-3 rounded-lg bg-white/70 px-3 py-2 text-xs leading-6 text-slate-600">
+                  그림/표: {extracted.figureDescription}
+                </p>
+              ) : null}
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {[extracted.subject, extracted.unit, extracted.concept, extracted.difficulty]
                   .filter(Boolean)
@@ -296,7 +525,7 @@ export function AiSearchClient() {
 
           {/* AI 풀이 */}
           {extracted ? (
-            <section className="mt-6 rounded-2xl border border-mint-200 bg-white shadow-soft">
+            <section data-print-section="true" className="mt-6 rounded-2xl border border-mint-200 bg-white shadow-soft">
               <div className="flex items-center gap-2 border-b border-line bg-mint-50 px-5 py-3">
                 <span className="text-lg">🧠</span>
                 <p className="text-sm font-black text-mint-800">AI 풀이</p>
@@ -309,7 +538,7 @@ export function AiSearchClient() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => solve({ problemText: extracted.problemText, subject: extracted.subject, unit: extracted.unit })}
+                    onClick={() => solve(extracted)}
                     className="w-full rounded-md bg-mint-600 py-2.5 text-sm font-black text-white hover:bg-mint-700"
                   >
                     🧠 AI 풀이 생성하기
@@ -335,7 +564,11 @@ export function AiSearchClient() {
                     const isMC = m.question_type !== "subjective" && Array.isArray(m.options) && m.options.length > 0;
                     const isRight = a.selected === m.correct_option_id;
                     return (
-                      <li key={m.id} className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft">
+                      <li
+                        key={m.id}
+                        data-print-card="true"
+                        className="overflow-hidden rounded-2xl border border-line bg-white shadow-soft"
+                      >
                         <div className="flex flex-wrap items-center gap-2 border-b border-line bg-slate-50 px-4 py-2.5 text-xs">
                           <span className="rounded-full bg-brand-600 px-2.5 py-0.5 font-black text-white">문제 {i + 1}</span>
                           <span className="rounded-full bg-white px-2 py-0.5 font-bold text-slate-600 ring-1 ring-line">{m.subject}</span>
@@ -403,7 +636,7 @@ export function AiSearchClient() {
                               {isMC ? "정답 확인" : "정답·해설 보기"}
                             </button>
                           ) : (
-                            <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
+                            <div data-print-card="true" className="mt-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3">
                               {isMC ? (
                                 <p className={`text-sm font-black ${isRight ? "text-mint-700" : "text-coral-600"}`}>
                                   {isRight ? "정답입니다! 🎉" : "오답이에요."} 정답: {correct?.label ?? m.correct_option_id}

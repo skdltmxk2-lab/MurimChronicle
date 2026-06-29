@@ -14,7 +14,7 @@ const YEAR="2022", SCHOOL_KO="한양대", SCHOOL_EN="hanyang";
 const PROBLEMS = [
   {n:22, subject:"적분학", unit:"정적분의 응용", concept:"파푸스 회전체 표면적",
     difficulty:"hard",
-    question:"아래 그림에서 원 $(x-15)^2+y^2=5^2$의 호 $C$를 $y$축 중심으로 회전하여 얻은 곡면의 넓이가 $a\\pi+b\\pi^2$일 때, $a+b$의 값을 구하시오. (단, $a,b$는 정수이다.) 호 $C$는 1사분면에서 원의 중심으로부터 각도 $0$에서 $\\dfrac{\\pi}{6}$까지의 부분이다.",
+    question:"원 $(x-15)^2+y^2=5^2$에서 1사분면에 있고 원의 중심으로부터 각도 $0$에서 $\\dfrac{\\pi}{6}$까지인 호 $C$를 $y$축 중심으로 회전하여 얻은 곡면의 넓이가 $a\\pi+b\\pi^2$일 때, $a+b$의 값을 구하시오. (단, $a,b$는 정수이다.)",
     answer:"$50$",
     explanation:"호의 매개변수화: $\\vec{r}(\\theta)=(15+5\\cos\\theta,\\,5\\sin\\theta),\\,0\\le\\theta\\le\\dfrac{\\pi}{6}$, $ds=5\\,d\\theta$.\n$y$축 회전 표면적: $S=2\\pi\\!\\int_0^{\\pi/6}(15+5\\cos\\theta)\\cdot 5\\,d\\theta=10\\pi[15\\theta+5\\sin\\theta]_0^{\\pi/6}=10\\pi\\!\\left(\\dfrac{5\\pi}{2}+\\dfrac{5}{2}\\right)=25\\pi^2+25\\pi$.\n$a=25,\\,b=25$, $a+b=50$.",
   },

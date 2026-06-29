@@ -1,0 +1,350 @@
+{
+  "title": "For2026 실전 워밍업 모의고사 1회",
+  "schoolSlug": "",
+  "year": "2026",
+  "idPrefix": "q-warmup-for2026-r1-",
+  "source": "For2026 실전 워밍업 모의고사 1회 (4지선다, 20문항, 50분) — Mathpix OCR",
+  "createdAt": "2026-05-17",
+  "problems": [
+    {
+      "id": "q-warmup-for2026-r1-01",
+      "subject": "미분학",
+      "unit": "극한",
+      "concept": "L'Hospital + 1^∞ 형 극한 분해",
+      "difficulty": "hard",
+      "question": "$\\displaystyle\\lim_{x\\to 1}\\!\\left(\\dfrac{x}{x-1}-\\dfrac{1}{\\ln x}+(2-x)^{\\tan\\!\\left(\\frac{\\pi x}{2}\\right)}\\right)$의 값을 구하면?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{1}{2}+e^{2/\\pi}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{1}{2}-e^{\\pi/2}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$-\\dfrac{1}{2}-e^{2/\\pi}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"발산","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "1) $\\dfrac{x}{x-1}-\\dfrac{1}{\\ln x}$: $u=x-1$ 두면 $\\ln(1+u)=u-\\tfrac{u^2}{2}+\\cdots$, $\\dfrac{1}{\\ln(1+u)}=\\dfrac{1}{u}+\\dfrac{1}{2}+\\cdots$. 따라서 $\\dfrac{1+u}{u}-\\dfrac{1}{u}-\\dfrac{1}{2}=\\dfrac{1}{2}$.\n2) $(2-x)^{\\tan(\\pi x/2)}$ at $x=1$: $1^{\\infty}$형. $u=1-x$, $\\ln(2-x)\\approx u$, $\\tan(\\pi/2-\\pi u/2)=\\cot(\\pi u/2)\\approx \\dfrac{2}{\\pi u}$. 따라서 $\\ln(\\cdot)\\to \\dfrac{2}{\\pi}$, 극한 $=e^{2/\\pi}$.\n합: $\\dfrac{1}{2}+e^{2/\\pi}$.",
+      "tags": ["For2026","실전모의고사","워밍업","미분학","극한"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-02",
+      "subject": "미분학",
+      "unit": "접선",
+      "concept": "곱·몫의 미분으로 접선의 절편",
+      "difficulty": "medium",
+      "question": "곡선 $y=\\dfrac{x\\sqrt{x+1}}{x+2}$ 위의 점 $\\left(3,\\dfrac{6}{5}\\right)$에서의 접선의 $y$절편은?",
+      "options": [
+        {"id":"1","label":"1","text":"$-\\dfrac{100}{27}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{27}{100}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$-\\dfrac{100}{31}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{31}{100}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "2",
+      "explanation": "$f=x\\sqrt{x+1}$, $f'=\\dfrac{3x+2}{2\\sqrt{x+1}}$. 몫의 미분 $y'=\\dfrac{f'(x+2)-f}{(x+2)^2}$.\n$x=3$: $f'=\\dfrac{11}{4}$, $(x+2)f'=\\dfrac{55}{4}$, $f=6$. 분자 $=\\dfrac{55}{4}-6=\\dfrac{31}{4}$. 분모 $=25$. $y'(3)=\\dfrac{31}{100}$.\n접선: $y-\\dfrac{6}{5}=\\dfrac{31}{100}(x-3)$. $x=0$: $y=\\dfrac{6}{5}-\\dfrac{93}{100}=\\dfrac{27}{100}$.",
+      "tags": ["For2026","실전모의고사","워밍업","미분학","접선"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-03",
+      "subject": "미분학",
+      "unit": "매개변수 미분",
+      "concept": "속도벡터의 영점",
+      "difficulty": "medium",
+      "question": "곡선 $x=2\\sin t+\\cos 2t$, $y=-2\\cos t+\\sin 2t$를 따라 움직이는 물체의 속도가 $\\vec 0$이 되는 $t$값은? (단, $0\\le t\\le 2\\pi$)",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\pi}{6}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{\\pi}{2}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\dfrac{5\\pi}{6}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{3\\pi}{2}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "2",
+      "explanation": "$x'=2\\cos t-2\\sin 2t=2\\cos t(1-2\\sin t)$.\n$y'=2\\sin t+2\\cos 2t=-2(2\\sin t+1)(\\sin t-1)$.\n둘 다 $0$이려면 $\\cos t=0$ 또는 $\\sin t=\\tfrac{1}{2}$ AND $\\sin t=-\\tfrac{1}{2}$ 또는 $\\sin t=1$.\n공통: $\\cos t=0$이고 $\\sin t=1$ ⇒ $t=\\dfrac{\\pi}{2}$.",
+      "tags": ["For2026","실전모의고사","워밍업","미분학","매개변수"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-04",
+      "subject": "적분학",
+      "unit": "참거짓 종합",
+      "concept": "쌍곡함수·이상적분·급수·외적",
+      "difficulty": "hard",
+      "question": "다음 <보기> 중 참인 것의 개수는?\n\n(가) 모든 $x\\in\\mathbb{R}$에 대하여 $\\displaystyle\\int_0^x\\!\\left(\\dfrac{1+\\tanh(2t)}{1-\\tanh(2t)}\\right)^{\\!\\!1/4}\\!\\!dt=e^x-1$.\n(나) 이상적분 $\\displaystyle\\int_{-2}^{2}\\dfrac{x}{(x+2)^2}dx$는 수렴한다.\n(다) 무한급수 $\\displaystyle\\sum_{n=2}^{\\infty}\\dfrac{1}{(\\ln\\sqrt n)^{\\ln n}}$은 수렴한다.\n(라) $\\mathbb{R}^3$의 벡터 $a,b,c$에 대하여 $a+b+c=\\vec 0$이면 $a\\times b=c\\times a$이다.",
+      "options": [
+        {"id":"1","label":"1","text":"$1$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$2$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$3$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$4$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "(가) 참: $\\dfrac{1+\\tanh u}{1-\\tanh u}=\\dfrac{\\cosh u+\\sinh u}{\\cosh u-\\sinh u}=e^{2u}$. $u=2t$이므로 $e^{4t}$의 $1/4$승 $=e^t$. 적분 $=e^x-1$.\n(나) 거짓: 피적분함수가 $x=-2$ 근방에서 $\\sim -2/(x+2)^2$, 발산.\n(다) 참: $(\\tfrac{1}{2}\\ln n)^{\\ln n}=n^{\\ln(\\frac{1}{2}\\ln n)}$이며 충분히 큰 $n$에서 임의 다항보다 빠르게 증가.\n(라) 참: $c=-a-b$ → $c\\times a=(-a-b)\\times a=-b\\times a=a\\times b$.\n참: (가),(다),(라) → 3개.",
+      "tags": ["For2026","실전모의고사","워밍업","종합","참거짓"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-05",
+      "subject": "적분학",
+      "unit": "삼각치환·반각치환",
+      "concept": "$t=\\tan(x/2)$ 치환",
+      "difficulty": "medium",
+      "question": "정적분 $\\displaystyle\\int_0^{\\pi/2}\\dfrac{1}{\\sin x+\\cos x+1}dx$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\ln 2$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\ln 3$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\ln 4$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\ln 5$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "$t=\\tan(x/2)$: $\\sin x+\\cos x+1=\\dfrac{2(t+1)}{1+t^2}$, $dx=\\dfrac{2}{1+t^2}dt$.\n피적분 $\\cdot dx=\\dfrac{1}{t+1}dt$. 한계 $t:0\\to 1$.\n$\\displaystyle\\int_0^1\\dfrac{dt}{t+1}=\\ln 2$.",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","유리화"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-06",
+      "subject": "적분학",
+      "unit": "삼각치환",
+      "concept": "$x=3\\sec\\theta$",
+      "difficulty": "medium",
+      "question": "$\\displaystyle\\int_{3\\sqrt 2}^{6}\\dfrac{\\sqrt{x^2-9}}{x^3}dx$의 값을 구하면?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{1}{72}(\\pi+3\\sqrt 3+6)$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{1}{72}(\\pi-3\\sqrt 3-6)$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\dfrac{1}{72}(\\pi-3\\sqrt 3+6)$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{1}{72}(\\pi+3\\sqrt 3-6)$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "$x=3\\sec\\theta$: $\\sqrt{x^2-9}=3\\tan\\theta$, 피적분 $\\cdot dx=\\dfrac{\\sin^2\\theta}{3}d\\theta=\\dfrac{1-\\cos 2\\theta}{6}d\\theta$.\n원시함수: $\\dfrac{\\theta-\\sin\\theta\\cos\\theta}{6}$.\n한계: $\\theta:\\dfrac{\\pi}{4}\\to\\dfrac{\\pi}{3}$. 값: $\\dfrac{1}{6}\\!\\left[(\\tfrac{\\pi}{3}-\\tfrac{\\sqrt 3}{4})-(\\tfrac{\\pi}{4}-\\tfrac{1}{2})\\right]=\\dfrac{\\pi-3\\sqrt 3+6}{72}$.",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","삼각치환"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-07",
+      "subject": "적분학",
+      "unit": "곡선의 길이",
+      "concept": "$1+(f')^2$가 완전제곱",
+      "difficulty": "medium",
+      "question": "함수 $f$가 $x>1$일 때 $f''(x)=\\dfrac{x}{\\sqrt{x^2-1}}$, $f'(3)=2\\sqrt 2$를 만족시킨다. $x\\in[2,4]$일 때 $f$의 그래프 길이는?",
+      "options": [
+        {"id":"1","label":"1","text":"$4$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$6$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$8$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$9$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "2",
+      "explanation": "$f'=\\sqrt{x^2-1}+C$. $f'(3)=\\sqrt 8+C=2\\sqrt 2$ ⇒ $C=0$.\n$1+(f')^2=1+x^2-1=x^2$, $\\sqrt{}=x$.\n$L=\\!\\displaystyle\\int_2^4 x\\,dx=\\dfrac{16-4}{2}=6$.",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","곡선의길이"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-08",
+      "subject": "적분학",
+      "unit": "역함수 적분",
+      "concept": "$\\int f+\\int g=ab$ 공식",
+      "difficulty": "easyMedium",
+      "question": "연속인 순증가함수 $f:[0,2]\\to[0,4]$이 $f(0)=0$, $f(2)=4$, $\\displaystyle\\int_0^2 (f(x)+x)dx=6$을 만족시킨다. $g$가 $f$의 역함수일 때, $\\displaystyle\\int_0^4 g(y)dy$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$1$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$2$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$3$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$4$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "4",
+      "explanation": "역함수 공식: $\\displaystyle\\int_0^2 f+\\int_0^4 g=2\\cdot 4=8$.\n조건: $\\int_0^2 f=6-\\int_0^2 x=6-2=4$.\n$\\int_0^4 g=8-4=4$.",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","역함수"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-09",
+      "subject": "적분학",
+      "unit": "극좌표 호의 길이",
+      "concept": "심장형+원의 공통영역 둘레",
+      "difficulty": "hard",
+      "question": "두 극곡선 $r=3\\cos\\theta$와 $r=1+\\cos\\theta$에 의해 둘러싸인 공통 영역의 둘레의 길이는?",
+      "options": [
+        {"id":"1","label":"1","text":"$2\\pi+2$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\pi+2$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\pi+4$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$2\\pi+4$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "교점: $3\\cos\\theta=1+\\cos\\theta$ ⇒ $\\cos\\theta=\\dfrac{1}{2}$, $\\theta=\\pm\\dfrac{\\pi}{3}$.\n$|\\theta|\\le\\dfrac{\\pi}{3}$: 안쪽=심장형. $|\\theta|\\in[\\dfrac{\\pi}{3},\\dfrac{\\pi}{2}]$: 안쪽=원.\n심장형 호: $\\sqrt{r^2+r'^2}=2\\cos(\\theta/2)$. $\\!\\int_{-\\pi/3}^{\\pi/3}2\\cos(\\theta/2)d\\theta=4$.\n원 호: $\\sqrt{}=3$. $2\\!\\int_{\\pi/3}^{\\pi/2}3\\,d\\theta=\\pi$.\n합: $4+\\pi$.",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","극좌표"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-10",
+      "subject": "적분학",
+      "unit": "극좌표 면적",
+      "concept": "$r=\\theta$ 아르키메데스 나선",
+      "difficulty": "medium",
+      "question": "곡선 $x=\\theta\\cos\\theta$, $y=\\theta\\sin\\theta$ $(0\\le\\theta\\le\\pi)$와 $x$축으로 둘러싸인 영역의 넓이는?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\pi}{3}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{\\pi^2}{6}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\dfrac{\\pi^3}{6}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{\\pi^2}{3}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "$r=\\theta$인 아르키메데스 나선. 극좌표 면적: $A=\\dfrac{1}{2}\\!\\int_0^{\\pi}\\theta^2 d\\theta=\\dfrac{\\pi^3}{6}$.\n($x$축 연결 부분 기여 0)",
+      "tags": ["For2026","실전모의고사","워밍업","적분학","극좌표"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-11",
+      "subject": "선형대수",
+      "unit": "정사영",
+      "concept": "정사영 행렬의 성분 합",
+      "difficulty": "medium",
+      "question": "두 벡터 $\\begin{pmatrix}1\\\\0\\\\0\\\\1\\end{pmatrix}$, $\\begin{pmatrix}1\\\\-1\\\\-1\\\\1\\end{pmatrix}$이 생성하는 $\\mathbb{R}^4$의 부분공간을 $W$라 하고, $\\mathbb{R}^4$에서 $W$로 가는 정사영을 $P$라 하자. $\\mathbb{R}^4$의 표준기저에 대한 $P$의 행렬표현을 $M$이라 할 때, $M$의 모든 성분들의 합은?",
+      "options": [
+        {"id":"1","label":"1","text":"$2$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$3$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$4$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$5$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "Gram-Schmidt: $u_1=(1,0,0,1)$, $u_2=(0,-1,-1,0)$ (이미 직교화).\n$\\|u_1\\|^2=2$, $\\|u_2\\|^2=2$. $M=\\dfrac{u_1u_1^T+u_2u_2^T}{2}$.\n$\\sum(uu^T)=(\\sum u_i)^2$. $\\sum u_1=2$, $\\sum u_2=-2$. 따라서 $\\sum M=\\dfrac{4+4}{2}=4$.",
+      "tags": ["For2026","실전모의고사","워밍업","선형대수","정사영"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-12",
+      "subject": "선형대수",
+      "unit": "고유값·고유벡터",
+      "concept": "고유벡터가 곱하는 행렬의 열",
+      "difficulty": "medium",
+      "question": "행렬 $A=\\begin{pmatrix}0&-1&2\\\\-2&1&2\\\\-3&-1&5\\end{pmatrix}$에 대하여 $3\\times 3$ 행렬 $A^5\\begin{pmatrix}1&1&1\\\\1&0&1\\\\1&1&2\\end{pmatrix}=B$라고 할 때, $B$의 $3$행 $2$열의 원소는?",
+      "options": [
+        {"id":"1","label":"1","text":"$2^5$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$2$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$3^5$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$1$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "고유값: $1,2,3$ ($\\text{tr}=6$, $\\det=6$). 고유벡터: $\\lambda=1\\to(1,1,1)$, $\\lambda=2\\to(1,0,1)$, $\\lambda=3\\to(1,1,2)$ — 주어진 행렬의 열과 일치.\n2열 $=A^5(1,0,1)^T=2^5(1,0,1)^T$. 3행 2열 $=2^5$.",
+      "tags": ["For2026","실전모의고사","워밍업","선형대수","고유값"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-13",
+      "subject": "선형대수",
+      "unit": "기저변환",
+      "concept": "기저변환은 가역행렬",
+      "difficulty": "easy",
+      "question": "다음 중 벡터공간 $\\mathbb{R}^3$에서 $T:V\\to V$의 기저변환 행렬(Change of coordinate matrix)이 될 수 없는 행렬은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\begin{pmatrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{pmatrix}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\begin{pmatrix}1&0&0\\\\0&0&1\\\\0&1&0\\end{pmatrix}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\begin{pmatrix}2&1&1\\\\1&2&1\\\\1&1&2\\end{pmatrix}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\begin{pmatrix}1&0&0\\\\2&3&0\\\\4&5&6\\end{pmatrix}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "기저변환 행렬은 가역이어야 함. (1) $\\det=0$ (전형적 등차행렬), (2) 치환행렬 $\\det=-1$, (3) $\\det=4$, (4) 삼각행렬 $\\det=18$. (1)만 비가역.",
+      "tags": ["For2026","실전모의고사","워밍업","선형대수","기저"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-14",
+      "subject": "선형대수",
+      "unit": "영공간·정사영",
+      "concept": "$T$의 영공간 + 한 점의 정사영",
+      "difficulty": "hard",
+      "question": "선형사상 $T:\\mathbb{R}^3\\to\\mathbb{R}^3$을 열벡터 $v_1=\\begin{pmatrix}1\\\\-3\\\\0\\end{pmatrix}$, $v_2=\\begin{pmatrix}-1\\\\0\\\\3\\end{pmatrix}$, $v_3=\\begin{pmatrix}0\\\\-1\\\\1\\end{pmatrix}$에 대하여 $T(x,y,z)=xv_1+yv_2+zv_3$으로 정의한다. 선형사상 $T$의 영공간 $W$의 기저를 $\\left\\{\\begin{pmatrix}1\\\\a\\\\b\\end{pmatrix}\\right\\}$이라 할 때, $\\vec v=\\begin{pmatrix}1\\\\3\\\\2\\end{pmatrix}$와 영공간 $W$에서 가장 가까운 벡터를 $\\vec w$라 하면 $\\begin{pmatrix}1\\\\a\\\\b\\end{pmatrix}=c\\vec w$를 만족한다. 이 때, $a+b+2c$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$-\\dfrac{26}{11}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$-13$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$-11$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$-\\dfrac{22}{13}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "2",
+      "explanation": "영공간: $v_1+av_2+bv_3=0$ ⇒ $a=1$, $b=-3$. 기저 $u=(1,1,-3)$, $\\|u\\|^2=11$.\n$\\vec w=\\dfrac{\\vec v\\cdot u}{11}u=\\dfrac{1+3-6}{11}u=-\\dfrac{2}{11}u$.\n$u=c\\vec w=-\\dfrac{2c}{11}u$ ⇒ $c=-\\dfrac{11}{2}$.\n$a+b+2c=1-3-11=-13$.",
+      "tags": ["For2026","실전모의고사","워밍업","선형대수","영공간"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-15",
+      "subject": "다변수함수",
+      "unit": "연쇄법칙·2계 편미분",
+      "concept": "$f_{rr}$ 전개",
+      "difficulty": "hard",
+      "question": "$f(x,y)$는 연속인 2계 편도함수를 갖는 2변수 함수이고 다음을 만족한다.\n$f_x(3,-1)=1$, $f_y(3,-1)=-1$, $f_{xx}(3,-1)=2$, $f_{xy}(3,-1)=-1$, $f_{yy}(3,-1)=2$.\n$x=2r^2+s^2$, $y=-rs$일 때 $r=1$, $s=1$에서 $f_{rr}$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$42$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$44$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$46$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$48$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "3",
+      "explanation": "$x_r=4r=4$, $y_r=-s=-1$, $x_{rr}=4$, $y_{rr}=0$.\n$f_{rr}=f_{xx}x_r^2+2f_{xy}x_ry_r+f_{yy}y_r^2+f_xx_{rr}+f_yy_{rr}$\n$=2(16)+2(-1)(4)(-1)+2(1)+1(4)+(-1)(0)$\n$=32+8+2+4=46$.",
+      "tags": ["For2026","실전모의고사","워밍업","다변수","연쇄법칙"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-16",
+      "subject": "다변수함수",
+      "unit": "최댓값·최솟값",
+      "concept": "코시–슈바르츠 부등식",
+      "difficulty": "medium",
+      "question": "$x^2+2y^2+3z^2=1$일 때 $(x+y+z)^2$의 최댓값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{\\sqrt{11}}{6}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{11}{6}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\dfrac{13}{5}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{7}{2}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "2",
+      "explanation": "$u=x$, $v=\\sqrt 2 y$, $w=\\sqrt 3 z$ ⇒ $u^2+v^2+w^2=1$.\n$x+y+z=u+\\dfrac{v}{\\sqrt 2}+\\dfrac{w}{\\sqrt 3}$.\n코시: $(\\cdot)^2\\le(u^2+v^2+w^2)\\!\\left(1+\\dfrac{1}{2}+\\dfrac{1}{3}\\right)=\\dfrac{11}{6}$.",
+      "tags": ["For2026","실전모의고사","워밍업","다변수","최적화"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-17",
+      "subject": "다변수함수",
+      "unit": "이중적분",
+      "concept": "$u=xy$, $v=x$ 치환",
+      "difficulty": "hard",
+      "question": "$\\mathbb{R}^2$상의 $xy=1$, $xy=3$, $x=1$, $x=e$로 둘러싸인 영역을 $D$라 하자. $\\displaystyle\\iint_D \\ln(x^2 y+x)\\,dA$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$3\\ln 2$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$3\\ln 2-1$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$6\\ln 2$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$6\\ln 2-1$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "4",
+      "explanation": "$x^2y+x=x(xy+1)$ ⇒ $\\ln(x^2y+x)=\\ln x+\\ln(xy+1)$.\n$u=xy$, $v=x$ 치환 ($dA=(1/v)du\\,dv$): $u\\in[1,3]$, $v\\in[1,e]$.\n$\\!\\int_1^3\\ln(u+1)du=[w\\ln w-w]_2^4=6\\ln 2-2$.\n$\\!\\iint=\\!\\int_1^e(1/v)[2\\ln v+6\\ln 2-2]dv=[(\\ln v)^2]_1^e+(6\\ln 2-2)\\cdot 1=1+6\\ln 2-2=6\\ln 2-1$.",
+      "tags": ["For2026","실전모의고사","워밍업","다변수","이중적분"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-18",
+      "subject": "다변수함수",
+      "unit": "삼중적분",
+      "concept": "적분순서 변경",
+      "difficulty": "hard",
+      "question": "$\\displaystyle\\int_0^1\\!\\!\\int_0^1\\!\\!\\int_{\\sqrt y}^{1}\\dfrac{yz\\exp(x^2 z)}{x^3}\\,dx\\,dy\\,dz$의 값은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\dfrac{e+1}{4}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\dfrac{e}{4}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\dfrac{e-1}{4}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\dfrac{e-2}{4}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "4",
+      "explanation": "$x\\ge\\sqrt y$ ⇒ $y\\le x^2$. $y$를 먼저 적분: $\\!\\int_0^{x^2}y\\,dy=\\dfrac{x^4}{2}$.\n남은 식: $\\!\\int_0^1\\!\\!\\int_0^1\\dfrac{xz\\,e^{x^2 z}}{2}dx\\,dz$.\n$x$ 적분: $u=x^2 z$ 치환 → $\\dfrac{e^z-1}{2z}$.\n$z$ 적분: $\\!\\int_0^1\\dfrac{e^z-1}{4}dz=\\dfrac{(e-1)-1}{4}=\\dfrac{e-2}{4}$.",
+      "tags": ["For2026","실전모의고사","워밍업","다변수","삼중적분"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-19",
+      "subject": "다변수함수",
+      "unit": "삼중적분 한계",
+      "concept": "1팔분공간 입체의 적분순서",
+      "difficulty": "medium",
+      "question": "제1공간에서 곡면 $x+y^2+z=4$와 세 평면 $x=0$, $y=0$, $z=0$으로 둘러싸인 입체 영역 $E$에 대한 적분 $\\displaystyle\\iiint_E f(x,y,z)\\,dV$의 표현 중 틀린 것은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\displaystyle\\int_0^4\\!\\int_0^2\\!\\int_0^{4-y^2-x} f\\,dz\\,dy\\,dx$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\displaystyle\\int_0^4\\!\\int_0^{4-x}\\!\\int_0^{\\sqrt{4-x-z}} f\\,dy\\,dz\\,dx$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\displaystyle\\int_0^2\\!\\int_0^{4-y^2}\\!\\int_0^{4-y^2-z} f\\,dx\\,dz\\,dy$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\displaystyle\\int_0^4\\!\\int_0^{\\sqrt{4-z}}\\!\\int_0^{4-y^2-z} f\\,dx\\,dy\\,dz$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "(1)의 $y$ 범위가 $[0,2]$ 상수인데, 실제 $y\\le\\sqrt{4-x}$여야 함($x\\in[0,4]$). 따라서 $y\\in[0,\\sqrt{4-x}]$로 의존해야 옳음.\n(2),(3),(4)는 모두 한계가 옳음.",
+      "tags": ["For2026","실전모의고사","워밍업","다변수","삼중적분"]
+    },
+    {
+      "id": "q-warmup-for2026-r1-20",
+      "subject": "공학수학",
+      "unit": "급수 수렴",
+      "concept": "수렴구간 비교",
+      "difficulty": "medium",
+      "question": "다음 급수의 수렴 집합 중에서 가장 큰 집합은?",
+      "options": [
+        {"id":"1","label":"1","text":"$\\displaystyle\\sum_{n=1}^{\\infty}(-1)^n\\dfrac{x^{n+1}}{n(n+1)}$","contentType":"latex","image":""},
+        {"id":"2","label":"2","text":"$\\displaystyle\\sum_{n=1}^{\\infty}(-1)^n\\dfrac{x^n}{n}$","contentType":"latex","image":""},
+        {"id":"3","label":"3","text":"$\\displaystyle\\sum_{n=1}^{\\infty}(-1)^{2n+1}\\dfrac{x^{2n+1}}{2n+1}$","contentType":"latex","image":""},
+        {"id":"4","label":"4","text":"$\\displaystyle\\sum_{n=1}^{\\infty}(-1)^n n x^{2n}$","contentType":"latex","image":""}
+      ],
+      "correct_option_id": "1",
+      "explanation": "모두 반경 1. 끝점 검사:\n(1) $x=\\pm 1$ 모두 절대수렴 ($\\sum 1/n(n+1)$) → $[-1,1]$.\n(2) $x=1$ 교대수렴, $x=-1$ 조화발산 → $(-1,1]$.\n(3) $x=\\pm 1$에서 $\\sum 1/(2n+1)$ 발산 → $(-1,1)$.\n(4) $x=\\pm 1$에서 $\\sum n$ 발산 → $(-1,1)$.\n가장 큰 집합: (1).",
+      "tags": ["For2026","실전모의고사","워밍업","공학수학","급수"]
+    }
+  ]
+}

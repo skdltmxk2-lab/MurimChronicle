@@ -2,7 +2,7 @@
 import fitz, os
 
 folder = r"C:/Users/yubin/Desktop/편입/편수/6_기출파일/한양대"
-outdir = r"C:/Users/yubin/MurimChronicle/scripts/_tmp_pdf_imgs"
+outdir = r"C:/Users/yubin/???? CBT/scripts/_tmp_pdf_imgs"
 os.makedirs(outdir, exist_ok=True)
 
 years = [

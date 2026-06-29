@@ -106,7 +106,7 @@ const PROBLEMS = [
   },
   {n:14, subject:"다변수함수", unit:"선적분과 면적분", concept:"원점 둘러싼 회전 벡터장",
     difficulty:"hard",
-    question:"그림과 같이 $C$가 $P(1,0)$에서 $Q(0,1)$까지의 선분, $Q$에서 $R(-1,0)$까지의 선분, $R$에서 $P$까지의 선분으로 이루어진 곡선일 때, $C$ 위에서 벡터 $\\vec{F}(x,y)=-\\dfrac{y}{x^2+y^2}\\vec{i}+\\dfrac{x}{x^2+y^2}\\vec{j}$의 선적분의 값은?",
+    question:"곡선 $C$가 $P(1,0)$에서 $Q(0,1)$까지의 선분, $Q$에서 $R(-1,0)$까지의 선분, $R$에서 $P$까지의 선분으로 이루어진 곡선일 때, $C$ 위에서 벡터 $\\vec{F}(x,y)=-\\dfrac{y}{x^2+y^2}\\vec{i}+\\dfrac{x}{x^2+y^2}\\vec{j}$의 선적분의 값은?",
     options:opts5("$-\\pi$","$-\\dfrac{\\pi}{2}$","$0$","$\\dfrac{\\pi}{2}$","$\\pi$"),
     correct:"5",
     explanation:"$\\vec{F}$는 원점 회전벡터장. 폐곡선이 원점을 한 번 반시계방향으로 둘러싸면 $\\!\\oint=2\\pi$. 그러나 $R\\to P$ 변이 $x$축이고 원점을 통과 — 그 변에서 적분기는 $\\dfrac{x}{x^2}\\cdot 0=0$.\n$P\\to Q,\\,Q\\to R$ 각 변 적분 $\\dfrac{\\pi}{2}$ ($\\arctan$ 식으로 계산).\n총합 $=\\dfrac{\\pi}{2}+\\dfrac{\\pi}{2}+0=\\pi$.",

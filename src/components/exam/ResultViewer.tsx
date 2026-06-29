@@ -64,7 +64,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-6">
-      <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
+      <section data-print-section="true" className="rounded-lg border border-line bg-white p-6 shadow-soft">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">채점 결과</p>
@@ -123,7 +123,11 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
           const correctText = isSubjective ? (problem.answerText ?? "") : null;
 
           return (
-            <article key={problem.id} className="rounded-lg border border-line bg-white shadow-soft">
+            <article
+              key={problem.id}
+              data-print-card="true"
+              className="rounded-lg border border-line bg-white shadow-soft"
+            >
               <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
                 <span className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-black text-white">
                   {index + 1}
@@ -149,7 +153,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                   className="text-base font-semibold leading-8 text-ink"
                 />
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-md border border-line bg-slate-50 p-4">
+                  <div data-print-card="true" className="rounded-md border border-line bg-slate-50 p-4">
                     <div className="text-xs font-black text-slate-500">내 답안</div>
                     <div className="mt-2 text-sm font-bold text-ink">
                       {isSubjective ? (
@@ -170,7 +174,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                       )}
                     </div>
                   </div>
-                  <div className="rounded-md border border-mint-600/20 bg-mint-50 p-4">
+                  <div data-print-card="true" className="rounded-md border border-mint-600/20 bg-mint-50 p-4">
                     <div className="text-xs font-black text-mint-600">정답</div>
                     <div className="mt-2 text-sm font-bold text-ink">
                       {isSubjective ? (
@@ -188,7 +192,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 rounded-md border border-brand-100 bg-brand-50 p-4">
+                <div data-print-card="true" className="mt-4 rounded-md border border-brand-100 bg-brand-50 p-4">
                   <div className="text-xs font-black text-brand-700">해설</div>
                   <ContentRenderer
                     contentType={problem.explanationContentType}

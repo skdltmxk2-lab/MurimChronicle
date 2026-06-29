@@ -1,0 +1,227 @@
+1) $\frac{x}{(1-x)^{2}}=\sum_{n=1}^{\infty} n x^{n}$ 이므로 $x=-\frac{1}{2}$ 을 대입하면 $\sum_{n=1}^{\infty} \frac{n}{(-2)^{n}}=-\frac{2}{9}$ 이다.
+
+답 : (1)
+2) $\int_{1}^{\infty} x^{2} e^{-2 x} d x$
+$=\left[-\frac{x^{2}}{2} e^{-2 x}-\frac{x}{2} e^{-2 x}-\frac{1}{4} e^{-2 x}\right]_{1}^{\infty}$ ( ∵ 부분적분법)
+$=\frac{5}{4 e^{2}}$
+답 : (5)
+3) $\sum_{n=1}^{\infty}\left(\frac{c}{n}-\frac{1}{n+1}\right)=\sum_{n=1}^{\infty} \frac{c(n+1)-n}{n(n+1)}$ 이 수렴하려면 $c=1$ 이다.
+$c=1$ 이라 하면
+$\sum_{n=1}^{\infty}\left(\frac{1}{n}-\frac{1}{n+1}\right)=\lim _{k \rightarrow \infty} \sum_{n=1}^{k}\left(\frac{1}{n}-\frac{1}{n+1}\right)$
+$=\lim _{k \rightarrow \infty}\left(1-\frac{1}{2}\right)+\left(\frac{1}{2}-\frac{1}{3}\right)+\left(\frac{1}{3}-\frac{1}{4}\right)+\cdots+\left(\frac{1}{k}-\frac{1}{k+1}\right)$
+$=\lim _{k \rightarrow \infty} 1-\frac{1}{k+1}=1$ 이다.
+즉, $s+t=2$
+4) $f(x)=x^{6} \cosh x=x^{6}\left(1+\frac{x^{2}}{2!}+\frac{x^{4}}{4!}+\cdots\right)$
+$$=x^{6}+\frac{x^{8}}{2!}+\frac{x^{10}}{4!}+\cdots$$
+
+일 때, $f^{(10)}(0)=\frac{10!}{4!}$ 이므로 $24 f^{(10)}(0)=10!$ 이다.
+답 : (1)
+5) $f(x, y)=x^{2} \sin y+y e^{x y}, x=s+2 t, y=s t$ 일 때,
+$\frac{\partial f}{\partial s}=\left(2 x \sin y+y^{2} e^{x y}\right) \times 1+\left(x^{2} \cos y+e^{x y}+x y e^{x y}\right) \times t$,
+$\frac{\partial f}{\partial t}=\left(2 x \sin y+y^{2} e^{x y}\right) \times 2+\left(x^{2} \cos y+e^{x y}+x y e^{x y}\right) \times s$ 이다.
+따라서 $s=0, t=1, x=2, y=0$ 을 대입하면 $\left(\frac{\partial f}{\partial s}, \frac{\partial f}{\partial t}\right)=(5,0)$ 이다.
+
+답 : (3)
+6) $\int_{0}^{x} f(t) d t=x \sin x+\int_{0}^{x} \frac{f(t)}{1+t^{2}} d t$ 을 $x$ 에 대해 미분하면
+$f(x)=\sin x+x \cos x+\frac{f(x)}{1+x^{2}}$
+$\Leftrightarrow \frac{x^{2}}{1+x^{2}} f(x)=\sin x+x \cos x$ 이다.
+즉, $x=\frac{\pi}{2}$ 을 대입하면 $f\left(\frac{\pi}{2}\right)$ 의 값은 $\frac{4+\pi^{2}}{\pi^{2}}$ 이다.
+7) $y=\frac{2 x^{3}+2 x^{2}-x+1}{x^{2}-1}=2 x+2+\frac{x+3}{x^{2}-1}$ 이므로
+
+사점근선은 $y=2 x+2$ 이다.
+따라서 $x$ 축, $y$ 축으로 둘러싸인 영역을 $x$ 축 중심으로
+회전시켰을 때 나오는 부피는 $\frac{\pi}{3} \times 2^{2} \times 1$ 이다.
+답 : (1)
+8) 두 평면의 교선을 지나는 평면의 방정식은 다음과 같다.
+$(x+y+z-1)+k(x-y+z+1)=0$
+이때, 점 $P(1,2,3)$ 을 지나므로 대입하면 $k=-\frac{5}{3}$ 이므로
+평면의 방정식은 $-2 x+8 y-2 z-8=0$ 이다.
+따라서 점 $A(-1,2,1)$ 와 거리를 구하면
+$\frac{|2+16-2-8|}{\sqrt{4+64+4}}=\frac{8}{\sqrt{72}}=\frac{4}{\sqrt{18}}$ 이다.
+답 : (2)
+9) $\left(\begin{array}{ll}1 & 2 \\ 1 & 1 \\ 2 & 3\end{array}\right)\binom{x_{1}}{x_{2}}=\left(\begin{array}{l}3 \\ 1 \\ 3\end{array}\right) \Leftrightarrow A X=B$ 일 때, 최소제곱해는 다음과 같다.
+$$\begin{aligned}
+& \left(\begin{array}{lll}
+1 & 1 & 2 \\
+2 & 1 & 3
+\end{array}\right)\left(\begin{array}{ll}
+1 & 2 \\
+1 & 1 \\
+2 & 3
+\end{array}\right)\binom{\overline{x_{1}}}{\overline{x_{2}}}=\left(\begin{array}{lll}
+1 & 1 & 2 \\
+2 & 1 & 3
+\end{array}\right)\left(\begin{array}{l}
+3 \\
+1 \\
+3
+\end{array}\right) \\
+& \Leftrightarrow\left(\begin{array}{cc}
+6 & 9 \\
+9 & 14
+\end{array}\right)\left(\overline{\overline{x_{1}}} \overline{\overline{x_{2}}}\right)=\binom{10}{16}
+\end{aligned}$$
+$$\Leftrightarrow\left(\overline{\overline{x_{1}}}\right)=\left(\begin{array}{cc}
+6 & 9 \\
+9 & 14
+\end{array}\right)^{-1}\binom{10}{16}=\frac{1}{3}\left(\begin{array}{cc}
+14 & -9 \\
+-9 & 6
+\end{array}\right)\binom{10}{16}=\binom{-\frac{4}{3}}{2}$$
+10) ᄀ. $A^{2}=4 I$ 이면 $|A|^{2}=|4 I|=4^{2}$ 이므로 $|A|=4$ 또는 -4 이다. 따라서 $|A| \neq 0$ 이므로 $A$ 는 $\operatorname{rank}$ 는 2 이다. (참)
+ㄴ. $A$ 의 고유방정식은 $\lambda^{2}-\operatorname{tr} A \lambda+|A|=0$ 이므로 케일리 헤밀턴 정리에 의하여 $A^{2}-(\operatorname{tr} A) A+|A| I=0$ 을 만족한다.
+이때, $4 I-(\operatorname{tr} A) A+4 I=0 \Leftrightarrow(\operatorname{tr} A) A=8 I$ 이므로
+$A=\frac{8}{\operatorname{tr} A} I=\left(\begin{array}{cc}\frac{8}{\operatorname{tr} A} & 0 \\ 0 & \frac{8}{\operatorname{tr} A}\end{array}\right)$ 이다.
+(참)
+
+ᄃ. $A$ 의 고유방정식은 $\lambda^{2}-\operatorname{tr} A \lambda+|A|=0$ 이므로
+케일리 헤밀턴 정리에 의하여 $A^{2}-(\operatorname{tr} A) A+|A| I=0$ 을 만족한다.
+이때, $4 I-(\operatorname{tr} A) A-4 I=0 \Leftrightarrow(\operatorname{tr} A) A=O$ 이므로 $\operatorname{tr} A=0$ 이다. (참)
+ㄹ. $A^{3}=B$ 라 하면 $B$ 의 고유방정식은 $\lambda^{2}-\operatorname{tr} B \lambda+|B|=0$ 이므로 케일리 헤밀턴 정리에 의하여 $B^{2}-(\operatorname{tr} B) B+|B| I=0$ 을 만족한다.
+따라서 $A^{6}-\left(\operatorname{tr} A^{3}\right) A^{3}+\left|A^{3}\right| I=0$
+$\Leftrightarrow A^{6}+|A|^{3} I=0 \Leftrightarrow 4^{3} I+|A|^{3} I=0 \quad$ 이므로
+$|A|=-4$ 이다. (참)
+답 : (5)
+11) 점을 $(2,2,2)$ 만큼 모두 평행이동하면 네 점 $A(3,1,1)$,
+$B(0,1,0), C(0,0,0), D(2,-1,0)$ 이다.
+따라서 $B, C, D$ 가 지나는 평면은 $z=0$ 이므로 $P(3,1,0)$ 이다.
+![](https://cdn.mathpix.com/cropped/4fdcdce5-a8fd-4813-984b-e6929d1ecc70-2.jpg?height=370&width=710&top_left_y=568&top_left_x=292)
+$\vec{a}=\overrightarrow{C B}, \vec{b}=\overrightarrow{C D}$ 라 하면
+$\vec{x}=\overrightarrow{C Q}=\frac{\vec{a}(1-s)+\vec{b} s}{1}=(1-s)(0,1,0)+s(2,-1,0) =(2 s, 1-2 s, 0)$ 이다.
+이때, $\overrightarrow{C P}$ 와 $\vec{x}$ 는 평행하므로 $(2 s, 1-2 s, 0)=t(3,1,0)$ 이다.
+따라서 $2 t=2 s, t=1-2 s$ 이므로 $s=\frac{3}{8}$ 이다.
+즉, $\overline{B Q}: \overline{Q D}=s: 1-s$ 는 $\frac{3}{8}: \frac{5}{8}$ 이므로 $3: 5$ 이다.
+답 : (5)
+12) $\left\{\begin{array}{l}\frac{d x(t)}{d t}=3 x(t)+2 y(t) \\ \frac{d y(t)}{d t}=a x(t)+y(t)\end{array} \Leftrightarrow\binom{x^{\prime}}{y^{\prime}}=\left(\begin{array}{ll}3 & 2 \\ a & 1\end{array}\right)\binom{x}{y}\right.$ 일 때,
+
+고유방정식은 $\lambda^{2}-4 \lambda+(3-2 a)=0$ 이다.
+따라서 고유치는 $\lambda=\frac{4 \pm \sqrt{16-4(3-2 a)}}{2}$ 이므로
+불안정한 나선점이 나오려면
+$16-4(3-2 a)<0 \Leftrightarrow a<-\frac{1}{2}$ 이다.
+답 : (5)
+13) $\frac{d y}{d x}+\frac{1}{x} y=2 x y^{2}$ 은 베르누이 미분방정식이다.
+
+따라서 $y^{-1}=u$ 라 놓으면
+$u^{\prime}-\frac{1}{x} u=-2 x$
+$\Rightarrow u=e^{-\int-\frac{1}{x} d x}\left(\int-2 x e^{-\int-\frac{1}{x} d x} d x+c\right)$
+$$=x\left(\int-2 d x+c\right)=x(-2 x+c)$$
+$\Rightarrow \frac{1}{y}=x(-2 x+c)$ 이므로 $y(1)=\frac{1}{2}$ 을 대입하면 $c=4$ 이다.
+즉, $y=\frac{1}{x(-2 x+4)}$ 이므로 $y\left(\frac{1}{2}\right)=\frac{2}{3}$
+답 : (1)
+14) $\iiint_{E} x y d x d y d z=\int_{0}^{1} \int_{x^{2}}^{\sqrt{x}} \int_{0}^{x+y} x y d z d y d x$
+$$=\int_{0}^{1} \int_{x^{2}}^{\sqrt{x}} x y(x+y) d y d x$$
+$$\begin{aligned}
+& =\int_{0}^{1} \int_{x^{2}}^{\sqrt{x}} x^{2} y+x y^{2} d y d x \\
+& =\int_{0}^{1} x^{2}\left[\frac{1}{2} y^{2}\right]_{x^{2}}^{\sqrt{x}}+x\left[\frac{1}{3} y^{3}\right]_{x^{2}}^{\sqrt{x}} d x \\
+& =\int_{0}^{1} \frac{x^{2}}{2}\left(x-x^{4}\right)+\frac{x}{3}\left(x^{\frac{3}{2}}-x^{6}\right) d x \\
+& =\frac{1}{8}-\frac{1}{14}+\frac{5}{21}-\frac{1}{24}=\frac{3}{28}
+\end{aligned}$$
+
+답 : (3)
+15) $x=2 u, y=2 v, z=u^{2}+v^{2}+e^{w}$ 라 하면
+$$\begin{aligned}
+& J=\left|\begin{array}{ccc}
+2 & 0 & 0 \\
+0 & 2 & 0 \\
+2 u & 2 v & e^{w}
+\end{array}\right|=4 e^{w} \text { 이다. } \\
+& \iiint_{R} x d V=\iiint_{S} 2 u \times 4 e^{w} d V \\
+&=8 \iiint_{0}^{1} u e^{w} d w d v d u \\
+&=8 \iint_{D} u(e-1) d v d u=8(e-1) \times \bar{u} \times(D \text { 의 면적 }) \\
+&=0
+\end{aligned}$$
+16) $\nabla f(1,1)=(a, b)$ 라 하면
+$$\begin{aligned}
+D_{u} f(1,1)=2 \sqrt{5} & \Leftrightarrow(a, b) \cdot \frac{1}{\sqrt{5}}(1,-2)=2 \sqrt{5} \\
+& \Leftrightarrow a-2 b=10 \text { 이고, } \\
+D_{v} f(1,1)=-\sqrt{10} & \Leftrightarrow(a, b) \cdot \frac{1}{\sqrt{10}}(-3,1)=-\sqrt{10} \\
+& \Leftrightarrow-3 a+b=-10 \text { 이다. }
+\end{aligned}$$
+
+따라서 $(a, b)=(2,-4)$ 이다.
+또한, $\nabla g(1,1)=(c, d)$ 라 하면
+$D_{u} g(1,1)=-\sqrt{5} \quad \Leftrightarrow \quad(c, d) \cdot \frac{1}{\sqrt{5}}(1,-2)=-\sqrt{5}$
+$$\Leftrightarrow \quad c-2 d=-5 \text { 이고, }$$
+$D_{v} g(1,1)=0 \quad \Leftrightarrow \quad(c, d) \cdot \frac{1}{\sqrt{10}}(-3,1)=0$
+$$\Leftrightarrow \quad-3 c+d=0 \text { 이다. }$$
+
+따라서 $(c, d)=(1,3)$ 이다.
+그러므로 점 $(1,1)$ 에서 $F(x, y)=(f(x, y), g(x, y))$ 의
+$\frac{\partial(f, g)}{\partial(x, y)}==\left|\begin{array}{ll}2 & -4 \\ 1 & 3\end{array}\right|=10$ 이다.
+17) $z \geq 2$ 에 놓인 곡면 $S$ 가 $x^{2}+y^{2}+z^{2}=5$ 의 가장자리 경로 $C$ 는 $x^{2}+y^{2}=1, z=2$ 이다.
+$$\begin{aligned}
+\iint_{S} \operatorname{curlF} \cdot n d S & =\int_{C} F \cdot d r \\
+& =\int_{C}(2 y+z) d x+(x-z) d y+(y-x) d z \\
+& =\int_{C}(2 y+2) d x+(x-2) d y \quad(\because z=2) \\
+& =\iint_{D}-1 d x d y=-D \text { 의 면적 }=-\pi
+\end{aligned}$$
+
+답 : (2)
+18) $\iint_{\partial R}\left(x e^{z}+y \sin x+z^{2}\right) d S$
+$=2 \iint_{\partial R}\left(e^{z}, \sin x, z\right) \cdot \frac{1}{2}(x, y, z) d S$
+$=2 \iint_{\partial R} F \cdot n d S=2 \iiint_{R} 1 d V \quad(\because$ 발산정 리 $)$
+$=2 \times R$ 의 부피 $=2 \times \frac{4}{3} \pi \times 2^{3}$
+답 : (1)
+19) $S: r(x, \theta)=(\cos \theta, \sin \theta, z), 0 \leq \theta \leq 2 \pi, 0 \leq z \leq \cos \theta+1$ 이므로
+$$\begin{aligned}
+& \iint_{S}\left(x y^{5}+z\right) d S=\int_{0}^{2 \pi} \int_{0}^{\cos \theta+1}\left(\cos \theta \sin ^{5} \theta+z\right)\left|r_{\theta} \times r_{z}\right| d z d \theta \\
+& =\int_{0}^{2 \pi} \int_{0}^{\cos \theta+1}\left(\cos \theta \sin ^{5} \theta+z\right) \times 1 \times d z d \theta \\
+& =\int_{0}^{2 \pi} \cos \theta \sin ^{5} \theta(\cos \theta+1)+\frac{1}{2}(\cos \theta+1)^{2} d \theta \\
+& =\int_{0}^{2 \pi} \cos ^{2} \theta \sin ^{5} \theta+\cos \theta \sin ^{5} \theta+\frac{1}{2}\left(\cos ^{2} \theta+\cos \theta+1\right) d \theta \\
+& =\int_{0}^{2 \pi}\left(1-\sin ^{2} \theta\right) \sin ^{5} \theta+\cos \theta \sin ^{5} \theta+\frac{1}{2}\left(\cos ^{2} \theta+\cos \theta+1\right) d \theta \\
+& =\int_{0}^{2 \pi} \sin ^{5} \theta-\sin ^{7} \theta+\cos \theta \sin ^{5} \theta+\frac{1}{2}\left(\cos ^{2} \theta+\cos \theta+1\right) d \theta \\
+& =\int_{0}^{2 \pi} \frac{1}{2}\left(\cos ^{2} \theta+1\right) d \theta=\frac{1}{2}\left(4 \times \frac{1}{2} \times \frac{\pi}{2}+2 \pi\right)=\frac{3}{2} \pi
+\end{aligned}$$
+20) $\iint_{S}(F+\nabla \times F) \cdot \vec{n} d s=\iint_{S} F \cdot \vec{n} d s+\iint_{S}(\nabla \times F) \cdot \vec{n} d s$
+$=\iiint_{T} \operatorname{div} F d V+\iiint_{T} \operatorname{div}(\nabla \times F) d V$
+$=\iiint_{T} 4 d V=4 \times T$ 의 부피
+$=4 \times \frac{4}{3} \pi \times 2^{3}=\frac{128 \pi}{3}$
+답 : (5)
+21) 구에 내접하므로 $\frac{x}{2}$ 와 $r$ 과 $a$ 는 직각삼각형을 이루고
+
+피타고라스 정리에 의해 $\frac{x^{2}}{4}+r^{2}=a^{2}$ 이 성립한다.
+이때, $V=\pi r^{2} x$ 의 최대인 경우를 생각하자.
+$\frac{x^{2}}{4}+r^{2}=a^{2} \Leftrightarrow \frac{x^{2}}{4}+\frac{r^{2}}{2}+\frac{r^{2}}{2}=a^{2}$
+$\frac{x^{2}}{4}=\frac{r^{2}}{2}$ 일 때, 최대가 된다. $(\because$ 산술기하부등식 $)$
+따라서 $x=\sqrt{2} r$ 이므로 $x: r=\sqrt{2}: 1$ 이다.
+답 : (2)
+22) ( i ) $y^{\prime \prime}-3 y^{\prime}-4 y=0$ 에서 특성방정식 $t^{2}-3 t-4=0$ 이므로 $t=-1,4$ 이다.
+$\therefore y_{c}=C_{1} e^{-x}+C_{2} e^{4 x}$
+(ii) $\frac{1}{D^{2}-3 D-4}\left\{15 e^{-x}\right\}=15 \cdot \frac{1}{(D-4)(D+1)}\left\{e^{-x}\right\}$
+$$\begin{aligned}
+& =15 e^{-x} \frac{x^{1}}{(-1-4) \cdot 1!} \\
+& \quad=-3 x e^{-x}
+\end{aligned}$$
+$$\begin{aligned}
+& y=C_{1} e^{-x}+C_{2} e^{4 x}-3 x e^{-x} \text { 이고 } \\
+& y^{\prime}=-C_{1} e^{-x}+4 C_{2} e^{4 x}-3\left(e^{-x}-x e^{-x}\right) \text { 이다. } \\
+& y(0)=C_{1}+C_{2}=0, y^{\prime}(0)=-C_{1}+4 C_{2}-2=0 \text { 이므로 } \\
+& C_{1}=-\frac{3}{5}, C_{2}=\frac{3}{5} \text { 이다. } \\
+& y=-\frac{3}{5} e^{-x}+\frac{3}{5} e^{4 x}-3 x e^{-x} \text { 이고 } \\
+& y^{\prime}=\frac{3}{5} e^{-x}+\frac{12}{5} e^{4 x}-3 e^{-x}(1-x), \\
+& y^{\prime \prime}=-\frac{3}{5} e^{-x}+\frac{48}{5} e^{4 x}+3 e^{-x}(2-x) \text { 이다. } \\
+& \therefore \lim _{x \rightarrow \infty} \frac{y^{\prime \prime}}{y}=16
+\end{aligned}$$
+23) $\mathscr{L}\{y(t)\}=Y$ 라 하고 양변에 라플라스 변환을 취하면
+$$\begin{aligned}
+& \left(s^{2}+2 s+5\right) Y=(s+2) y(0)+y^{\prime}(0)+\frac{25}{s^{2}}-100 e^{-\pi s} \\
+& Y=\frac{-2 s+1}{s^{2}+2 s+5}+\frac{25}{s^{2}\left(s^{2}+2 s+5\right)}-\frac{100 e^{-\pi s}}{(s+1)^{2}+4} \\
+& \quad=\frac{-2}{s}+\frac{5}{s^{2}}-\frac{100 e^{-\pi s}}{(s+1)^{2}+2^{2}} \\
+& \mathscr{L}^{-1}\{Y\}=y(t)=-2+5 t-50 u(t-\pi) e^{-(t-\pi)} \sin 2(t-\pi)
+\end{aligned}$$
+
+이므로 $y(2 \pi)=10 \pi-2$ 이다.
+답 : (4)
+24) 시간 $t$ 에서 물탱크에 들어있는 소금의 양을 $y(t)$ 라고 하면
+$y^{\prime}(t)=5 \times\left(1+\sin \frac{t}{20}\right)-\frac{5}{100} y(t)$ 이다.
+$y^{\prime}(t)+\frac{5}{100} y(t)=5 \times\left(1+\sin \frac{t}{20}\right)$ 이므로 1 계선형미방의
+해는 $y(t)=e^{-\frac{1}{20} t}\left(\int 5\left(1+\sin \frac{t}{20}\right) e^{\frac{1}{20} t}+C\right)$
+$$=100+50\left(\sin \frac{t}{20}-\cos \frac{t}{20}\right)+C e^{-\frac{1}{20} t}$$
+
+이다.
+$y(0)=20$ 이므로 $C=-30$ 이고,
+$$\begin{aligned}
+& y(t)=100+50\left(\sin \frac{t}{20}-\cos \frac{t}{20}\right)-30 e^{-\frac{1}{20} t} \text { 이다. } \\
+& y(20)=100+50(\sin 1-\cos 1)-30 e^{-1} \text { 이다. }
+\end{aligned}$$
+25) 주어진 $F(x, t)$ 는 속도가 2 인 파동방정식의 해이고, $\frac{\partial^{2} F}{\partial t^{2}}=k \frac{\partial^{2} F}{\partial x^{2}}$ 은 파동방정식 이므로 $k=2^{2}=4$ 이다.

@@ -1,0 +1,153 @@
+1) 단순폐곡선 $C$ 에 대하여 그린정리를 적용하면,
+$\int_{C}\left(y^{3}-y\right) d x-2 x^{3} d y=\iint_{D}-6 x^{2}-3 y^{2}+1 d x d y$ 이다.
+선적분의 값이 최대가 되려면 적분 영역 $D$ 를 다음과 같이 해야한다.
+$-6 x^{2}-3 y^{2}+1 \geq 0 \Leftrightarrow 6 x^{2}+3 y^{2} \leq 1$
+즉, $D$ 의 넓이는 $\pi \times \frac{1}{\sqrt{6}} \times \frac{1}{\sqrt{3}}$ 이다.
+답 : (2)
+2) $f(x)=\tanh x-x+\int_{0}^{x} f^{\prime}(t) \tanh ^{2} t d t$
+$\Rightarrow f^{\prime}(x)=\operatorname{sech}^{2} x-1+f^{\prime}(x) \tanh ^{2} x$
+$\Rightarrow f^{\prime}(x)\left(1-\tanh ^{2} x\right)=\operatorname{sech}^{2} x-1$
+$\Rightarrow f^{\prime}(x) \operatorname{sech}^{2} x=\operatorname{sech}^{2} x-1$
+$\Rightarrow f^{\prime}(x)=1-\cosh ^{2} x=-\sinh ^{2} x$
+따라서 $f(x)=\int-\sinh ^{2} x d x=-\int \frac{\cosh 2 x-1}{2} d x$
+$$=-\frac{1}{2}\left(\frac{1}{2} \sinh 2 x-x\right)+C$$
+
+이고, $f(0)=0$ 이므로 $C=0$ 이다.
+즉, $f(\ln 2)=-\frac{1}{4} \sinh (2 \ln 2)+\frac{1}{2} \ln 2=-\frac{15}{32}+\frac{1}{2} \ln 2$
+3) (가) $\sum_{n=1}^{\infty} \frac{10-\sin n}{n^{2}} \approx \sum_{n=1}^{\infty} \frac{1}{n^{2}}$ 은 수렴한다.
+(나) $\sum_{n=1}^{\infty} \frac{\cos n \pi}{\ln (\ln (n+2))}=\sum_{n=1}^{\infty} \frac{(-1)^{n}}{\ln (\ln (n+2))}$ 은
+$\lim _{n \rightarrow \infty} \frac{1}{\ln (\ln (n+2))}=0$ 이므로 교대급수가 수렴한다.
+(다) $\sum_{n=1}^{\infty} \frac{(-1)^{n} \cos n \pi}{n}=\sum_{n=1}^{\infty} \frac{1}{n}$ 은 발산한다.
+(라) $\sum_{n=1}^{\infty} e^{-n}=\sum_{n=1}^{\infty} \frac{1}{e^{n}}$ 은 수렴한다.
+답 : (4)
+4) $R=\left\{(x, y) \mid 5 x^{2}+2 x y+y^{2} \leq 1\right\}$
+$$=\left\{(x, y) \mid(2 x)^{2}+(x+y)^{2} \leq 1\right\} \text { 일 때, }$$
+$u=2 x, v=x+y$ 라 하면 $J=\frac{1}{\left|\begin{array}{ll}2 & 0 \\ 1 & 1\end{array}\right|}=\frac{1}{2}$ 이고
+$$R^{\prime}=\left\{(u, v) \mid u^{2}+v^{2} \leq 1\right\} \text { 이다. }$$
+$\iint_{R}\left[(2 x)^{2}+(x+y)^{2}\right] e^{\left[(2 x)^{2}+(x+y)^{2}\right]} d A$
+$$=\frac{1}{2} \iint_{R^{\prime}}\left(u^{2}+v^{2}\right) e^{\left(u^{2}+v^{2}\right)} d u d v$$
+$=\frac{1}{2} \int_{0}^{2 \pi} \int_{0}^{1} r^{3} e^{r^{2}} d r d \theta=\frac{1}{4} \int_{0}^{2 \pi} \int_{0}^{1} t e^{t} d t d \theta\left(\because r^{2}=t\right)$
+$$=\frac{1}{4} \int_{0}^{2 \pi}\left[t e^{t}-e^{t}\right]_{0}^{1} d \theta=\frac{1}{4} \int_{0}^{2 \pi} d \theta=\frac{\pi}{2}$$
+[별해]
+$5 x^{2}+2 x y+y^{2} \leq 1 \Leftrightarrow(x y)\left(\begin{array}{ll}5 & 1 \\ 1 & 1\end{array}\right)\binom{x}{y} \leq 1 \Leftrightarrow V^{T} A v \leq 1$ 이므로 $\operatorname{det} A=4$ 이다.
+$$\begin{aligned}
+& \iint_{R}\left(5 x^{2}+2 x y+y^{2}\right) e^{5 x^{2}+2 x y+y^{2}} d A \\
+= & \frac{1}{\sqrt{4}} \iint_{u^{2}+v^{2} \leq 1}\left(u^{2}+v^{2}\right) e^{\left(u^{2}+v^{2}\right)} d u d v \\
+= & \frac{1}{2} \int_{0}^{2 \pi} \int_{0}^{1} r^{3} e^{r^{2}} d r d \theta=\frac{1}{4} \int_{0}^{2 \pi} \int_{0}^{1} t e^{t} d t d \theta \quad\left(\because r^{2}=t\right) \\
+= & \frac{1}{4} \int_{0}^{2 \pi}\left[t e^{t}-e^{t}\right]_{0}^{1} d \theta=\frac{1}{4} \int_{0}^{2 \pi} d \theta=\frac{\pi}{2}
+\end{aligned}$$
+5) $S_{1}=\iint_{D} \sqrt{1+\left(z_{x}\right)^{2}+\left(z_{y}\right)^{2}} d x d y$
+$$\begin{aligned}
+& =\iint_{D} \sqrt{1+4 x^{2}+4 y^{2}} d x d y=\int_{0}^{2 \pi} \int_{0}^{\sqrt{2}} \sqrt{1+4 r^{2}} r d r d \theta \\
+& =\int_{0}^{2 \pi}\left[\frac{1}{12}\left(1+4 r^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{2}} d \theta=\frac{13}{6} \int_{0}^{2 \pi} d \theta=\frac{13}{3} \pi
+\end{aligned}$$
+$S_{2}=\pi \times(\sqrt{2})^{2}=2 \pi$ 이므로 평면 $z=2$ 와 곡면 $z=x^{2}+y^{2}$
+으로 둘러싸인 입체의 표면적은 $S_{1}+S_{2}=\frac{19}{3} \pi$ 이다.
+
+\section*{[별해]}
+$S_{1}$ 의 넓이는 $z=x^{2}, 0 \leq x \leq \sqrt{2}$ 을 $z$ 축 중심으로 회전하여 나온 겉넓이를 구해도 된다.
+$$\begin{aligned}
+S_{1} & =2 \pi \int_{0}^{\sqrt{2}} x \sqrt{1+\left(z^{\prime}\right)^{2}} d x=2 \pi \int_{0}^{\sqrt{2}} x \sqrt{1+4 x^{2}} d x \\
+& =2 \pi \int_{0}^{\sqrt{2}} x \sqrt{1+4 x^{2}} d x=2 \pi\left[\frac{1}{12}\left(1+4 x^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{2}} \\
+& =2 \pi\left[\frac{1}{12}\left(1+4 x^{2}\right)^{\frac{3}{2}}\right]_{0}^{\sqrt{2}}=\frac{13 \pi}{3} \\
+S_{2} & =\pi \times(\sqrt{2})^{2}=2 \pi \text { 이므로 평면 } z=2 \text { 와 곡면 } z=x^{2}+y^{2}
+\end{aligned}$$
+
+으로 둘러싸인 입체의 표면적은 $S_{1}+S_{2}=\frac{19}{3} \pi$ 이다.
+답 : (5)
+6) 좌표공간에서 위의 그림을 좌표로 나타내보면, 점 $A(0,0,0)$, $B(2,0,0), C(2,2,0), O(1,1, \sqrt{2}), F(0,4,0)$ 이다.
+따라서 $\overrightarrow{O B}=(1,-1,-\sqrt{2}), \overrightarrow{O F}=(-1,3,-\sqrt{2})$ 이므로 $\overrightarrow{O B}+\overrightarrow{O F}=(0,2,-2 \sqrt{2})$ 이다.
+즉, $|\overrightarrow{O B}+\overrightarrow{O F}|^{2}=12$
+답 : (5)
+7) $\lim _{x \rightarrow 0} \frac{x-\tanh ^{-1} x}{x^{3}}=\lim _{x \rightarrow 0} \frac{x-\left(x+\frac{1}{3} x^{3}+\frac{1}{5} x^{5}+\cdots\right)}{x^{3}}$
+$$=-\frac{1}{3}$$
+8) 점 $(3,2,3)$ 을 지나며 $\vec{d}=(2,1,1)$ 에 평행한 직선의 방정식은
+$x=2 t+3, y=t+2, z=t+3$ 이다.
+$z=x^{2}$ 을 $z$ 축 중심으로 회전하여 나온 곡면은
+$z=r^{2}=x^{2}+y^{2}$ 이다.
+따라서 곡면과 직선이 만나는 교점을 구하면,
+$t+3=(2 t+3)^{2}+(t+2)^{2} \Leftrightarrow t=-1,-2$ 이다.
+$t=-1$ 이면 점 $A$ 는 $(1,1,2)$ 이고,
+$t=-2$ 이면 $B$ 는 $(-1,0,1)$ 이므로 $\overrightarrow{O A} \times \overrightarrow{O B}=(1,-3,1)$ 이다.
+즉, $\triangle O A B$ 의 넓이는 $\frac{1}{2}|\overrightarrow{O A} \times \overrightarrow{O B}|=\frac{\sqrt{11}}{2}$ 이다.
+답 : (5)
+9) $f(x)=\frac{1}{1+x+x^{2}}=\frac{1-x}{\left(1+x+x^{2}\right)(1-x)}=\frac{1-x}{1-x^{3}}$
+$$=(1-x)\left(1+x^{3}+x^{6}+\cdots\right)=\cdots-x^{7}+\cdots$$
+
+이므로 $x^{7}$ 의 계수는 -1 이다.
+답 : (1)
+10) 곡선 $C$ 의 내부영역을 $S$ 라 하면
+$\oint_{C} F \cdot d r=\iint_{S} c u r l F \cdot n d S$
+$=\iint_{D}(2 z-1, z, 0) \cdot(2,1,1) d x d y$
+$=\iint_{D} 5 z-2 d x d y=\iint_{D} 5(3-2 x-y)-2 d x d y$
+$=13 \times(D$ 의 면적 $)-10 \times \bar{x} \times(D$ 의 면적 $)-5 \times \bar{y} \times(D$ 의 면적 $)$
+$=3 \times(D$ 의 면 적 $)=3 \times 16 \pi$
+답 : (2)
+13)
+![](https://cdn.mathpix.com/cropped/179cf7b2-759a-4b78-ab51-1b5204d153b1-2.jpg?height=350&width=436&top_left_y=424&top_left_x=1255)
+$$\begin{aligned}
+& 2 \times \frac{1}{2}\left(\int_{0}^{\frac{\pi}{8}} \sin 2 \theta d \theta+\int_{\frac{\pi}{8}}^{\frac{\pi}{4}} \cos 2 \theta d \theta\right) \\
+& =\int_{0}^{\frac{\pi}{8}} \sin 2 \theta d \theta+\int_{\frac{\pi}{8}}^{\frac{\pi}{4}} \cos 2 \theta d \theta \\
+& =\left[-\frac{1}{2} \cos 2 \theta\right]_{0}^{\frac{\pi}{8}}+\left[\frac{1}{2} \sin 2 \theta\right]_{\frac{\pi}{8}}^{\frac{\pi}{4}}=1-\frac{\sqrt{2}}{2}
+\end{aligned}$$
+14) $z=f(x, y), x=r^{2}+s^{2}, y=2 r s$
+$\Rightarrow \frac{\partial z}{\partial r}=f_{x} \times 2 r+f_{y} \times 2 s$
+$\Rightarrow \frac{\partial^{2} z}{\partial r^{2}}=\left(f_{x x} \times 2 r+f_{x y} \times 2 s\right) 2 r+2 f_{x}+\left(f_{y x} \times 2 r+f_{y y} \times 2 s\right) 2 s$
+$$=4 r^{2} f_{x x}+4 s^{2} f_{y y}+8 r s f_{x y}+2 f_{x}$$
+
+이므로 $A=2, B=4, C=8, D=4$ 이다.
+즉, $A+B+C+D=18$
+15)
+11) $x=t+t^{2}, y=\frac{1}{2} t^{4}+\frac{1}{3} t^{3}$ 일 때,
+$\frac{d y}{d x}=\frac{2 t^{3}+t^{2}}{1+2 t}$,
+$\frac{d^{2} y}{d x^{2}}=\frac{\left(6 t^{2}+2 t\right)(1+2 t)-\left(2 t^{3}+t^{2}\right) \times 2}{(1+2 t)^{2}} \times \frac{1}{1+2 t}$ 이다.
+즉, 점 $\left(2, \frac{5}{6}\right) \Leftrightarrow t=1$ 에서 $\frac{d^{2} y}{d x^{2}}$ 의 값을 구하면 $\frac{2}{3}$ 이다.
+답 : (2)
+12) $y=e^{-2 x}$ 일 때, $x=a$ 에서 접선의 기울기는 $-2 e^{-2 a}$ 이므로
+
+접선은 $y=-2 e^{-2 a}(x-a)+e^{-2 a}$ 이다.
+이때, $x$ 절편은 $a+\frac{1}{2}, y$ 절편은 $2 e^{-2 a}\left(a+\frac{1}{2}\right)$ 이므로
+삼각형의 넓이는 $f(a)=e^{-2 a}\left(a+\frac{1}{2}\right)^{2}$ 이다.
+$$\begin{aligned}
+f^{\prime}(a) & =-2 e^{-2 a}\left(a+\frac{1}{2}\right)^{2}+2 e^{-2 a}\left(a+\frac{1}{2}\right) \\
+& =-2 e^{-2 a}\left(a+\frac{1}{2}\right)\left[\left(a+\frac{1}{2}\right)-1\right]
+\end{aligned}$$
+
+이므로 $a>0$ 에서 임계점은 $a=\frac{1}{2}$ 이다.
+즉, 삼각형의 넓이의 최댓값은 $f\left(\frac{1}{2}\right)=e^{-1}$ 이다.
+16) $\int_{2}^{3} \frac{4}{\left(x^{2}-1\right)^{2}} d x(\because x=\sec \theta)$
+$$\begin{aligned}
+& =\int_{\frac{\pi}{3}}^{\alpha} \frac{4}{\tan ^{4} \theta} \sec \theta \tan \theta d \theta \quad \text { (단, } \sec \alpha=3 \text { ) } \\
+& =\int_{\frac{\pi}{3}}^{\alpha} \frac{4 \cos ^{2} \theta}{\sin ^{3} \theta} d \theta=\int_{\frac{\pi}{3}}^{\alpha} 4 \frac{1-\sin ^{2} \theta}{\sin ^{3} \theta} d \theta \\
+& =\int_{\frac{\pi}{3}}^{\alpha} 4\left(\csc ^{3} \theta-\csc \theta\right) d \theta \\
+& =4\left[-\frac{1}{2} \csc \theta \cot \theta-\frac{1}{2} \ln |\csc \theta+\cot \theta|+\ln |\csc \theta+\cot \theta|\right]_{\frac{\pi}{3}}^{\alpha} \\
+& =4\left[-\frac{1}{2} \csc \theta \cot \theta+\frac{1}{2} \ln |\csc \theta+\cot \theta|\right]_{\frac{\pi}{3}}^{\alpha} \\
+& =4\left\{-\frac{1}{2} \csc \alpha \cot \alpha+\frac{1}{2} \ln (\csc \alpha+\cot \alpha)+\frac{1}{3}-\frac{1}{2} \ln (\sqrt{3})\right\} \\
+& =4\left(-\frac{3}{16}+\frac{1}{2} \ln \sqrt{2}+\frac{1}{3}-\frac{1}{2} \ln \sqrt{3}\right)=\frac{7}{12}+\ln \frac{2}{3}
+\end{aligned}$$
+
+답 : (2)
+$$\text { 19) } \begin{aligned}
+& \int_{0}^{2} \int_{0}^{9} f(x, y) d y d x+\int_{0}^{2} \int_{0}^{\sin \sqrt{x}}(y-\sin \sqrt{x}) d y d x \\
+= & \int_{0}^{2} \int_{0}^{\sin \sqrt{x}} \sin \sqrt{x} d y d x+\int_{0}^{2} \int_{\sin \sqrt{x}}^{9} y d y d x \\
+& +\int_{0}^{2} \int_{0}^{\sin \sqrt{x}} y d y d x-\int_{0}^{2} \int_{0}^{\sin \sqrt{x}} \sin \sqrt{x} d y d x \\
+= & \int_{0}^{2} \int_{0}^{\sin \sqrt{x}} y d y d x+\int_{0}^{2} \int_{\sin \sqrt{x}}^{9} y d y d x \\
+= & \int_{0}^{2} \int_{0}^{9} y d y d x=18 \times \frac{9}{2}=81
+\end{aligned}$$
+20) $Q_{x}=\frac{8 x^{3} y-8 x y^{3}}{\left(x^{2}+y^{2}\right)^{3}}-2 x y, P_{y}=\frac{8 x^{3} y-8 x y^{3}}{\left(x^{2}+y^{2}\right)^{3}}-2 x y-5$ 이므로 그린정리를 이용하면
+$\iint_{D}\left(Q_{x}-P_{y}\right) d x d y=\iint_{D} 5 d A=5 \pi(\sqrt{21}-1)$ 이다.
+17) $f(x, y)=\sqrt{x}+\sqrt{y}$ 라고 할 때, 음함수 미분법에 의하여
+$$\begin{aligned}
+\frac{d y}{d x} & =-\frac{f_{x}}{f_{y}}=-\frac{\frac{1}{2 \sqrt{x}}}{\frac{1}{2 \sqrt{y}}}=-\frac{\sqrt{y}}{\sqrt{x}} \text { 이고 } \\
+\frac{d^{2} y}{d x^{2}} & =-\frac{\frac{1}{2 \sqrt{y}} \sqrt{x} \frac{d y}{d x}-\sqrt{y} \frac{1}{2 \sqrt{x}}}{x} \\
+& =-\frac{\frac{1}{\sqrt{y}} \sqrt{x}\left(-\frac{\sqrt{y}}{\sqrt{x}}\right)-\sqrt{y} \frac{1}{\sqrt{x}}}{2 x} \\
+& =\frac{1+\frac{\sqrt{y}}{\sqrt{x}}}{2 x}=\frac{\sqrt{x}+\sqrt{y}}{2 x \sqrt{x}}=\frac{2}{2 x \sqrt{x}}=\frac{1}{x \sqrt{x}} \text { 이다. }
+\end{aligned}$$
+18) $(1+x)^{p}=\sum_{n=0}^{\infty}\binom{p}{n} x^{n}$ 이고 수렴반경을 1 이다.
+$\frac{d}{d x}\left(\sinh ^{-1} x\right)=\frac{1}{\sqrt{1+x^{2}}}=\left(1+x^{2}\right)^{-\frac{1}{2}}=\sum_{n=0}^{\infty}\binom{-\frac{1}{2}}{n} x^{2 n}$
+$\sinh ^{-1} x=\sum_{n=0}^{\infty}\left(-\frac{1}{2}\right) \frac{1}{n} x^{2 n+1}+C$
+양변에 $x=0$ 을 대입하면 $C=0$ 이다.
+따라서 $\sinh ^{-1} x=\sum_{n=0}^{\infty}\left(-\frac{1}{2}\right) \frac{1}{2 n+1} x^{2 n+1}$ 이고
+$f(x)=\sinh ^{-1}\left(\frac{x}{\sqrt{3}}\right)=\sum_{n=0}^{\infty}\left(-\frac{1}{2}\right) \frac{1}{2 n+1} \frac{1}{(\sqrt{3})^{2 n+1}} x^{2 n+1}$
+이므로 비율판정을 쓰면 $\frac{\left|x^{2}\right|}{3}<1 \Leftrightarrow|x|<\sqrt{3}$ 이다.
+답 : (4)

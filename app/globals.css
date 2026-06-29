@@ -34,6 +34,12 @@ textarea {
 
 .katex {
   font-size: 1.04em;
+  line-height: 1.3;
+}
+
+.katex-display {
+  overflow-y: visible;
+  padding-block: 0.08em;
 }
 
 /* ─────────────── 다크 모드 ───────────────
@@ -156,5 +162,143 @@ textarea {
   .animate-intro-orb,
   .animate-intro-gradient {
     animation: none !important;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  html,
+  body {
+    width: auto !important;
+    min-height: 0 !important;
+    background: #fff !important;
+  }
+
+  body {
+    color: #172033 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .dark,
+  .dark body {
+    color-scheme: light !important;
+    background: #fff !important;
+    color: #172033 !important;
+  }
+
+  .dark .bg-white,
+  .dark .bg-white\/95,
+  .dark .bg-white\/90,
+  .dark .bg-white\/85,
+  .dark .bg-white\/80,
+  .dark .bg-white\/70,
+  .dark .bg-white\/60 {
+    background-color: #fff !important;
+  }
+
+  .dark .bg-slate-50,
+  .dark .bg-slate-100,
+  .dark .bg-slate-200 {
+    background-color: #f8fafc !important;
+  }
+
+  .dark .bg-brand-50 {
+    background-color: #eff6ff !important;
+  }
+
+  .dark .bg-mint-50 {
+    background-color: #ecfdf5 !important;
+  }
+
+  .dark .bg-coral-50 {
+    background-color: #fff1f2 !important;
+  }
+
+  .dark .border-line {
+    border-color: #d7deeb !important;
+  }
+
+  .dark .text-ink {
+    color: #172033 !important;
+  }
+
+  .dark .text-slate-700,
+  .dark .text-slate-600 {
+    color: #475569 !important;
+  }
+
+  .dark .text-slate-500,
+  .dark .text-slate-400,
+  .dark .text-slate-300 {
+    color: #64748b !important;
+  }
+
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  .shadow-soft,
+  .dark .shadow-soft,
+  .dark .hover\:shadow-lg:hover {
+    box-shadow: none !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+
+  .print-avoid-break,
+  .print-card,
+  .answer-card,
+  .solution-card,
+  [data-print-card="true"],
+  [data-print-section="true"],
+  article.rounded-lg,
+  article.rounded-xl,
+  article.rounded-2xl,
+  li.rounded-lg,
+  li.rounded-xl,
+  li.rounded-2xl {
+    break-inside: avoid;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+
+  .print-allow-break {
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+
+  .katex,
+  .katex-display,
+  img,
+  table,
+  pre,
+  blockquote {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .overflow-hidden,
+  .overflow-auto,
+  .overflow-x-auto,
+  .overflow-y-auto {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+  }
+
+  .max-h-\[82vh\],
+  .max-h-\[90vh\],
+  .max-h-96,
+  .max-h-full {
+    max-height: none !important;
   }
 }

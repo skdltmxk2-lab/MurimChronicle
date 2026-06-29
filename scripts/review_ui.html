@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<title>검토 포트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #0b1020; color: #e5e7eb; }
+  header { display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: #11162a; border-bottom: 1px solid #1f2a44; position: sticky; top: 0; z-index: 10; }
+  header h1 { font-size: 16px; margin: 0; flex: 1; }
+  button { background: #2563eb; color: white; border: 0; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+  button.ghost { background: #1f2a44; }
+  button.danger { background: #b91c1c; }
+  button.success { background: #16a34a; }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  main { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 49px); }
+  .sidebar { background: #0f1426; border-right: 1px solid #1f2a44; padding: 12px; overflow-y: auto; max-height: calc(100vh - 49px); position: sticky; top: 49px; }
+  .sidebar h2 { font-size: 12px; text-transform: uppercase; color: #94a3b8; margin: 12px 4px 6px; letter-spacing: .05em; }
+  .qitem { padding: 8px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-bottom: 4px; }
+  .qitem:hover { background: #1f2a44; }
+  .qitem.active { background: #2563eb; color: white; }
+  .qitem .meta { font-size: 11px; color: #94a3b8; }
+  .qitem.active .meta { color: #bfdbfe; }
+  .content { padding: 20px 28px; overflow-y: auto; max-height: calc(100vh - 49px); }
+  .empty { color: #64748b; padding: 40px; text-align: center; }
+  .header-meta { background: #11162a; border: 1px solid #1f2a44; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  .header-meta .field label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 2px; text-transform: uppercase; letter-spacing: .05em; }
+  .header-meta input { background: #0b1020; color: #e5e7eb; border: 1px solid #1f2a44; border-radius: 4px; padding: 5px 8px; font-size: 12px; width: 100%; font-family: inherit; }
+
+  .problem { background: #11162a; border: 1px solid #1f2a44; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
+  .pheader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #1f2a44; }
+  .pheader .num { font-size: 18px; font-weight: bold; color: #60a5fa; }
+  .pheader .meta-strip { font-size: 12px; color: #94a3b8; display: flex; gap: 8px; align-items: center; }
+  .pheader .meta-strip .chip { background: #1f2a44; padding: 2px 8px; border-radius: 10px; cursor: pointer; }
+  .pheader .meta-strip .chip:hover { background: #2d3a5f; }
+  .pheader .actions { display: flex; gap: 6px; }
+  .pheader .actions button { padding: 3px 10px; font-size: 11px; }
+
+  .meta-panel { background: #0b1020; border: 1px solid #1f2a44; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px; display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+  .meta-panel .field label { display: block; font-size: 10px; color: #94a3b8; margin-bottom: 2px; text-transform: uppercase; }
+  .meta-panel input, .meta-panel select { width: 100%; background: #11162a; color: #e5e7eb; border: 1px solid #1f2a44; border-radius: 4px; padding: 4px 6px; font-size: 12px; font-family: inherit; }
+  .meta-panel .span4 { grid-column: span 4; }
+
+  .qbody { font-size: 16px; line-height: 1.8; margin-bottom: 18px; cursor: text; padding: 8px 10px; border-radius: 6px; min-height: 32px; white-space: pre-wrap; }
+  .qbody:hover { background: rgba(96,165,250,0.05); }
+  .options-list { display: grid; gap: 10px; margin-bottom: 18px; }
+  .opt { display: grid; grid-template-columns: 36px 1fr 24px; gap: 12px; align-items: center; padding: 10px 14px; background: #0b1020; border: 1px solid #1f2a44; border-radius: 6px; }
+  .opt:hover .opt-text { background: rgba(96,165,250,0.05); }
+  .opt.correct { background: #052e16; border-color: #16a34a; }
+  .opt .opt-id { font-weight: bold; text-align: center; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; background: #1f2a44; cursor: pointer; font-size: 13px; }
+  .opt.correct .opt-id { background: #16a34a; color: white; }
+  .opt .opt-text { font-size: 15px; line-height: 1.6; padding: 4px 8px; border-radius: 4px; cursor: text; min-height: 28px; }
+  .opt .opt-rm { color: #64748b; cursor: pointer; font-size: 16px; text-align: center; }
+  .opt .opt-rm:hover { color: #b91c1c; }
+
+  .exp-block { margin-top: 12px; }
+  .exp-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: .05em; }
+  .explanation { background: #0b1020; border: 1px solid #1f2a44; border-radius: 6px; padding: 12px 16px; font-size: 14px; line-height: 1.7; cursor: text; min-height: 40px; white-space: pre-wrap; }
+  .explanation:hover { background: #0f1426; }
+
+  .inline-edit { background: #1f2a44; color: #fff; border: 2px solid #60a5fa; border-radius: 4px; padding: 6px 8px; font-family: ui-monospace, monospace; font-size: 13px; width: 100%; outline: none; box-sizing: border-box; }
+  textarea.inline-edit { min-height: 80px; resize: vertical; line-height: 1.5; }
+
+  .placeholder { color: #64748b; font-style: italic; }
+  .toast { position: fixed; bottom: 20px; right: 20px; background: #16a34a; padding: 10px 16px; border-radius: 6px; color: white; font-size: 13px; z-index: 100; }
+  .toast.error { background: #b91c1c; }
+  .add-btn { background: #1f2a44; color: #94a3b8; border: 1px dashed #2d3a5f; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .add-btn:hover { background: #2d3a5f; color: #e5e7eb; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">검토 포트</h1>
+  <button class="ghost" onclick="loadQueue()">새로고침</button>
+  <button id="saveBtn" onclick="saveCurrent()" disabled>저장</button>
+  <button id="pushBtn" class="success" onclick="pushCurrent()" disabled>푸쉬</button>
+  <button id="discardBtn" class="danger" onclick="discardCurrent()" disabled>버리기</button>
+</header>
+<main>
+  <aside class="sidebar">
+    <h2>큐</h2>
+    <div id="queue"></div>
+  </aside>
+  <section class="content">
+    <div id="content"><div class="empty">왼쪽에서 검토 항목을 선택하세요.</div></div>
+  </section>
+</main>
+<script>
+const SUBJECTS = ['미분학','적분학','다변수함수','선형대수','공학수학'];
+const DIFFS = ['easy','easyMedium','medium','mediumHard','hard','killer'];
+
+let queue = [];
+let current = null;
+let editing = false;
+let activeEditor = null;
+
+function toast(msg, err=false) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (err ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+async function api(path, opts={}) {
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error((await r.json().catch(()=>({error:'http '+r.status}))).error);
+  return r.json();
+}
+
+async function loadQueue() {
+  queue = await api('/api/queue');
+  renderQueue();
+}
+
+function renderQueue() {
+  const el = document.getElementById('queue');
+  if (!queue.length) { el.innerHTML = '<div class="empty" style="padding:20px;font-size:12px">큐 비어있음</div>'; return; }
+  el.innerHTML = queue.map((q) => `
+    <div class="qitem ${current?.name===q.name?'active':''}" onclick="loadItem('${q.name}')">
+      <div>${escapeHtml(q.title)}</div>
+      <div class="meta">${q.count}문항 · ${escapeHtml(q.schoolSlug||'-')} ${escapeHtml(q.year||'')}</div>
+    </div>
+  `).join('');
+}
+
+async function loadItem(name) {
+  const data = await api('/api/queue/' + encodeURIComponent(name));
+  current = { name, data };
+  editing = false;
+  document.getElementById('saveBtn').disabled = true;
+  document.getElementById('pushBtn').disabled = false;
+  document.getElementById('discardBtn').disabled = false;
+  renderQueue();
+  render();
+}
+
+function markEdited() {
+  editing = true;
+  document.getElementById('saveBtn').disabled = false;
+}
+
+function escapeHtml(s) { return String(s ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]); }
+function escapeAttr(s) { return escapeHtml(s).replace(/`/g,'&#96;'); }
+
+function renderMath(root) {
+  if (!window.renderMathInElement) return;
+  try {
+    window.renderMathInElement(root, {
+      delimiters: [{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],
+      throwOnError: false,
+    });
+  } catch (e) {}
+}
+
+function render() {
+  if (!current) return;
+  const d = current.data;
+  document.getElementById('title').textContent = `검토 포트 — ${d.title || current.name}`;
+
+  const headerMeta = `
+    <div class="header-meta">
+      <div class="field"><label>title</label><input value="${escapeAttr(d.title||'')}" oninput="current.data.title=this.value;markEdited()"></div>
+      <div class="field"><label>schoolSlug</label><input value="${escapeAttr(d.schoolSlug||'')}" oninput="current.data.schoolSlug=this.value;markEdited()"></div>
+      <div class="field"><label>year</label><input value="${escapeAttr(d.year||'')}" oninput="current.data.year=this.value;markEdited()"></div>
+      <div class="field"><label>idPrefix</label><input value="${escapeAttr(d.idPrefix||'')}" oninput="current.data.idPrefix=this.value;markEdited()"></div>
+    </div>
+  `;
+  const probs = (d.problems||[]).map((p, idx) => renderProblem(p, idx)).join('');
+  document.getElementById('content').innerHTML = headerMeta + probs + `
+    <button class="add-btn" onclick="addProblem()">+ 문제 추가</button>
+  `;
+  setTimeout(() => renderMath(document.getElementById('content')), 0);
+}
+
+function renderProblem(p, idx) {
+  const showMeta = p._meta === true;
+  const optsHtml = (p.options||[]).map((o, oi) => {
+    const isCorrect = String(p.correct_option_id) === String(o.id);
+    const txt = o.text || '<span class="placeholder">(빈 선지)</span>';
+    return `
+      <div class="opt ${isCorrect?'correct':''}">
+        <div class="opt-id" onclick="setCorrect(${idx}, '${o.id}')" title="정답 지정">${o.label||o.id}</div>
+        <div class="opt-text" onclick="editField(event, ${idx}, 'options.${oi}.text')">${o.text ? escapeHtml(o.text) : txt}</div>
+        <div class="opt-rm" onclick="removeOption(${idx},${oi})" title="선지 삭제">×</div>
+      </div>
+    `;
+  }).join('') + `<button class="add-btn" style="margin-top:4px;font-size:11px;padding:4px 12px" onclick="addOption(${idx})">+ 선지</button>`;
+
+  const metaPanel = showMeta ? `
+    <div class="meta-panel">
+      <div class="field"><label>id</label><input value="${escapeAttr(p.id||'')}" oninput="current.data.problems[${idx}].id=this.value;markEdited()"></div>
+      <div class="field"><label>subject</label>
+        <select onchange="current.data.problems[${idx}].subject=this.value;markEdited();render()">
+          ${SUBJECTS.map(s=>`<option ${p.subject===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>difficulty</label>
+        <select onchange="current.data.problems[${idx}].difficulty=this.value;markEdited();render()">
+          ${DIFFS.map(s=>`<option ${p.difficulty===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>correct_option_id</label><input value="${escapeAttr(p.correct_option_id||'')}" oninput="current.data.problems[${idx}].correct_option_id=this.value;markEdited()"></div>
+      <div class="field"><label>unit</label><input value="${escapeAttr(p.unit||'')}" oninput="current.data.problems[${idx}].unit=this.value;markEdited()"></div>
+      <div class="field"><label>concept</label><input value="${escapeAttr(p.concept||'')}" oninput="current.data.problems[${idx}].concept=this.value;markEdited()"></div>
+      <div class="field span4"><label>tags (쉼표 구분)</label><input value="${escapeAttr((p.tags||[]).join(','))}" oninput="current.data.problems[${idx}].tags=this.value.split(',').map(s=>s.trim()).filter(Boolean);markEdited()"></div>
+    </div>
+  ` : '';
+
+  return `
+    <div class="problem">
+      <div class="pheader">
+        <span class="num">${idx+1}.</span>
+        <span class="meta-strip">
+          <span class="chip" onclick="toggleMeta(${idx})">${escapeHtml(p.subject||'-')}</span>
+          <span class="chip" onclick="toggleMeta(${idx})">${escapeHtml(p.difficulty||'-')}</span>
+          <span class="chip" onclick="toggleMeta(${idx})">정답 ${escapeHtml(p.correct_option_id||'?')}</span>
+        </span>
+        <span class="actions">
+          <button class="ghost" onclick="toggleMeta(${idx})">${showMeta?'메타 닫기':'메타 편집'}</button>
+          <button class="danger" onclick="removeProblem(${idx})">삭제</button>
+        </span>
+      </div>
+      ${metaPanel}
+      <div class="qbody" onclick="editField(event, ${idx}, 'question')">${p.question ? escapeHtml(p.question) : '<span class="placeholder">(질문 클릭하여 입력)</span>'}</div>
+      <div class="options-list">${optsHtml}</div>
+      <div class="exp-block">
+        <div class="exp-label">해설</div>
+        <div class="explanation" onclick="editField(event, ${idx}, 'explanation')">${p.explanation ? escapeHtml(p.explanation) : '<span class="placeholder">(해설 클릭하여 입력)</span>'}</div>
+      </div>
+    </div>
+  `;
+}
+
+function getByPath(obj, path) {
+  return path.split('.').reduce((o, k) => o == null ? o : o[k], obj);
+}
+function setByPath(obj, path, val) {
+  const keys = path.split('.');
+  const last = keys.pop();
+  let target = obj;
+  for (const k of keys) target = target[k];
+  target[last] = val;
+}
+
+function editField(e, idx, path) {
+  if (activeEditor) return;
+  e.stopPropagation();
+  const el = e.currentTarget;
+  const val = getByPath(current.data.problems[idx], path) || '';
+  const isMultiline = path === 'question' || path === 'explanation';
+  const input = document.createElement(isMultiline ? 'textarea' : 'input');
+  input.className = 'inline-edit';
+  input.value = val;
+  if (isMultiline) {
+    input.rows = Math.max(3, Math.min(20, val.split('\n').length + 1));
+  }
+  let finished = false;
+  const finish = (commit) => {
+    if (finished) return;
+    finished = true;
+    if (commit) {
+      const newVal = input.value;
+      if (newVal !== val) {
+        setByPath(current.data.problems[idx], path, newVal);
+        markEdited();
+      }
+    }
+    activeEditor = null;
+    render();
+  };
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') { ev.preventDefault(); finish(false); }
+    else if (ev.key === 'Enter' && (ev.ctrlKey || ev.metaKey)) { ev.preventDefault(); finish(true); }
+  });
+  el.replaceWith(input);
+  activeEditor = input;
+  input.focus();
+  if (!isMultiline) input.select();
+}
+
+function toggleMeta(idx) { current.data.problems[idx]._meta = !current.data.problems[idx]._meta; render(); }
+function setCorrect(idx, oid) { current.data.problems[idx].correct_option_id = String(oid); markEdited(); render(); }
+function addOption(idx) {
+  const opts = current.data.problems[idx].options ||= [];
+  const nextId = String(opts.length + 1);
+  opts.push({ id: nextId, label: nextId, text: '', contentType: 'latex', image: '' });
+  markEdited(); render();
+}
+function removeOption(idx, oi) {
+  if (!confirm('이 선지를 삭제할까요?')) return;
+  current.data.problems[idx].options.splice(oi,1); markEdited(); render();
+}
+function removeProblem(idx) {
+  if (!confirm('이 문제를 큐에서 삭제할까요?')) return;
+  current.data.problems.splice(idx,1); markEdited(); render();
+}
+function addProblem() {
+  const probs = current.data.problems ||= [];
+  const prefix = current.data.idPrefix || 'q-new-';
+  const num = probs.length + 1;
+  probs.push({
+    id: `${prefix}${String(num).padStart(2,'0')}`,
+    subject: '미분학', unit: '', concept: '', difficulty: 'medium',
+    question: '', options: [1,2,3,4].map(i=>({id:String(i),label:String(i),text:'',contentType:'latex',image:''})),
+    correct_option_id: '1', explanation: '', tags: [],
+  });
+  markEdited(); render();
+}
+
+async function saveCurrent() {
+  if (!current) return;
+  const clean = JSON.parse(JSON.stringify(current.data));
+  (clean.problems||[]).forEach(p => { delete p._meta; });
+  await api('/api/queue/' + encodeURIComponent(current.name), { method:'PUT', headers:{'content-type':'application/json'}, body: JSON.stringify(clean) });
+  editing = false;
+  document.getElementById('saveBtn').disabled = true;
+  toast('저장 완료');
+  loadQueue();
+}
+
+async function pushCurrent() {
+  if (!current) return;
+  if (editing) { toast('먼저 저장하세요', true); return; }
+  if (!confirm(`${current.data.problems.length}문항을 Supabase에 푸쉬하고 큐에서 삭제할까요?`)) return;
+  try {
+    const r = await api('/api/push/' + encodeURIComponent(current.name), { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({}) });
+    toast(`푸쉬 완료 (${r.inserted}문항)`);
+    current = null;
+    document.getElementById('content').innerHTML = '<div class="empty">완료</div>';
+    document.getElementById('saveBtn').disabled = true;
+    document.getElementById('pushBtn').disabled = true;
+    document.getElementById('discardBtn').disabled = true;
+    loadQueue();
+  } catch (e) { toast('실패: ' + e.message, true); }
+}
+
+async function discardCurrent() {
+  if (!current) return;
+  if (!confirm('큐에서 삭제할까요? (Supabase에는 영향 없음)')) return;
+  await api('/api/queue/' + encodeURIComponent(current.name), { method:'DELETE' });
+  current = null;
+  document.getElementById('content').innerHTML = '<div class="empty">삭제됨</div>';
+  document.getElementById('saveBtn').disabled = true;
+  document.getElementById('pushBtn').disabled = true;
+  document.getElementById('discardBtn').disabled = true;
+  loadQueue();
+}
+
+loadQueue();
+</script>
+</body>
+</html>

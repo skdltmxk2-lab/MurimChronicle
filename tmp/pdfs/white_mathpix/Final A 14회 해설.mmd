@@ -1,0 +1,351 @@
+1) $f^{\prime}(0)=\lim _{h \rightarrow 0} \frac{f(h)-f(0)}{h}=\lim _{h \rightarrow 0} \frac{\frac{h^{2} \sin (2 h)}{\cos (h)-1}}{h}$
+$$=\lim _{h \rightarrow 0} \frac{h\left(2 h-\frac{(2 h)^{3}}{3!}+\cdots\right)}{-\frac{1}{2!} h^{2}+\cdots}=\frac{2}{-\frac{1}{2!}}=-4$$
+
+답 : (5)
+2) $\lim _{x \rightarrow 0} \frac{x-\tanh ^{-1} x}{x^{3}}=\lim _{x \rightarrow 0} \frac{x-\left(x+\frac{1}{3} x^{3}+\cdots\right)}{x^{3}}=-\frac{1}{3}$
+
+답 : (1)
+3)
+![](https://cdn.mathpix.com/cropped/ffe2d836-afc6-48bc-a869-49742610472d-1.jpg?height=359&width=343&top_left_y=1031&top_left_x=385)
+$x^{2}+y^{2}=2 x$ 내의 곡면 $z=\sqrt{4-x^{2}-y^{2}}$ 의 넓이를 구해서 2 배를 하면 된다.
+$$\begin{aligned}
+D & =\left\{(x, y) \mid x^{2}+y^{2} \leq 2 x\right\} \\
+& =\left\{(r, \theta) \mid r \leq 2 \cos \theta,-\frac{\pi}{2} \leq \theta \leq \frac{\pi}{2}\right\}
+\end{aligned}$$
+
+에 대하여 $z=\sqrt{4-x^{2}-y^{2}}$ 의 곡면적은 다음과 같다.
+$$\begin{aligned}
+& 2 \iint_{D} \sqrt{1+\left(z_{x}\right)^{2}+\left(z_{y}\right)^{2}} d x d y=2 \iint_{D} \frac{2}{\sqrt{4-x^{2}-y^{2}}} d x d y \\
+& =2 \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}} \int_{0}^{2 \cos \theta} \frac{2 r}{\sqrt{4-r^{2}}} d r d \theta=4 \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}\left[-\sqrt{4-r^{2}}\right]_{0}^{2 \cos \theta} d \theta \\
+& =4 \int_{-\frac{\pi}{2}}^{\frac{\pi}{2}}-|2 \sin \theta|+2 d \theta=8 \int_{0}^{\frac{\pi}{2}}-2 \sin \theta+2 d \theta \\
+& =8(-2+\pi)
+\end{aligned}$$
+4) $\int_{C} F \cdot d r=\iint_{D} 3 y-x d x d y$ ( ∵ 그린 정 리)
+$$\begin{aligned}
+& =3 \bar{y} \times(D \text { 의 면적 })-\bar{x} \times(D \text { 의 면적 }) \\
+& =3 \times 1 \times(D \text { 의 면적 })-2 \times(D \text { 의 면적 }) \\
+& =D \text { 의 면적 }=\frac{1}{2} \times 4 \times 3=6
+\end{aligned}$$
+5) $\int_{0}^{1} \int_{x^{1 / 3}}^{1} \frac{4 \pi \sin \left(\pi y^{2}\right)}{y^{2}} d y d x=\int_{0}^{1} \int_{0}^{y^{3}} \frac{4 \pi \sin \left(\pi y^{2}\right)}{y^{2}} d x d y$
+$$=\int_{0}^{1} 4 \pi y \sin \left(\pi y^{2}\right) d y=\left[-2 \cos \left(\pi y^{2}\right)\right]_{0}^{1}=4$$
+
+답 : (1)
+$$\begin{aligned}
+& \text { 6) } f_{n}(x)= \\
+& \Rightarrow f_{n}^{\prime}(x)=2 n \sin ^{2 n-1} x \cos x \\
+& \Rightarrow f_{n}^{\prime \prime}(x)=2 n(2 n-1) \sin ^{2 n-2} x \cos ^{2} x-2 n \sin ^{n} x \\
+& =2 n \sin ^{2 n-2} x\left[(2 n-1) \cos ^{2} x-\sin ^{2} x\right] \\
+& =2 n \sin ^{2 n-2} x\left[(2 n-1) \cos ^{2} x-\sin ^{2} x\right]
+\end{aligned}$$
+
+이때, $0<x<\frac{\pi}{2}$ 과 자연수 $n$ 에 대하여 $\left(a_{n}, f_{n}\left(a_{n}\right)\right)$ 에서
+변곡점이 되려면 $f^{\prime \prime}\left(a_{n}\right)=0$ 은 다음과 같다.
+$(2 n-1) \cos ^{2} a_{n}-\sin ^{2} a_{n}=0$
+$\Leftrightarrow(2 n-1)\left(1-\sin ^{2} a_{n}\right)-\sin ^{2} a_{n}=0$
+$\Leftrightarrow \sin ^{2} a_{n}=\frac{2 n-1}{2 n}=1-\frac{1}{2 n}$
+즉, $\lim _{n \rightarrow \infty} f_{n}\left(a_{n}\right)=\lim _{n \rightarrow \infty} \sin ^{2 n} a_{n}=\lim _{n \rightarrow \infty}\left(1-\frac{1}{2 n}\right)^{n}=e^{-\frac{1}{2}}$
+답 : (5)
+
+\section*{7)}
+![](https://cdn.mathpix.com/cropped/ffe2d836-afc6-48bc-a869-49742610472d-1.jpg?height=416&width=544&top_left_y=1241&top_left_x=1200)
+
+영역을 $y=1$ 을 중심으로 회전하여 나온 부피를 원판법으로 적용하면 다음과 같다.
+$\pi \int_{0}^{1} 1^{2}-(1-y)^{2} d x=\pi \int_{0}^{1} 1^{2}-\left(1-x^{3}\right)^{2} d x$
+$=\pi \int_{0}^{1} 2 x^{3}-x^{6} d x=\pi\left(\frac{1}{2}-\frac{1}{7}\right)=\frac{5}{14} \pi$
+[별해]
+$y=1$ 을 축으로 회전한 부피를 원주각법을 적용하면 다음과 같다.
+$2 \pi \int_{0}^{1}(1-y)\left(x_{1}-x_{2}\right) d y=2 \pi \int_{0}^{1}(1-y)\left(1-y^{\frac{1}{3}}\right) d y$
+$=2 \pi \int_{0}^{1} 1-y^{\frac{1}{3}}-y+y^{\frac{4}{3}} d y=2 \pi\left(1-\frac{3}{4}-\frac{1}{2}+\frac{3}{7}\right)=\frac{5}{14} \pi$
+8) $\lim _{n \rightarrow \infty} \frac{(n+2)^{7}+(n+4)^{7}+(n+6)^{7}+\cdots+(3 n)^{7}}{1^{7}+2^{7}+3^{7}+\cdots+n^{7}}$
+$$=\lim _{n \rightarrow \infty} \frac{\sum_{k=1}^{n}(n+2 k)^{7}}{\sum_{k=1}^{n} k^{7}}=\lim _{n \rightarrow \infty} \frac{\sum_{k=1}^{n} \frac{(n+2 k)^{7}}{n^{7}} \frac{1}{n}}{\sum_{k=1}^{n} \frac{k^{7}}{n^{7}} \frac{1}{n}}$$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty} \frac{\sum_{k=1}^{n}\left(1+\frac{2 k}{n}\right)^{7} \frac{1}{n}}{\sum_{k=1}^{n}\left(\frac{k}{n}\right)^{7} \frac{1}{n}}=\frac{\int_{0}^{1}(1+2 x)^{7} d x}{\int_{0}^{1} x^{7} d x} \\
+& =\frac{\frac{1}{16}\left[(1+2 x)^{8}\right]_{0}^{1}}{\frac{1}{8}}=\frac{1}{2}\left(3^{8}-1\right)
+\end{aligned}$$
+9) 1) 임계점
+$$\begin{aligned}
+f_{x} & =-2 x e^{-x^{2}-y^{2}}\left(x^{2}+2 y^{2}\right)+2 x e^{-x^{2}-y^{2}} \\
+& =-2 x e^{-x^{2}-y^{2}}\left(x^{2}+2 y^{2}-1\right), \\
+f_{y} & =-2 y e^{-x^{2}-y^{2}}\left(x^{2}+2 y^{2}\right)+4 y e^{-x^{2}-y^{2}} \\
+& =-2 y e^{-x^{2}-y^{2}}\left(x^{2}+2 y^{2}-2\right)
+\end{aligned}$$
+
+이므로 영역 $D$ 에서 동시에 만족하는 임계점은
+$(0,0),(0, \pm 1),( \pm 1,0)$ 이다.
+따라서 $f(0,0)=0, f(0, \pm 1)=2 e^{-1}, f( \pm 1,0)=e^{-1}$ 이다.
+2) 경계
+$x^{2}+y^{2}=4$ 일 때,
+$f(x, y)=e^{-x^{2}-y^{2}}\left(x^{2}+2 y^{2}\right)=e^{-4}\left(4+y^{2}\right),-2 \leq y \leq 2$ 에서
+최댓값을 구하면 된다.
+$g(y)=e^{-4}\left(4+y^{2}\right)$ 라 하면 $g^{\prime}(0)=0$ 이므로
+$g(0)=4 e^{-4}$ 이고, $g(-2)=g(2)=8 e^{-4}$ 이다.
+즉, 최댓값은 $2 e^{-1}$ 이다.
+10)
+![](https://cdn.mathpix.com/cropped/ffe2d836-afc6-48bc-a869-49742610472d-2.jpg?height=300&width=314&top_left_y=1629&top_left_x=433)
+$r=1+\sin \theta$ 와 $r=1-\cos \theta$ 에 대한 교점은
+$1+\sin \theta=1-\cos \theta \Leftrightarrow \tan \theta=-1$ 이므로 $\theta=-\frac{\pi}{4}, \frac{3 \pi}{4}$
+이다. 이때, $\theta=-\frac{\pi}{4}$ 일 때, $r_{1}=1-\frac{\sqrt{2}}{2}$ 이고
+$\theta=\frac{3 \pi}{4}$ 일 때, $r_{2}=1+\frac{\sqrt{2}}{2}$ 이다.
+따라서 원점이 아닌 교점사이의 거리는 2 이다.
+답 : (4)
+11) 길이 $=\int_{0}^{\frac{\pi}{4}} \sqrt{\left(x^{\prime}\right)^{2}+\left(y^{\prime}\right)^{2}+\left(z^{\prime}\right)^{2}} d t$
+$$\begin{aligned}
+& =\int_{0}^{\frac{\pi}{4}} \sqrt{\sin ^{2} t+\cos ^{2} t+\tan ^{2} t} d t \\
+& =\int_{0}^{\frac{\pi}{4}} \sec t d t=[\ln (\sec t+\tan t)]_{0}^{\frac{\pi}{4}}=\ln (\sqrt{2}+1)
+\end{aligned}$$
+
+답 : (3)
+12) $f(x, y)=\int_{x y}^{x^{2}+y^{2}} e^{-(t-1)^{2}} d t$ 일 때,
+$f_{x}=e^{-\left(x^{2}+y^{2}-1\right)^{2}} \times 2 x-e^{-(x y-1)^{2}} \times y$,
+$f_{x}=e^{-\left(x^{2}+y^{2}-1\right)^{2}} \times 2 y-e^{-(x y-1)^{2}} \times x$ 이므로
+$f_{x}(1,0)=2, f_{y}(1,0)=-e^{-1}$ 이다.
+따라서 $D_{u} f(1,0)=\nabla f(1,0) \cdot \frac{1}{5}(3,4)=\left(2,-e^{-1}\right) \cdot \frac{1}{5}(3,4)$
+$$=\frac{1}{5}\left(6-4 e^{-1}\right)$$
+
+이다.
+답 : (1)
+13)
+$$y=x^{3}-(a+2) x^{2}+2 a x$$
+![](https://cdn.mathpix.com/cropped/ffe2d836-afc6-48bc-a869-49742610472d-2.jpg?height=220&width=481&top_left_y=1033&top_left_x=1156)
+$y=x^{3}-(a+2) x^{2}+2 a x=x(x-a)(x-2)$ 이고,
+$x$ 축과 둘러싸인 넓이가 같다.
+$\Rightarrow \int_{0}^{2} x^{3}-(a+2) x^{2}+2 a x d x=0$
+$\Rightarrow\left[\frac{1}{4} x^{4}-\frac{1}{3}(a+2) x^{3}+a x^{2}\right]_{0}^{2}=0$
+$\Rightarrow 4-\frac{8(a+2)}{3}+4 a=0$
+즉, $a=1$
+답 : (1)
+14) ㄱ. 급수 $\sum_{n=1}^{\infty} a_{n} b_{n}$ 이 수렴하므로 $\lim _{n \rightarrow \infty} a_{n} b_{n}=0$ 이고,
+$\lim _{n \rightarrow \infty} a_{n} \neq 0$ 을 만족해야한다.
+만약, $a_{n}=\left\{\begin{array}{l}1, n \text { 은 짝수 } \\ 0, n \text { 은 홀 수 }\end{array} b_{n}=\left\{\begin{array}{l}0, n \text { 은 짝수 이면 } \\ 1, n \text { 은 홀수 }\end{array}\right.\right.$
+위의 조건을 만족하지만 $\lim _{n \rightarrow \infty} b_{n} \neq 0$ 이다. (거짓)
+ㄴ. 두 급수 $\sum_{n=1}^{\infty} a_{n}, \sum_{n=1}^{\infty} b_{n}$ 이 수렴하면 $\lim _{n \rightarrow \infty} a_{n}=0$,
+$\lim _{n \rightarrow \infty} b_{n}=0$ 이므로 $\lim _{n \rightarrow \infty} a_{n} b_{n}=\lim _{n \rightarrow \infty} a_{n} \lim _{n \rightarrow \infty} b_{n}=0$ 이다.
+(참)
+ㄷ. 두 급수 $\sum_{n=1}^{\infty} a_{n}, \sum_{n=1}^{\infty}\left(a_{n}+b_{n}\right)$ 이 수렴하면
+$\sum_{n=1}^{\infty} b_{n}=\sum_{n=1}^{\infty}\left(a_{n}+b_{n}\right)-a_{n}=\sum_{n=1}^{\infty}\left(a_{n}+b_{n}\right)-\sum_{n=1}^{\infty} a_{n}$ 이므로
+수렴한다. (참)
+답 : (5)
+15) 구 $x^{2}+y^{2}+z^{2}=54$ 와 직선 $x=t-3, y=t, z=3 t+1$ 의
+
+교점을 구하면, $(t-3)^{2}+t^{2}+(3 t+1)^{2}=54 \Leftrightarrow t= \pm 2$ 이다.
+따라서 $t=-2$ 일 때, $A(-5,-2,-5)$ 이고
+$t=2$ 일 때, $B(-1,2,7)$ 이므로
+$\cos \theta=\frac{\overrightarrow{O A} \cdot \overrightarrow{O B}}{|\overrightarrow{O A}||\overrightarrow{O B}|}=\frac{-34}{54}=-\frac{17}{27}$ 이다.
+답 : (2)
+16) 영역을 그려보면 아래와 같다.
+![](https://cdn.mathpix.com/cropped/ffe2d836-afc6-48bc-a869-49742610472d-3.jpg?height=494&width=535&top_left_y=641&top_left_x=330)
+1) $x y$ 평면으로 정사영한 넓이는 $S_{1}=\int_{0}^{1} \sqrt{x} d x=\frac{2}{3}$ 이다.
+2) $y z$ 평면으로 정사영한 넓이는 정사각형의 넓이와 같으므로 $S_{2}=1 \times 1=1$ 이다.
+3) $x z$ 평면으로 정사영한 넓이는 삼각형의 넓이와 같으므로
+$S_{3}=\frac{1}{2} \times 1 \times 1=\frac{1}{2}$ 이다.
+즉, $S_{1}-S_{2}+S_{3}=\frac{2}{3}-1+\frac{1}{2}=\frac{1}{6}$
+답 : (1)
+17) $s=f(u, v, w), u=\frac{y}{x}, v=\frac{z}{y}, w=\frac{x}{z}$ 라 하면
+$\nabla f\left(\frac{1}{2}, 1,2\right)=\left(f_{u}, f_{v}, f_{z}\right)_{\left(\frac{1}{2}, 1,2\right)}=(2,3,1)$ 이고,
+$\frac{\partial s}{\partial z}=f_{u} \times 0+f_{v} \times \frac{1}{y}+f_{z} \times\left(-\frac{x}{z^{2}}\right)$ 이다.
+$x=1, y=\frac{1}{2}, z=\frac{1}{2}, u=\frac{1}{2}, v=1, w=2$ 을 대입하면
+$\frac{\partial s}{\partial z}=f_{v}\left(\frac{1}{2}, 1,2\right) \times 2+f_{z}\left(\frac{1}{2}, 1,2\right) \times(-4)$
+$=3 \times 2+1 \times(-4)=2$ 이다.
+답 : (3)
+18) $x=t+t^{2}+t^{3}+\cdots+t^{n+1}$,
+$y=t+\frac{3}{2} t^{2}+\frac{5}{3} t^{3}+\cdots+\frac{2 n+1}{n+1} t^{n+1}$ 일 때,
+$\frac{d y}{d x}=\frac{\frac{d y}{d t}}{\frac{d x}{d t}}=\frac{1+3 t+5 t^{2}+\cdots+(2 n+1) t^{n}}{1+2 t+3 t^{2}+\cdots+(n+1) t^{n}}$ 이므로 $t=1$ 을
+대입하면
+$f(n)=\frac{1+3+5+\cdots+(2 n+1)}{1+2+3^{2}+\cdots+(n+1)}=\frac{(n+1)^{2}}{\frac{(n+1)(n+2)}{2}}$ 이다.
+즉, $\lim _{n \rightarrow \infty} f(n)=2$
+답 : (2)
+19) $F(R)$ 의 면적 $=\iint_{F(R)} d u d v=\iint_{R}|J| d x d y$
+$=\iint_{R} \frac{1}{2} d x d y=\frac{1}{2} \times R$ 의 면적 $=\frac{1}{2}$
+[별해]
+$F(x, y)=\left(\frac{x+y}{2}+4, \frac{x-y}{2}-1\right)$ 은
+$G(x, y)=\left(\frac{x+y}{2}, \frac{x-y}{2}\right)$ 의 변환 후 $(-4,1)$ 만큼 평행이동 이므로 평행이동은 넓이의 변화가 없다.
+따라서 $G(x, y)=\left(\frac{x+y}{2}, \frac{x-y}{2}\right)$ 의 선형변환을 이용해서 넓이를 구하면 된다.
+이때, $G(x, y)=\left(\frac{x+y}{2}, \frac{x-y}{2}\right)$ 의 표준행렬 $A=\frac{1}{2}\left(\begin{array}{cc}1 & 1 \\ 1 & -1\end{array}\right)$ 이므로 $G(R)$ 의 넓이는 다음과 같다.
+즉, $G(R)=|\operatorname{det} A| \times R$ 의 면적 $=\left|-\frac{1}{2}\right| \times 1=\frac{1}{2}$
+답 : (2)
+20) $3 x^{2}+3 y^{2}+2 z^{2}+2 x z-2 y z$
+$=\left(\begin{array}{ll}x & y\end{array}\right)\left(\begin{array}{ccc}3 & 0 & 1 \\ 0 & 3 & -1 \\ 1 & -1 & 2\end{array}\right)\left(\begin{array}{l}x \\ y \\ z\end{array}\right)=v^{T} A v$ 이므로 $\operatorname{det} A=12$ 이다.
+$\iiint_{R^{3}} e^{-3 x^{2}-3 y^{2}-2 z^{2}-2 x z+2 y z} d x d y d z$
+$=\frac{1}{\sqrt{\operatorname{det} A}} \iiint_{R^{3}} e^{-\left(u^{2}+v^{2}+w^{2}\right)} d u d v d w$
+$=\frac{1}{\sqrt{12}} \iiint_{R^{3}} e^{-\left(u^{2}+v^{2}+w^{2}\right)} d u d v d w$
+$=\frac{1}{\sqrt{12}} \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} \int_{-\infty}^{\infty} e^{-u^{2}} e^{-v^{2}} e^{-w^{2}} d u d v d w=\frac{\pi \sqrt{\pi}}{\sqrt{12}}$
+답 : (1)
+21) $|\vec{d}-(s \vec{a}+t \vec{b}+k \vec{c})|$ 가 최소가 되는 $s, t, k$ 는
+$s \vec{a}+t \vec{b}+k \vec{c}=\vec{d}$ 인 경우이지만 $\vec{d}$ 를 만드는 해가 존재하지 않기 때문에 최소제곱해 또는 사영벡터가 나오는 해를 구하면 된다.
+$s \vec{a}+t \vec{b}+k \vec{c}=\vec{d} \Leftrightarrow\left(\begin{array}{ccc}1 & -1 & 1 \\ 1 & 1 & -1 \\ 1 & -1 & -1 \\ 1 & 1 & 1\end{array}\right)\left(\begin{array}{l}s \\ t \\ k\end{array}\right)=\left(\begin{array}{l}1 \\ 2 \\ 3 \\ 4\end{array}\right) \Leftrightarrow A\left(\begin{array}{l}s \\ t \\ k\end{array}\right)=\left(\begin{array}{l}1 \\ 2 \\ 3 \\ 4\end{array}\right)$ 이므로
+$A^{T} A\left(\begin{array}{c}s \\ \bar{t} \\ \bar{k}\end{array}\right)=A^{T}\left(\begin{array}{l}1 \\ 2 \\ 3 \\ 4\end{array}\right) \Leftrightarrow\left(\begin{array}{lll}4 & 0 & 0 \\ 0 & 4 & 0 \\ 0 & 0 & 4\end{array}\right)\left(\begin{array}{l}s \\ \bar{t} \\ \bar{k}\end{array}\right)=\left(\begin{array}{c}10 \\ 2 \\ 0\end{array}\right)$ 이다.
+따라서 최소제곱해는 $\left(\begin{array}{l}\bar{s} \\ \bar{t} \\ k\end{array}\right)=\frac{1}{2}\left(\begin{array}{l}5 \\ 1 \\ 0\end{array}\right)$ 이다.
+즉, $\bar{s}+\bar{t}+\bar{k}=3$
+[별해]
+$\vec{s} \vec{a}+\vec{t} \vec{b}+\vec{k} \vec{c}=\operatorname{Proj}_{W} \vec{d}$
+$\Leftrightarrow \frac{\vec{d} \cdot \vec{a}}{\vec{a} \cdot \vec{a}} \vec{a}+\frac{\vec{d} \cdot \vec{b}}{\vec{b} \cdot \vec{b}} \vec{b}+\frac{\vec{d} \cdot \vec{c}}{\vec{c} \cdot \vec{c}} \vec{c}=\operatorname{Proj}{ }_{W} \vec{d}(\because \vec{a}, \vec{b}, \vec{c}$ 는 직 교기 저 $)$
+$\Leftrightarrow \frac{5}{2} \vec{a}+\frac{1}{2} \vec{b}+0 \vec{c}=\operatorname{Proj}_{W} \vec{d}$
+즉, $\bar{s}=\frac{5}{2}, \bar{t}=\frac{1}{2}, \bar{k}=0$ 이므로 $\bar{s}+\bar{t}+\bar{k}=3$ 이다.
+답 : (5)
+22) $A=\left(\begin{array}{ccc}0 & 1 & 0 \\ 0 & 0 & 1 \\ k^{3} & -3 k^{2} & 3 k\end{array}\right)$ 의 고유방정식은 $\lambda^{3}-3 k \lambda^{2}+3 k^{2} \lambda-k^{3}=0 \Leftrightarrow(\lambda-k)^{3}=0$ 이므로
+$A$ 의 고유치는 $k, k, k$ 이다.
+따라서 닮은행렬 $B$ 의 고유치도 $k, k, k$ 이므로 $B+I$ 의 고유치는 $k+1, k+1, k+1$ 이다.
+
+답 : (2)
+23) 1) $R=j+\lambda(i+j+3 k)+\underset{\rightarrow}{\mu}(i+k)$
+
+⇔ 점 $(0,1,0)$ 을 지나고 $\vec{n}=(1,1,3) \times(1,0,1)=(1,2,-1)$ 에 수직인 평면이므로 $x+2 y-z-2=0$ 이다.
+2) $r=3 i-k+t(-i+2 j+k)$
+
+⇔ 점 $(3,0,-1)$ 을 지나고 $\vec{d}=(-1,2,1)$ 에 평행한 직선 이므로 $\frac{x-3}{-1}=\frac{y}{2}=\frac{z+1}{1}$ 이다.
+
+직선과 평면의 사잇각을 $\theta$, 직선과 평면의 법선벡터와
+사잇각을 $\alpha$ 라 하면 $\theta+\alpha=\frac{\pi}{2}$ 이다.
+따라서 $\cos \alpha=\frac{\vec{d} \cdot \vec{n}}{|\vec{d}||\vec{n}|}=\frac{1}{3}$ 이므로 $\sin \alpha=\frac{2 \sqrt{2}}{3}$ 이다.
+즉, $\cos \theta=\cos \left(\frac{\pi}{2}-\alpha\right)=\sin \alpha=\frac{2 \sqrt{2}}{3}$
+답 : (2)
+24) $A=\left(\begin{array}{lll}1 & 0 & 1 \\ 1 & 1 & 2 \\ 1 & 2 & 4 \\ 1 & 3 & 1\end{array}\right)$ 의 $\operatorname{rank} A=3$ 이므로 $n u l l i t y A=0$ 이다.
+
+따라서 $N(A)$ 의 차원은 0 이고, $N(A)$ 에 수직인 공간의 차원은 3 차원이다.
+
+그러므로 $N(A)$ 에서 수직인 공간에 사영하는 정사영 행렬 $P$ 의 고유치는 $1,1,1$ 이다.
+
+즉, $\operatorname{tr}(P)+\operatorname{det}(P)=3+1=4$
+답 : (5)
+25) $y=x^{2}+a x+b$ 에 $(-1,2),(2,3),(3,6)$ 을 대입하며
+$\left\{\begin{array}{c}-a+b=1 \\ 2 a+b=-1 \\ 3 a+b=-3\end{array} \Leftrightarrow\left(\begin{array}{rr}-1 & 1 \\ 2 & 1 \\ 3 & 1\end{array}\right)\binom{a}{b}=\left(\begin{array}{c}1 \\ -1 \\ -3\end{array}\right) \Leftrightarrow A\binom{a}{b}=\left(\begin{array}{c}1 \\ -1 \\ -3\end{array}\right)\right.$ 이므로
+$A^{T} A\binom{\bar{a}}{\bar{b}}=A^{T}\left(\begin{array}{c}1 \\ -1 \\ -3\end{array}\right) \Leftrightarrow\left(\begin{array}{cc}14 & 4 \\ 4 & 3\end{array}\right)\binom{\bar{a}}{\bar{b}}=\binom{-12}{-3}$
+$\Leftrightarrow\binom{\bar{a}}{\bar{b}}=\frac{1}{26}\left(\begin{array}{cc}3 & -4 \\ -4 & 14\end{array}\right)\binom{-12}{-3}=\frac{1}{13}\binom{-12}{3}$ 이다.
+이때, $y=x^{2}-\frac{12}{13} x+\frac{3}{13}$ 을 $x=0, x=1, x$ 축으로 둘러싸인
+영역을 $y$ 축으로 회전했을 때 부피는 다음과 같다.
+$$\begin{aligned}
+V & =2 \pi \int_{0}^{1} x\left(x^{2}-\frac{12}{13} x+\frac{3}{13}\right) d x=2 \pi\left[\frac{1}{4} x^{4}-\frac{4}{13} x^{2}+\frac{3}{26} x^{2}\right]_{0}^{1} \\
+& =2 \pi\left(\frac{1}{4}-\frac{4}{13}+\frac{3}{26}\right)=\frac{3}{26} \pi
+\end{aligned}$$
+
+답 : (2)
+$$\begin{aligned}
+& \text { 26) }\left(\begin{array}{l}
+1 \\
+1 \\
+1
+\end{array}\right)=-\frac{3}{8}\left(\begin{array}{c}
+-1 \\
+1 \\
+0
+\end{array}\right)+\frac{1}{8}\left(\begin{array}{c}
+-1 \\
+-1 \\
+2
+\end{array}\right)+\frac{3}{4}\left(\begin{array}{l}
+1 \\
+2 \\
+1
+\end{array}\right) \\
+& \Rightarrow 4 A^{-1}\left(\begin{array}{l}
+1 \\
+1 \\
+1
+\end{array}\right)=4 A^{-1}\left\{-\frac{3}{8}\left(\begin{array}{c}
+-1 \\
+1 \\
+0
+\end{array}\right)+\frac{1}{8}\left(\begin{array}{c}
+-1 \\
+-1 \\
+2
+\end{array}\right)+\frac{3}{4}\left(\begin{array}{l}
+1 \\
+2 \\
+1
+\end{array}\right)\right\} \\
+& \Rightarrow 4 A^{-1}\left(\begin{array}{l}
+1 \\
+1 \\
+1
+\end{array}\right)=-\frac{3}{2} A^{-1}\left(\begin{array}{c}
+-1 \\
+1 \\
+0
+\end{array}\right)+\frac{1}{2} A^{-1}\left(\begin{array}{c}
+-1 \\
+-1 \\
+2
+\end{array}\right)+3 A^{-1}\left(\begin{array}{l}
+1 \\
+2 \\
+1
+\end{array}\right) \\
+& \Rightarrow 4 A^{-1}\left(\begin{array}{l}
+1 \\
+1 \\
+1
+\end{array}\right)=-\frac{3}{2} \times \frac{1}{2}\left(\begin{array}{c}
+-1 \\
+1 \\
+0
+\end{array}\right)+\frac{1}{2} \times \frac{1}{2}\left(\begin{array}{c}
+-1 \\
+-1 \\
+2
+\end{array}\right)+3 \times \frac{1}{4}\left(\begin{array}{l}
+1 \\
+2 \\
+1
+\end{array}\right) \\
+& \Rightarrow 4 A^{-1}\left(\begin{array}{l}
+1 \\
+1 \\
+1
+\end{array}\right)=\left(\begin{array}{c}
+\frac{3}{4} \\
+-\frac{3}{4} \\
+0
+\end{array}\right)+\left(\begin{array}{c}
+-\frac{1}{4} \\
+-\frac{1}{4} \\
+\frac{1}{2}
+\end{array}\right)+\left(\frac{3}{4}\right) \\
+& \therefore \frac{3}{4}-\frac{3}{4}-\frac{1}{4}-\frac{1}{4}+\frac{1}{2}+\frac{3}{4}+\frac{3}{2}+\frac{3}{4}=3
+\end{aligned}$$
+27) 치역(열공간)은 평면(2차원)을 이루는데 평면으로
+
+사영시키려는 벡터 $(1,1,1)$ 가 열공간에 존재하므로 평면에 사영을 시켜도 그대로 벡터( $1,1,1$ )이 된다.
+따라서 $a+b+c=3$ 이다.
+답 : (3)
+28) (가) $\sum_{n=3}^{\infty} e^{1 / n}-e^{1 /(n+1)}$
+$$\begin{aligned}
+& =\lim _{n \rightarrow \infty}\left\{\left(e^{\frac{1}{3}}-e^{\frac{1}{4}}\right)+\left(e^{\frac{1}{4}}-e^{\frac{1}{5}}\right)+\cdots+\left(e^{\frac{1}{n}}-e^{\frac{1}{n+1}}\right)\right\}=e^{\frac{1}{3}}-1 \\
+& =e^{\frac{1}{3}}-1 \text { (수렴) }
+\end{aligned}$$
+[다른 풀이]
+$f(x)=e^{x}$ 이라 할 때, 구간 $\left[\frac{1}{n+1}, \frac{1}{n}\right]$ 에서
+평균값정리를 이용하면
+$\frac{e^{\frac{1}{n}}-e^{\frac{1}{n+1}}}{\frac{1}{n}-\frac{1}{n+1}}=e^{c}, \quad\left(\frac{1}{n+1}<c<\frac{1}{n}\right)$
+$\Rightarrow \lim _{n \rightarrow \infty} \frac{e^{\frac{1}{n}}-e^{\frac{1}{n+1}}}{\frac{1}{n}-\frac{1}{n+1}}=\lim _{c \rightarrow 0} e^{c}=1$
+여기서 $\lim _{n \rightarrow \infty} \frac{e^{\frac{1}{n}}-e^{\frac{1}{n+1}}}{\frac{1}{n}-\frac{1}{n+1}}=1$ 이므로 극한비교판정법에 의하여 $\sum_{n=3}^{\infty} e^{1 / n}-e^{1 /(n+1)}$ 은 $\sum_{n=3}^{\infty} \frac{1}{n}-\frac{1}{n+1}$ 와 동시에 수렴
+또는 발산한다.
+$\sum_{n=3}^{\infty} \frac{1}{n}-\frac{1}{n+1}=\sum_{n=3}^{\infty} \frac{1}{n(n+1)} \approx \sum_{n=3}^{\infty} \frac{1}{n^{2}}$ (수렴)
+(나) $\sum_{n=2}^{\infty} \frac{1}{\sqrt{n}} \ln \left(1+\frac{1}{n^{2}-1}\right)$
+$\approx \sum_{n=2}^{\infty} \frac{1}{\sqrt{n}}\left(\frac{1}{n^{2}-1}\right) \quad(\because$ 극한비교판정법)
+$\approx \sum_{n=2}^{\infty} \frac{1}{n^{\frac{5}{2}}}$ (수렴)
+(다) 비교판정법을 이용하자.
+$$\begin{aligned}
+& \sum_{n=1}^{\infty} \frac{1}{n\left(1+\frac{1}{\sqrt{2}}+\cdots+\frac{1}{\sqrt{n}}\right)} \\
+& \leq \sum_{n=1}^{\infty} \frac{1}{n\left(\frac{1}{\sqrt{n}}+\frac{1}{\sqrt{n}}+\cdots+\frac{1}{\sqrt{n}}\right)} \\
+& =\sum_{n=1}^{\infty} \frac{1}{n(\sqrt{n})} \text { (수렴) }
+\end{aligned}$$
+$\sum_{n=1}^{\infty} \frac{1}{n\left(1+\frac{1}{\sqrt{2}}+\cdots+\frac{1}{\sqrt{n}}\right)}$ (수렴)
+(라) $\sum_{n=1}^{\infty} \frac{1}{n} \sqrt{1-\cos \left(\frac{1}{n^{2}}\right)}$
+$$\begin{aligned}
+& \approx \sum_{n=1}^{\infty} \frac{1}{n} \sqrt{\frac{1}{n^{4}}}(\because \text { 극한비교판정법 }) \\
+& \approx \sum_{n=1}^{\infty} \frac{1}{n^{3}} \text { (수렴) }
+\end{aligned}$$
+
+답 : (4)
+29) $\sum_{n=1}^{\infty} n^{3} x^{n}=\frac{x^{3}+4 x^{2}+x}{(1-x)^{4}}$ 이므로
+$$\sum_{n=1}^{\infty} \frac{n^{3}}{2^{n}}=\frac{\frac{1}{8}+1+\frac{1}{2}}{\frac{1}{16}}=26 \text { 이다. }$$
+30) curl $F=\left|\begin{array}{ccc}\frac{\partial}{\partial x} & \frac{\partial}{\partial y} & \frac{\partial}{\partial z} \\ y^{2} & z^{2} & x^{2}\end{array}\right|=(-2 z,-2 x,-2 y)$ 이고,
+$$\begin{aligned}
+& \iint_{S} \operatorname{curl}(F) \cdot d S=\iint_{S_{1}} \operatorname{curl}(F) \cdot d S \text { 이다. } \\
+& \left(S_{1}: z=x+1, x^{2}+y^{2}+(x+1)^{2} \leq 4\right) \\
+& \iint_{S_{1}} \operatorname{curl}(F) \cdot d S \\
+= & \iint_{S_{1}}(-2(x+1),-2 x,-2 y) \cdot(-1,0,1) d x d y \\
+= & 2 \iint_{D} x+1-y d x d y\left(D: \frac{\left(x+\frac{1}{2}\right)^{2}}{\frac{7}{4}}+\frac{y^{2}}{\frac{7}{2}} \leq 1\right) \\
+= & 2 \times \frac{\sqrt{7}}{2} \times \frac{\sqrt{7}}{\sqrt{2}} \pi\left(-\frac{1}{2}+1+0\right)=\frac{7}{2 \sqrt{2}} \pi
+\end{aligned}$$

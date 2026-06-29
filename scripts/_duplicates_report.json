@@ -1,0 +1,1066 @@
+{
+  "total": 4614,
+  "exactDups": [
+    [
+      {
+        "id": "q-2017-kwangwoon-30",
+        "question": "타원 $\\dfrac{x^2}{4}+y^2=1$ 위의 점 $(2,0)$에서 곡률중심의 $x$좌표와 $y$좌표의 합은?",
+        "tags": [
+          "2017",
+          "광운대",
+          "past_exam",
+          "다변수함수",
+          "공간곡선",
+          "타원 곡률 중심 좌표"
+        ]
+      },
+      {
+        "id": "q-daily-mv-r4-6",
+        "question": "타원 $\\dfrac{x^2}{4}+y^2=1$ 위의 점 $(2,0)$에서 곡률중심의 $x$좌표와 $y$좌표의 합은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-4",
+          "다변수함수",
+          "곡선과 곡면",
+          "곡률중심"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2017-sogang-01",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left\\{x-x^2\\ln\\!\\left(\\dfrac{1+x}{x}\\right)\\right\\}$의 값은?",
+        "tags": [
+          "year:2017",
+          "school:서강대",
+          "school_slug:sogang",
+          "past_exam"
+        ]
+      },
+      {
+        "id": "q-daily-r20-1",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left\\{x-x^2\\ln\\!\\left(\\dfrac{1+x}{x}\\right)\\right\\}$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-20",
+          "미분학",
+          "극한과 연속",
+          "함수의 극한"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2018-hanyang-12",
+        "question": "$x=0$에서 $f(x)=\\dfrac{\\cos x}{1+x^2+x^4}$의 5차 테일러 다항식을 $p(x)=a_0+a_1x+a_2x^2+a_3x^3+a_4x^4+a_5x^5$이라 할 때, $a_0+a_1+a_2+a_3+a_4+a_5$의 값은?",
+        "tags": [
+          "2018",
+          "한양대",
+          "적분학",
+          "Maclaurin급수의 응용",
+          "테일러 다항식 계수합"
+        ]
+      },
+      {
+        "id": "q-daily-r17-4",
+        "question": "$x=0$에서 $f(x)=\\dfrac{\\cos x}{1+x^2+x^4}$의 5차 테일러 다항식을 $p(x)=a_0+a_1x+a_2x^2+a_3x^3+a_4x^4+a_5x^5$이라 할 때, $a_0+a_1+a_2+a_3+a_4+a_5$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-17",
+          "미분학",
+          "Taylor급수",
+          "테일러 다항식"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2018-kwangwoon-27",
+        "question": "$f(x)=\\sec x$일 때 $f''\\!\\left(\\dfrac{\\pi}{4}\\right)$의 값은?",
+        "tags": [
+          "2018",
+          "광운대",
+          "past_exam",
+          "미분학",
+          "도함수",
+          "$\\sec x$의 2계 도함수"
+        ]
+      },
+      {
+        "id": "q-daily-r12-4",
+        "question": "$f(x)=\\sec x$일 때 $f''\\!\\left(\\dfrac{\\pi}{4}\\right)$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-12",
+          "미분학",
+          "미분",
+          "이계도함수"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2018-kwangwoon-30",
+        "question": "타원면 $x^2+2y^2+4z^2=9$ 안에 내접하는 직육면체의 최대 부피는?",
+        "tags": [
+          "2018",
+          "광운대",
+          "past_exam",
+          "다변수함수",
+          "다변수 극값",
+          "타원체 내접 직육면체 (산술기하)"
+        ]
+      },
+      {
+        "id": "q-daily-mv-r22-4",
+        "question": "타원면 $x^2+2y^2+4z^2=9$ 안에 내접하는 직육면체의 최대 부피는?",
+        "tags": [
+          "daily",
+          "daily-test-mv-22",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "내접 직육면체"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2018-sogang-07",
+        "question": "적분 $\\displaystyle\\int_0^1\\cos(x^2)\\,dx$의 값에 가장 가까운 근삿값은?",
+        "tags": [
+          "year:2018",
+          "school:서강대",
+          "school_slug:sogang",
+          "past_exam"
+        ]
+      },
+      {
+        "id": "q-daily-int-r30-1",
+        "question": "적분 $\\displaystyle\\int_0^1\\cos(x^2)\\,dx$의 값에 가장 가까운 근삿값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-30",
+          "적분학",
+          "Maclaurin급수의 응용",
+          "근삿값"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2020-soongsil-23",
+        "question": "이중적분 $\\!\\displaystyle\\int_0^4\\!\\!\\int_{\\sqrt x}^2\\dfrac{1}{1+y^3}dy\\,dx$의 값은?",
+        "tags": [
+          "숭실대",
+          "2020",
+          "다변수함수",
+          "중적분",
+          "적분순서 교환"
+        ]
+      },
+      {
+        "id": "q-2024-dgu-20",
+        "question": "이중적분 $\\!\\displaystyle\\int_0^4\\!\\!\\int_{\\sqrt x}^2\\dfrac{1}{1+y^3}dy\\,dx$의 값은?",
+        "tags": [
+          "동국대",
+          "2024",
+          "다변수함수",
+          "중적분",
+          "적분순서 교환"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2021-sookmyung-11",
+        "question": "급수 $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{n}{(n+1)!}$의 값은?",
+        "tags": [
+          "숙명여대",
+          "2021",
+          "적분학",
+          "급수",
+          "텔레스코핑 급수"
+        ]
+      },
+      {
+        "id": "q-2025-sookmyung-10",
+        "question": "급수 $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{n}{(n+1)!}$의 값은?",
+        "tags": [
+          "숙명여대",
+          "2025",
+          "적분학",
+          "급수",
+          "텔레스코핑"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2021am-sejong-02",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left(xe^{1/x}-x\\right)$의 값은?",
+        "tags": [
+          "세종대",
+          "2021",
+          "오전",
+          "미분학",
+          "극한과 연속",
+          "$\\infty\\cdot 0$ 부정형"
+        ]
+      },
+      {
+        "id": "q-daily-r20-3",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left(xe^{1/x}-x\\right)$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-20",
+          "미분학",
+          "극한과 연속",
+          "함수의 극한"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2022-hansung-09",
+        "question": "다음 중 극한값이 존재하는 것은?",
+        "tags": [
+          "한성대",
+          "2022",
+          "다변수함수",
+          "편미분",
+          "이변수극한(존재성)"
+        ]
+      },
+      {
+        "id": "q-daily-mv-r5-3",
+        "question": "다음 중 극한값이 존재하는 것은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-5",
+          "다변수함수",
+          "편도함수",
+          "이변수 극한"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2022-sejong-06",
+        "question": "극곡선 $r=\\theta^2$ ($0\\le\\theta\\le\\sqrt{5}$)의 길이를 구하면?",
+        "tags": [
+          "세종대",
+          "2022",
+          "적분학",
+          "정적분의 응용",
+          "극곡선의 길이"
+        ]
+      },
+      {
+        "id": "q-2023-sejong-04",
+        "question": "극곡선 $r=\\theta^2$ ($0\\le\\theta\\le\\sqrt{5}$)의 길이를 구하면?",
+        "tags": [
+          "세종대",
+          "2023",
+          "적분학",
+          "정적분의 응용",
+          "극곡선의 길이"
+        ]
+      }
+    ],
+    [
+      {
+        "id": "q-2023pm-dankook-40",
+        "question": "$\\displaystyle\\int_0^2\\dfrac{1}{\\sqrt{|x-1|}}\\,dx$의 값은?",
+        "tags": [
+          "2023",
+          "단국대",
+          "오후",
+          "past_exam",
+          "적분학",
+          "이상적분",
+          "특이적분 (대칭)"
+        ]
+      },
+      {
+        "id": "q-daily-int-r15-3",
+        "question": "$\\displaystyle\\int_0^2\\dfrac{1}{\\sqrt{|x-1|}}\\,dx$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-15",
+          "적분학",
+          "특이적분",
+          "절댓값 특이적분"
+        ]
+      }
+    ]
+  ],
+  "normOnly": [
+    [
+      {
+        "id": "q-2017-cau-09",
+        "question": "단위원 $x^2+y^2=1$ 위에서 $f(x,y)=xy+y$의 최댓값을 $M$, 최솟값을 $m$이라 할 때, $M-m$의 값은?",
+        "tags": [
+          "2017",
+          "중앙대",
+          "다변수함수",
+          "편도함수",
+          "라그랑주 최댓값 최솟값"
+        ],
+        "ans": "$\\frac3\\sqrt32$"
+      },
+      {
+        "id": "q-daily-mv-r24-6",
+        "question": "단위원 $x^2+y^2=1$ 위에서 $f(x,y)=xy+y$의 최댓값을 $M$, 최솟값을 $m$이라 할 때 $M-m$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-24",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "매개화"
+        ],
+        "ans": "$\\frac3\\sqrt32$"
+      }
+    ],
+    [
+      {
+        "id": "q-2017-skku-06",
+        "question": "$\\displaystyle\\int_0^{\\sqrt 2}\\!\\!\\int_y^{\\sqrt{4-y^2}}x^2\\,dx\\,dy$의 값은?",
+        "tags": [
+          "2017",
+          "성균관대",
+          "다변수함수",
+          "중적분",
+          "극좌표 변환"
+        ],
+        "ans": "$\\frac\\pi+22$"
+      },
+      {
+        "id": "q-daily-mv-r30-6",
+        "question": "$\\displaystyle\\int_0^{\\sqrt 2}\\int_y^{\\sqrt{4-y^2}}x^2 dxdy$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-30",
+          "다변수함수",
+          "중적분",
+          "극좌표"
+        ],
+        "ans": "$\\frac\\pi+22$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-cau-07",
+        "question": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?",
+        "tags": [
+          "2018",
+          "중앙대",
+          "적분학",
+          "정적분",
+          "감마함수"
+        ],
+        "ans": "$6$"
+      },
+      {
+        "id": "q-daily-int-r16-3",
+        "question": "$\\displaystyle\\int_0^\\infty x^3 e^{-x}\\,dx$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-16",
+          "적분학",
+          "특이적분",
+          "감마함수"
+        ],
+        "ans": "$6$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-cau-12",
+        "question": "$1\\le x\\le 3$에서 정의된 함수 $f(x)=2\\!\\left(x-\\dfrac{3}{x}\\right)^{\\!3}-15\\!\\left(x-\\dfrac{3}{x}\\right)^{\\!2}+36\\!\\left(x-\\dfrac{3}{x}\\right)-50$의 최댓값과 최솟값의 차는?",
+        "tags": [
+          "2018",
+          "중앙대",
+          "미분학",
+          "도함수와 그래프",
+          "치환 후 극값"
+        ],
+        "ans": "$176$"
+      },
+      {
+        "id": "q-daily-r28-2",
+        "question": "$1\\le x\\le 3$에서 정의된 함수 $f(x)=2\\!\\left(x-\\dfrac{3}{x}\\right)^3-15\\!\\left(x-\\dfrac{3}{x}\\right)^2+36\\!\\left(x-\\dfrac{3}{x}\\right)-50$의 최댓값과 최솟값의 차는?",
+        "tags": [
+          "daily",
+          "daily-test-28",
+          "미분학",
+          "최대/최소",
+          "최댓값·최솟값"
+        ],
+        "ans": "$176$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-dankook-32",
+        "question": "$\\displaystyle\\int_1^e(\\ln x)^2\\,dx$의 값은?",
+        "tags": [
+          "2019",
+          "단국대",
+          "past_exam",
+          "적분학",
+          "부정적분",
+          "치환 + 부분적분"
+        ],
+        "ans": "$e-2$"
+      },
+      {
+        "id": "q-2025-cau-20",
+        "question": "$\\displaystyle\\int_1^e(\\ln x)^2 dx$의 값은?",
+        "tags": [
+          "중앙대",
+          "2025",
+          "적분학",
+          "정적분의 계산",
+          "부분적분(반복)"
+        ],
+        "ans": "$e-2$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-dankook-45",
+        "question": "행렬 $\\begin{pmatrix}1&4\\\\1&a\\end{pmatrix}$의 모든 고윳값의 합이 $-1$일 때 실수 $a$의 값은?",
+        "tags": [
+          "2019",
+          "단국대",
+          "past_exam",
+          "선형대수",
+          "고유치와 대각화",
+          "고유치 합 (대각합)"
+        ],
+        "ans": "$-2$"
+      },
+      {
+        "id": "q-2025-dku-am-07",
+        "question": "행렬 $\\begin{pmatrix}1&4\\\\1&a\\end{pmatrix}$의 모든 고윳값의 합이 $-1$일 때, 실수 $a$의 값은?",
+        "tags": [
+          "단국대(오전)",
+          "단국대",
+          "2025",
+          "선형대수",
+          "고유치와 대각화",
+          "고윳값 합(trace)"
+        ],
+        "ans": "$-2$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-sookmyung-09",
+        "question": "곡선 $y=\\displaystyle\\int_1^{x}\\!\\sqrt{\\sqrt t-1}\\,dt$ ($1\\le x\\le 16$)의 길이는?",
+        "tags": [
+          "숙명여대",
+          "2019",
+          "적분학",
+          "정적분의 응용",
+          "곡선의 길이"
+        ],
+        "ans": "$\\frac1245$"
+      },
+      {
+        "id": "q-daily-int-r24-6",
+        "question": "곡선 $y=\\displaystyle\\int_1^x\\sqrt{\\sqrt{t}-1}\\,dt$ ($1\\le x\\le 16$)의 길이는?",
+        "tags": [
+          "daily",
+          "daily-test-int-24",
+          "적분학",
+          "정적분의 응용",
+          "곡선의 길이"
+        ],
+        "ans": "$\\frac1245$"
+      }
+    ],
+    [
+      {
+        "id": "q-2021-gachon-14",
+        "question": "점 $(2,1)$에서 함수 $f(x,y)=x^2 y+\\sqrt{y}$의 값이 가장 빨리 증가하는 방향의 단위벡터를 $\\mathbf u$라 할 때, 방향도함수 $D_{\\mathbf u}f(2,1)$의 값은?",
+        "tags": [
+          "가천대",
+          "2021",
+          "다변수함수",
+          "경도 및 방향도함수",
+          "최대 변화율 = 경도 크기"
+        ],
+        "ans": "$\\frac\\sqrt1452$"
+      },
+      {
+        "id": "q-2025-gachon-02",
+        "question": "점 $(2,1)$에서 함수 $f(x,y)=x^2 y+\\sqrt{y}$의 값이 가장 빨리 증가하는 방향의 단위벡터를 $\\mathbf{u}$라 할 때, 방향도함수 $D_{\\mathbf{u}}f(2,1)$의 값은?",
+        "tags": [
+          "가천대",
+          "2025",
+          "다변수함수",
+          "경도 및 방향도함수",
+          "경도(gradient)"
+        ],
+        "ans": "$\\frac\\sqrt1452$"
+      }
+    ],
+    [
+      {
+        "id": "q-2023-inha-12",
+        "question": "$\\displaystyle\\int_0^1\\!\\int_{\\sqrt y}^1\\sqrt{x^3+1}\\,dx\\,dy$의 값은?",
+        "tags": [
+          "2023",
+          "인하대",
+          "적분학",
+          "정적분의 계산",
+          "순서교환"
+        ],
+        "ans": "$\\frac4\\sqrt2-29$"
+      },
+      {
+        "id": "q-2025-dku-am-15",
+        "question": "$\\displaystyle\\int_0^1\\!\\!\\int_{\\sqrt y}^1\\sqrt{x^3+1}\\,dx\\,dy$의 값은?",
+        "tags": [
+          "단국대(오전)",
+          "단국대",
+          "2025",
+          "다변수함수",
+          "중적분",
+          "적분 순서 변경"
+        ],
+        "ans": "$\\frac292\\sqrt2-1$"
+      }
+    ],
+    [
+      {
+        "id": "q-daily-mv-r22-1",
+        "question": "$x^2+y^2=1$일 때 $f(x,y)=xy$의 최댓값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-22",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "극값(라그랑주)"
+        ],
+        "ans": "$\\frac12$"
+      },
+      {
+        "id": "q-daily-r28-5",
+        "question": "$x^2+y^2=1$일 때, $f(x, y)=xy$의 최댓값은?",
+        "tags": [
+          "daily",
+          "daily-test-28",
+          "미분학",
+          "최대/최소",
+          "최댓값·최솟값"
+        ],
+        "ans": "$\\frac12$"
+      }
+    ]
+  ],
+  "strongDups": [
+    [
+      {
+        "id": "q-2017-cau-09",
+        "question": "단위원 $x^2+y^2=1$ 위에서 $f(x,y)=xy+y$의 최댓값을 $M$, 최솟값을 $m$이라 할 때, $M-m$의 값은?",
+        "tags": [
+          "2017",
+          "중앙대",
+          "다변수함수",
+          "편도함수",
+          "라그랑주 최댓값 최솟값"
+        ],
+        "ans": "$\\frac3\\sqrt32$"
+      },
+      {
+        "id": "q-daily-mv-r24-6",
+        "question": "단위원 $x^2+y^2=1$ 위에서 $f(x,y)=xy+y$의 최댓값을 $M$, 최솟값을 $m$이라 할 때 $M-m$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-24",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "매개화"
+        ],
+        "ans": "$\\frac3\\sqrt32$"
+      }
+    ],
+    [
+      {
+        "id": "q-2017-kwangwoon-30",
+        "question": "타원 $\\dfrac{x^2}{4}+y^2=1$ 위의 점 $(2,0)$에서 곡률중심의 $x$좌표와 $y$좌표의 합은?",
+        "tags": [
+          "2017",
+          "광운대",
+          "past_exam",
+          "다변수함수",
+          "공간곡선",
+          "타원 곡률 중심 좌표"
+        ],
+        "ans": "$15$"
+      },
+      {
+        "id": "q-daily-mv-r4-6",
+        "question": "타원 $\\dfrac{x^2}{4}+y^2=1$ 위의 점 $(2,0)$에서 곡률중심의 $x$좌표와 $y$좌표의 합은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-4",
+          "다변수함수",
+          "곡선과 곡면",
+          "곡률중심"
+        ],
+        "ans": "$15$"
+      }
+    ],
+    [
+      {
+        "id": "q-2017-skku-06",
+        "question": "$\\displaystyle\\int_0^{\\sqrt 2}\\!\\!\\int_y^{\\sqrt{4-y^2}}x^2\\,dx\\,dy$의 값은?",
+        "tags": [
+          "2017",
+          "성균관대",
+          "다변수함수",
+          "중적분",
+          "극좌표 변환"
+        ],
+        "ans": "$\\frac\\pi+22$"
+      },
+      {
+        "id": "q-daily-mv-r30-6",
+        "question": "$\\displaystyle\\int_0^{\\sqrt 2}\\int_y^{\\sqrt{4-y^2}}x^2 dxdy$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-30",
+          "다변수함수",
+          "중적분",
+          "극좌표"
+        ],
+        "ans": "$\\frac\\pi+22$"
+      }
+    ],
+    [
+      {
+        "id": "q-2017-sogang-01",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left\\{x-x^2\\ln\\!\\left(\\dfrac{1+x}{x}\\right)\\right\\}$의 값은?",
+        "tags": [
+          "year:2017",
+          "school:서강대",
+          "school_slug:sogang",
+          "past_exam"
+        ],
+        "ans": "$\\frac12$"
+      },
+      {
+        "id": "q-daily-r20-1",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left\\{x-x^2\\ln\\!\\left(\\dfrac{1+x}{x}\\right)\\right\\}$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-20",
+          "미분학",
+          "극한과 연속",
+          "함수의 극한"
+        ],
+        "ans": "$\\frac12$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-cau-07",
+        "question": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?",
+        "tags": [
+          "2018",
+          "중앙대",
+          "적분학",
+          "정적분",
+          "감마함수"
+        ],
+        "ans": "$6$"
+      },
+      {
+        "id": "q-daily-int-r16-3",
+        "question": "$\\displaystyle\\int_0^\\infty x^3 e^{-x}\\,dx$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-16",
+          "적분학",
+          "특이적분",
+          "감마함수"
+        ],
+        "ans": "$6$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-cau-12",
+        "question": "$1\\le x\\le 3$에서 정의된 함수 $f(x)=2\\!\\left(x-\\dfrac{3}{x}\\right)^{\\!3}-15\\!\\left(x-\\dfrac{3}{x}\\right)^{\\!2}+36\\!\\left(x-\\dfrac{3}{x}\\right)-50$의 최댓값과 최솟값의 차는?",
+        "tags": [
+          "2018",
+          "중앙대",
+          "미분학",
+          "도함수와 그래프",
+          "치환 후 극값"
+        ],
+        "ans": "$176$"
+      },
+      {
+        "id": "q-daily-r28-2",
+        "question": "$1\\le x\\le 3$에서 정의된 함수 $f(x)=2\\!\\left(x-\\dfrac{3}{x}\\right)^3-15\\!\\left(x-\\dfrac{3}{x}\\right)^2+36\\!\\left(x-\\dfrac{3}{x}\\right)-50$의 최댓값과 최솟값의 차는?",
+        "tags": [
+          "daily",
+          "daily-test-28",
+          "미분학",
+          "최대/최소",
+          "최댓값·최솟값"
+        ],
+        "ans": "$176$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-hanyang-12",
+        "question": "$x=0$에서 $f(x)=\\dfrac{\\cos x}{1+x^2+x^4}$의 5차 테일러 다항식을 $p(x)=a_0+a_1x+a_2x^2+a_3x^3+a_4x^4+a_5x^5$이라 할 때, $a_0+a_1+a_2+a_3+a_4+a_5$의 값은?",
+        "tags": [
+          "2018",
+          "한양대",
+          "적분학",
+          "Maclaurin급수의 응용",
+          "테일러 다항식 계수합"
+        ],
+        "ans": "$\\frac124$"
+      },
+      {
+        "id": "q-daily-r17-4",
+        "question": "$x=0$에서 $f(x)=\\dfrac{\\cos x}{1+x^2+x^4}$의 5차 테일러 다항식을 $p(x)=a_0+a_1x+a_2x^2+a_3x^3+a_4x^4+a_5x^5$이라 할 때, $a_0+a_1+a_2+a_3+a_4+a_5$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-17",
+          "미분학",
+          "Taylor급수",
+          "테일러 다항식"
+        ],
+        "ans": "$\\frac124$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-kwangwoon-27",
+        "question": "$f(x)=\\sec x$일 때 $f''\\!\\left(\\dfrac{\\pi}{4}\\right)$의 값은?",
+        "tags": [
+          "2018",
+          "광운대",
+          "past_exam",
+          "미분학",
+          "도함수",
+          "$\\sec x$의 2계 도함수"
+        ],
+        "ans": "$3\\sqrt2$"
+      },
+      {
+        "id": "q-daily-r12-4",
+        "question": "$f(x)=\\sec x$일 때 $f''\\!\\left(\\dfrac{\\pi}{4}\\right)$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-12",
+          "미분학",
+          "미분",
+          "이계도함수"
+        ],
+        "ans": "$3\\sqrt2$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-kwangwoon-30",
+        "question": "타원면 $x^2+2y^2+4z^2=9$ 안에 내접하는 직육면체의 최대 부피는?",
+        "tags": [
+          "2018",
+          "광운대",
+          "past_exam",
+          "다변수함수",
+          "다변수 극값",
+          "타원체 내접 직육면체 (산술기하)"
+        ],
+        "ans": "$6\\sqrt6$"
+      },
+      {
+        "id": "q-daily-mv-r22-4",
+        "question": "타원면 $x^2+2y^2+4z^2=9$ 안에 내접하는 직육면체의 최대 부피는?",
+        "tags": [
+          "daily",
+          "daily-test-mv-22",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "내접 직육면체"
+        ],
+        "ans": "$6\\sqrt6$"
+      }
+    ],
+    [
+      {
+        "id": "q-2018-sogang-07",
+        "question": "적분 $\\displaystyle\\int_0^1\\cos(x^2)\\,dx$의 값에 가장 가까운 근삿값은?",
+        "tags": [
+          "year:2018",
+          "school:서강대",
+          "school_slug:sogang",
+          "past_exam"
+        ],
+        "ans": "$\\frac910+\\frac1216$"
+      },
+      {
+        "id": "q-daily-int-r30-1",
+        "question": "적분 $\\displaystyle\\int_0^1\\cos(x^2)\\,dx$의 값에 가장 가까운 근삿값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-30",
+          "적분학",
+          "Maclaurin급수의 응용",
+          "근삿값"
+        ],
+        "ans": "$\\frac910+\\frac1216$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-dankook-32",
+        "question": "$\\displaystyle\\int_1^e(\\ln x)^2\\,dx$의 값은?",
+        "tags": [
+          "2019",
+          "단국대",
+          "past_exam",
+          "적분학",
+          "부정적분",
+          "치환 + 부분적분"
+        ],
+        "ans": "$e-2$"
+      },
+      {
+        "id": "q-2025-cau-20",
+        "question": "$\\displaystyle\\int_1^e(\\ln x)^2 dx$의 값은?",
+        "tags": [
+          "중앙대",
+          "2025",
+          "적분학",
+          "정적분의 계산",
+          "부분적분(반복)"
+        ],
+        "ans": "$e-2$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-dankook-45",
+        "question": "행렬 $\\begin{pmatrix}1&4\\\\1&a\\end{pmatrix}$의 모든 고윳값의 합이 $-1$일 때 실수 $a$의 값은?",
+        "tags": [
+          "2019",
+          "단국대",
+          "past_exam",
+          "선형대수",
+          "고유치와 대각화",
+          "고유치 합 (대각합)"
+        ],
+        "ans": "$-2$"
+      },
+      {
+        "id": "q-2025-dku-am-07",
+        "question": "행렬 $\\begin{pmatrix}1&4\\\\1&a\\end{pmatrix}$의 모든 고윳값의 합이 $-1$일 때, 실수 $a$의 값은?",
+        "tags": [
+          "단국대(오전)",
+          "단국대",
+          "2025",
+          "선형대수",
+          "고유치와 대각화",
+          "고윳값 합(trace)"
+        ],
+        "ans": "$-2$"
+      }
+    ],
+    [
+      {
+        "id": "q-2019-sookmyung-09",
+        "question": "곡선 $y=\\displaystyle\\int_1^{x}\\!\\sqrt{\\sqrt t-1}\\,dt$ ($1\\le x\\le 16$)의 길이는?",
+        "tags": [
+          "숙명여대",
+          "2019",
+          "적분학",
+          "정적분의 응용",
+          "곡선의 길이"
+        ],
+        "ans": "$\\frac1245$"
+      },
+      {
+        "id": "q-daily-int-r24-6",
+        "question": "곡선 $y=\\displaystyle\\int_1^x\\sqrt{\\sqrt{t}-1}\\,dt$ ($1\\le x\\le 16$)의 길이는?",
+        "tags": [
+          "daily",
+          "daily-test-int-24",
+          "적분학",
+          "정적분의 응용",
+          "곡선의 길이"
+        ],
+        "ans": "$\\frac1245$"
+      }
+    ],
+    [
+      {
+        "id": "q-2021-gachon-14",
+        "question": "점 $(2,1)$에서 함수 $f(x,y)=x^2 y+\\sqrt{y}$의 값이 가장 빨리 증가하는 방향의 단위벡터를 $\\mathbf u$라 할 때, 방향도함수 $D_{\\mathbf u}f(2,1)$의 값은?",
+        "tags": [
+          "가천대",
+          "2021",
+          "다변수함수",
+          "경도 및 방향도함수",
+          "최대 변화율 = 경도 크기"
+        ],
+        "ans": "$\\frac\\sqrt1452$"
+      },
+      {
+        "id": "q-2025-gachon-02",
+        "question": "점 $(2,1)$에서 함수 $f(x,y)=x^2 y+\\sqrt{y}$의 값이 가장 빨리 증가하는 방향의 단위벡터를 $\\mathbf{u}$라 할 때, 방향도함수 $D_{\\mathbf{u}}f(2,1)$의 값은?",
+        "tags": [
+          "가천대",
+          "2025",
+          "다변수함수",
+          "경도 및 방향도함수",
+          "경도(gradient)"
+        ],
+        "ans": "$\\frac\\sqrt1452$"
+      }
+    ],
+    [
+      {
+        "id": "q-2021-sookmyung-11",
+        "question": "급수 $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{n}{(n+1)!}$의 값은?",
+        "tags": [
+          "숙명여대",
+          "2021",
+          "적분학",
+          "급수",
+          "텔레스코핑 급수"
+        ],
+        "ans": "$1$"
+      },
+      {
+        "id": "q-2025-sookmyung-10",
+        "question": "급수 $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{n}{(n+1)!}$의 값은?",
+        "tags": [
+          "숙명여대",
+          "2025",
+          "적분학",
+          "급수",
+          "텔레스코핑"
+        ],
+        "ans": "$1$"
+      }
+    ],
+    [
+      {
+        "id": "q-2021am-sejong-02",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left(xe^{1/x}-x\\right)$의 값은?",
+        "tags": [
+          "세종대",
+          "2021",
+          "오전",
+          "미분학",
+          "극한과 연속",
+          "$\\infty\\cdot 0$ 부정형"
+        ],
+        "ans": "$1$"
+      },
+      {
+        "id": "q-daily-r20-3",
+        "question": "극한 $\\displaystyle\\lim_{x\\to\\infty}\\!\\left(xe^{1/x}-x\\right)$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-20",
+          "미분학",
+          "극한과 연속",
+          "함수의 극한"
+        ],
+        "ans": "$1$"
+      }
+    ],
+    [
+      {
+        "id": "q-2022-sejong-06",
+        "question": "극곡선 $r=\\theta^2$ ($0\\le\\theta\\le\\sqrt{5}$)의 길이를 구하면?",
+        "tags": [
+          "세종대",
+          "2022",
+          "적분학",
+          "정적분의 응용",
+          "극곡선의 길이"
+        ],
+        "ans": "$\\frac193$"
+      },
+      {
+        "id": "q-2023-sejong-04",
+        "question": "극곡선 $r=\\theta^2$ ($0\\le\\theta\\le\\sqrt{5}$)의 길이를 구하면?",
+        "tags": [
+          "세종대",
+          "2023",
+          "적분학",
+          "정적분의 응용",
+          "극곡선의 길이"
+        ],
+        "ans": "$\\frac193$"
+      }
+    ],
+    [
+      {
+        "id": "q-2023pm-dankook-40",
+        "question": "$\\displaystyle\\int_0^2\\dfrac{1}{\\sqrt{|x-1|}}\\,dx$의 값은?",
+        "tags": [
+          "2023",
+          "단국대",
+          "오후",
+          "past_exam",
+          "적분학",
+          "이상적분",
+          "특이적분 (대칭)"
+        ],
+        "ans": "$4$"
+      },
+      {
+        "id": "q-daily-int-r15-3",
+        "question": "$\\displaystyle\\int_0^2\\dfrac{1}{\\sqrt{|x-1|}}\\,dx$의 값은?",
+        "tags": [
+          "daily",
+          "daily-test-int-15",
+          "적분학",
+          "특이적분",
+          "절댓값 특이적분"
+        ],
+        "ans": "$4$"
+      }
+    ],
+    [
+      {
+        "id": "q-daily-mv-r22-1",
+        "question": "$x^2+y^2=1$일 때 $f(x,y)=xy$의 최댓값은?",
+        "tags": [
+          "daily",
+          "daily-test-mv-22",
+          "다변수함수",
+          "Taylor급수와 최대/최소",
+          "극값(라그랑주)"
+        ],
+        "ans": "$\\frac12$"
+      },
+      {
+        "id": "q-daily-r28-5",
+        "question": "$x^2+y^2=1$일 때, $f(x, y)=xy$의 최댓값은?",
+        "tags": [
+          "daily",
+          "daily-test-28",
+          "미분학",
+          "최대/최소",
+          "최댓값·최솟값"
+        ],
+        "ans": "$\\frac12$"
+      }
+    ]
+  ]
+}
