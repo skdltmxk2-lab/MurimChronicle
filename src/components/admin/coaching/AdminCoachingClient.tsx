@@ -468,6 +468,15 @@ export function AdminCoachingClient() {
   }
 
   useEffect(() => {
+    if (relatedGroups.length === 0) return;
+    setSheet((current) => {
+      if (current?.sourceLabel !== "vector-related") return current;
+      return relatedSheetFromGroups(relatedGroups) ?? current;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [relatedGroups]);
+
+  useEffect(() => {
     tabRef.current = tab;
   }, [tab]);
 

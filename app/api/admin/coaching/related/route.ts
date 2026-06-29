@@ -53,27 +53,45 @@ async function matchProblem(
   const vec = await embedOne(problemSearchText(problem), "RETRIEVAL_QUERY");
   if (vec.length !== EMBED_DIM) return [];
 
-  const { data, error } = await supabase.rpc("match_questions", {
-    query_embedding: vec,
-    match_count: Math.max(perProblem * 8, perProblem + usedIds.size + 12),
-    p_subject: isKnownSubject(problem.subject) ? problem.subject : null,
-  });
-  if (error) throw error;
+  async function fetchMatches(subject: string | null) {
+    const matchCount = Math.max(perProblem * 20, perProblem + usedIds.size + 50);
+    const { data, error } = await supabase.rpc("match_questions", {
+      query_embedding: vec,
+      match_count: matchCount,
+      p_subject: subject,
+    });
+    if (error) throw error;
 
-  const rows = ((data ?? []) as MatchRow[]).filter((row) => row.id && !usedIds.has(row.id));
-  const ids = rows.map((row) => row.id);
-  const byId = await fetchQuestionsByIds(supabase, ids);
-  const matches: Array<{ question: QuestionRecord; similarity?: number }> = [];
-  for (const row of rows) {
-    const question = byId.get(row.id);
-    if (!question) continue;
-    matches.push(
-      typeof row.similarity === "number"
-        ? { question, similarity: row.similarity }
-        : { question }
-    );
+    const rows = ((data ?? []) as MatchRow[]).filter((row) => row.id && !usedIds.has(row.id));
+    const ids = rows.map((row) => row.id);
+    const byId = await fetchQuestionsByIds(supabase, ids);
+    const matches: Array<{ question: QuestionRecord; similarity?: number }> = [];
+    for (const row of rows) {
+      const question = byId.get(row.id);
+      if (!question) continue;
+      matches.push(
+        typeof row.similarity === "number"
+          ? { question, similarity: row.similarity }
+          : { question }
+      );
+    }
+    return matches;
   }
-  return matches;
+
+  const subject = isKnownSubject(problem.subject) ? problem.subject : null;
+  const primary = await fetchMatches(subject);
+  if (!subject || primary.length >= perProblem) return primary;
+
+  const seen = new Set(primary.map((match) => match.question.id));
+  const fallback = await fetchMatches(null);
+  return [
+    ...primary,
+    ...fallback.filter((match) => {
+      if (seen.has(match.question.id)) return false;
+      seen.add(match.question.id);
+      return true;
+    }),
+  ];
 }
 
 export async function POST(request: Request) {
