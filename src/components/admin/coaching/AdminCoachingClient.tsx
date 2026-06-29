@@ -25,6 +25,8 @@ import type {
 } from "@/types/coaching";
 
 const MAX_UPLOAD_PAGES = 8;
+const QUESTIONS_PER_PRINT_PAGE = 6;
+const ANSWERS_PER_PRINT_PAGE = 2;
 
 type Tab = "related" | "unit" | "twin";
 type PrintMode = "questions" | "answers";
@@ -308,6 +310,7 @@ export function AdminCoachingClient() {
 
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [printMode, setPrintMode] = useState<PrintMode>("questions");
+  const [questionPageHeaders, setQuestionPageHeaders] = useState<string[]>([]);
 
   const unitTotalCount = useMemo(
     () =>
@@ -323,6 +326,23 @@ export function AdminCoachingClient() {
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
   );
+  const questionPageCount = sheet ? Math.ceil(sheet.questions.length / QUESTIONS_PER_PRINT_PAGE) : 0;
+  const sheetSignature = useMemo(
+    () =>
+      sheet
+        ? [
+            sheet.sourceLabel ?? "",
+            sheet.title,
+            sheet.subtitle,
+            sheet.questions.map((question) => question.id).join("|"),
+          ].join("::")
+        : "",
+    [sheet]
+  );
+
+  useEffect(() => {
+    setQuestionPageHeaders(Array.from({ length: questionPageCount }, () => ""));
+  }, [questionPageCount, sheetSignature]);
 
   function currentPerProblem(): number | null {
     return typeof perProblem === "number" && Number.isFinite(perProblem)
@@ -914,6 +934,14 @@ export function AdminCoachingClient() {
     printSheet(mode);
   }
 
+  function updateQuestionPageHeader(pageIndex: number, value: string) {
+    setQuestionPageHeaders((current) => {
+      const next = Array.from({ length: questionPageCount }, (_, index) => current[index] ?? "");
+      next[pageIndex] = value;
+      return next;
+    });
+  }
+
   return (
     <main className={`coaching-workspace print-mode-${printMode} mx-auto max-w-7xl px-5 py-8`}>
       <style jsx global>{`
@@ -934,6 +962,17 @@ export function AdminCoachingClient() {
         }
         .coaching-answer-page {
           box-sizing: border-box;
+        }
+        .coaching-page-custom-header {
+          border-bottom: 1px solid #d7deeb;
+          color: #172033;
+          font-size: 0.82rem;
+          font-weight: 900;
+          line-height: 1.35;
+          margin-bottom: 1rem;
+          min-height: 1.75rem;
+          padding-bottom: 0.45rem;
+          white-space: pre-wrap;
         }
         .coaching-answer-item {
           break-inside: avoid;
@@ -1092,9 +1131,21 @@ export function AdminCoachingClient() {
             min-height: 296mm;
             height: auto;
             overflow: visible;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
           }
           .coaching-print-header {
             display: none !important;
+          }
+          .coaching-page-custom-header {
+            border-bottom: 0.25mm solid #111111 !important;
+            display: block !important;
+            font-size: 8.5pt !important;
+            line-height: 1.35 !important;
+            margin: 0 0 3mm !important;
+            min-height: 6mm !important;
+            padding: 0 0 1.8mm !important;
+            white-space: pre-wrap !important;
           }
           .coaching-answer-page:last-child,
           .coaching-print-page:last-child {
@@ -1122,6 +1173,8 @@ export function AdminCoachingClient() {
             margin-bottom: 3.5mm !important;
             font-size: 8pt !important;
             line-height: 1.45 !important;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
           }
           .coaching-answer-item .katex {
             font-size: 1em;
@@ -1269,6 +1322,32 @@ export function AdminCoachingClient() {
             </div>
           ) : null}
         </div>
+        {sheet && questionPageCount > 0 ? (
+          <div className="mt-5 border-t border-line pt-5">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h2 className="text-sm font-black text-ink">문제지 머릿말</h2>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  페이지별로 입력한 머릿말만 인쇄됩니다. 비워 둔 페이지는 기존 위치 그대로 출력됩니다.
+                </p>
+              </div>
+              <div className="grid w-full gap-2 sm:grid-cols-2 lg:max-w-3xl lg:grid-cols-3">
+                {Array.from({ length: questionPageCount }, (_, pageIndex) => (
+                  <label key={pageIndex} className="block text-xs font-black text-slate-600">
+                    {pageIndex + 1}쪽
+                    <input
+                      type="text"
+                      value={questionPageHeaders[pageIndex] ?? ""}
+                      onChange={(event) => updateQuestionPageHeader(pageIndex, event.target.value)}
+                      className="mt-1 w-full rounded-md border border-line px-3 py-2 text-sm font-bold text-ink"
+                      placeholder="머릿말 없음"
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="admin-screen-only mb-5 flex flex-wrap gap-2 rounded-lg border border-line bg-white p-2 shadow-soft">
@@ -1771,7 +1850,7 @@ export function AdminCoachingClient() {
 
       {sheet ? (
         <>
-          <PrintableSheet sheet={sheet} />
+          <PrintableSheet sheet={sheet} pageHeaders={questionPageHeaders} />
           <PrintableAnswerSheet sheet={sheet} />
         </>
       ) : (
@@ -1861,77 +1940,81 @@ function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
   );
 }
 
-function PrintableSheet({ sheet }: { sheet: PrintSheet }) {
-  const pages = chunk(sheet.questions, 6);
+function PrintableSheet({ sheet, pageHeaders }: { sheet: PrintSheet; pageHeaders: string[] }) {
+  const pages = chunk(sheet.questions, QUESTIONS_PER_PRINT_PAGE);
   return (
     <section className="coaching-print-area coaching-question-print-area mt-6">
-      {pages.map((questions, pageIndex) => (
-        <div
-          key={`${sheet.sourceLabel ?? sheet.title}-${pageIndex}`}
-          data-coaching-print-page
-          className="coaching-print-page rounded-lg border border-line bg-white p-6 shadow-soft"
-        >
-          <div className="coaching-print-header mb-5 flex items-end justify-between border-b border-line pb-3">
-            <div>
-              <h2 className="text-xl font-black text-ink">{sheet.title}</h2>
-              <p className="mt-1 text-xs font-bold text-slate-500">{sheet.subtitle}</p>
-            </div>
-            <p className="text-xs font-black text-slate-500">
-              {pageIndex + 1} / {pages.length}
-            </p>
-          </div>
-          <div className="coaching-print-grid">
-            <div className="coaching-print-divider" aria-hidden="true" />
-            {[questions.slice(0, 3), questions.slice(3, 6)].map((columnQuestions, columnIndex) => (
-              <div
-                key={columnIndex}
-                className={`coaching-print-column ${
-                  columnIndex === 0 ? "coaching-print-column-left" : "coaching-print-column-right"
-                }`}
-              >
-                {columnQuestions.map((question, index) => {
-                  const questionNumber = pageIndex * 6 + columnIndex * 3 + index + 1;
-                  return (
-                    <div key={question.id} className="coaching-print-question px-3 py-2">
-                      <div className="coaching-print-question-body flex items-start gap-2">
-                        <span className="coaching-print-question-number shrink-0 font-black text-ink">
-                          {questionNumber}.
-                        </span>
-                        <PrintableQuestionContent question={question} />
-                      </div>
-                      {question.options.length > 0 ? (
-                        <ol className="coaching-print-options mt-3 space-y-1.5">
-                          {question.options.map((option) => (
-                            <li key={option.id} className="coaching-print-option flex gap-2">
-                              <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
-                              <ContentRenderer
-                                contentType={option.contentType}
-                                text={option.text}
-                                image={option.image}
-                                className="coaching-print-content min-w-0 flex-1"
-                              />
-                            </li>
-                          ))}
-                        </ol>
-                      ) : (
-                        <div className="mt-4 border-t border-dashed border-slate-300 pt-3 text-xs text-slate-400">
-                          답:
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+      {pages.map((questions, pageIndex) => {
+        const headerText = (pageHeaders[pageIndex] ?? "").trim();
+        return (
+          <div
+            key={`${sheet.sourceLabel ?? sheet.title}-${pageIndex}`}
+            data-coaching-print-page
+            className="coaching-print-page rounded-lg border border-line bg-white p-6 shadow-soft"
+          >
+            <div className="coaching-print-header mb-5 flex items-end justify-between border-b border-line pb-3">
+              <div>
+                <h2 className="text-xl font-black text-ink">{sheet.title}</h2>
+                <p className="mt-1 text-xs font-bold text-slate-500">{sheet.subtitle}</p>
               </div>
-            ))}
+              <p className="text-xs font-black text-slate-500">
+                {pageIndex + 1} / {pages.length}
+              </p>
+            </div>
+            {headerText ? <div className="coaching-page-custom-header">{headerText}</div> : null}
+            <div className="coaching-print-grid">
+              <div className="coaching-print-divider" aria-hidden="true" />
+              {[questions.slice(0, 3), questions.slice(3, 6)].map((columnQuestions, columnIndex) => (
+                <div
+                  key={columnIndex}
+                  className={`coaching-print-column ${
+                    columnIndex === 0 ? "coaching-print-column-left" : "coaching-print-column-right"
+                  }`}
+                >
+                  {columnQuestions.map((question, index) => {
+                    const questionNumber = pageIndex * QUESTIONS_PER_PRINT_PAGE + columnIndex * 3 + index + 1;
+                    return (
+                      <div key={question.id} className="coaching-print-question px-3 py-2">
+                        <div className="coaching-print-question-body flex items-start gap-2">
+                          <span className="coaching-print-question-number shrink-0 font-black text-ink">
+                            {questionNumber}.
+                          </span>
+                          <PrintableQuestionContent question={question} />
+                        </div>
+                        {question.options.length > 0 ? (
+                          <ol className="coaching-print-options mt-3 space-y-1.5">
+                            {question.options.map((option) => (
+                              <li key={option.id} className="coaching-print-option flex gap-2">
+                                <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
+                                <ContentRenderer
+                                  contentType={option.contentType}
+                                  text={option.text}
+                                  image={option.image}
+                                  className="coaching-print-content min-w-0 flex-1"
+                                />
+                              </li>
+                            ))}
+                          </ol>
+                        ) : (
+                          <div className="mt-4 border-t border-dashed border-slate-300 pt-3 text-xs text-slate-400">
+                            답:
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </section>
   );
 }
 
 function PrintableAnswerSheet({ sheet }: { sheet: PrintSheet }) {
-  const pages = chunk(sheet.questions, 4);
+  const pages = chunk(sheet.questions, ANSWERS_PER_PRINT_PAGE);
   return (
     <section className="coaching-print-area coaching-answer-print-area">
       {pages.map((questions, pageIndex) => (
@@ -1950,7 +2033,7 @@ function PrintableAnswerSheet({ sheet }: { sheet: PrintSheet }) {
           </div>
           <div className="space-y-4">
             {questions.map((question, index) => {
-              const questionNumber = pageIndex * 4 + index + 1;
+              const questionNumber = pageIndex * ANSWERS_PER_PRINT_PAGE + index + 1;
               const option = correctOption(question);
               const isSubjective = question.questionType === "subjective";
               return (
