@@ -26,7 +26,6 @@ import type {
 
 const MAX_UPLOAD_PAGES = 8;
 const QUESTIONS_PER_PRINT_PAGE = 6;
-const ANSWERS_PER_PRINT_PAGE = 2;
 
 type Tab = "related" | "unit" | "twin";
 type PrintMode = "questions" | "answers";
@@ -128,11 +127,6 @@ function answerLabel(question: QuestionRecord): string {
   if (question.questionType === "subjective") return question.answerText || "";
   const option = question.options.find((item) => item.id === question.correctOptionId);
   return option ? option.label : question.correctOptionId;
-}
-
-function correctOption(question: QuestionRecord) {
-  if (question.questionType === "subjective") return null;
-  return question.options.find((item) => item.id === question.correctOptionId) ?? null;
 }
 
 function stripLeadingQuestionNumber(value: string): string {
@@ -960,8 +954,9 @@ export function AdminCoachingClient() {
         .coaching-print-page {
           box-sizing: border-box;
         }
-        .coaching-answer-page {
+        .coaching-answer-sheet {
           box-sizing: border-box;
+          background: #ffffff;
         }
         .coaching-page-custom-header {
           border-bottom: 1px solid #d7deeb;
@@ -975,7 +970,7 @@ export function AdminCoachingClient() {
           white-space: pre-wrap;
         }
         .coaching-answer-item {
-          break-inside: avoid;
+          break-inside: auto;
         }
         .coaching-answer-explanation img {
           max-width: 100%;
@@ -1106,7 +1101,6 @@ export function AdminCoachingClient() {
           .coaching-print-area > .coaching-print-page + .coaching-print-page {
             margin: 0 !important;
           }
-          .coaching-answer-page,
           .coaching-print-page {
             width: 210mm;
             min-height: 0;
@@ -1120,19 +1114,23 @@ export function AdminCoachingClient() {
             border-radius: 0 !important;
             box-shadow: none !important;
           }
+          .coaching-answer-sheet {
+            width: 210mm;
+            min-height: 296mm;
+            padding: 12mm;
+            box-sizing: border-box;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            -webkit-box-decoration-break: clone;
+            box-decoration-break: clone;
+          }
           .coaching-print-page {
             height: 296mm;
             max-height: 296mm;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-          }
-          .coaching-answer-page {
-            min-height: 296mm;
-            height: auto;
-            overflow: visible;
-            -webkit-box-decoration-break: clone;
-            box-decoration-break: clone;
           }
           .coaching-print-header {
             display: none !important;
@@ -1147,34 +1145,27 @@ export function AdminCoachingClient() {
             padding: 0 0 1.8mm !important;
             white-space: pre-wrap !important;
           }
-          .coaching-answer-page:last-child,
           .coaching-print-page:last-child {
             break-after: auto;
             page-break-after: auto;
           }
-          .coaching-answer-header {
-            border-bottom: 0.35mm solid #111111 !important;
-            margin-bottom: 6mm !important;
-            padding-bottom: 3mm !important;
-          }
-          .coaching-answer-title {
-            font-size: 14pt !important;
-            line-height: 1.25 !important;
-          }
-          .coaching-answer-subtitle,
-          .coaching-answer-page-number {
-            font-size: 8pt !important;
-          }
           .coaching-answer-item {
-            break-inside: avoid;
-            page-break-inside: avoid;
-            border: 0.25mm solid #cbd5e1 !important;
-            padding: 3mm !important;
-            margin-bottom: 3.5mm !important;
-            font-size: 8pt !important;
-            line-height: 1.45 !important;
+            break-inside: auto;
+            page-break-inside: auto;
+            border: 0 !important;
+            border-bottom: 0.2mm solid #d7deeb !important;
+            padding: 0 0 4mm !important;
+            margin: 0 0 4mm !important;
+            font-size: 9pt !important;
+            line-height: 1.5 !important;
             -webkit-box-decoration-break: clone;
             box-decoration-break: clone;
+          }
+          .coaching-answer-question-number {
+            font-size: 9.5pt !important;
+            font-weight: 900 !important;
+            line-height: 1.35 !important;
+            margin-bottom: 2mm !important;
           }
           .coaching-answer-item .katex {
             font-size: 1em;
@@ -2014,80 +2005,35 @@ function PrintableSheet({ sheet, pageHeaders }: { sheet: PrintSheet; pageHeaders
 }
 
 function PrintableAnswerSheet({ sheet }: { sheet: PrintSheet }) {
-  const pages = chunk(sheet.questions, ANSWERS_PER_PRINT_PAGE);
   return (
     <section className="coaching-print-area coaching-answer-print-area">
-      {pages.map((questions, pageIndex) => (
-        <div
-          key={`${sheet.sourceLabel ?? sheet.title}-answers-${pageIndex}`}
-          className="coaching-answer-page rounded-lg border border-line bg-white p-6 shadow-soft"
-        >
-          <div className="coaching-answer-header mb-5 flex items-end justify-between border-b border-line pb-3">
-            <div>
-              <h2 className="coaching-answer-title text-xl font-black text-ink">{sheet.title} 해답지</h2>
-              <p className="coaching-answer-subtitle mt-1 text-xs font-bold text-slate-500">{sheet.subtitle}</p>
-            </div>
-            <p className="coaching-answer-page-number text-xs font-black text-slate-500">
-              {pageIndex + 1} / {pages.length}
-            </p>
-          </div>
-          <div className="space-y-4">
-            {questions.map((question, index) => {
-              const questionNumber = pageIndex * ANSWERS_PER_PRINT_PAGE + index + 1;
-              const option = correctOption(question);
-              const isSubjective = question.questionType === "subjective";
-              return (
-                <article key={question.id} className="coaching-answer-item rounded-lg border border-line bg-white p-4">
-                  <div className="flex flex-wrap items-center gap-2 text-xs font-black text-slate-500">
-                    <span className="text-ink">{questionNumber}번</span>
-                    <span>{question.subject}</span>
-                    <span>{question.unit}</span>
-                    {question.concept ? <span>{question.concept}</span> : null}
-                  </div>
-                  <div className="mt-3 rounded-md bg-brand-50 px-3 py-2 text-sm font-black text-brand-700">
-                    정답: {answerLabel(question) || "-"}
-                  </div>
-                  {isSubjective && question.answerText ? (
-                    <div className="mt-2 rounded-md bg-slate-50 px-3 py-2 text-sm text-ink">
-                      <ContentRenderer contentType="latex" text={question.answerText} />
-                    </div>
-                  ) : null}
-                  {option ? (
-                    <div className="mt-2 rounded-md bg-slate-50 px-3 py-2 text-sm text-ink">
-                      <div className="mb-1 text-xs font-black text-slate-500">정답 보기</div>
-                      <div className="flex gap-2">
-                        <span className="font-black text-slate-600">{option.label}</span>
-                        <ContentRenderer
-                          contentType={option.contentType}
-                          text={option.text}
-                          image={option.image}
-                          className="min-w-0 flex-1"
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-                  {question.explanation || question.explanationImage ? (
-                    <div className="coaching-answer-explanation mt-3">
-                      <div className="mb-1 text-xs font-black text-slate-500">해설</div>
-                      <ContentRenderer
-                        contentType={question.explanationContentType}
-                        text={question.explanation}
-                        image={question.explanationImage}
-                        imageAlt={`${questionNumber}번 해설`}
-                        className="text-sm leading-6 text-slate-700"
-                      />
-                    </div>
-                  ) : (
-                    <div className="coaching-answer-explanation mt-3 text-sm font-bold text-slate-400">
-                      해설 없음
-                    </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+      <div className="coaching-answer-sheet rounded-lg border border-line bg-white p-6 shadow-soft">
+        {sheet.questions.map((question, index) => {
+          const questionNumber = index + 1;
+          return (
+            <article key={question.id} className="coaching-answer-item bg-white">
+              <div className="coaching-answer-question-number text-sm font-black text-ink">
+                {questionNumber}번
+              </div>
+              {question.explanation || question.explanationImage ? (
+                <div className="coaching-answer-explanation">
+                  <ContentRenderer
+                    contentType={question.explanationContentType}
+                    text={question.explanation}
+                    image={question.explanationImage}
+                    imageAlt={`${questionNumber}번 해설`}
+                    className="text-sm leading-6 text-slate-700"
+                  />
+                </div>
+              ) : (
+                <div className="coaching-answer-explanation text-sm font-bold text-slate-400">
+                  해설 없음
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
     </section>
   );
 }
