@@ -514,6 +514,240 @@ select option {
     text-align: left !important;
   }
 
+  .student-pdf-printing .student-wrong-print-area {
+    background: #ffffff !important;
+    color: #111111 !important;
+    display: block !important;
+    margin: 0 auto !important;
+    page: student-pdf;
+    width: 210mm !important;
+  }
+
+  .student-pdf-printing .student-wrong-print-area * {
+    color: #111111 !important;
+    box-shadow: none !important;
+  }
+
+  .student-pdf-printing .student-wrong-print-page {
+    background: #ffffff !important;
+    box-sizing: border-box;
+    break-after: page;
+    display: flex !important;
+    flex-direction: column;
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
+    padding: 12mm;
+    page-break-after: always;
+    width: 210mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .student-pdf-printing .student-wrong-print-header {
+    align-items: flex-end;
+    border-bottom: 0.35mm solid #111111;
+    display: flex;
+    gap: 6mm;
+    justify-content: space-between;
+    padding-bottom: 3mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-header h2 {
+    font-size: 13pt;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .student-pdf-printing .student-wrong-print-header p {
+    color: #475569 !important;
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 1.5mm 0 0;
+  }
+
+  .student-pdf-printing .student-wrong-print-page-count {
+    flex: 0 0 auto;
+    font-size: 8pt;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .student-pdf-printing .student-wrong-print-grid {
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+    padding-top: 7mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-column {
+    min-width: 0;
+  }
+
+  .student-pdf-printing .student-wrong-print-column-left {
+    padding-right: 6mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-column-right {
+    border-left: 0.35mm solid #111111;
+    padding-left: 6mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-card {
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    font-size: 8pt;
+    line-height: 1.48;
+    min-height: 0;
+    page-break-inside: avoid;
+  }
+
+  .student-pdf-printing .student-wrong-print-meta {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5mm;
+    margin-bottom: 3mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-meta span {
+    border: 0.25mm solid #cbd5e1;
+    border-radius: 1.2mm;
+    color: #475569 !important;
+    font-size: 6.8pt;
+    font-weight: 800;
+    padding: 0.8mm 1.5mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-meta .student-wrong-print-number {
+    background: #111111 !important;
+    border-color: #111111;
+    color: #ffffff !important;
+    min-width: 5.5mm;
+    text-align: center;
+  }
+
+  .student-pdf-printing .student-wrong-print-question {
+    font-weight: 800;
+    margin-bottom: 3mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-content,
+  .student-pdf-printing .student-wrong-print-option-content,
+  .student-pdf-printing .student-wrong-print-solution-content {
+    font-size: 8pt;
+    line-height: 1.48;
+    min-width: 0;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
+
+  .student-pdf-printing .student-wrong-print-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3mm;
+    list-style: none;
+    margin: 0 0 3mm;
+    padding: 0;
+  }
+
+  .student-pdf-printing .student-wrong-print-option {
+    align-items: flex-start;
+    border: 0.25mm solid #d7deeb;
+    border-radius: 1.6mm;
+    display: flex;
+    gap: 2mm;
+    padding: 1.5mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-option.is-correct {
+    border-color: #059669;
+  }
+
+  .student-pdf-printing .student-wrong-print-option.is-selected {
+    border-color: #f43f5e;
+  }
+
+  .student-pdf-printing .student-wrong-print-option-label {
+    background: #f1f5f9 !important;
+    border-radius: 1.2mm;
+    flex: 0 0 5mm;
+    font-size: 7.5pt;
+    font-weight: 900;
+    line-height: 5mm;
+    text-align: center;
+  }
+
+  .student-pdf-printing .student-wrong-print-answer-row {
+    border: 0.25mm solid #111111;
+    display: grid;
+    font-size: 7.4pt;
+    font-weight: 900;
+    gap: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 2mm 0 3mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-answer-row span {
+    min-width: 0;
+    overflow-wrap: break-word;
+    padding: 1.5mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-answer-row span + span {
+    border-left: 0.25mm solid #111111;
+  }
+
+  .student-pdf-printing .student-wrong-print-solution {
+    background: #f8fafc !important;
+    border: 0.25mm solid #cbd5e1;
+    border-radius: 1.6mm;
+    padding: 2mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-solution-title {
+    color: #1d4ed8 !important;
+    font-size: 7pt;
+    font-weight: 900;
+    margin-bottom: 1.2mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-source {
+    color: #64748b !important;
+    font-size: 6.6pt;
+    font-weight: 700;
+    margin-top: 2mm;
+  }
+
+  .student-pdf-printing .student-wrong-print-area img {
+    max-height: 42mm !important;
+    object-fit: contain;
+  }
+
+  .student-pdf-printing .student-wrong-print-area .katex {
+    font-size: 1em;
+    white-space: normal;
+  }
+
+  .student-pdf-printing .student-wrong-print-area .katex-display {
+    margin: 0.15em 0 !important;
+    overflow: visible !important;
+    text-align: left !important;
+  }
+
+  .student-pdf-printing.student-result-print-questions .student-result-screen,
+  .student-pdf-printing.student-result-print-solutions .student-result-question-sheet {
+    display: none !important;
+  }
+
   .student-pdf-printing .student-print-card {
     break-inside: avoid;
     break-inside: avoid-page;

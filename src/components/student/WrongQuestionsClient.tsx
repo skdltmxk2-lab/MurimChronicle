@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier } from "@/lib/auth/tierGuard";
@@ -9,31 +9,9 @@ import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { printStudentPdf } from "@/lib/print/studentPrint";
-import type { Difficulty, ProblemOption, QuestionType } from "@/types/exam";
+import { WrongQuestionsPrintSheet, type WrongPrintItem } from "@/components/student/WrongQuestionsPrintSheet";
 
-type WrongCardItem = {
-  problemId: string;
-  attemptId: string;
-  examId: string;
-  examTitle: string;
-  submittedAt: string;
-  selectedOptionId: string | null;
-  userAnswerText?: string | null;
-  subject: string;
-  unit: string;
-  concept: string;
-  difficulty: Difficulty;
-  question: string;
-  contentType: "latex" | "image" | "mixed" | null;
-  questionImage: string | null;
-  options: ProblemOption[];
-  correctOptionId: string;
-  explanation: string;
-  explanationContentType: "latex" | "image" | "mixed" | null;
-  explanationImage: string | null;
-  questionType?: QuestionType;
-  answerText?: string | null;
-};
+type WrongCardItem = WrongPrintItem;
 
 function formatRelativeKor(iso: string): string {
   const diff = Date.now() - Date.parse(iso);
@@ -53,9 +31,43 @@ export function WrongQuestionsClient() {
   const [printingSelection, setPrintingSelection] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [retentionDays, setRetentionDays] = useState(7);
+  const [subjectFilter, setSubjectFilter] = useState("all");
+  const [difficultyFilter, setDifficultyFilter] = useState("all");
+  const [examFilter, setExamFilter] = useState("all");
 
   // PRO(및 관리자)는 30일, 무료는 7일치 오답을 복습할 수 있다.
   const isPro = canUseTier(user, "pro");
+  const itemList = useMemo(() => items ?? [], [items]);
+  const filteredItems = useMemo(
+    () =>
+      itemList.filter((item) => {
+        if (subjectFilter !== "all" && item.subject !== subjectFilter) return false;
+        if (difficultyFilter !== "all" && item.difficulty !== difficultyFilter) return false;
+        if (examFilter !== "all" && (item.examTitle || item.examId) !== examFilter) return false;
+        return true;
+      }),
+    [difficultyFilter, examFilter, itemList, subjectFilter]
+  );
+  const subjectOptions = useMemo(
+    () => Array.from(new Set(itemList.map((item) => item.subject).filter(Boolean))).sort(),
+    [itemList]
+  );
+  const difficultyOptions = useMemo(
+    () => Array.from(new Set(itemList.map((item) => item.difficulty).filter(Boolean))).sort(),
+    [itemList]
+  );
+  const examOptions = useMemo(
+    () => Array.from(new Set(itemList.map((item) => item.examTitle || item.examId).filter(Boolean))).sort(),
+    [itemList]
+  );
+  const printableItems = useMemo(
+    () => itemList.filter((item) => selectedIds.has(item.problemId)),
+    [itemList, selectedIds]
+  );
+  const selectedVisibleCount = useMemo(
+    () => filteredItems.filter((item) => selectedIds.has(item.problemId)).length,
+    [filteredItems, selectedIds]
+  );
 
   useEffect(() => {
     if (!authChecked) return;
@@ -112,11 +124,18 @@ export function WrongQuestionsClient() {
   }
 
   function selectAll() {
-    setSelectedIds(new Set((items ?? []).map((item) => item.problemId)));
+    setSelectedIds(new Set(filteredItems.map((item) => item.problemId)));
   }
 
   function clearSelection() {
     setSelectedIds(new Set());
+  }
+
+  function selectRecommended() {
+    const recommended = filteredItems.slice(0, Math.min(5, filteredItems.length));
+    if (recommended.length === 0) return;
+    setSelectedIds(new Set(recommended.map((item) => item.problemId)));
+    setOpenItems(new Set(recommended.map((item) => item.problemId)));
   }
 
   function printSelected() {
@@ -191,7 +210,8 @@ export function WrongQuestionsClient() {
   }
 
   return (
-    <main className="student-print-root mx-auto max-w-3xl px-5 py-8">
+    <>
+    <main className="student-screen-only student-print-root mx-auto max-w-3xl px-5 py-8">
       <section className="mb-6">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
           복습
@@ -228,20 +248,77 @@ export function WrongQuestionsClient() {
 
       {items && items.length > 0 ? (
         <section className="student-print-hide mb-4 rounded-xl border border-line bg-white p-4 shadow-soft">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="grid gap-3 md:grid-cols-3">
+            <label className="block">
+              <span className="text-xs font-black text-slate-500">과목</span>
+              <select
+                value={subjectFilter}
+                onChange={(event) => setSubjectFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+              >
+                <option value="all">전체 과목</option>
+                {subjectOptions.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-xs font-black text-slate-500">난이도</span>
+              <select
+                value={difficultyFilter}
+                onChange={(event) => setDifficultyFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+              >
+                <option value="all">전체 난이도</option>
+                {difficultyOptions.map((difficulty) => (
+                  <option key={difficulty} value={difficulty}>
+                    {difficulty}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="text-xs font-black text-slate-500">시험</span>
+              <select
+                value={examFilter}
+                onChange={(event) => setExamFilter(event.target.value)}
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+              >
+                <option value="all">전체 시험</option>
+                {examOptions.map((examName) => (
+                  <option key={examName} value={examName}>
+                    {examName}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-black text-ink">PDF 선택</p>
+              <p className="text-sm font-black text-ink">오답 복습</p>
               <p className="mt-1 text-xs font-bold text-slate-500">
-                {selectedIds.size}/{items.length}개 선택됨
+                현재 목록 {filteredItems.length}개 · 선택 {selectedIds.size}개
+                {selectedVisibleCount !== selectedIds.size ? ` · 현재 목록 선택 ${selectedVisibleCount}개` : ""}
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
+                onClick={selectRecommended}
+                disabled={filteredItems.length === 0}
+                className="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                오늘 5개 추천
+              </button>
+              <button
+                type="button"
                 onClick={selectAll}
                 className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
               >
-                전체 선택
+                현재 목록 선택
               </button>
               <button
                 type="button"
@@ -289,9 +366,16 @@ export function WrongQuestionsClient() {
             시험 응시하러 가기
           </Link>
         </section>
+      ) : items && filteredItems.length === 0 ? (
+        <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
+          <h2 className="text-xl font-black text-ink">현재 필터에 맞는 오답이 없습니다</h2>
+          <p className="mt-3 text-sm text-slate-600">
+            과목, 난이도, 시험 필터를 바꾸면 다른 오답을 볼 수 있습니다.
+          </p>
+        </section>
       ) : items ? (
         <ul className="space-y-4">
-          {items.map((it, i) => {
+          {filteredItems.map((it, i) => {
             const open = openItems.has(it.problemId);
             const selected = it.options.find((o) => o.id === it.selectedOptionId);
             const correct = it.options.find((o) => o.id === it.correctOptionId);
@@ -332,10 +416,21 @@ export function WrongQuestionsClient() {
                     {it.concept}
                   </span>
                   <DifficultyBadge difficulty={it.difficulty} />
+                  {it.wrongCount && it.wrongCount > 1 ? (
+                    <span className="rounded-full bg-coral-50 px-2.5 py-1 font-black text-coral-600 ring-1 ring-coral-200">
+                      반복 오답 {it.wrongCount}회
+                    </span>
+                  ) : null}
                   <span className="ml-auto text-slate-500">
                     {formatRelativeKor(it.submittedAt)} ·{" "}
                     <span className="text-slate-400">{it.examTitle || it.examId}</span>
                   </span>
+                  <Link
+                    href={`/student/exams/${it.examId}`}
+                    className="student-print-hide rounded-full border border-line bg-white px-2.5 py-1 font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
+                  >
+                    다시 풀기
+                  </Link>
                   <button
                     type="button"
                     onClick={() => void completeProblems([it.problemId])}
@@ -473,5 +568,7 @@ export function WrongQuestionsClient() {
         </ul>
       ) : null}
     </main>
+    <WrongQuestionsPrintSheet items={printableItems} />
+    </>
   );
 }

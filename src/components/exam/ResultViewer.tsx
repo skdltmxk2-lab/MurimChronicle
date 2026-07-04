@@ -10,6 +10,7 @@ import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { printStudentPdf } from "@/lib/print/studentPrint";
+import { StudentExamPrintSheet } from "@/components/exam/StudentExamPrintSheet";
 
 export function ResultViewer({ attemptId }: { attemptId: string }) {
   const [result, setResult] = useState<AttemptResult | null>(null);
@@ -64,7 +65,8 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
   const reviewMap = new Map(result.items.map((item) => [item.problemId, item]));
 
   return (
-    <main className="student-print-root mx-auto max-w-6xl px-5 py-6">
+    <>
+    <main className="student-result-screen student-print-root mx-auto max-w-6xl px-5 py-6">
       <section data-print-section="true" className="student-print-card rounded-lg border border-line bg-white p-6 shadow-soft">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
@@ -92,10 +94,17 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
         <div className="student-print-hide mt-5 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => printStudentPdf()}
+            onClick={() => printStudentPdf({ modeClass: "student-result-print-questions" })}
             className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:border-brand-600 hover:text-brand-700"
           >
-            PDF 저장
+            문제지 PDF
+          </button>
+          <button
+            type="button"
+            onClick={() => printStudentPdf({ modeClass: "student-result-print-solutions" })}
+            className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:border-brand-600 hover:text-brand-700"
+          >
+            해설 PDF
           </button>
           {result.retryHref ? (
             <Link
@@ -216,5 +225,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
         })}
       </section>
     </main>
+    <StudentExamPrintSheet exam={exam} className="student-result-question-sheet" />
+    </>
   );
 }

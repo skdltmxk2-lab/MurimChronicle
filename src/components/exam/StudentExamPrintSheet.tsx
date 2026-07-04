@@ -18,11 +18,17 @@ function isSubjective(problem: Problem) {
   );
 }
 
-export function StudentExamPrintSheet({ exam }: { exam: MockExam }) {
+export function StudentExamPrintSheet({
+  exam,
+  className,
+}: {
+  exam: MockExam;
+  className?: string;
+}) {
   const pages = chunk(exam.problems, QUESTIONS_PER_PRINT_PAGE);
 
   return (
-    <section className="student-print-only student-exam-print-area">
+    <section className={["student-print-only student-exam-print-area", className].filter(Boolean).join(" ")}>
       {pages.map((pageQuestions, pageIndex) => (
         <div key={`${exam.id}-${pageIndex}`} className="student-exam-print-page">
           <div className="student-exam-print-header">

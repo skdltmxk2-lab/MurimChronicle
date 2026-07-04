@@ -29,6 +29,7 @@ type WrongCardItem = {
   explanationImage: string | null;
   questionType: "multiple_choice" | "subjective";
   answerText: string | null;
+  wrongCount: number;
 };
 
 export async function GET(request: Request) {
@@ -75,12 +76,18 @@ export async function GET(request: Request) {
     submittedAt: string;
     selectedOptionId: string | null;
     userAnswerText: string | null;
+    wrongCount: number;
   }> = [];
+  const wrongCountByProblemId = new Map<string, number>();
 
   for (const a of recent) {
     const r = a.result as AttemptResult;
     for (const it of r.items ?? []) {
       if (it.isCorrect) continue;
+      wrongCountByProblemId.set(
+        it.problemId,
+        (wrongCountByProblemId.get(it.problemId) ?? 0) + 1
+      );
       if (seen.has(it.problemId)) continue;
       seen.add(it.problemId);
       wrongs.push({
@@ -91,9 +98,15 @@ export async function GET(request: Request) {
         submittedAt: r.submittedAt,
         selectedOptionId: it.selectedOptionId,
         userAnswerText: it.userAnswerText ?? null,
+        wrongCount: 1,
       });
     }
   }
+
+  wrongs = wrongs.map((wrong) => ({
+    ...wrong,
+    wrongCount: wrongCountByProblemId.get(wrong.problemId) ?? 1,
+  }));
 
   if (wrongs.length === 0) {
     return NextResponse.json({ ok: true, items: [] as WrongCardItem[], retentionDays });
@@ -160,6 +173,7 @@ export async function GET(request: Request) {
         explanationImage: (q.explanation_image as string | null) ?? null,
         questionType: (q.question_type as "multiple_choice" | "subjective" | null) ?? "multiple_choice",
         answerText: (q.answer_text as string | null) ?? null,
+        wrongCount: w.wrongCount,
       };
     })
     .filter((x): x is WrongCardItem => x !== null);
