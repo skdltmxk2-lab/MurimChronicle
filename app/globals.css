@@ -64,6 +64,15 @@ select option {
   display: none !important;
 }
 
+.scratch-pad-canvas {
+  border-color: #cbd5e1;
+}
+
+.dark .scratch-pad-canvas {
+  border-color: #64748b !important;
+  box-shadow: 0 0 0 1px rgba(203, 213, 225, 0.18), 0 14px 32px rgba(0, 0, 0, 0.24) !important;
+}
+
 /* 라이트 모드에서 보조 텍스트가 너무 연해지는 조합 보정 */
 :not(.dark) .text-slate-300,
 :not(.dark) .text-slate-400 {

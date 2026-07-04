@@ -13,6 +13,9 @@ type ScratchPadProps = {
 };
 
 const PAD_HEIGHT = 220;
+const PAPER_BACKGROUND = "#fffdf8";
+const PAPER_LINE = "rgba(100, 116, 139, 0.16)";
+const INK_COLOR = "#0f172a";
 
 function getPoint(canvas: HTMLCanvasElement, event: PointerEvent<HTMLCanvasElement>): Point {
   const rect = canvas.getBoundingClientRect();
@@ -111,8 +114,8 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.strokeStyle = "#111827";
-    ctx.lineWidth = 2.8;
+    ctx.strokeStyle = INK_COLOR;
+    ctx.lineWidth = 3.1;
     ctx.beginPath();
     ctx.moveTo(last.x, last.y);
     ctx.lineTo(point.x, point.y);
@@ -169,12 +172,12 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
       <canvas
         ref={canvasRef}
         aria-label="문제 풀이 필기장"
-        className="block w-full rounded-md border border-line bg-white shadow-inner"
+        className="scratch-pad-canvas block w-full rounded-md border shadow-inner"
         style={{
           touchAction: "none",
-          backgroundImage:
-            "linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
+          backgroundColor: PAPER_BACKGROUND,
+          backgroundImage: `linear-gradient(to bottom, transparent 31px, ${PAPER_LINE} 32px)`,
+          backgroundSize: "100% 32px",
         }}
         onPointerDown={startDrawing}
         onPointerMove={moveDrawing}
