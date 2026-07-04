@@ -292,19 +292,21 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
   }
 
   return (
-    <section className={`student-screen-only rounded-lg border border-line bg-slate-50 p-3 ${className}`}>
+    <section className={`student-screen-only rounded-lg border border-line bg-white p-3 ${className}`}>
       <div className="mb-3 flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-600">필기</p>
-            <p className="mt-0.5 text-xs font-bold text-slate-500">펜으로 자연스럽게 쓰고, 지우개와 실행취소를 쓸 수 있습니다.</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-black text-ink">필기장</p>
+            <span className="rounded-md bg-slate-50 px-2 py-1 text-[11px] font-black text-slate-500 ring-1 ring-line">
+              {tool === "pen" ? "펜" : "지우개"}
+            </span>
           </div>
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 gap-1.5">
             <button
               type="button"
               onClick={undo}
               disabled={!hasInk}
-              className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-9 rounded-md border border-line bg-white px-3 text-xs font-black text-slate-600 hover:border-brand-500 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
               실행취소
             </button>
@@ -312,7 +314,7 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
               type="button"
               onClick={clear}
               disabled={!hasInk}
-              className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-coral-500 hover:text-coral-600 disabled:cursor-not-allowed disabled:opacity-40"
+              className="h-9 rounded-md border border-line bg-white px-3 text-xs font-black text-slate-600 hover:border-coral-500 hover:text-coral-600 disabled:cursor-not-allowed disabled:opacity-40"
             >
               전체 지우기
             </button>
@@ -320,14 +322,14 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex rounded-md border border-line bg-white p-1">
+          <div className="flex rounded-md bg-slate-50 p-1 ring-1 ring-line">
             {(["pen", "eraser"] as Tool[]).map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => setTool(item)}
-                className={`rounded px-3 py-1.5 text-xs font-black transition ${
-                  tool === item ? "bg-ink text-white" : "text-slate-600 hover:bg-slate-100"
+                className={`h-8 rounded px-3 text-xs font-black transition ${
+                  tool === item ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-ink"
                 }`}
               >
                 {item === "pen" ? "펜" : "지우개"}
@@ -335,7 +337,7 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
             ))}
           </div>
 
-          <div className="flex items-center gap-1 rounded-md border border-line bg-white px-2 py-1.5">
+          <div className="flex h-10 items-center gap-1 rounded-md bg-slate-50 px-2 ring-1 ring-line">
             {PEN_COLORS.map((color) => (
               <button
                 key={color.value}
@@ -346,8 +348,8 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
                 }}
                 aria-label={`${color.label} 펜`}
                 title={`${color.label} 펜`}
-                className={`grid size-7 place-items-center rounded-full border ${
-                  penColor === color.value && tool === "pen" ? "border-ink" : "border-transparent"
+                className={`grid size-7 place-items-center rounded-full border transition ${
+                  penColor === color.value && tool === "pen" ? "border-brand-600 bg-white" : "border-transparent"
                 }`}
               >
                 <span className="block size-4 rounded-full" style={{ backgroundColor: color.value }} />
@@ -355,7 +357,7 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
             ))}
           </div>
 
-          <div className="flex rounded-md border border-line bg-white p-1">
+          <div className="flex rounded-md bg-slate-50 p-1 ring-1 ring-line">
             {PEN_WIDTHS.map((width) => (
               <button
                 key={width.value}
@@ -364,8 +366,8 @@ export function ScratchPad({ storageKey, className = "" }: ScratchPadProps) {
                   setPenWidth(width.value);
                   setTool("pen");
                 }}
-                className={`rounded px-3 py-1.5 text-xs font-black transition ${
-                  penWidth === width.value && tool === "pen" ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-slate-100"
+                className={`h-8 rounded px-3 text-xs font-black transition ${
+                  penWidth === width.value && tool === "pen" ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-ink"
                 }`}
               >
                 {width.label}

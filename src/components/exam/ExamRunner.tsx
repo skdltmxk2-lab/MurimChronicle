@@ -202,84 +202,92 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
   return (
     <>
-    <main className="student-screen-only student-print-root mx-auto max-w-6xl px-5 pt-6 pb-28 lg:pb-6">
-      <section className="student-print-card sticky top-0 z-30 mb-5 rounded-lg border border-line bg-white/95 p-5 shadow-soft backdrop-blur">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">시험 진행</p>
-            <h1 className="mt-1 text-2xl font-black text-ink">{exam.title}</h1>
-            <p className="mt-2 text-sm text-slate-600">{exam.description}</p>
+    <main className="student-screen-only student-print-root mx-auto max-w-6xl px-4 pt-5 pb-28 sm:px-5 lg:pb-6">
+      <section className="student-print-card mb-4 rounded-lg border border-line bg-white px-5 py-4 shadow-soft">
+        <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-brand-600">시험 진행</p>
+            <h1 className="mt-1 text-2xl font-black leading-tight text-ink">{exam.title}</h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{exam.description}</p>
           </div>
-          <div className="student-print-hide grid shrink-0 grid-cols-2 gap-3 text-center sm:grid-cols-3 lg:grid-cols-6">
-            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
-              <div className="whitespace-nowrap text-xs font-bold text-slate-500">남은 시간</div>
-              <div className="mt-1 whitespace-nowrap text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
-            </div>
-            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
-              <div className="whitespace-nowrap text-xs font-bold text-slate-500">진행</div>
-              <div className="mt-1 whitespace-nowrap text-lg font-black text-ink">
-                {answeredCount}/{exam.problems.length}
+          <div className="student-print-hide flex flex-wrap gap-2 text-xs font-black text-slate-500">
+            <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-line">자동 저장</span>
+            <span className="rounded-md bg-slate-50 px-2.5 py-1 ring-1 ring-line">{exam.problems.length}문항</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="student-print-hide sticky top-0 z-30 -mx-4 mb-5 border-y border-line bg-white/95 px-4 py-3 shadow-soft backdrop-blur sm:-mx-5 sm:px-5 lg:mx-0 lg:rounded-lg lg:border">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <div className="grid grid-cols-2 gap-2 md:w-[220px]">
+              <div className="rounded-md bg-slate-50 px-3 py-2 ring-1 ring-line">
+                <div className="text-[11px] font-bold text-slate-500">남은 시간</div>
+                <div className="mt-0.5 text-base font-black text-brand-700">{formatDuration(remainingSec)}</div>
+              </div>
+              <div className="rounded-md bg-slate-50 px-3 py-2 ring-1 ring-line">
+                <div className="text-[11px] font-bold text-slate-500">진행</div>
+                <div className="mt-0.5 text-base font-black text-ink">
+                  {answeredCount}/{exam.problems.length}
+                </div>
               </div>
             </div>
+            <div className="inline-flex w-full rounded-md bg-slate-50 p-1 ring-1 ring-line md:w-auto">
+              {([
+                ["all", "전체", exam.problems.length],
+                ["unanswered", "미응답", exam.problems.length - answeredCount],
+                ["answered", "응답", answeredCount],
+              ] as const).map(([value, label, count]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setQuestionFilter(value)}
+                  className={`h-9 flex-1 whitespace-nowrap rounded px-3 text-xs font-black transition md:flex-none ${
+                    questionFilter === value
+                      ? "bg-white text-brand-700 shadow-sm"
+                      : "text-slate-600 hover:text-ink"
+                  }`}
+                >
+                  {label} {count}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2 sm:flex sm:justify-end">
             <button
               type="button"
               onClick={() => printStudentPdf()}
-              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-brand-600 hover:text-brand-700"
+              className="h-10 whitespace-nowrap rounded-md border border-line bg-white px-3 text-xs font-black text-slate-700 transition hover:border-brand-600 hover:text-brand-700 sm:px-4 sm:text-sm"
             >
-              PDF 저장
+              PDF
             </button>
             <button
               type="button"
               onClick={toggleInkMode}
-              className={`min-w-[90px] whitespace-nowrap rounded-md px-4 py-3 text-sm font-black transition ${
+              className={`h-10 whitespace-nowrap rounded-md px-3 text-xs font-black transition sm:px-4 sm:text-sm ${
                 inkMode
                   ? "bg-brand-600 text-white hover:bg-brand-700"
                   : "border border-line bg-white text-slate-700 hover:border-brand-600 hover:text-brand-700"
               }`}
             >
-              필기 모드
+              필기
             </button>
             <button
               type="button"
               onClick={exitWithoutSubmit}
-              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              className="h-10 whitespace-nowrap rounded-md border border-line bg-white px-3 text-xs font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 sm:px-4 sm:text-sm"
             >
               나가기
             </button>
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="min-w-[90px] whitespace-nowrap rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
+              className="h-10 whitespace-nowrap rounded-md bg-brand-600 px-3 text-xs font-black text-white transition hover:bg-brand-700 sm:px-5 sm:text-sm"
             >
               제출
             </button>
           </div>
-        </div>
-
-        <div className="student-print-hide mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="inline-flex w-full rounded-md border border-line bg-slate-50 p-1 sm:w-auto">
-            {([
-              ["all", "전체", exam.problems.length],
-              ["unanswered", "미응답", exam.problems.length - answeredCount],
-              ["answered", "응답", answeredCount],
-            ] as const).map(([value, label, count]) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setQuestionFilter(value)}
-                className={`flex-1 whitespace-nowrap rounded px-3 py-2 text-xs font-black transition sm:flex-none ${
-                  questionFilter === value
-                    ? "bg-white text-brand-700 shadow-sm"
-                    : "text-slate-600 hover:text-ink"
-                }`}
-              >
-                {label} {count}
-              </button>
-            ))}
-          </div>
-          <p className="text-xs font-bold text-slate-500">
-            답안은 자동 저장됩니다. 나가기는 임시 저장을 유지할 수 있습니다.
-          </p>
         </div>
       </section>
 
@@ -297,25 +305,25 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               <article
                 key={problem.id}
                 id={problem.id}
-                className="student-print-card scroll-mt-40 rounded-lg border border-line bg-white shadow-soft"
+                className="student-print-card scroll-mt-36 rounded-lg border border-line bg-white shadow-soft"
               >
-                <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
-                  <span className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-black text-white">
+                <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-3.5">
+                  <span className="grid size-8 place-items-center rounded-md bg-brand-600 text-sm font-black text-white">
                     {index + 1}
                   </span>
-                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-black text-brand-700">
+                  <span className="rounded-md bg-brand-50 px-2.5 py-1 text-xs font-black text-brand-700">
                     {problem.subject}
                   </span>
                   {/* 단원·개념 태그는 응시 중엔 숨김 (정답 힌트 방지). 결과/해설 화면에선 노출. */}
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
-                <div className="px-5 py-5">
+                <div className="px-5 py-5 sm:px-6">
                   <ContentRenderer
                     contentType={problem.contentType}
                     text={problem.question}
                     image={problem.questionImage}
                     imageAlt={`${index + 1}번 문제`}
-                    className="text-base font-semibold leading-8 text-ink"
+                    className="text-base font-semibold leading-8 text-ink sm:text-[17px]"
                   />
                   {inkMode ? (
                     <ScratchPad
@@ -326,8 +334,8 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                   <div className="mt-5 space-y-2">
                     {(problem.questionType === "subjective"
                       || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
-                      <div className="rounded-md border border-line bg-slate-50/40 p-3">
-                        <label className="block text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+                      <div className="rounded-md border border-line bg-slate-50 p-3">
+                        <label className="block text-xs font-black text-brand-600">
                           단답형 정답 입력
                         </label>
                         <input
@@ -338,7 +346,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                           value={selected ?? ""}
                           onChange={(e) => setSubjectiveAnswer(problem.id, e.target.value)}
                           placeholder="답을 입력하세요"
-                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-base font-semibold text-ink outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+                          className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2.5 text-base font-semibold text-ink outline-none transition focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
                         />
                       </div>
                     ) : (
@@ -349,14 +357,14 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                             key={option.id}
                             type="button"
                             onClick={() => pickAnswer(problem.id, option.id)}
-                            className={`flex w-full items-start gap-3 rounded-md border px-4 py-3 text-left transition ${
+                            className={`flex w-full items-start gap-3 rounded-md border px-4 py-3.5 text-left transition ${
                               isSelected
-                                ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
-                                : "border-line bg-white hover:border-brand-500 hover:bg-brand-50"
+                                ? "border-brand-500 bg-brand-50 ring-2 ring-brand-500/10"
+                                : "border-line bg-white hover:border-brand-300 hover:bg-slate-50"
                             }`}
                           >
                             <span
-                              className={`grid size-7 shrink-0 place-items-center rounded-md text-sm font-black ${
+                              className={`grid size-7 shrink-0 place-items-center rounded-full text-sm font-black ${
                                 isSelected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"
                               }`}
                             >
@@ -367,7 +375,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                               text={option.text}
                               image={option.image}
                               imageAlt={`${index + 1}번 ${option.label}번 보기`}
-                              className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-ink"
+                              className="min-w-0 pt-0.5 text-[15px] font-semibold leading-7 text-ink"
                             />
                           </button>
                         );
@@ -389,15 +397,18 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="w-full rounded-md bg-ink px-4 py-4 text-sm font-black text-white transition hover:bg-slate-700 sm:flex-1"
+              className="w-full rounded-md bg-brand-600 px-4 py-4 text-sm font-black text-white transition hover:bg-brand-700 sm:flex-1"
             >
               제출하고 채점하기
             </button>
           </div>
         </section>
 
-        <aside className="student-print-hide h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
-          <div className="mb-3 text-sm font-black text-ink">문항 이동</div>
+        <aside className="student-print-hide h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-24">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="text-sm font-black text-ink">문항 이동</div>
+            <div className="text-xs font-bold text-slate-500">{answeredCount}/{exam.problems.length}</div>
+          </div>
           <div className="grid grid-cols-5 gap-2">
             {exam.problems.map((problem, index) => {
               const answered = hasStoredAnswer(answers, problem.id);
@@ -405,10 +416,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                 <a
                   key={problem.id}
                   href={`#${problem.id}`}
-                  className={`grid size-9 place-items-center rounded-md border text-sm font-black ${
+                  className={`grid size-9 place-items-center rounded-md border text-sm font-black transition ${
                     answered
                       ? "border-brand-600 bg-brand-600 text-white"
-                      : "border-line bg-white text-slate-600 hover:border-brand-500"
+                      : "border-line bg-white text-slate-600 hover:border-brand-300 hover:bg-slate-50"
                   }`}
                 >
                   {index + 1}
@@ -428,7 +439,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
         </aside>
       </div>
 
-      <nav className="student-print-hide fixed inset-x-3 bottom-3 z-40 rounded-xl border border-line bg-white/95 p-3 shadow-lg backdrop-blur lg:hidden">
+      <nav className="student-print-hide fixed inset-x-3 bottom-3 z-40 rounded-lg border border-line bg-white/95 p-3 shadow-soft backdrop-blur lg:hidden">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm font-black text-ink">문항 이동</div>
           <div className="text-xs font-bold text-slate-500">
@@ -442,10 +453,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               <a
                 key={problem.id}
                 href={`#${problem.id}`}
-                className={`grid size-9 shrink-0 place-items-center rounded-md border text-sm font-black ${
+                className={`grid size-9 shrink-0 place-items-center rounded-md border text-sm font-black transition ${
                   answered
                     ? "border-brand-600 bg-brand-600 text-white"
-                    : "border-line bg-white text-slate-600 hover:border-brand-500"
+                    : "border-line bg-white text-slate-600 hover:border-brand-300 hover:bg-slate-50"
                 }`}
               >
                 {index + 1}

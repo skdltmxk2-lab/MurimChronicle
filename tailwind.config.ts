@@ -9,18 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        ink: "#172033",
-        line: "#dfe5ef",
+        ink: "#191f28",
+        line: "#e5e8eb",
         brand: {
-          50: "#eef6ff",
-          100: "#d9eaff",
-          200: "#b9d7ff",
-          300: "#8fbdff",
-          400: "#5f95ff",
-          500: "#246bfe",
-          600: "#1857db",
-          700: "#1646ad",
-          800: "#123983"
+          50: "#eff6ff",
+          100: "#dbeafe",
+          200: "#bfdbfe",
+          300: "#93c5fd",
+          400: "#60a5fa",
+          500: "#3182f6",
+          600: "#1b64da",
+          700: "#1950b7",
+          800: "#173f91"
         },
         mint: {
           50: "#eefbf5",
@@ -45,7 +45,7 @@ const config: Config = {
         }
       },
       boxShadow: {
-        soft: "0 18px 50px rgba(23, 32, 51, 0.08)"
+        soft: "0 8px 24px rgba(25, 31, 40, 0.06)"
       }
     }
   },
