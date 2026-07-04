@@ -221,6 +221,11 @@ select option {
     margin: 12mm;
   }
 
+  @page student-pdf {
+    size: A4;
+    margin: 0;
+  }
+
   html,
   body {
     width: auto !important;
@@ -322,6 +327,182 @@ select option {
 
   .student-pdf-printing .student-print-only {
     display: block !important;
+  }
+
+  .student-pdf-printing body {
+    margin: 0 !important;
+  }
+
+  .student-pdf-printing .student-exam-print-area {
+    background: #ffffff !important;
+    color: #111111 !important;
+    display: block !important;
+    margin: 0 auto !important;
+    page: student-pdf;
+    width: 210mm !important;
+  }
+
+  .student-pdf-printing .student-exam-print-area * {
+    color: #111111 !important;
+    box-shadow: none !important;
+  }
+
+  .student-pdf-printing .student-exam-print-page {
+    background: #ffffff !important;
+    box-sizing: border-box;
+    break-after: page;
+    display: flex !important;
+    flex-direction: column;
+    height: 297mm;
+    max-height: 297mm;
+    overflow: hidden;
+    padding: 12mm;
+    page-break-after: always;
+    width: 210mm;
+  }
+
+  .student-pdf-printing .student-exam-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .student-pdf-printing .student-exam-print-header {
+    align-items: flex-end;
+    border-bottom: 0.35mm solid #111111;
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+    padding-bottom: 3mm;
+  }
+
+  .student-pdf-printing .student-exam-print-header h2 {
+    font-size: 13pt;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .student-pdf-printing .student-exam-print-header p {
+    color: #475569 !important;
+    font-size: 7.5pt;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 1.5mm 0 0;
+  }
+
+  .student-pdf-printing .student-exam-print-page-count {
+    flex: 0 0 auto;
+    font-size: 8pt;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .student-pdf-printing .student-exam-print-grid {
+    box-sizing: border-box;
+    display: grid;
+    flex: 1 1 auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    min-height: 0;
+    padding-top: 7mm;
+  }
+
+  .student-pdf-printing .student-exam-print-column {
+    display: grid;
+    gap: 4mm;
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    min-width: 0;
+  }
+
+  .student-pdf-printing .student-exam-print-column-left {
+    padding-right: 6mm;
+  }
+
+  .student-pdf-printing .student-exam-print-column-right {
+    border-left: 0.35mm solid #111111;
+    padding-left: 6mm;
+  }
+
+  .student-pdf-printing .student-exam-print-question {
+    break-inside: avoid;
+    font-size: 8pt;
+    line-height: 1.48;
+    min-height: 0;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+
+  .student-pdf-printing .student-exam-print-question-body {
+    align-items: flex-start;
+    display: flex;
+    gap: 2mm;
+    min-width: 0;
+  }
+
+  .student-pdf-printing .student-exam-print-question-number {
+    flex: 0 0 auto;
+    font-size: 8.2pt;
+    font-weight: 900;
+    line-height: 1.48;
+  }
+
+  .student-pdf-printing .student-exam-print-content,
+  .student-pdf-printing .student-exam-print-option-content {
+    flex: 1 1 auto;
+    font-size: 8pt;
+    line-height: 1.48;
+    min-width: 0;
+    overflow: visible;
+    overflow-wrap: break-word;
+    word-break: keep-all;
+  }
+
+  .student-pdf-printing .student-exam-print-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2mm;
+    list-style: none;
+    margin: 2.2mm 0 0 6.2mm;
+    padding: 0;
+  }
+
+  .student-pdf-printing .student-exam-print-option {
+    align-items: flex-start;
+    break-inside: avoid;
+    display: flex;
+    gap: 2mm;
+    line-height: 1.42;
+    page-break-inside: avoid;
+  }
+
+  .student-pdf-printing .student-exam-print-option-label {
+    flex: 0 0 4mm;
+    font-weight: 900;
+    text-align: left;
+  }
+
+  .student-pdf-printing .student-exam-print-answer-line {
+    border-top: 0.25mm dashed #94a3b8;
+    font-size: 8pt;
+    font-weight: 900;
+    margin: 5mm 0 0 6.2mm;
+    padding-top: 2mm;
+  }
+
+  .student-pdf-printing .student-exam-print-area img {
+    max-height: 34mm !important;
+    object-fit: contain;
+  }
+
+  .student-pdf-printing .student-exam-print-area .katex {
+    font-size: 1em;
+    white-space: normal;
+  }
+
+  .student-pdf-printing .student-exam-print-area .katex-display {
+    margin: 0.15em 0 !important;
+    overflow: visible !important;
+    text-align: left !important;
   }
 
   .student-pdf-printing .student-print-card {

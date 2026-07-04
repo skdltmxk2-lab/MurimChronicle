@@ -8,6 +8,7 @@ import { attemptRepo, createAttemptId } from "@/lib/exam/storage";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { ScratchPad } from "@/components/exam/ScratchPad";
+import { StudentExamPrintSheet } from "@/components/exam/StudentExamPrintSheet";
 import { printStudentPdf } from "@/lib/print/studentPrint";
 
 export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: string }) {
@@ -154,7 +155,8 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
   }
 
   return (
-    <main className="student-print-root mx-auto max-w-6xl px-5 py-6">
+    <>
+    <main className="student-screen-only student-print-root mx-auto max-w-6xl px-5 py-6">
       <section className="student-print-card mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
@@ -348,5 +350,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
         </aside>
       </div>
     </main>
+    <StudentExamPrintSheet exam={exam} />
+    </>
   );
 }
