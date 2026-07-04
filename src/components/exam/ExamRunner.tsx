@@ -7,12 +7,15 @@ import { gradeExam, formatDuration } from "@/lib/exam/grading";
 import { attemptRepo, createAttemptId } from "@/lib/exam/storage";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
+import { ScratchPad } from "@/components/exam/ScratchPad";
+import { printStudentPdf } from "@/lib/print/studentPrint";
 
 export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: string }) {
   const router = useRouter();
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [elapsedSec, setElapsedSec] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [inkMode, setInkMode] = useState(false);
   const answersRef = useRef<AnswerMap>({});
   const elapsedRef = useRef(0);
   const startedAtRef = useRef<number>(Date.now());
@@ -74,6 +77,14 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
   }, [exam.id, exam.timeLimitSec]);
 
   useEffect(() => {
+    try {
+      setInkMode(window.localStorage.getItem(`cbt:ink-mode:${exam.id}`) === "1");
+    } catch {
+      setInkMode(false);
+    }
+  }, [exam.id]);
+
+  useEffect(() => {
     if (!loaded) return;
     answersRef.current = answers;
     void attemptRepo.saveAnswers(exam.id, answers);
@@ -115,6 +126,18 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     });
   }
 
+  function toggleInkMode() {
+    setInkMode((current) => {
+      const next = !current;
+      try {
+        window.localStorage.setItem(`cbt:ink-mode:${exam.id}`, next ? "1" : "0");
+      } catch {
+        // Ignore storage failures on restricted browsers.
+      }
+      return next;
+    });
+  }
+
   async function exitWithoutSubmit() {
     const ok = window.confirm(
       "정말 학습을 종료하시겠습니까?\n데이터로 저장되지 않습니다."
@@ -131,15 +154,15 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-6">
-      <section className="mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
+    <main className="student-print-root mx-auto max-w-6xl px-5 py-6">
+      <section className="student-print-card mb-5 rounded-lg border border-line bg-white p-5 shadow-soft">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0 flex-1">
             <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">시험 진행</p>
             <h1 className="mt-1 text-2xl font-black text-ink">{exam.title}</h1>
             <p className="mt-2 text-sm text-slate-600">{exam.description}</p>
           </div>
-          <div className="grid shrink-0 grid-cols-2 gap-3 text-center sm:grid-cols-4">
+          <div className="student-print-hide grid shrink-0 grid-cols-2 gap-3 text-center sm:grid-cols-3 lg:grid-cols-6">
             <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
               <div className="whitespace-nowrap text-xs font-bold text-slate-500">남은 시간</div>
               <div className="mt-1 whitespace-nowrap text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
@@ -152,15 +175,33 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
             </div>
             <button
               type="button"
+              onClick={() => printStudentPdf()}
+              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-brand-600 hover:text-brand-700"
+            >
+              PDF 저장
+            </button>
+            <button
+              type="button"
+              onClick={toggleInkMode}
+              className={`min-w-[90px] whitespace-nowrap rounded-md px-4 py-3 text-sm font-black transition ${
+                inkMode
+                  ? "bg-brand-600 text-white hover:bg-brand-700"
+                  : "border border-line bg-white text-slate-700 hover:border-brand-600 hover:text-brand-700"
+              }`}
+            >
+              필기 모드
+            </button>
+            <button
+              type="button"
               onClick={exitWithoutSubmit}
-              className="col-span-1 min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
             >
               나가기
             </button>
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="col-span-1 min-w-[90px] whitespace-nowrap rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
+              className="min-w-[90px] whitespace-nowrap rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
             >
               제출
             </button>
@@ -176,7 +217,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               <article
                 key={problem.id}
                 id={problem.id}
-                className="rounded-lg border border-line bg-white shadow-soft"
+                className="student-print-card rounded-lg border border-line bg-white shadow-soft"
               >
                 <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
                   <span className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-black text-white">
@@ -196,6 +237,12 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                     imageAlt={`${index + 1}번 문제`}
                     className="text-base font-semibold leading-8 text-ink"
                   />
+                  {inkMode ? (
+                    <ScratchPad
+                      storageKey={`cbt:ink:${exam.id}:${problem.id}`}
+                      className="mt-5"
+                    />
+                  ) : null}
                   <div className="mt-5 space-y-2">
                     {(problem.questionType === "subjective"
                       || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
@@ -251,7 +298,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               </article>
             );
           })}
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="student-print-hide flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
               onClick={exitWithoutSubmit}
@@ -269,7 +316,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
           </div>
         </section>
 
-        <aside className="h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
+        <aside className="student-print-hide h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
           <div className="mb-3 text-sm font-black text-ink">문항 이동</div>
           <div className="grid grid-cols-5 gap-2">
             {exam.problems.map((problem, index) => {

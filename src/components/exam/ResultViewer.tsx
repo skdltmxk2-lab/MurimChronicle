@@ -9,6 +9,7 @@ import type { AttemptResult, MockExam } from "@/types/exam";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { AdSlot } from "@/components/ads/AdSlot";
+import { printStudentPdf } from "@/lib/print/studentPrint";
 
 export function ResultViewer({ attemptId }: { attemptId: string }) {
   const [result, setResult] = useState<AttemptResult | null>(null);
@@ -63,8 +64,8 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
   const reviewMap = new Map(result.items.map((item) => [item.problemId, item]));
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-6">
-      <section data-print-section="true" className="rounded-lg border border-line bg-white p-6 shadow-soft">
+    <main className="student-print-root mx-auto max-w-6xl px-5 py-6">
+      <section data-print-section="true" className="student-print-card rounded-lg border border-line bg-white p-6 shadow-soft">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">채점 결과</p>
@@ -88,7 +89,14 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
             </div>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="student-print-hide mt-5 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => printStudentPdf()}
+            className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:border-brand-600 hover:text-brand-700"
+          >
+            PDF 저장
+          </button>
           {result.retryHref ? (
             <Link
               href={result.retryHref}
@@ -107,7 +115,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
       </section>
 
       {/* 광고 슬롯 (무료 사용자에게만 노출) */}
-      <AdSlot slot="result-top" className="mt-5" />
+      <AdSlot slot="result-top" className="student-print-hide mt-5" />
 
       <section className="mt-5 space-y-4">
         {exam.problems.map((problem, index) => {
@@ -126,7 +134,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
             <article
               key={problem.id}
               data-print-card="true"
-              className="rounded-lg border border-line bg-white shadow-soft"
+              className="student-print-card rounded-lg border border-line bg-white shadow-soft"
             >
               <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
                 <span className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-black text-white">

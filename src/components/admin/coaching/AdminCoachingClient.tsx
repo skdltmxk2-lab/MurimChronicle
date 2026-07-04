@@ -1011,7 +1011,7 @@ export function AdminCoachingClient() {
         }
         .coaching-print-page .coaching-print-question,
         .coaching-print-page .coaching-print-question * {
-          color: #f8fafc !important;
+          color: #172033 !important;
         }
         .coaching-print-content {
           min-width: 0;

@@ -13,6 +13,7 @@ type WrongCardItem = {
   examTitle: string;
   submittedAt: string;
   selectedOptionId: string | null;
+  userAnswerText: string | null;
   // questions 테이블에서 join한 본문/메타
   subject: string;
   unit: string;
@@ -66,13 +67,14 @@ export async function GET(request: Request) {
 
   // 같은 문제를 여러 번 틀렸다면 가장 최근 시도 1개만 남긴다.
   const seen = new Set<string>();
-  const wrongs: Array<{
+  let wrongs: Array<{
     problemId: string;
     attemptId: string;
     examId: string;
     examTitle: string;
     submittedAt: string;
     selectedOptionId: string | null;
+    userAnswerText: string | null;
   }> = [];
 
   for (const a of recent) {
@@ -88,8 +90,29 @@ export async function GET(request: Request) {
         examTitle: r.examTitle ?? "",
         submittedAt: r.submittedAt,
         selectedOptionId: it.selectedOptionId,
+        userAnswerText: it.userAnswerText ?? null,
       });
     }
+  }
+
+  if (wrongs.length === 0) {
+    return NextResponse.json({ ok: true, items: [] as WrongCardItem[], retentionDays });
+  }
+
+  const wrongIds = wrongs.map((w) => w.problemId);
+  const { data: completedRows, error: completedErr } = await auth.supabase
+    .from("student_wrong_question_completions")
+    .select("problem_id")
+    .eq("user_id", auth.userId)
+    .in("problem_id", wrongIds);
+
+  if (completedErr && completedErr.code !== "42P01") {
+    return NextResponse.json({ ok: false, message: completedErr.message }, { status: 500 });
+  }
+
+  if (!completedErr) {
+    const completedIds = new Set((completedRows ?? []).map((row) => row.problem_id as string));
+    wrongs = wrongs.filter((wrong) => !completedIds.has(wrong.problemId));
   }
 
   if (wrongs.length === 0) {
@@ -122,6 +145,7 @@ export async function GET(request: Request) {
         examTitle: w.examTitle,
         submittedAt: w.submittedAt,
         selectedOptionId: w.selectedOptionId,
+        userAnswerText: w.userAnswerText,
         subject: (q.subject as string) ?? "",
         unit: (q.unit as string) ?? "",
         concept: (q.concept as string) ?? "",
