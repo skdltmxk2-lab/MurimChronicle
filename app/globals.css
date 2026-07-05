@@ -6,7 +6,7 @@
 
 :root {
   color-scheme: light;
-  background: #f7f8fa;
+  background: #f5f7fb;
 }
 
 * {
@@ -19,8 +19,10 @@ html {
 
 body {
   min-height: 100vh;
-  background: #f7f8fa;
-  color: #191f28;
+  background:
+    linear-gradient(180deg, rgba(238, 246, 255, 0.86), rgba(245, 247, 251, 0) 360px),
+    #f5f7fb;
+  color: #172033;
 }
 
 button,
@@ -34,7 +36,7 @@ input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
   background-color: #ffffff;
-  color: #191f28;
+  color: #172033;
 }
 
 input::placeholder,
@@ -45,24 +47,7 @@ textarea::placeholder {
 
 select option {
   background-color: #ffffff;
-  color: #191f28;
-}
-
-button,
-a,
-input,
-select,
-textarea {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid rgba(49, 130, 246, 0.22);
-  outline-offset: 2px;
+  color: #172033;
 }
 
 .katex {
@@ -103,65 +88,67 @@ textarea:focus-visible {
    광범위하게 사용하므로, 다크에서는 그 유틸리티를 전역 치환해 한 번에 적용한다. */
 .dark {
   color-scheme: dark;
-  background: #111318;
+  background: #0b0f17;
 }
 
 .dark body {
-  background: #111318;
-  color: #f2f4f6;
+  background:
+    linear-gradient(180deg, rgba(36, 107, 254, 0.12), rgba(11, 15, 23, 0) 360px),
+    #0b0f17;
+  color: #e8ebf2;
 }
 
 .dark input:not([type="checkbox"]):not([type="radio"]),
 .dark select,
 .dark textarea {
-  background-color: #191d24;
-  color: #f2f4f6;
-  border-color: #2b313b;
+  background-color: #151b29;
+  color: #e8ebf2;
+  border-color: #28324a;
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #a7b0bf;
+  color: #98a2b6;
 }
 
 .dark select option {
-  background-color: #191d24;
-  color: #f2f4f6;
+  background-color: #151b29;
+  color: #e8ebf2;
 }
 
 /* 표면 */
-.dark .bg-white { background-color: #191d24 !important; }
-.dark .bg-white\/95 { background-color: rgba(25, 29, 36, 0.95) !important; }
-.dark .bg-white\/90 { background-color: rgba(25, 29, 36, 0.9) !important; }
-.dark .bg-white\/85 { background-color: rgba(25, 29, 36, 0.85) !important; }
-.dark .bg-white\/80 { background-color: rgba(25, 29, 36, 0.8) !important; }
-.dark .bg-white\/70 { background-color: rgba(25, 29, 36, 0.62) !important; }
-.dark .bg-white\/60 { background-color: rgba(25, 29, 36, 0.52) !important; }
+.dark .bg-white { background-color: #151b29 !important; }
+.dark .bg-white\/95 { background-color: rgba(21, 27, 41, 0.95) !important; }
+.dark .bg-white\/90 { background-color: rgba(21, 27, 41, 0.9) !important; }
+.dark .bg-white\/85 { background-color: rgba(16, 21, 33, 0.85) !important; }
+.dark .bg-white\/80 { background-color: rgba(21, 27, 41, 0.8) !important; }
+.dark .bg-white\/70 { background-color: rgba(21, 27, 41, 0.55) !important; }
+.dark .bg-white\/60 { background-color: rgba(16, 21, 33, 0.5) !important; }
 
-.dark .bg-slate-50 { background-color: #20252d !important; }
-.dark .bg-slate-100 { background-color: #272d37 !important; }
-.dark .bg-slate-200 { background-color: #313846 !important; }
+.dark .bg-slate-50 { background-color: #161c2b !important; }
+.dark .bg-slate-100 { background-color: #1c2335 !important; }
+.dark .bg-slate-200 { background-color: #232c42 !important; }
 
-.dark .hover\:bg-slate-100:hover { background-color: #272d37 !important; }
-.dark .hover\:bg-slate-50:hover { background-color: #20252d !important; }
+.dark .hover\:bg-slate-100:hover { background-color: #1c2335 !important; }
+.dark .hover\:bg-slate-50:hover { background-color: #161c2b !important; }
 
 /* 테두리 */
-.dark .border-line { border-color: #2b313b !important; }
+.dark .border-line { border-color: #28324a !important; }
 
 /* 글자 */
-.dark .text-ink { color: #f2f4f6 !important; }
-.dark .text-slate-700 { color: #e5e8eb !important; }
-.dark .text-slate-600 { color: #d1d6de !important; }
-.dark .text-slate-500 { color: #b8c0cc !important; }
-.dark .text-slate-400 { color: #a7b0bf !important; }
-.dark .text-slate-300 { color: #c2cad6 !important; }
+.dark .text-ink { color: #e8ebf2 !important; }
+.dark .text-slate-700 { color: #ccd4e1 !important; }
+.dark .text-slate-600 { color: #b6bfd0 !important; }
+.dark .text-slate-500 { color: #98a2b6 !important; }
+.dark .text-slate-400 { color: #7e889c !important; }
+.dark .text-slate-300 { color: #687085 !important; }
 
 /* 브랜드 톤 (다크에서 가독성 위해 밝게) */
 .dark .text-brand-700,
-.dark .text-brand-600 { color: #8bbcff !important; }
-.dark .bg-brand-50 { background-color: rgba(49, 130, 246, 0.16) !important; }
-.dark .hover\:bg-brand-50:hover { background-color: rgba(49, 130, 246, 0.24) !important; }
-.dark .border-brand-200 { border-color: rgba(49, 130, 246, 0.4) !important; }
+.dark .text-brand-600 { color: #8fb6ff !important; }
+.dark .bg-brand-50 { background-color: rgba(36, 107, 254, 0.16) !important; }
+.dark .hover\:bg-brand-50:hover { background-color: rgba(36, 107, 254, 0.24) !important; }
+.dark .border-brand-200 { border-color: rgba(36, 107, 254, 0.42) !important; }
 
 .dark .text-mint-700,
 .dark .text-mint-600 { color: #4cd3a3 !important; }
@@ -185,8 +172,8 @@ textarea:focus-visible {
 .dark .text-sky-600 { color: #7dd3fc !important; }
 
 /* 그림자 */
-.dark .shadow-soft { box-shadow: 0 10px 28px rgba(0, 0, 0, 0.34) !important; }
-.dark .hover\:shadow-lg:hover { box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42) !important; }
+.dark .shadow-soft { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5) !important; }
+.dark .hover\:shadow-lg:hover { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55) !important; }
 
 /* ─────────────── 편입영어 환영 인트로 이펙트 ─────────────── */
 @keyframes intro-backdrop {

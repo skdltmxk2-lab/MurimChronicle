@@ -195,7 +195,7 @@ export function WrongQuestionsClient() {
   if (!user) {
     return (
       <main className="mx-auto max-w-3xl px-5 py-16">
-        <section className="rounded-lg border border-line bg-white p-10 text-center shadow-soft">
+        <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
           <div className="mb-4 text-5xl">🔒</div>
           <h1 className="text-2xl font-black text-ink">로그인이 필요합니다</h1>
           <Link
@@ -211,7 +211,7 @@ export function WrongQuestionsClient() {
 
   return (
     <>
-    <main className="student-screen-only student-print-root mx-auto max-w-4xl px-4 py-8 sm:px-5">
+    <main className="student-screen-only student-print-root mx-auto max-w-3xl px-5 py-8">
       <section className="mb-6">
         <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
           복습
@@ -225,7 +225,7 @@ export function WrongQuestionsClient() {
       </section>
 
       {!isPro ? (
-        <section className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-mint-300 bg-mint-50 px-5 py-4">
+        <section className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-mint-300 bg-mint-50 px-5 py-4">
           <p className="text-sm font-bold text-mint-800">
             ⏳ 무료는 최근 <b>7일</b>치만 복습할 수 있어요. PRO로 업그레이드하면 <b>30일</b>치까지 모아볼 수 있습니다.
           </p>
@@ -247,14 +247,14 @@ export function WrongQuestionsClient() {
       ) : null}
 
       {items && items.length > 0 ? (
-        <section className="student-print-hide mb-4 rounded-lg border border-line bg-white p-4 shadow-soft">
+        <section className="student-print-hide mb-4 rounded-xl border border-line bg-white p-4 shadow-soft">
           <div className="grid gap-3 md:grid-cols-3">
             <label className="block">
               <span className="text-xs font-black text-slate-500">과목</span>
               <select
                 value={subjectFilter}
                 onChange={(event) => setSubjectFilter(event.target.value)}
-                className="mt-1 h-10 w-full rounded-md border border-line bg-white px-3 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
               >
                 <option value="all">전체 과목</option>
                 {subjectOptions.map((subject) => (
@@ -269,7 +269,7 @@ export function WrongQuestionsClient() {
               <select
                 value={difficultyFilter}
                 onChange={(event) => setDifficultyFilter(event.target.value)}
-                className="mt-1 h-10 w-full rounded-md border border-line bg-white px-3 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
               >
                 <option value="all">전체 난이도</option>
                 {difficultyOptions.map((difficulty) => (
@@ -284,7 +284,7 @@ export function WrongQuestionsClient() {
               <select
                 value={examFilter}
                 onChange={(event) => setExamFilter(event.target.value)}
-                className="mt-1 h-10 w-full rounded-md border border-line bg-white px-3 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
+                className="mt-1 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink outline-none focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10"
               >
                 <option value="all">전체 시험</option>
                 {examOptions.map((examName) => (
@@ -296,7 +296,7 @@ export function WrongQuestionsClient() {
             </label>
           </div>
 
-          <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-black text-ink">오답 복습</p>
               <p className="mt-1 text-xs font-bold text-slate-500">
@@ -304,44 +304,44 @@ export function WrongQuestionsClient() {
                 {selectedVisibleCount !== selectedIds.size ? ` · 현재 목록 선택 ${selectedVisibleCount}개` : ""}
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 lg:justify-end">
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
                 onClick={selectRecommended}
                 disabled={filteredItems.length === 0}
-                className="h-9 rounded-md bg-brand-600 px-3 text-xs font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                className="rounded-md border border-brand-200 bg-brand-50 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 오늘 5개 추천
               </button>
               <button
                 type="button"
-                onClick={printSelected}
-                disabled={selectedIds.size === 0}
-                className="h-9 rounded-md bg-ink px-3 text-xs font-black text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                PDF 저장
-              </button>
-              <button
-                type="button"
-                onClick={() => void completeProblems(Array.from(selectedIds))}
-                disabled={selectedIds.size === 0 || completing}
-                className="h-9 rounded-md border border-mint-300 bg-mint-50 px-3 text-xs font-black text-mint-700 hover:bg-mint-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                학습 완료
-              </button>
-              <button
-                type="button"
                 onClick={selectAll}
-                className="h-9 rounded-md border border-line bg-white px-3 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
+                className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
               >
                 현재 목록 선택
               </button>
               <button
                 type="button"
                 onClick={clearSelection}
-                className="h-9 rounded-md border border-line bg-white px-3 text-xs font-black text-slate-500 hover:border-brand-600 hover:text-brand-700"
+                className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
               >
-                해제
+                선택 해제
+              </button>
+              <button
+                type="button"
+                onClick={printSelected}
+                disabled={selectedIds.size === 0}
+                className="rounded-md bg-ink px-3 py-2 text-xs font-black text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                선택 PDF 저장
+              </button>
+              <button
+                type="button"
+                onClick={() => void completeProblems(Array.from(selectedIds))}
+                disabled={selectedIds.size === 0 || completing}
+                className="rounded-md border border-mint-300 bg-mint-50 px-3 py-2 text-xs font-black text-mint-700 hover:bg-mint-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                선택 학습 완료
               </button>
             </div>
           </div>
@@ -351,7 +351,7 @@ export function WrongQuestionsClient() {
       {loading && items === null ? (
         <p className="py-12 text-center text-sm text-slate-400">불러오는 중...</p>
       ) : items && items.length === 0 ? (
-        <section className="rounded-lg border border-line bg-white p-10 text-center shadow-soft">
+        <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
           <div className="mb-4 text-5xl">🎉</div>
           <h2 className="text-xl font-black text-ink">최근 {retentionDays}일 동안 틀린 문제가 없네요</h2>
           <p className="mt-3 text-sm text-slate-600">
@@ -367,7 +367,7 @@ export function WrongQuestionsClient() {
           </Link>
         </section>
       ) : items && filteredItems.length === 0 ? (
-        <section className="rounded-lg border border-line bg-white p-10 text-center shadow-soft">
+        <section className="rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
           <h2 className="text-xl font-black text-ink">현재 필터에 맞는 오답이 없습니다</h2>
           <p className="mt-3 text-sm text-slate-600">
             과목, 난이도, 시험 필터를 바꾸면 다른 오답을 볼 수 있습니다.
@@ -389,67 +389,65 @@ export function WrongQuestionsClient() {
               <li
                 key={it.problemId}
                 data-print-card="true"
-                className={`student-print-card overflow-hidden rounded-lg border border-line bg-white shadow-soft ${
+                className={`student-print-card overflow-hidden rounded-2xl border border-line bg-white shadow-soft ${
                   printingSelection && !selectedIds.has(it.problemId) ? "student-print-excluded" : ""
                 }`}
               >
-                <div className="border-b border-line bg-white px-5 py-4 text-xs">
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <label className="student-print-hide flex items-center gap-2 rounded-md bg-slate-50 px-2.5 py-1 font-black text-slate-600 ring-1 ring-line">
-                          <input
-                            type="checkbox"
-                            checked={selectedIds.has(it.problemId)}
-                            onChange={() => toggleSelected(it.problemId)}
-                            className="size-4 accent-brand-600"
-                          />
-                          선택
-                        </label>
-                        <span className="grid size-7 place-items-center rounded-md bg-brand-600 font-black text-white">
-                          {i + 1}
-                        </span>
-                        <DifficultyBadge difficulty={it.difficulty} />
-                        {it.wrongCount && it.wrongCount > 1 ? (
-                          <span className="rounded-md bg-coral-50 px-2.5 py-1 font-black text-coral-600 ring-1 ring-coral-200">
-                            반복 {it.wrongCount}회
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-2 truncate text-sm font-black text-ink">
-                        {it.subject} · {it.unit}
-                      </p>
-                      <p className="mt-1 line-clamp-2 text-xs font-bold leading-5 text-slate-500">
-                        {it.concept} · {formatRelativeKor(it.submittedAt)} ·{" "}
-                        <span className="text-slate-400">{it.examTitle || it.examId}</span>
-                      </p>
-                    </div>
-                    <div className="student-print-hide flex shrink-0 gap-2">
-                      <Link
-                        href={`/student/exams/${it.examId}`}
-                        className="rounded-md border border-line bg-white px-3 py-2 font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
-                      >
-                        다시 풀기
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => void completeProblems([it.problemId])}
-                        disabled={completing}
-                        className="rounded-md border border-mint-300 bg-mint-50 px-3 py-2 font-black text-mint-700 hover:bg-mint-100 disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        완료
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex flex-wrap items-center gap-2 border-b border-line bg-slate-50 px-5 py-3 text-xs">
+                  <label className="student-print-hide flex items-center gap-2 rounded-full bg-white px-2.5 py-1 font-black text-slate-600 ring-1 ring-line">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(it.problemId)}
+                      onChange={() => toggleSelected(it.problemId)}
+                      className="size-4 accent-brand-600"
+                    />
+                    PDF
+                  </label>
+                  <span className="rounded-full bg-white px-2.5 py-1 font-black text-slate-600 ring-1 ring-line">
+                    {i + 1}
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 font-bold text-slate-600 ring-1 ring-line">
+                    {it.subject}
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 font-bold text-slate-600 ring-1 ring-line">
+                    {it.unit}
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 font-bold text-slate-600 ring-1 ring-line">
+                    {it.concept}
+                  </span>
+                  <DifficultyBadge difficulty={it.difficulty} />
+                  {it.wrongCount && it.wrongCount > 1 ? (
+                    <span className="rounded-full bg-coral-50 px-2.5 py-1 font-black text-coral-600 ring-1 ring-coral-200">
+                      반복 오답 {it.wrongCount}회
+                    </span>
+                  ) : null}
+                  <span className="ml-auto text-slate-500">
+                    {formatRelativeKor(it.submittedAt)} ·{" "}
+                    <span className="text-slate-400">{it.examTitle || it.examId}</span>
+                  </span>
+                  <Link
+                    href={`/student/exams/${it.examId}`}
+                    className="student-print-hide rounded-full border border-line bg-white px-2.5 py-1 font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
+                  >
+                    다시 풀기
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => void completeProblems([it.problemId])}
+                    disabled={completing}
+                    className="student-print-hide rounded-full border border-mint-300 bg-white px-2.5 py-1 font-black text-mint-700 hover:bg-mint-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    학습 완료
+                  </button>
                 </div>
 
-                <div className="px-5 py-5 sm:px-6">
+                <div className="px-5 py-5">
                   <ContentRenderer
                     contentType={it.contentType ?? "latex"}
                     text={it.question}
                     image={it.questionImage ?? undefined}
                     imageAlt={`${i + 1}번 문제`}
-                    className="text-base font-semibold leading-8 text-ink sm:text-[17px]"
+                    className="text-base font-semibold leading-8 text-ink"
                   />
 
                   {it.options.length > 0 ? (
@@ -458,17 +456,17 @@ export function WrongQuestionsClient() {
                         const isSelected = opt.id === it.selectedOptionId;
                         const isCorrect = opt.id === it.correctOptionId;
                         let ring = "border-line bg-white";
-                        if (open && isCorrect) ring = "border-mint-500 bg-mint-50 ring-2 ring-mint-500/15";
+                        if (open && isCorrect) ring = "border-mint-500 bg-mint-50 ring-2 ring-mint-500/20";
                         else if (open && isSelected && !isCorrect)
-                          ring = "border-coral-300 bg-coral-50 ring-2 ring-coral-500/15";
+                          ring = "border-coral-300 bg-coral-50 ring-2 ring-coral-500/20";
                         else if (isSelected) ring = "border-slate-400 bg-slate-50";
                         return (
                           <div
                             key={opt.id}
-                            className={`flex items-start gap-3 rounded-md border px-4 py-3.5 ${ring}`}
+                            className={`flex items-start gap-3 rounded-md border px-4 py-3 ${ring}`}
                           >
                             <span
-                              className={`grid size-7 shrink-0 place-items-center rounded-full text-sm font-black ${
+                              className={`grid size-7 shrink-0 place-items-center rounded-md text-sm font-black ${
                                 open && isCorrect
                                   ? "bg-mint-500 text-white"
                                   : isSelected
@@ -483,7 +481,7 @@ export function WrongQuestionsClient() {
                               text={opt.text}
                               image={opt.image}
                               imageAlt={`보기 ${opt.label}`}
-                              className="flex-1 text-[15px] leading-7 text-ink"
+                              className="flex-1 text-sm leading-7 text-ink"
                             />
                             {open && isCorrect ? (
                               <span className="ml-2 shrink-0 rounded-full bg-mint-500 px-2 py-0.5 text-[10px] font-black text-white">
@@ -523,14 +521,14 @@ export function WrongQuestionsClient() {
                   <button
                     type="button"
                     onClick={() => toggle(it.problemId)}
-                    className="student-print-hide mt-4 w-full rounded-md border border-line bg-white py-3 text-sm font-black text-slate-700 hover:border-brand-600 hover:text-brand-700"
+                    className="student-print-hide mt-4 w-full rounded-md border border-line bg-white py-2.5 text-sm font-black text-slate-700 hover:border-brand-600 hover:text-brand-700"
                   >
                     {open ? "정답·풀이 숨기기" : "정답·풀이 보기"}
                   </button>
 
                   {open ? (
-                    <div data-print-card="true" className="student-screen-only mt-5 rounded-lg border border-brand-200 bg-brand-50 px-5 py-4">
-                      <p className="text-xs font-black text-brand-600">
+                    <div data-print-card="true" className="student-screen-only mt-5 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
+                      <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">
                         풀이
                       </p>
                       <div className="mt-2 text-sm leading-7 text-ink">
@@ -547,8 +545,8 @@ export function WrongQuestionsClient() {
                     </div>
                   ) : null}
 
-                  <div data-print-card="true" className="student-print-only mt-5 rounded-lg border border-brand-200 bg-brand-50 px-5 py-4">
-                    <p className="text-xs font-black text-brand-600">
+                  <div data-print-card="true" className="student-print-only mt-5 rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
+                    <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">
                       풀이
                     </p>
                     <div className="mt-2 text-sm leading-7 text-ink">
