@@ -1063,34 +1063,40 @@ export function AdminCoachingClient() {
           min-width: 0;
           flex: 1;
         }
-        .dark .coaching-print-page,
-        .dark .coaching-answer-sheet {
-          background: #ffffff !important;
-          border-color: #d7deeb !important;
-          color: #172033 !important;
-        }
-        .dark .coaching-print-page *,
-        .dark .coaching-answer-sheet * {
-          color: #172033 !important;
-        }
-        .dark .coaching-print-page .text-slate-500,
-        .dark .coaching-print-page .text-slate-400,
-        .dark .coaching-answer-sheet .text-slate-500,
-        .dark .coaching-answer-sheet .text-slate-400 {
-          color: #64748b !important;
-        }
-        .dark .coaching-print-page .bg-white,
-        .dark .coaching-answer-sheet .bg-white {
-          background: #ffffff !important;
-        }
-        .dark .coaching-print-page .bg-slate-50,
-        .dark .coaching-answer-sheet .bg-slate-50,
-        .dark .coaching-print-viewbox {
-          background: #f8fafc !important;
-        }
-        .dark .coaching-print-page .border-line,
-        .dark .coaching-answer-sheet .border-line {
-          border-color: #d7deeb !important;
+        @media screen {
+          .dark .coaching-print-page,
+          .dark .coaching-answer-sheet {
+            background: #151b29 !important;
+            border-color: #28324a !important;
+            color: #e8ebf2 !important;
+          }
+          .dark .coaching-print-page .coaching-print-question,
+          .dark .coaching-print-page .coaching-print-question *,
+          .dark .coaching-answer-sheet,
+          .dark .coaching-answer-sheet * {
+            color: #e8ebf2 !important;
+          }
+          .dark .coaching-print-page .text-slate-500,
+          .dark .coaching-print-page .text-slate-400,
+          .dark .coaching-print-page .coaching-print-option-label,
+          .dark .coaching-answer-sheet .text-slate-500,
+          .dark .coaching-answer-sheet .text-slate-400 {
+            color: #b6bfd0 !important;
+          }
+          .dark .coaching-print-page .bg-white,
+          .dark .coaching-answer-sheet .bg-white {
+            background: #151b29 !important;
+          }
+          .dark .coaching-print-page .bg-slate-50,
+          .dark .coaching-answer-sheet .bg-slate-50,
+          .dark .coaching-print-viewbox {
+            background: #161c2b !important;
+          }
+          .dark .coaching-print-page .border-line,
+          .dark .coaching-answer-sheet .border-line,
+          .dark .coaching-print-viewbox {
+            border-color: #28324a !important;
+          }
         }
         @media (min-width: 1024px) {
           .coaching-print-grid {
