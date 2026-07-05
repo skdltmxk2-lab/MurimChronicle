@@ -140,8 +140,8 @@ select option {
 .dark .text-slate-700 { color: #ccd4e1 !important; }
 .dark .text-slate-600 { color: #b6bfd0 !important; }
 .dark .text-slate-500 { color: #98a2b6 !important; }
-.dark .text-slate-400 { color: #7e889c !important; }
-.dark .text-slate-300 { color: #687085 !important; }
+.dark .text-slate-400 { color: #9aa7bb !important; }
+.dark .text-slate-300 { color: #c6d0de !important; }
 
 /* 브랜드 톤 (다크에서 가독성 위해 밝게) */
 .dark .text-brand-700,

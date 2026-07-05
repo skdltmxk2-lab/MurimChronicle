@@ -1063,6 +1063,35 @@ export function AdminCoachingClient() {
           min-width: 0;
           flex: 1;
         }
+        .dark .coaching-print-page,
+        .dark .coaching-answer-sheet {
+          background: #ffffff !important;
+          border-color: #d7deeb !important;
+          color: #172033 !important;
+        }
+        .dark .coaching-print-page *,
+        .dark .coaching-answer-sheet * {
+          color: #172033 !important;
+        }
+        .dark .coaching-print-page .text-slate-500,
+        .dark .coaching-print-page .text-slate-400,
+        .dark .coaching-answer-sheet .text-slate-500,
+        .dark .coaching-answer-sheet .text-slate-400 {
+          color: #64748b !important;
+        }
+        .dark .coaching-print-page .bg-white,
+        .dark .coaching-answer-sheet .bg-white {
+          background: #ffffff !important;
+        }
+        .dark .coaching-print-page .bg-slate-50,
+        .dark .coaching-answer-sheet .bg-slate-50,
+        .dark .coaching-print-viewbox {
+          background: #f8fafc !important;
+        }
+        .dark .coaching-print-page .border-line,
+        .dark .coaching-answer-sheet .border-line {
+          border-color: #d7deeb !important;
+        }
         @media (min-width: 1024px) {
           .coaching-print-grid {
             display: grid;
