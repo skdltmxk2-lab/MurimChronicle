@@ -30,6 +30,8 @@ export type QuestionRecord = {
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  coachingUseCount?: number;
+  coachingLastUsedAt?: string | null;
 };
 
 export type QuestionDraft = {

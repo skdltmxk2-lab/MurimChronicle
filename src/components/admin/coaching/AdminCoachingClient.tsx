@@ -67,6 +67,7 @@ type UnitMockBreakdown = {
   unit: string;
   requestedCount: number;
   available: number;
+  unusedAvailable: number;
   candidateCount: number;
   selectedCount: number;
 };
@@ -127,6 +128,29 @@ function answerLabel(question: QuestionRecord): string {
   if (question.questionType === "subjective") return question.answerText || "";
   const option = question.options.find((item) => item.id === question.correctOptionId);
   return option ? option.label : question.correctOptionId;
+}
+
+function unitMockUseCount(question: QuestionRecord): number {
+  return typeof question.coachingUseCount === "number" && Number.isFinite(question.coachingUseCount)
+    ? question.coachingUseCount
+    : 0;
+}
+
+function unitMockUsageKey(question: Pick<QuestionRecord, "subject" | "unit">): string {
+  return `${question.subject}\n${question.unit}`;
+}
+
+function formatUnitMockLastUsed(value?: string | null): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 function stripLeadingQuestionNumber(value: string): string {
@@ -290,9 +314,11 @@ export function AdminCoachingClient() {
   ]);
   const [unitDifficulty, setUnitDifficulty] = useState<"all" | Difficulty>("all");
   const [unitPool, setUnitPool] = useState<PoolFilter>("all");
+  const [unitExcludeUsed, setUnitExcludeUsed] = useState(false);
   const [unitLoading, setUnitLoading] = useState(false);
   const [unitMsg, setUnitMsg] = useState("");
-  const [replacingUnitQuestionId, setReplacingUnitQuestionId] = useState("");
+  const [replacingUnitQuestionIds, setReplacingUnitQuestionIds] = useState<string[]>([]);
+  const [unitSelectedQuestionIds, setUnitSelectedQuestionIds] = useState<string[]>([]);
 
   const [twinImage, setTwinImage] = useState<UploadPage | null>(null);
   const [twinSourceText, setTwinSourceText] = useState("");
@@ -316,6 +342,10 @@ export function AdminCoachingClient() {
     [unitSections]
   );
   const unitHasBlankCount = unitSections.some((section) => section.count === "");
+  const unitReplacingSet = useMemo(
+    () => new Set(replacingUnitQuestionIds),
+    [replacingUnitQuestionIds]
+  );
   const relatedSelected = useMemo(
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
@@ -337,6 +367,15 @@ export function AdminCoachingClient() {
   useEffect(() => {
     setQuestionPageHeaders(Array.from({ length: questionPageCount }, () => ""));
   }, [questionPageCount, sheetSignature]);
+
+  useEffect(() => {
+    setUnitSelectedQuestionIds((current) => {
+      if (sheet?.sourceLabel !== "unit-mock") return current.length > 0 ? [] : current;
+      const availableIds = new Set(sheet.questions.map((question) => question.id));
+      const next = current.filter((id) => availableIds.has(id));
+      return next.length === current.length ? current : next;
+    });
+  }, [sheet, sheetSignature]);
 
   function currentPerProblem(): number | null {
     return typeof perProblem === "number" && Number.isFinite(perProblem)
@@ -404,6 +443,20 @@ export function AdminCoachingClient() {
       current.length <= 1
         ? [createUnitMockSection(SUBJECT_NAMES[0], 12)]
         : current.filter((section) => section.id !== sectionId)
+    );
+  }
+
+  function toggleUnitQuestionSelection(questionId: string, checked: boolean) {
+    setUnitSelectedQuestionIds((current) => {
+      if (checked) return current.includes(questionId) ? current : [...current, questionId];
+      return current.filter((id) => id !== questionId);
+    });
+  }
+
+  function toggleAllUnitQuestions() {
+    if (sheet?.sourceLabel !== "unit-mock") return;
+    setUnitSelectedQuestionIds((current) =>
+      current.length === sheet.questions.length ? [] : sheet.questions.map((question) => question.id)
     );
   }
 
@@ -763,7 +816,7 @@ export function AdminCoachingClient() {
   }
 
   async function generateUnitMock(excludeCurrent = false) {
-    if (unitLoading || replacingUnitQuestionId) return;
+    if (unitLoading || replacingUnitQuestionIds.length > 0) return;
     const resolvedSections = resolveUnitSections();
     if (!resolvedSections) return;
     setUnitLoading(true);
@@ -776,9 +829,11 @@ export function AdminCoachingClient() {
       const json = await ensureOk<{
         questions: QuestionRecord[];
         available: number;
+        unusedAvailable?: number;
         candidateCount?: number;
         requestedCount: number;
         breakdown?: UnitMockBreakdown[];
+        usageTrackingAvailable?: boolean;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
@@ -787,22 +842,33 @@ export function AdminCoachingClient() {
             difficulty: unitDifficulty,
             pool: unitPool,
             excludeIds,
+            excludeUsed: unitExcludeUsed,
           }),
         })
       );
+      const availableText =
+        typeof json.unusedAvailable === "number"
+          ? `DB ${json.available}문항(미사용 ${json.unusedAvailable}문항)`
+          : `DB ${json.available}문항`;
       const candidateText =
-        typeof json.candidateCount === "number" && excludeIds.length > 0
-          ? ` · 제외 후 후보 ${json.candidateCount}문항`
+        typeof json.candidateCount === "number" && (excludeIds.length > 0 || unitExcludeUsed)
+          ? ` · 후보 ${json.candidateCount}문항`
           : "";
+      const trackingText = json.usageTrackingAvailable === false ? " · 사용 이력 미기록" : "";
       const breakdownText = (json.breakdown ?? [])
-        .map((item) => `${item.unit} ${item.selectedCount}/${item.requestedCount}`)
+        .map((item) =>
+          unitExcludeUsed
+            ? `${item.unit} ${item.selectedCount}/${item.requestedCount} · 미사용 ${item.unusedAvailable}`
+            : `${item.unit} ${item.selectedCount}/${item.requestedCount}`
+        )
         .join(" · ");
       setUnitMsg(
-        `DB ${json.available}문항 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${
+        `${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${trackingText}${
           breakdownText ? ` (${breakdownText})` : ""
         }`
       );
       setSheet(unitSheetFromQuestions(json.questions, resolvedSections));
+      setUnitSelectedQuestionIds([]);
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
     } finally {
@@ -810,56 +876,88 @@ export function AdminCoachingClient() {
     }
   }
 
-  async function replaceUnitQuestion(questionId: string) {
-    if (unitLoading || replacingUnitQuestionId || sheet?.sourceLabel !== "unit-mock") return;
-    const targetIndex = sheet.questions.findIndex((question) => question.id === questionId);
-    if (targetIndex < 0) return;
+  async function replaceUnitQuestions(questionIds: string[]) {
+    if (unitLoading || replacingUnitQuestionIds.length > 0 || sheet?.sourceLabel !== "unit-mock") return;
+    const targetIds = new Set(questionIds);
+    const targets = sheet.questions
+      .map((question, index) => ({ question, index }))
+      .filter(({ question }) => targetIds.has(question.id));
+    if (targets.length === 0) return;
 
-    setReplacingUnitQuestionId(questionId);
+    setReplacingUnitQuestionIds(targets.map(({ question }) => question.id));
     setUnitMsg("");
     try {
       const excludeIds = sheet.questions.map((question) => question.id);
-      const targetQuestion = sheet.questions[targetIndex];
       const json = await ensureOk<{
         questions: QuestionRecord[];
         available: number;
+        unusedAvailable?: number;
         candidateCount?: number;
         requestedCount: number;
+        usageTrackingAvailable?: boolean;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
           body: JSON.stringify({
-            sections: [
-              {
-                subject: targetQuestion.subject,
-                unit: targetQuestion.unit,
-                count: 1,
-              },
-            ],
+            sections: targets.map(({ question }) => ({
+              subject: question.subject,
+              unit: question.unit,
+              count: 1,
+            })),
             difficulty: unitDifficulty,
             pool: unitPool,
             excludeIds,
+            excludeUsed: unitExcludeUsed,
           }),
         })
       );
-      const replacement = json.questions[0];
-      if (!replacement) {
+
+      const replacementBuckets = new Map<string, QuestionRecord[]>();
+      for (const replacement of json.questions ?? []) {
+        const key = unitMockUsageKey(replacement);
+        replacementBuckets.set(key, [...(replacementBuckets.get(key) ?? []), replacement]);
+      }
+
+      const replacementByIndex = new Map<number, QuestionRecord>();
+      const replacedTargetIds = new Set<string>();
+      for (const target of targets) {
+        const bucket = replacementBuckets.get(unitMockUsageKey(target.question));
+        const replacement = bucket?.shift();
+        if (!replacement) continue;
+        replacementByIndex.set(target.index, replacement);
+        replacedTargetIds.add(target.question.id);
+      }
+
+      if (replacementByIndex.size === 0) {
         setUnitMsg("교체할 문제를 찾지 못했습니다.");
         return;
       }
+
       setSheet((current) => {
         if (current?.sourceLabel !== "unit-mock") return current;
         return {
           ...current,
-          questions: current.questions.map((question, index) => (index === targetIndex ? replacement : question)),
+          questions: current.questions.map((question, index) => replacementByIndex.get(index) ?? question),
         };
       });
-      setUnitMsg("문항 1개를 교체했습니다.");
+      setUnitSelectedQuestionIds((current) => current.filter((id) => !replacedTargetIds.has(id)));
+
+      const missingCount = targets.length - replacementByIndex.size;
+      const trackingText = json.usageTrackingAvailable === false ? " · 사용 이력 미기록" : "";
+      setUnitMsg(
+        `문항 ${replacementByIndex.size}개를 교체했습니다.${
+          missingCount > 0 ? ` 후보 부족 ${missingCount}개` : ""
+        }${trackingText}`
+      );
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "문항 교체에 실패했습니다.");
     } finally {
-      setReplacingUnitQuestionId("");
+      setReplacingUnitQuestionIds([]);
     }
+  }
+
+  async function replaceUnitQuestion(questionId: string) {
+    await replaceUnitQuestions([questionId]);
   }
 
   async function loadTwinFile(file: File | null) {
@@ -1749,10 +1847,19 @@ export function AdminCoachingClient() {
                 </select>
               </label>
             </div>
+            <label className="mt-4 flex items-center gap-3 rounded-md border border-line bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">
+              <input
+                type="checkbox"
+                checked={unitExcludeUsed}
+                onChange={(event) => setUnitExcludeUsed(event.target.checked)}
+                className="size-4 rounded border-line"
+              />
+              사용한 문제 다시 사용하지 않기
+            </label>
             <button
               type="button"
               onClick={() => void generateUnitMock()}
-              disabled={unitLoading || unitHasBlankCount}
+              disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitHasBlankCount}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
               {unitLoading ? "문제 뽑는 중..." : `단원별 모고 만들기 (${unitTotalCount}문항)`}
@@ -1764,38 +1871,92 @@ export function AdminCoachingClient() {
                   <div>
                     <h3 className="text-sm font-black text-ink">단원별 모고 구성 결과</h3>
                     <p className="mt-1 text-xs font-bold text-slate-500">
-                      {sheet.questions.length}문항 · 개별 문항을 교체하거나 전체를 다시 뽑을 수 있습니다.
+                      {sheet.questions.length}문항 · 선택 {unitSelectedQuestionIds.length}문항
                     </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      disabled={unitLoading || replacingUnitQuestionIds.length > 0 || sheet.questions.length === 0}
+                      onClick={toggleAllUnitQuestions}
+                      className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      {unitSelectedQuestionIds.length === sheet.questions.length ? "선택 해제" : "전체 선택"}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={
+                        unitLoading ||
+                        replacingUnitQuestionIds.length > 0 ||
+                        unitSelectedQuestionIds.length === 0
+                      }
+                      onClick={() => void replaceUnitQuestions(unitSelectedQuestionIds)}
+                      className="rounded-md bg-ink px-3 py-2 text-xs font-black text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    >
+                      선택 문제 교체 ({unitSelectedQuestionIds.length})
+                    </button>
                   </div>
                 </div>
                 <ol className="mt-4 grid gap-2 lg:grid-cols-2">
-                  {sheet.questions.map((question, index) => (
-                    <li key={question.id} className="rounded-md border border-line bg-white p-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-xs font-black text-slate-500">
-                            {index + 1}. {question.concept || question.unit}
-                          </p>
-                          <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
-                            {normalizePrintableText(stripLeadingQuestionNumber(question.question))}
-                          </p>
+                  {sheet.questions.map((question, index) => {
+                    const useCount = unitMockUseCount(question);
+                    const lastUsed = formatUnitMockLastUsed(question.coachingLastUsedAt);
+                    const isSelected = unitSelectedQuestionIds.includes(question.id);
+                    const isReplacing = unitReplacingSet.has(question.id);
+                    return (
+                      <li key={question.id} className="rounded-md border border-line bg-white p-3">
+                        <div className="flex items-start justify-between gap-3">
+                          <label className="flex min-w-0 flex-1 items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              disabled={unitLoading || replacingUnitQuestionIds.length > 0}
+                              onChange={(event) => toggleUnitQuestionSelection(question.id, event.target.checked)}
+                              className="mt-1 size-4 shrink-0 rounded border-line"
+                            />
+                            <div className="min-w-0">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <p className="text-xs font-black text-slate-500">
+                                  {index + 1}. {question.concept || question.unit}
+                                </p>
+                                <span
+                                  title={lastUsed ? `마지막 사용: ${lastUsed}` : undefined}
+                                  className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
+                                    useCount > 0
+                                      ? "bg-amber-50 text-amber-700"
+                                      : "bg-emerald-50 text-emerald-700"
+                                  }`}
+                                >
+                                  {useCount > 0 ? "사용됨" : "미사용"} · 기존 {useCount}회
+                                </span>
+                              </div>
+                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
+                                {normalizePrintableText(stripLeadingQuestionNumber(question.question))}
+                              </p>
+                            </div>
+                          </label>
+                          <button
+                            type="button"
+                            disabled={unitLoading || replacingUnitQuestionIds.length > 0}
+                            onClick={() => void replaceUnitQuestion(question.id)}
+                            className="shrink-0 rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            {isReplacing ? "교체 중..." : "이 문제 교체"}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          disabled={unitLoading || replacingUnitQuestionId !== ""}
-                          onClick={() => void replaceUnitQuestion(question.id)}
-                          className="shrink-0 rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
-                        >
-                          {replacingUnitQuestionId === question.id ? "교체 중..." : "이 문제 교체"}
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ol>
                 <div className="mt-4 flex justify-end">
                   <button
                     type="button"
-                    disabled={unitLoading || replacingUnitQuestionId !== "" || sheet.questions.length === 0 || unitHasBlankCount}
+                    disabled={
+                      unitLoading ||
+                      replacingUnitQuestionIds.length > 0 ||
+                      sheet.questions.length === 0 ||
+                      unitHasBlankCount
+                    }
                     onClick={() => void generateUnitMock(true)}
                     className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
                   >

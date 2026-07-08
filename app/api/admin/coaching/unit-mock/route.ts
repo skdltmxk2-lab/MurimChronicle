@@ -5,6 +5,7 @@ import {
   questionRowsToRecords,
 } from "@/lib/admin/coaching";
 import { DIFFICULTY_KEYS, isKnownSubject, unitsForSubject } from "@/lib/taxonomy";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionPool, QuestionRecord } from "@/types/question";
 
@@ -19,8 +20,20 @@ type UnitMockBreakdown = {
   unit: string;
   requestedCount: number;
   available: number;
+  unusedAvailable: number;
   candidateCount: number;
   selectedCount: number;
+};
+
+type CoachingUsage = {
+  useCount: number;
+  lastUsedAt: string | null;
+};
+
+type UsageLoadResult = {
+  available: boolean;
+  usageByQuestionId: Map<string, CoachingUsage>;
+  message?: string;
 };
 
 function shuffle<T>(values: T[]): T[] {
@@ -30,6 +43,74 @@ function shuffle<T>(values: T[]): T[] {
     [next[i], next[j]] = [next[j], next[i]];
   }
   return next;
+}
+
+function isMissingUsageStore(error: { code?: string; message?: string }) {
+  const message = error.message ?? "";
+  return (
+    error.code === "42P01" ||
+    error.code === "42883" ||
+    error.code === "PGRST202" ||
+    message.includes("coaching_unit_mock_usage") ||
+    message.includes("record_coaching_unit_mock_usage")
+  );
+}
+
+async function loadCoachingUsage(
+  supabase: SupabaseClient,
+  questionIds: string[]
+): Promise<UsageLoadResult> {
+  const ids = Array.from(new Set(questionIds.filter(Boolean)));
+  const usageByQuestionId = new Map<string, CoachingUsage>();
+  if (ids.length === 0) return { available: true, usageByQuestionId };
+
+  const { data, error } = await supabase
+    .from("coaching_unit_mock_usage")
+    .select("question_id, use_count, last_used_at")
+    .in("question_id", ids);
+
+  if (error) {
+    if (isMissingUsageStore(error)) {
+      return { available: false, usageByQuestionId, message: error.message };
+    }
+    throw error;
+  }
+
+  for (const row of data ?? []) {
+    usageByQuestionId.set(row.question_id as string, {
+      useCount: Number(row.use_count ?? 0),
+      lastUsedAt: (row.last_used_at as string | null) ?? null,
+    });
+  }
+
+  return { available: true, usageByQuestionId };
+}
+
+function attachCoachingUsage(question: QuestionRecord, usage: Map<string, CoachingUsage>): QuestionRecord {
+  const item = usage.get(question.id);
+  return {
+    ...question,
+    coachingUseCount: item?.useCount ?? 0,
+    coachingLastUsedAt: item?.lastUsedAt ?? null,
+  };
+}
+
+async function recordCoachingUsage(
+  supabase: SupabaseClient,
+  questions: QuestionRecord[]
+): Promise<{ ok: true } | { ok: false; unavailable: boolean; message: string }> {
+  const ids = Array.from(new Set(questions.map((question) => question.id).filter(Boolean)));
+  if (ids.length === 0) return { ok: true };
+
+  const { error } = await supabase.rpc("record_coaching_unit_mock_usage", {
+    p_question_ids: ids,
+  });
+
+  if (!error) return { ok: true };
+  if (isMissingUsageStore(error)) {
+    return { ok: false, unavailable: true, message: error.message };
+  }
+  return { ok: false, unavailable: false, message: error.message };
 }
 
 export async function POST(request: Request) {
@@ -45,6 +126,7 @@ export async function POST(request: Request) {
         pool?: "all" | QuestionPool;
         count?: number;
         excludeIds?: unknown[];
+        excludeUsed?: boolean;
         sections?: unknown[];
       }
     | null;
@@ -54,6 +136,7 @@ export async function POST(request: Request) {
   const concept = typeof body?.concept === "string" ? body.concept.trim() : "";
   const difficulty = body?.difficulty ?? "all";
   const pool = body?.pool ?? "all";
+  const excludeUsed = body?.excludeUsed === true;
   const excludeIds = new Set(
     Array.isArray(body?.excludeIds)
       ? body.excludeIds.filter((id): id is string => typeof id === "string")
@@ -108,7 +191,9 @@ export async function POST(request: Request) {
   const selectedQuestions: QuestionRecord[] = [];
   const breakdown: UnitMockBreakdown[] = [];
   let available = 0;
+  let unusedAvailable = 0;
   let candidateCount = 0;
+  let usageTrackingAvailable = true;
 
   for (const section of sections) {
     let query = auth.supabase
@@ -128,29 +213,69 @@ export async function POST(request: Request) {
     }
 
     const allQuestions = questionRowsToRecords((data ?? []) as unknown as Record<string, unknown>[]);
-    const candidates = shuffle(allQuestions.filter((question) => !selectedIds.has(question.id)));
+    let usage: UsageLoadResult;
+    try {
+      usage = await loadCoachingUsage(auth.supabase, allQuestions.map((question) => question.id));
+    } catch (error) {
+      return NextResponse.json(
+        { ok: false, message: error instanceof Error ? error.message : "사용 이력을 불러오지 못했습니다." },
+        { status: 500 }
+      );
+    }
+
+    if (!usage.available) {
+      usageTrackingAvailable = false;
+      if (excludeUsed) {
+        return NextResponse.json(
+          { ok: false, message: "코칭 사용 이력 테이블이 없습니다. 최신 Supabase 마이그레이션을 적용해 주세요." },
+          { status: 500 }
+        );
+      }
+    }
+
+    const questionsWithUsage = allQuestions.map((question) =>
+      attachCoachingUsage(question, usage.usageByQuestionId)
+    );
+    const unusedQuestions = questionsWithUsage.filter((question) => (question.coachingUseCount ?? 0) === 0);
+    const candidates = shuffle(
+      questionsWithUsage.filter(
+        (question) => !selectedIds.has(question.id) && (!excludeUsed || (question.coachingUseCount ?? 0) === 0)
+      )
+    );
     const picked = candidates.slice(0, section.count);
 
     for (const question of picked) selectedIds.add(question.id);
     selectedQuestions.push(...picked);
     available += allQuestions.length;
+    unusedAvailable += unusedQuestions.length;
     candidateCount += candidates.length;
     breakdown.push({
       subject: section.subject,
       unit: section.unit,
       requestedCount: section.count,
       available: allQuestions.length,
+      unusedAvailable: unusedQuestions.length,
       candidateCount: candidates.length,
       selectedCount: picked.length,
     });
   }
 
+  const usageRecord = await recordCoachingUsage(auth.supabase, selectedQuestions);
+  if (!usageRecord.ok) {
+    usageTrackingAvailable = false;
+    if (!usageRecord.unavailable) {
+      return NextResponse.json({ ok: false, message: usageRecord.message }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({
     ok: true,
     available,
+    unusedAvailable,
     candidateCount,
     questions: selectedQuestions,
     requestedCount,
     breakdown,
+    usageTrackingAvailable,
   });
 }
