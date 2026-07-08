@@ -95,24 +95,6 @@ function attachCoachingUsage(question: QuestionRecord, usage: Map<string, Coachi
   };
 }
 
-async function recordCoachingUsage(
-  supabase: SupabaseClient,
-  questions: QuestionRecord[]
-): Promise<{ ok: true } | { ok: false; unavailable: boolean; message: string }> {
-  const ids = Array.from(new Set(questions.map((question) => question.id).filter(Boolean)));
-  if (ids.length === 0) return { ok: true };
-
-  const { error } = await supabase.rpc("record_coaching_unit_mock_usage", {
-    p_question_ids: ids,
-  });
-
-  if (!error) return { ok: true };
-  if (isMissingUsageStore(error)) {
-    return { ok: false, unavailable: true, message: error.message };
-  }
-  return { ok: false, unavailable: false, message: error.message };
-}
-
 export async function POST(request: Request) {
   const auth = await requireAdmin(request);
   if (!auth.ok) return auth.response;
@@ -258,14 +240,6 @@ export async function POST(request: Request) {
       candidateCount: candidates.length,
       selectedCount: picked.length,
     });
-  }
-
-  const usageRecord = await recordCoachingUsage(auth.supabase, selectedQuestions);
-  if (!usageRecord.ok) {
-    usageTrackingAvailable = false;
-    if (!usageRecord.unavailable) {
-      return NextResponse.json({ ok: false, message: usageRecord.message }, { status: 500 });
-    }
   }
 
   return NextResponse.json({
