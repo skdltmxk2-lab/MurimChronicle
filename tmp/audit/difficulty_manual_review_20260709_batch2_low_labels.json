@@ -1,0 +1,367 @@
+{
+  "generatedAt": "2026-07-09T04:43:39.314Z",
+  "dryRun": false,
+  "scope": "manual difficulty review batch 2: under-labeled easy/easyMedium candidates",
+  "changes": [
+    {
+      "id": "q-2017-cau-26",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "두 평행직선을 포함하는 평면을 잡고 점-평면 거리까지 계산해야 하므로 중 난이도가 적절함",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "평면과 점 거리",
+      "questionExcerpt": "두 직선 $\\dfrac{x}{2}=\\dfrac{y-2}{3}=z+1$과 $\\dfrac{x+1}{4}=\\dfrac{y}{6}=\\dfrac{z-3}{2}$를 포함하는 평면 $\\alpha$와 점 $(2,1,3)$과의 거리는?"
+    },
+    {
+      "id": "q-2017-cau-29",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "사분원 영역 해석과 적분순서 변경이 필요해 중하보다는 중 난이도",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분순서 변경",
+      "questionExcerpt": "$\\displaystyle\\int_0^2\\!\\!\\int_0^{\\sqrt{4-x^2}}\\!\\sqrt{4-y^2}\\,dy\\,dx$의 값은?"
+    },
+    {
+      "id": "q-2017-hanyang-03",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "구간 내부 특이점을 확인해야 하는 함정형 특이적분이라 중 난이도",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "발산 판정",
+      "questionExcerpt": "적분 $\\displaystyle\\int_{-4}^{4}\\dfrac{2}{2+x}\\,dx$의 값은?"
+    },
+    {
+      "id": "q-2017-skku-02",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "공간곡선 곡률 공식과 외적 계산이 필요해 중 난이도",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선 곡률",
+      "questionExcerpt": "곡선 $r(t)=\\langle\\sin t,\\,\\cos t,\\,2t\\rangle$ 위의 점 $(0,1,0)$에서의 곡률의 값은?"
+    },
+    {
+      "id": "q-2017-skku-05",
+      "from": "easy",
+      "to": "medium",
+      "rationale": "1계 선형 미분방정식의 적분인자와 초기조건 계산이 필요해 하 난이도로는 낮음",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "1계 선형 ODE",
+      "questionExcerpt": "미분방정식 $y'-\\dfrac{1}{x}y=x^2$의 해 $y(x)$가 $y(2)=0$을 만족할 때 $y(1)$의 값은?"
+    },
+    {
+      "id": "q-2017-skku-07",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "3차원 평면의 절편 삼각형 면적을 외적으로 계산해야 하므로 하보다는 중하",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "평면 삼각형 면적",
+      "questionExcerpt": "평면 $x+2y+4z=8$에서 부등식 $x\\ge 0,\\,y\\ge 0,\\,z\\ge 0$을 모두 만족하는 부분의 넓이의 값은?"
+    },
+    {
+      "id": "q-2017-skku-11",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "구간지시 함수의 라플라스 변환을 적분으로 구성해야 하므로 하보다는 중하",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "단계함수 변환",
+      "questionExcerpt": "함수 $f(t)=\\begin{cases}0&(t<1)\\\\1&(1<t<2)\\\\0&(t>2)\\end{cases}$의 라플라스 변환 $\\mathcal L\\{f(t)\\}(s)$는?"
+    },
+    {
+      "id": "q-2017-skku-17",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "그린정리 적용과 대칭성 판단이 필요해 중 난이도",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그린정리",
+      "questionExcerpt": "다음 선적분의 값은? $\\displaystyle\\int_C(e^x\\sin x-y)\\,dx+(x^2+\\sqrt{y^2+1})\\,dy$ (여기서 $C:x^2+y^2=1$은 단위원이다.)"
+    },
+    {
+      "id": "q-2018-cau-07",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "감마함수 공식 또는 반복 부분적분 인식이 필요해 하보다는 중하",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "감마함수",
+      "questionExcerpt": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?"
+    },
+    {
+      "id": "q-2018-hanyang-05",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "여러 선적분과 호길이 선적분을 비교해야 하므로 중 난이도",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "선적분 비교",
+      "questionExcerpt": "$C$는 포물선 $y=x^2$ 위의 점 $(0,0)$에서 점 $(1,1)$까지의 호(arc)일 때 다음 선적분의 값 중에서 가장 큰 것은? (단, $\\displaystyle\\int_C f(x,y)\\,ds$는 $f(x,y)$의 호의 길이에 대한 선적분이다.)"
+    },
+    {
+      "id": "q-2018-hanyang-13",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "부분공간 판정 보기형으로 원점, 닫힘성, 차원 불일치를 함께 확인해야 함",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "부분공간 판정",
+      "questionExcerpt": "다음 <보기> 중에서 벡터공간 $R^3$의 부분공간을 모두 고르시오. 가) $\\{(x,y,7x-5y)\\mid x,y\\in R\\}$ 나) $\\{(x,y,z)\\in R^3\\mid 3x+7y-1=0\\}$ 다) $\\{(x,y,z)\\in R^3\\mid xy=0\\}\\cap\\{(x,y,z)\\in R^3\\mid yz=0\\}\\cap\\{(x,y,z)\\in R^3\\mid zx=0\\}$ 라) $\\{(x,y,z)\\"
+    },
+    {
+      "id": "q-2018-hanyang-19",
+      "from": "easy",
+      "to": "medium",
+      "rationale": "2계 상수계수 ODE 해법과 초기조건 연립 계산이 필요해 중 난이도",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "2계 상수계수 동차 ODE",
+      "questionExcerpt": "$y''+5y'+6y=0,\\ y(0)=3,\\ y'(0)=-7$일 때 $y(1)+y'(1)$의 값은?"
+    },
+    {
+      "id": "q-2018-konkuk-39",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "폐곡선 선적분을 그린정리와 면적 해석으로 연결해야 하므로 중 난이도",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그린정리(면적)",
+      "questionExcerpt": "곡선 $C$는 좌표평면에서 점 $(1,0),(0,1),(-1,0),(0,-1)$을 꼭짓점으로 갖는 사각형이다. 선적분 $\\displaystyle\\oint_C -y\\,dx + x\\,dy$의 값은?"
+    },
+    {
+      "id": "q-2018-kwangwoon-12",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "쌍곡함수 미분과 곡선 길이 공식을 알아야 해 하보다는 중하",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "$\\cosh$ 곡선 길이",
+      "questionExcerpt": "곡선 $y=\\dfrac{e^x+e^{-x}}{2}$ ($-1\\le x\\le 1$)의 길이는?"
+    },
+    {
+      "id": "q-2018-kwangwoon-19",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "음함수 형태의 곡면 접평면을 기울기/법선벡터로 계산해야 함",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "접평면 방정식",
+      "questionExcerpt": "점 $(1,4,0)$에서 곡면 $z=y\\ln x$의 접평면의 방정식은?"
+    },
+    {
+      "id": "q-2018-kwangwoon-29",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "공간곡선 길이 공식 적용이 필요해 하보다는 중하",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선 길이",
+      "questionExcerpt": "곡선 $\\vec{x}(t)=(\\cos 2t,\\sin 2t,2t)$ ($0\\le t\\le 5$)의 길이는?"
+    },
+    {
+      "id": "q-2018-skku-01",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "내부 특이점 때문에 비고유적분으로 나누어 판단해야 하는 문제",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "발산 판정",
+      "questionExcerpt": "특이적분 $\\displaystyle\\int_1^4\\dfrac{dx}{(x-2)^2}$의 값은?"
+    },
+    {
+      "id": "q-2018-skku-05",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "3차원 보존장 퍼텐셜을 잡아 선적분 일을 계산해야 하므로 중 난이도",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "보존장 일",
+      "questionExcerpt": "공간에서 물체가 점 $P(1,1,1)$에서 점 $Q(2,2,2)$로 움직일 때 힘 $F=x^2\\mathbf i+y^2\\mathbf j+z^2\\mathbf k$이 한 일은?"
+    },
+    {
+      "id": "q-2019-ajou-33",
+      "from": "easyMedium",
+      "to": "mediumHard",
+      "rationale": "비교판정법의 양항 조건과 절대수렴의 대우까지 판단하는 보기형 이론 문제",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "급수 수렴 판정 (비교판정법)",
+      "questionExcerpt": "무한급수 $\\displaystyle\\sum_{n=1}^{\\infty}a_n$의 수렴·발산 판정에 대한 다음 설명 중 옳은 것은?"
+    },
+    {
+      "id": "q-2019-ajou-38",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "무한상한 이상적분과 아크탄젠트 치환을 함께 사용해야 함",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "$\\arctan$ 형태 이상적분",
+      "questionExcerpt": "이상 적분 $\\displaystyle\\int_{1/2}^{\\infty}\\dfrac{dx}{1+4x^2}$의 값은?"
+    },
+    {
+      "id": "q-2019-ajou-46",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "적분순서 변경 후 치환적분까지 이어지는 이중적분 문제",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분순서 변경",
+      "questionExcerpt": "다음 $\\displaystyle\\int_0^1\\!\\left[\\int_{\\sqrt{x}}^{1}\\sin(\\pi y^3)dy\\right]dx$ 적분의 값은?"
+    },
+    {
+      "id": "q-2019-ajou-47",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "극좌표 면적 공식과 삼각함수 거듭제곱 적분이 필요해 중 난이도",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "극곡선 영역의 넓이",
+      "questionExcerpt": "극좌표 방정식 $r=\\sqrt{\\sin^3\\theta}$, $0\\le\\theta\\le\\pi$로 표현되는 곡선에 의해 둘러싸인 영역의 넓이는?"
+    },
+    {
+      "id": "q-2019-ajou-48",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "가우시안 적분 제곱을 1사분면 극좌표 영역으로 해석해야 함",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "가우시안 변형 (지문 1)",
+      "questionExcerpt": "이상 적분 $I=\\displaystyle\\int_0^{\\infty}x^2 e^{-x^2}dx$의 값을 구하기 위하여 $I^2$을 극좌표로 변환했을 때 $I^2=\\displaystyle\\int_0^{a}\\!\\!\\left(\\int_0^{\\infty}r^m e^{-r^2}dr\\right)\\!\\sin^2\\theta\\cos^2\\theta\\,d\\theta$로 표현된다. $a$의 값은?"
+    },
+    {
+      "id": "q-2019-dankook-35",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "카디오이드 면적 공식 또는 극좌표 면적 적분이 필요해 하보다는 중하",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "카디오이드 영역 넓이",
+      "questionExcerpt": "심장선 $r=1+\\sin\\theta$로 둘러싸인 영역의 넓이는?"
+    },
+    {
+      "id": "q-2019-dankook-38",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "3변수 함수의 그래디언트와 단위방향벡터 내적을 계산해야 함",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "방향도함수",
+      "questionExcerpt": "점 $(2,1,\\pi)$에서 함수 $f(x,y,z)=y^2+x\\cos(yz)$의 벡터 $\\vec{v}=\\langle 2,3,-6\\rangle$ 방향으로의 방향도함수는?"
+    },
+    {
+      "id": "q-2019-ewha-13",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "유리함수 분해 후 정적분 계산이 필요해 하보다는 중하",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "유리함수 적분",
+      "questionExcerpt": "정적분 $\\!\\displaystyle\\int_0^4\\dfrac{3x}{1+2x}\\,dx$의 값을 계산하시오."
+    },
+    {
+      "id": "q-2019-ewha-15",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "부분적분을 이용한 정적분으로 하보다는 중하",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "부분적분 (x²ln x)",
+      "questionExcerpt": "정적분 $\\!\\displaystyle\\int_1^e x^2\\ln x\\,dx$의 값을 계산하시오."
+    },
+    {
+      "id": "q-2019-gachon-08",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "극방정식을 원으로 식별하고 면적을 계산해야 하는 극좌표 응용 문제",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "원의 극방정식 면적",
+      "questionExcerpt": "극곡선 $r=\\sin\\theta+\\cos\\theta$로 둘러싸인 영역의 넓이는?"
+    },
+    {
+      "id": "q-2019-gachon-22",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "dx/dy 형태의 미분방정식을 해석하고 초기조건의 부호 가지를 선택해야 함",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "변수분리형",
+      "questionExcerpt": "$y=y(x)$가 미분방정식 $\\dfrac{dx}{dy}=\\dfrac{y}{x},\\,y(0)=-3$의 해 일 때 $y(4)$의 값은?"
+    },
+    {
+      "id": "q-2019-hanyang-03",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "쌍곡함수 공간곡선의 곡률을 외적으로 계산해야 하므로 중 난이도",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선의 곡률",
+      "questionExcerpt": "곡선 $r(t)=\\cosh t\\,\\mathbf{i}+\\sinh t\\,\\mathbf{j}+t\\,\\mathbf{k}$에서 $t=0$일 때의 곡률은?"
+    },
+    {
+      "id": "q-2019-hanyang-04",
+      "from": "easyMedium",
+      "to": "mediumHard",
+      "rationale": "곡면적 공식과 극좌표 이중적분 계산이 필요한 다단계 문제",
+      "subject": "다변수함수",
+      "unit": "체적과 곡면적",
+      "concept": "곡면적",
+      "questionExcerpt": "곡면 $z=2-x^2-y^2,\\ z\\ge 0$의 넓이는?"
+    },
+    {
+      "id": "q-2019-hanyang-21",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "오일러-코시 중근 해와 초기조건 처리가 필요해 중 난이도",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "오일러-코시 중근",
+      "questionExcerpt": "미분방정식 $x^2y''+5xy'+4y=0,\\ x>0$의 해 $y=y(x)$가 $y(1)=e^2,\\,y'(1)=0$을 만족할 때, $y(e)$의 값은?"
+    },
+    {
+      "id": "q-2019-hanyang-erica-06",
+      "from": "easy",
+      "to": "easyMedium",
+      "rationale": "아크탄젠트 매클로린 전개 계수 인식이 필요해 하보다는 중하",
+      "subject": "적분학",
+      "unit": "Maclaurin급수의 응용",
+      "concept": "$\\arctan$ 매클로린",
+      "questionExcerpt": "$\\tan^{-1}(2x)$의 매클로린 전개식에서 $x^5$의 계수는? (단, $|x|<\\dfrac{1}{2}$)"
+    },
+    {
+      "id": "q-2019-hanyang-erica-16",
+      "from": "easy",
+      "to": "medium",
+      "rationale": "다항식 집합의 일차독립성을 여러 보기에서 판정해야 해 중 난이도",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "1차 독립",
+      "questionExcerpt": "다음 집합 중 1차 독립인 것은?"
+    },
+    {
+      "id": "q-2019-hanyang-erica-20",
+      "from": "easy",
+      "to": "mediumHard",
+      "rationale": "복소 고유값을 구하고 역수합을 계산해야 하므로 하 난이도로는 부적절",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고유값 역수합",
+      "questionExcerpt": "행렬 $A=\\begin{pmatrix}1&0&0\\\\0&1&1\\\\0&-1&1\\end{pmatrix}$의 대각화 행렬을 $D=\\begin{pmatrix}\\lambda_1&0&0\\\\0&\\lambda_2&0\\\\0&0&\\lambda_3\\end{pmatrix}$이라 할 때 $\\dfrac{1}{\\lambda_1}+\\dfrac{1}{\\lambda_2}+\\dfrac{1}{\\lambda_3}$의 값은?"
+    },
+    {
+      "id": "q-2019-hanyang-erica-22",
+      "from": "easyMedium",
+      "to": "medium",
+      "rationale": "완전미분방정식 판정과 퍼텐셜 함수 구성이 필요해 중 난이도",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "완전 미분방정식",
+      "questionExcerpt": "미분방정식 $(x+y-1)dx+(x+y+1)dy=0$의 일반해는?"
+    }
+  ]
+}

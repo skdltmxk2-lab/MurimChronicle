@@ -1,30 +1,30 @@
 {
   "summary": {
-    "generatedAt": "2026-07-09T04:32:14.922Z",
+    "generatedAt": "2026-07-09T04:43:48.673Z",
     "questionCount": 5532,
-    "issueCount": 2706,
-    "reviewQuestionCount": 2674,
+    "issueCount": 2703,
+    "reviewQuestionCount": 2671,
     "severityCounts": {
-      "P1": 1392,
-      "P2": 1246,
+      "P1": 1373,
+      "P2": 1262,
       "P3": 68
     },
     "categoryCounts": {
-      "difficulty": 2706
+      "difficulty": 2703
     },
     "codeCounts": {
-      "difficulty_probably_too_low": 1392,
+      "difficulty_probably_too_low": 1373,
       "concept_difficulty_outlier_high": 9,
       "difficulty_maybe_too_high": 32,
-      "difficulty_maybe_too_low": 1205,
+      "difficulty_maybe_too_low": 1221,
       "unit_difficulty_outlier_high": 63,
       "unit_difficulty_outlier_low": 5
     },
     "difficultyDistribution": {
-      "easy": 682,
-      "medium": 2649,
-      "mediumHard": 491,
-      "easyMedium": 1042,
+      "easy": 665,
+      "medium": 2669,
+      "mediumHard": 494,
+      "easyMedium": 1036,
       "hard": 642,
       "killer": 26
     },
@@ -195,69 +195,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2017-cau-26",
-      "subject": "다변수함수",
-      "unit": "곡선과 곡면",
-      "concept": "평면과 점 거리",
-      "difficulty": "easyMedium",
-      "excerpt": "두 직선 $\\dfrac{x}{2}=\\dfrac{y-2}{3}=z+1$과 $\\dfrac{x+1}{4}=\\dfrac{y}{6}=\\dfrac{z-3}{2}$를 포함하는 평면 $\\alpha$와 점 $(2,1,3)$과의 거리는?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=17"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2017-cau-29",
-      "subject": "다변수함수",
-      "unit": "중적분",
-      "concept": "적분순서 변경",
-      "difficulty": "easyMedium",
-      "excerpt": "$\\displaystyle\\int_0^2\\!\\!\\int_0^{\\sqrt{4-x^2}}\\!\\sqrt{4-y^2}\\,dy\\,dx$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=29"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2017-hanyang-03",
-      "subject": "적분학",
-      "unit": "특이적분",
-      "concept": "발산 판정",
-      "difficulty": "easyMedium",
-      "excerpt": "적분 $\\displaystyle\\int_{-4}^{4}\\dfrac{2}{2+x}\\,dx$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=10"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2017-hanyang-08",
       "subject": "다변수함수",
       "unit": "Taylor급수와 최대/최소",
@@ -346,16 +283,16 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2017-skku-02",
+      "id": "q-2017-skku-07",
       "subject": "다변수함수",
       "unit": "곡선과 곡면",
-      "concept": "공간곡선 곡률",
+      "concept": "평면 삼각형 면적",
       "difficulty": "easyMedium",
-      "excerpt": "곡선 $r(t)=\\langle\\sin t,\\,\\cos t,\\,2t\\rangle$ 위의 점 $(0,1,0)$에서의 곡률의 값은?",
+      "excerpt": "평면 $x+2y+4z=8$에서 부등식 $x\\ge 0,\\,y\\ge 0,\\,z\\ge 0$을 모두 만족하는 부분의 넓이의 값은?",
       "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
-        "mathDensity=13"
+        "mathDensity=11"
       ],
       "meta": {
         "currentIndex": 1,
@@ -367,63 +304,21 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2017-skku-05",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "1계 선형 ODE",
-      "difficulty": "easy",
-      "excerpt": "미분방정식 $y'-\\dfrac{1}{x}y=x^2$의 해 $y(x)$가 $y(2)=0$을 만족할 때 $y(1)$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=16"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 4,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2017-skku-07",
-      "subject": "다변수함수",
-      "unit": "곡선과 곡면",
-      "concept": "평면 삼각형 면적",
-      "difficulty": "easy",
-      "excerpt": "평면 $x+2y+4z=8$에서 부등식 $x\\ge 0,\\,y\\ge 0,\\,z\\ge 0$을 모두 만족하는 부분의 넓이의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=11"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 4,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2017-skku-11",
       "subject": "공학수학",
       "unit": "Laplace변환",
       "concept": "단계함수 변환",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "함수 $f(t)=\\begin{cases}0&(t<1)\\\\1&(1<t<2)\\\\0&(t>2)\\end{cases}$의 라플라스 변환 $\\mathcal L\\{f(t)\\}(s)$는?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=25"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -434,18 +329,18 @@
       "subject": "다변수함수",
       "unit": "선적분과 면적분",
       "concept": "그린정리",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "다음 선적분의 값은? $\\displaystyle\\int_C(e^x\\sin x-y)\\,dx+(x^2+\\sqrt{y^2+1})\\,dy$ (여기서 $C:x^2+y^2=1$은 단위원이다.)",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=4",
         "highKeyword=/Stokes|스토크스|Green\\s*정리|그린\\s*정리|발산\\s*정리|Gauss\\s*정리/|/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
         "mathDensity=10"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -583,27 +478,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2018-cau-07",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "감마함수",
-      "difficulty": "easy",
-      "excerpt": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?",
-      "message": "Heuristic estimate is 중상 but current is 하.",
-      "reasons": [
-        "unitBase=2",
-        "mathDensity=12"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 3,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2018-cau-11",
       "subject": "다변수함수",
       "unit": "중적분",
@@ -719,18 +593,18 @@
       "subject": "다변수함수",
       "unit": "선적분과 면적분",
       "concept": "선적분 비교",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "$C$는 포물선 $y=x^2$ 위의 점 $(0,0)$에서 점 $(1,1)$까지의 호(arc)일 때 다음 선적분의 값 중에서 가장 큰 것은? (단, $\\displaystyle\\int_C f(x,y)\\,ds$는 $f(x,y)$의 호의 길이에 대한 선적분이다.)",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=4",
         "multipleMidKeywords=/매개변수|극좌표|극방정식|특이적분|이상적분/|/중적분|삼중적분|선적분|면적분|곡면적|방향도함수|경도/",
         "mathDensity=32"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -786,39 +660,18 @@
       "subject": "선형대수",
       "unit": "벡터공간",
       "concept": "부분공간 판정",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "다음 <보기> 중에서 벡터공간 $R^3$의 부분공간을 모두 고르시오. 가) $\\{(x,y,7x-5y)\\mid x,y\\in R\\}$ 나) $\\{(x,y,z)\\in R^3\\mid 3x+7y-1=0\\}$ 다) $\\{(x,y,z)\\in R^3\\mid xy=0\\}\\cap\\{(x,y,z)\\in R^3\\mid yz=0\\}\\cap\\{(x,y,z)\\in R^3\\mid zx=0\\}$ 라) $\\{(x,y,z)\\...",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=3",
         "multipleMidKeywords=/매개변수|극좌표|극방정식|특이적분|이상적분/|/고유값|고유치|대각화|벡터공간|선형사상|선형변환/",
         "multiStatement"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2018-hanyang-19",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "2계 상수계수 동차 ODE",
-      "difficulty": "easy",
-      "excerpt": "$y''+5y'+6y=0,\\ y(0)=3,\\ y'(0)=-7$일 때 $y(1)+y'(1)$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=17"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -916,17 +769,17 @@
       "subject": "다변수함수",
       "unit": "선적분과 면적분",
       "concept": "그린정리(면적)",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "곡선 $C$는 좌표평면에서 점 $(1,0),(0,1),(-1,0),(0,-1)$을 꼭짓점으로 갖는 사각형이다. 선적분 $\\displaystyle\\oint_C -y\\,dx + x\\,dy$의 값은?",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=4",
         "highKeyword=/Stokes|스토크스|Green\\s*정리|그린\\s*정리|발산\\s*정리|Gauss\\s*정리/"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -981,17 +834,17 @@
       "subject": "적분학",
       "unit": "정적분의 응용",
       "concept": "$\\cosh$ 곡선 길이",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "곡선 $y=\\dfrac{e^x+e^{-x}}{2}$ ($-1\\le x\\le 1$)의 길이는?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=12"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1023,17 +876,17 @@
       "subject": "다변수함수",
       "unit": "곡선과 곡면",
       "concept": "접평면 방정식",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "점 $(1,4,0)$에서 곡면 $z=y\\ln x$의 접평면의 방정식은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1109,17 +962,17 @@
       "subject": "다변수함수",
       "unit": "곡선과 곡면",
       "concept": "공간곡선 길이",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "곡선 $\\vec{x}(t)=(\\cos 2t,\\sin 2t,2t)$ ($0\\le t\\le 5$)의 길이는?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=12"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1130,17 +983,17 @@
       "subject": "적분학",
       "unit": "특이적분",
       "concept": "발산 판정",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "특이적분 $\\displaystyle\\int_1^4\\dfrac{dx}{(x-2)^2}$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=16"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1151,18 +1004,18 @@
       "subject": "다변수함수",
       "unit": "선적분과 면적분",
       "concept": "보존장 일",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "공간에서 물체가 점 $P(1,1,1)$에서 점 $Q(2,2,2)$로 움직일 때 힘 $F=x^2\\mathbf i+y^2\\mathbf j+z^2\\mathbf k$이 한 일은?",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=4",
         "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
         "mathDensity=9"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1277,27 +1130,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-ajou-33",
-      "subject": "적분학",
-      "unit": "급수의 수렴/발산",
-      "concept": "급수 수렴 판정 (비교판정법)",
-      "difficulty": "easyMedium",
-      "excerpt": "무한급수 $\\displaystyle\\sum_{n=1}^{\\infty}a_n$의 수렴·발산 판정에 대한 다음 설명 중 옳은 것은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=19"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-ajou-36",
       "subject": "다변수함수",
       "unit": "중적분",
@@ -1324,17 +1156,17 @@
       "subject": "적분학",
       "unit": "특이적분",
       "concept": "$\\arctan$ 형태 이상적분",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "이상 적분 $\\displaystyle\\int_{1/2}^{\\infty}\\dfrac{dx}{1+4x^2}$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=22"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1362,42 +1194,21 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-ajou-46",
-      "subject": "다변수함수",
-      "unit": "중적분",
-      "concept": "적분순서 변경",
-      "difficulty": "easyMedium",
-      "excerpt": "다음 $\\displaystyle\\int_0^1\\!\\left[\\int_{\\sqrt{x}}^{1}\\sin(\\pi y^3)dy\\right]dx$ 적분의 값은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=29"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-ajou-47",
       "subject": "다변수함수",
       "unit": "삼중적분과 극좌표계",
       "concept": "극곡선 영역의 넓이",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "극좌표 방정식 $r=\\sqrt{\\sin^3\\theta}$, $0\\le\\theta\\le\\pi$로 표현되는 곡선에 의해 둘러싸인 영역의 넓이는?",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=4",
         "mathDensity=25"
       ],
       "meta": {
-        "currentIndex": 1,
+        "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1408,13 +1219,34 @@
       "subject": "적분학",
       "unit": "특이적분",
       "concept": "가우시안 변형 (지문 1)",
-      "difficulty": "easyMedium",
+      "difficulty": "medium",
       "excerpt": "이상 적분 $I=\\displaystyle\\int_0^{\\infty}x^2 e^{-x^2}dx$의 값을 구하기 위하여 $I^2$을 극좌표로 변환했을 때 $I^2=\\displaystyle\\int_0^{a}\\!\\!\\left(\\int_0^{\\infty}r^m e^{-r^2}dr\\right)\\!\\sin^2\\theta\\cos^2\\theta\\,d\\theta$로 표현된다. $a$의 값은?",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "message": "Heuristic estimate is 킬러 but current is 중.",
       "reasons": [
         "unitBase=3",
         "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
         "mathDensity=37"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 5,
+        "delta": 3
+      }
+    },
+    {
+      "severity": "P1",
+      "category": "difficulty",
+      "code": "difficulty_probably_too_low",
+      "id": "q-2019-dankook-35",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "카디오이드 영역 넓이",
+      "difficulty": "easyMedium",
+      "excerpt": "심장선 $r=1+\\sin\\theta$로 둘러싸인 영역의 넓이는?",
+      "message": "Heuristic estimate is 킬러 but current is 중하.",
+      "reasons": [
+        "unitBase=4",
+        "mathDensity=7"
       ],
       "meta": {
         "currentIndex": 1,
@@ -1426,43 +1258,22 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-dankook-35",
-      "subject": "다변수함수",
-      "unit": "삼중적분과 극좌표계",
-      "concept": "카디오이드 영역 넓이",
-      "difficulty": "easy",
-      "excerpt": "심장선 $r=1+\\sin\\theta$로 둘러싸인 영역의 넓이는?",
-      "message": "Heuristic estimate is 킬러 but current is 하.",
-      "reasons": [
-        "unitBase=4",
-        "mathDensity=7"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 5,
-        "delta": 5
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-dankook-38",
       "subject": "다변수함수",
       "unit": "편도함수",
       "concept": "방향도함수",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "점 $(2,1,\\pi)$에서 함수 $f(x,y,z)=y^2+x\\cos(yz)$의 벡터 $\\vec{v}=\\langle 2,3,-6\\rangle$ 방향으로의 방향도함수는?",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=2",
         "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
         "mathDensity=7"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -1578,48 +1389,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-ewha-13",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "유리함수 적분",
-      "difficulty": "easy",
-      "excerpt": "정적분 $\\!\\displaystyle\\int_0^4\\dfrac{3x}{1+2x}\\,dx$의 값을 계산하시오.",
-      "message": "Heuristic estimate is 중상 but current is 하.",
-      "reasons": [
-        "unitBase=2",
-        "mathDensity=17"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 3,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-ewha-15",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "부분적분 (x²ln x)",
-      "difficulty": "easy",
-      "excerpt": "정적분 $\\!\\displaystyle\\int_1^e x^2\\ln x\\,dx$의 값을 계산하시오.",
-      "message": "Heuristic estimate is 중상 but current is 하.",
-      "reasons": [
-        "unitBase=2",
-        "mathDensity=28"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 3,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-ewha-26",
       "subject": "다변수함수",
       "unit": "경도 및 방향도함수",
@@ -1648,27 +1417,6 @@
       "concept": "$e^x$ 멱급수 인식",
       "difficulty": "easyMedium",
       "excerpt": "급수 $1-2\\ln 3+\\dfrac{(2\\ln 3)^2}{2!}-\\dfrac{(2\\ln 3)^3}{3!}+\\cdots$의 합은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=14"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-gachon-08",
-      "subject": "적분학",
-      "unit": "정적분의 응용",
-      "concept": "원의 극방정식 면적",
-      "difficulty": "easyMedium",
-      "excerpt": "극곡선 $r=\\sin\\theta+\\cos\\theta$로 둘러싸인 영역의 넓이는?",
       "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
@@ -1720,27 +1468,6 @@
       "meta": {
         "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-gachon-22",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "변수분리형",
-      "difficulty": "easyMedium",
-      "excerpt": "$y=y(x)$가 미분방정식 $\\dfrac{dx}{dy}=\\dfrac{y}{x},\\,y(0)=-3$의 해 일 때 $y(4)$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=13"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
         "delta": 3
       }
     },
@@ -1855,50 +1582,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-03",
-      "subject": "다변수함수",
-      "unit": "곡선과 곡면",
-      "concept": "공간곡선의 곡률",
-      "difficulty": "easyMedium",
-      "excerpt": "곡선 $r(t)=\\cosh t\\,\\mathbf{i}+\\sinh t\\,\\mathbf{j}+t\\,\\mathbf{k}$에서 $t=0$일 때의 곡률은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=16"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-04",
-      "subject": "다변수함수",
-      "unit": "체적과 곡면적",
-      "concept": "곡면적",
-      "difficulty": "easyMedium",
-      "excerpt": "곡면 $z=2-x^2-y^2,\\ z\\ge 0$의 넓이는?",
-      "message": "Heuristic estimate is 킬러 but current is 중하.",
-      "reasons": [
-        "unitBase=4",
-        "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
-        "multipleMidKeywords=/매개변수|극좌표|극방정식|특이적분|이상적분/|/중적분|삼중적분|선적분|면적분|곡면적|방향도함수|경도/",
-        "mathDensity=35"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 5,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-hanyang-06",
       "subject": "다변수함수",
       "unit": "선적분과 면적분",
@@ -1959,27 +1642,6 @@
       "meta": {
         "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-21",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "오일러-코시 중근",
-      "difficulty": "easyMedium",
-      "excerpt": "미분방정식 $x^2y''+5xy'+4y=0,\\ x>0$의 해 $y=y(x)$가 $y(1)=e^2,\\,y'(1)=0$을 만족할 때, $y(e)$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=18"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
         "delta": 3
       }
     },
@@ -2056,17 +1718,17 @@
       "subject": "적분학",
       "unit": "Maclaurin급수의 응용",
       "concept": "$\\arctan$ 매클로린",
-      "difficulty": "easy",
+      "difficulty": "easyMedium",
       "excerpt": "$\\tan^{-1}(2x)$의 매클로린 전개식에서 $x^5$의 계수는? (단, $|x|<\\dfrac{1}{2}$)",
-      "message": "Heuristic estimate is 상 but current is 하.",
+      "message": "Heuristic estimate is 상 but current is 중하.",
       "reasons": [
         "unitBase=3",
         "mathDensity=24"
       ],
       "meta": {
-        "currentIndex": 0,
+        "currentIndex": 1,
         "predictedIndex": 4,
-        "delta": 4
+        "delta": 3
       }
     },
     {
@@ -2117,27 +1779,6 @@
       "severity": "P1",
       "category": "difficulty",
       "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-erica-16",
-      "subject": "선형대수",
-      "unit": "벡터공간",
-      "concept": "1차 독립",
-      "difficulty": "easy",
-      "excerpt": "다음 집합 중 1차 독립인 것은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=25"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 4,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
       "id": "q-2019-hanyang-erica-18",
       "subject": "선형대수",
       "unit": "벡터공간",
@@ -2153,48 +1794,6 @@
       "meta": {
         "currentIndex": 2,
         "predictedIndex": 5,
-        "delta": 3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-erica-20",
-      "subject": "선형대수",
-      "unit": "고유치와 대각화",
-      "concept": "고유값 역수합",
-      "difficulty": "easy",
-      "excerpt": "행렬 $A=\\begin{pmatrix}1&0&0\\\\0&1&1\\\\0&-1&1\\end{pmatrix}$의 대각화 행렬을 $D=\\begin{pmatrix}\\lambda_1&0&0\\\\0&\\lambda_2&0\\\\0&0&\\lambda_3\\end{pmatrix}$이라 할 때 $\\dfrac{1}{\\lambda_1}+\\dfrac{1}{\\lambda_2}+\\dfrac{1}{\\lambda_3}$의 값은?",
-      "message": "Heuristic estimate is 상 but current is 하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=15"
-      ],
-      "meta": {
-        "currentIndex": 0,
-        "predictedIndex": 4,
-        "delta": 4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_low",
-      "id": "q-2019-hanyang-erica-22",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "완전 미분방정식",
-      "difficulty": "easyMedium",
-      "excerpt": "미분방정식 $(x+y-1)dx+(x+y+1)dy=0$의 일반해는?",
-      "message": "Heuristic estimate is 상 but current is 중하.",
-      "reasons": [
-        "unitBase=3",
-        "mathDensity=20"
-      ],
-      "meta": {
-        "currentIndex": 1,
-        "predictedIndex": 4,
         "delta": 3
       }
     },
@@ -30792,6 +30391,27 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2017-cau-26",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "평면과 점 거리",
+      "difficulty": "medium",
+      "excerpt": "두 직선 $\\dfrac{x}{2}=\\dfrac{y-2}{3}=z+1$과 $\\dfrac{x+1}{4}=\\dfrac{y}{6}=\\dfrac{z-3}{2}$를 포함하는 평면 $\\alpha$와 점 $(2,1,3)$과의 거리는?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=17"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2017-cau-27",
       "subject": "다변수함수",
       "unit": "중적분",
@@ -30823,6 +30443,27 @@
       "reasons": [
         "unitBase=3",
         "mathDensity=18"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2017-cau-29",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분순서 변경",
+      "difficulty": "medium",
+      "excerpt": "$\\displaystyle\\int_0^2\\!\\!\\int_0^{\\sqrt{4-x^2}}\\!\\sqrt{4-y^2}\\,dy\\,dx$의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=29"
       ],
       "meta": {
         "currentIndex": 2,
@@ -31152,12 +30793,54 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2017-skku-02",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선 곡률",
+      "difficulty": "medium",
+      "excerpt": "곡선 $r(t)=\\langle\\sin t,\\,\\cos t,\\,2t\\rangle$ 위의 점 $(0,1,0)$에서의 곡률의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=13"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2017-skku-03",
       "subject": "적분학",
       "unit": "Maclaurin급수의 응용",
       "concept": "고계도함수(라이프니츠)",
       "difficulty": "medium",
       "excerpt": "함수 $f(x)=x(x+1)e^{-x}$에 대하여 $f^{(7)}(0)+f^{(8)}(0)$의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=16"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2017-skku-05",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "1계 선형 ODE",
+      "difficulty": "medium",
+      "excerpt": "미분방정식 $y'-\\dfrac{1}{x}y=x^2$의 해 $y(x)$가 $y(2)=0$을 만족할 때 $y(1)$의 값은?",
       "message": "Heuristic estimate differs from current difficulty.",
       "reasons": [
         "unitBase=3",
@@ -31372,6 +31055,27 @@
       "reasons": [
         "unitBase=2",
         "mathDensity=34"
+      ],
+      "meta": {
+        "currentIndex": 1,
+        "predictedIndex": 3,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2018-cau-07",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "감마함수",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=2",
+        "mathDensity=12"
       ],
       "meta": {
         "currentIndex": 1,
@@ -31668,6 +31372,27 @@
       "reasons": [
         "unitBase=3",
         "mathDensity=22"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2018-hanyang-19",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "2계 상수계수 동차 ODE",
+      "difficulty": "medium",
+      "excerpt": "$y''+5y'+6y=0,\\ y(0)=3,\\ y'(0)=-7$일 때 $y(1)+y'(1)$의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=17"
       ],
       "meta": {
         "currentIndex": 2,
@@ -32627,6 +32352,27 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-ajou-46",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분순서 변경",
+      "difficulty": "medium",
+      "excerpt": "다음 $\\displaystyle\\int_0^1\\!\\left[\\int_{\\sqrt{x}}^{1}\\sin(\\pi y^3)dy\\right]dx$ 적분의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=29"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-ajou-49",
       "subject": "적분학",
       "unit": "특이적분",
@@ -32858,6 +32604,48 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-ewha-13",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "유리함수 적분",
+      "difficulty": "easyMedium",
+      "excerpt": "정적분 $\\!\\displaystyle\\int_0^4\\dfrac{3x}{1+2x}\\,dx$의 값을 계산하시오.",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=2",
+        "mathDensity=17"
+      ],
+      "meta": {
+        "currentIndex": 1,
+        "predictedIndex": 3,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2019-ewha-15",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "부분적분 (x²ln x)",
+      "difficulty": "easyMedium",
+      "excerpt": "정적분 $\\!\\displaystyle\\int_1^e x^2\\ln x\\,dx$의 값을 계산하시오.",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=2",
+        "mathDensity=28"
+      ],
+      "meta": {
+        "currentIndex": 1,
+        "predictedIndex": 3,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-ewha-17",
       "subject": "적분학",
       "unit": "특이적분",
@@ -33047,6 +32835,27 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-gachon-08",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "원의 극방정식 면적",
+      "difficulty": "medium",
+      "excerpt": "극곡선 $r=\\sin\\theta+\\cos\\theta$로 둘러싸인 영역의 넓이는?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=14"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-gachon-12",
       "subject": "다변수함수",
       "unit": "편도함수",
@@ -33117,6 +32926,27 @@
       "concept": "두 직선 사이 거리",
       "difficulty": "medium",
       "excerpt": "두 직선 $\\ell_1:x+2=y-5=\\dfrac{z-1}{2}$와 $\\ell_2:x-1=y-1=z$ 사이의 최단 거리는?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=13"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2019-gachon-22",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "변수분리형",
+      "difficulty": "medium",
+      "excerpt": "$y=y(x)$가 미분방정식 $\\dfrac{dx}{dy}=\\dfrac{y}{x},\\,y(0)=-3$의 해 일 때 $y(4)$의 값은?",
       "message": "Heuristic estimate differs from current difficulty.",
       "reasons": [
         "unitBase=3",
@@ -33282,6 +33112,50 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-hanyang-03",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선의 곡률",
+      "difficulty": "medium",
+      "excerpt": "곡선 $r(t)=\\cosh t\\,\\mathbf{i}+\\sinh t\\,\\mathbf{j}+t\\,\\mathbf{k}$에서 $t=0$일 때의 곡률은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=16"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2019-hanyang-04",
+      "subject": "다변수함수",
+      "unit": "체적과 곡면적",
+      "concept": "곡면적",
+      "difficulty": "mediumHard",
+      "excerpt": "곡면 $z=2-x^2-y^2,\\ z\\ge 0$의 넓이는?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=4",
+        "highKeyword=/\\\\iiint|\\\\iint|\\\\nabla|curl|div|rot/",
+        "multipleMidKeywords=/매개변수|극좌표|극방정식|특이적분|이상적분/|/중적분|삼중적분|선적분|면적분|곡면적|방향도함수|경도/",
+        "mathDensity=35"
+      ],
+      "meta": {
+        "currentIndex": 3,
+        "predictedIndex": 5,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-hanyang-07",
       "subject": "다변수함수",
       "unit": "삼중적분과 극좌표계",
@@ -33407,6 +33281,27 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-hanyang-21",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "오일러-코시 중근",
+      "difficulty": "medium",
+      "excerpt": "미분방정식 $x^2y''+5xy'+4y=0,\\ x>0$의 해 $y=y(x)$가 $y(1)=e^2,\\,y'(1)=0$을 만족할 때, $y(e)$의 값은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=18"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-hanyang-erica-05",
       "subject": "적분학",
       "unit": "급수의 수렴/발산",
@@ -33470,6 +33365,27 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_low",
+      "id": "q-2019-hanyang-erica-16",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "1차 독립",
+      "difficulty": "medium",
+      "excerpt": "다음 집합 중 1차 독립인 것은?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=25"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
       "id": "q-2019-hanyang-erica-19",
       "subject": "선형대수",
       "unit": "벡터공간",
@@ -33480,6 +33396,27 @@
       "reasons": [
         "unitBase=3",
         "mathDensity=32"
+      ],
+      "meta": {
+        "currentIndex": 2,
+        "predictedIndex": 4,
+        "delta": 2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_low",
+      "id": "q-2019-hanyang-erica-22",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "완전 미분방정식",
+      "difficulty": "medium",
+      "excerpt": "미분방정식 $(x+y-1)dx+(x+y+1)dy=0$의 일반해는?",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=3",
+        "mathDensity=20"
       ],
       "meta": {
         "currentIndex": 2,
