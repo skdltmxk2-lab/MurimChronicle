@@ -1,37 +1,32 @@
 {
   "summary": {
-    "generatedAt": "2026-07-09T04:25:24.897Z",
+    "generatedAt": "2026-07-09T04:32:14.922Z",
     "questionCount": 5532,
-    "issueCount": 2726,
-    "reviewQuestionCount": 2686,
+    "issueCount": 2706,
+    "reviewQuestionCount": 2674,
     "severityCounts": {
-      "P1": 1404,
-      "P2": 1244,
-      "P3": 78
+      "P1": 1392,
+      "P2": 1246,
+      "P3": 68
     },
     "categoryCounts": {
-      "dependency": 8,
-      "difficulty": 2718
+      "difficulty": 2706
     },
     "codeCounts": {
-      "likely_missing_visual": 2,
-      "difficulty_probably_too_high": 10,
       "difficulty_probably_too_low": 1392,
-      "possible_missing_shared_context": 2,
       "concept_difficulty_outlier_high": 9,
-      "difficulty_maybe_too_high": 28,
+      "difficulty_maybe_too_high": 32,
       "difficulty_maybe_too_low": 1205,
-      "explanation_mentions_visual_without_question_visual": 4,
-      "unit_difficulty_outlier_high": 69,
+      "unit_difficulty_outlier_high": 63,
       "unit_difficulty_outlier_low": 5
     },
     "difficultyDistribution": {
       "easy": 682,
-      "medium": 2648,
-      "mediumHard": 488,
+      "medium": 2649,
+      "mediumHard": 491,
       "easyMedium": 1042,
-      "hard": 637,
-      "killer": 35
+      "hard": 642,
+      "killer": 26
     },
     "subjectDistribution": {
       "미분학": 889,
@@ -42,239 +37,6 @@
     }
   },
   "issues": [
-    {
-      "severity": "P1",
-      "category": "dependency",
-      "code": "likely_missing_visual",
-      "id": "q-2023-ajou-49",
-      "subject": "공학수학",
-      "unit": "벡터해석",
-      "concept": "복합 벡터장 분해",
-      "difficulty": "hard",
-      "excerpt": "오른쪽 그림처럼 두 개의 반원(반지름 $4$, $2$)과 두 개의 선분으로 이루어진 단일폐곡선 $C_2$가 있다. $C_2$의 방향은 시계 반대 방향이고 원점을 포함한다. 다음 선적분의 값은? $\\displaystyle\\int_{C_2}\\!\\dfrac{((x^2-y^2)-y(x^2+y^2)+y(x^2+y^2)^2)\\,dx+(2xy+x(x^2+y^2))\\,dy}{(x^2+y^2)^2}$",
-      "message": "Question wording strongly depends on a figure/graph/table, but no question visual is attached.",
-      "reasons": [
-        "/(?:아래|위|다음|오른쪽|왼쪽)\\s*(?:그림|그래프|표)/",
-        "/그림(?:에서|처럼|과\\s*같이|와\\s*같이|에\\s*나타낸|을\\s*보|를\\s*보)/"
-      ]
-    },
-    {
-      "severity": "P1",
-      "category": "dependency",
-      "code": "likely_missing_visual",
-      "id": "q-2024-mju-25",
-      "subject": "미분학",
-      "unit": "미분",
-      "concept": "관련 변화율(수영장 단면)",
-      "difficulty": "mediumHard",
-      "excerpt": "폭이 $10\\text m$이고 길이가 $12\\text m$인 수영장은 얕은 곳은 깊이가 $1.5\\text m$이고 가장 깊은 곳은 깊이가 $3\\text m$이다. (그림처럼 단면은 사다리꼴: 길이 방향으로 처음 $3\\text m$ 구간은 깊이 $1.5\\text m$ 일정, 다음 $6\\text m$ 구간은 직선적으로 깊어져 $3\\text m$, 마지막 $3\\text m$ 구간은 깊이 $3\\te...",
-      "message": "Question wording strongly depends on a figure/graph/table, but no question visual is attached.",
-      "reasons": [
-        "/그림(?:에서|처럼|과\\s*같이|와\\s*같이|에\\s*나타낸|을\\s*보|를\\s*보)/"
-      ]
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2020-ewha-10",
-      "subject": "공학수학",
-      "unit": "추가내용",
-      "concept": "이중첨자 수열 합 차",
-      "difficulty": "killer",
-      "excerpt": "$0\\le k\\le l$을 만족하는 모든 정수쌍 $(k,l)$에 대하여 실수 $a_{l,k}$가 주어졌고: 1) $a_{0,0}=1,\\,a_{l,0}=a_{l-1,0}$ 2) $a_{l,k}=a_{l,k-1}+a_{l-1,k}$ ($0<k<l$) 3) $a_{l,l}=a_{l,l-1}$ $a_{6,6}-\\!\\sum_{k=0}^{5}a_{5,k}$의 값을 구하시오.",
-      "message": "Heuristic estimate is 중 but current is 킬러.",
-      "reasons": [
-        "unitBase=2"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 2,
-        "delta": -3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2020-ewha-22",
-      "subject": "미분학",
-      "unit": "미분",
-      "concept": "함숫값·도함수 합",
-      "difficulty": "killer",
-      "excerpt": "두 번 미분가능한 $f(x)$가 $f'(1)=2f'(2)\\ne 0$, $\\!\\displaystyle\\lim_{x\\to 1}\\dfrac{(f(2x)-1)^2}{(x-1)f(x)-\\ln x}=-2$를 만족할 때, $f(1)+f(2)+f'(1)+f'(2)$의 값을 구하시오.",
-      "message": "Heuristic estimate is 중하 but current is 킬러.",
-      "reasons": [
-        "unitBase=1"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 1,
-        "delta": -4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2021-ewha-26",
-      "subject": "미분학",
-      "unit": "함수",
-      "concept": "역삼각 항등식 결정",
-      "difficulty": "killer",
-      "excerpt": "음이 아닌 모든 실수 $x$에 대하여 $\\sin^{-1}\\!\\left(\\dfrac{x-1}{x+1}\\right)=a\\tan^{-1}(x^b)+c$를 만족시키는 상수 $a,b,c$를 구하고 $2b-ac$의 값을 구하시오.",
-      "message": "Heuristic estimate is 중하 but current is 킬러.",
-      "reasons": [
-        "unitBase=1"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 1,
-        "delta": -4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2021-ewha-30",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "조각함수 미분가능 $a$ 개수",
-      "difficulty": "killer",
-      "excerpt": "$f(x)$는 연속이며 $\\sin x\\!\\int_0^x\\!f(t)dt-\\!\\int_0^x\\!\\sin t\\,f(t)dt=\\cos^2 x$를 만족. $-4\\pi\\le a\\le 4\\pi$인 $a$에 대해 $g(x)=\\sin(|x-a|)f(x)$가 미분가능하도록 하는 $a$의 개수를 구하시오.",
-      "message": "Heuristic estimate is 중 but current is 킬러.",
-      "reasons": [
-        "unitBase=2"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 2,
-        "delta": -3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2022-ewha-15",
-      "subject": "미분학",
-      "unit": "극한과 연속",
-      "concept": "평등 연속 판별",
-      "difficulty": "killer",
-      "excerpt": "다음 함수 중 평등 연속인 것을 모두 고르시오. a. $f:[0,\\infty)\\to\\mathbb{R},\\,f(x)=e^{-x}$ b. $f:(0,1)\\to\\mathbb{R},\\,f(x)=\\sin(1/x)$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(x^2)$",
-      "message": "Heuristic estimate is 중하 but current is 킬러.",
-      "reasons": [
-        "unitBase=1"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 1,
-        "delta": -4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2022-ewha-17",
-      "subject": "미분학",
-      "unit": "극한과 연속",
-      "concept": "함수열 수렴 명제",
-      "difficulty": "killer",
-      "excerpt": "다음 중 함수 수열 $\\{f_n\\},\\{g_n\\}$에 대한 설명 중 옳은 것을 모두 고르시오. a. $f_n$이 $f$로 평등수렴하면 점별수렴한다. b. 각 $f_n$이 연속이고 $f$로 평등수렴하면 $f$도 연속. c. $f_n,g_n$이 각각 $f,g$로 평등수렴하면 $f_n g_n$이 $fg$로 평등수렴. d. $\\!\\sum f_n,\\!\\sum g_n$이 각 평등수렴이면 $\\!\\sum ...",
-      "message": "Heuristic estimate is 중 but current is 킬러.",
-      "reasons": [
-        "unitBase=1",
-        "multiStatement"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 2,
-        "delta": -3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2022-ewha-25",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "함수방정식 + 부분적분",
-      "difficulty": "killer",
-      "excerpt": "$f(x)$는 세 번 미분가능, 모든 정수에 대해 $f(n)-f(n-1)=n,\\,f'(n)=(n+1)^2$. $\\!\\int_0^1(1-x)f''(x)dx$의 값을 구하시오.",
-      "message": "Heuristic estimate is 중 but current is 킬러.",
-      "reasons": [
-        "unitBase=2"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 2,
-        "delta": -3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2023-ewha-13",
-      "subject": "미분학",
-      "unit": "극한과 연속",
-      "concept": "평등 연속 판별",
-      "difficulty": "killer",
-      "excerpt": "다음 함수 중 평등 연속인 함수를 모두 고르시오. a. $f:[1,\\infty)\\to\\mathbb{R},\\,f(x)=1/x$ b. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\sin(e^x)$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(e^x)$ e. $f...",
-      "message": "Heuristic estimate is 중하 but current is 킬러.",
-      "reasons": [
-        "unitBase=1"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 1,
-        "delta": -4
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2024-cau-08",
-      "subject": "미분학",
-      "unit": "극한과 연속",
-      "concept": "floor 함수 불연속",
-      "difficulty": "hard",
-      "excerpt": "함수 $f(x)=[2\\cos x-\\cos 2x]$에 대하여 구간 $0<x<3\\pi$에서 불연속인 점의 개수는? (단, $[x]$는 $x$보다 크지 않은 최대의 정수이다.)",
-      "message": "Heuristic estimate is 중하 but current is 상.",
-      "reasons": [
-        "unitBase=1"
-      ],
-      "meta": {
-        "currentIndex": 4,
-        "predictedIndex": 1,
-        "delta": -3
-      }
-    },
-    {
-      "severity": "P1",
-      "category": "difficulty",
-      "code": "difficulty_probably_too_high",
-      "id": "q-2024-ewha-14",
-      "subject": "미분학",
-      "unit": "미분",
-      "concept": "등비합 도함수",
-      "difficulty": "killer",
-      "excerpt": "$f(x)=\\sin x+\\dfrac{\\sin^2 x}{2}+\\dfrac{\\sin^3 x}{3}+\\cdots+\\dfrac{\\sin^{2024}x}{2024}$에 대하여 $f'(\\pi/4)$의 값을 구하시오.",
-      "message": "Heuristic estimate is 중 but current is 킬러.",
-      "reasons": [
-        "unitBase=1",
-        "mathDensity=45"
-      ],
-      "meta": {
-        "currentIndex": 5,
-        "predictedIndex": 2,
-        "delta": -3
-      }
-    },
     {
       "severity": "P1",
       "category": "difficulty",
@@ -30050,36 +29812,6 @@
     },
     {
       "severity": "P2",
-      "category": "dependency",
-      "code": "possible_missing_shared_context",
-      "id": "q-2019-kwangwoon-30",
-      "subject": "다변수함수",
-      "unit": "곡선과 곡면",
-      "concept": "전미분 (오차 합)",
-      "difficulty": "medium",
-      "excerpt": "용수철 상수가 $k_i$ ($i=1,\\ldots,n$)인 용수철 $n$개를 직렬 연결한 평형 상태에서 그 끝을 잡아 길이 $x$만큼 늘렸을 때 이 용수철에 작용하는 힘 $F$는 $F=kx,\\,\\dfrac{1}{k}=\\sum_{i=1}^n\\dfrac{1}{k_i}$로 주어진다고 하자. 측정 결과 $k_i=10$ ($i=1,\\ldots,n$), $x=1$로 나타났다. 각 용수철 상수 $k_i$ ...",
-      "message": "Question may reference previous/shared context.",
-      "reasons": [
-        "/위\\s*식|위와\\s*같이|위의\\s*함수|앞서/"
-      ]
-    },
-    {
-      "severity": "P2",
-      "category": "dependency",
-      "code": "possible_missing_shared_context",
-      "id": "q-2023-hongik-02",
-      "subject": "공학수학",
-      "unit": "미분방정식",
-      "concept": "옳지 않은 명제 찾기",
-      "difficulty": "medium",
-      "excerpt": "다음 중 옳지 않은 것을 고르시오. (1) 미분방정식 $y''-4y'+4y=x+1+e^x$의 연계제차방정식은 $e^{2x}$와 $xe^{2x}$를 해로 가지고 주어진 비제차방정식은 $x+1+e^x$를 특수해로 가진다. (2) 미분방정식 $y'''+y''=0$은 $2x+3e^{-x}$가 해인 상수계수 선형 제차방정식 중 가장 계수가 낮은 방정식이다. (3) 미분방정식 $(1+x)y''+xy'-...",
-      "message": "Question may reference previous/shared context.",
-      "reasons": [
-        "/연계|묶음\\s*문제|공통\\s*조건/"
-      ]
-    },
-    {
-      "severity": "P2",
       "category": "difficulty",
       "code": "concept_difficulty_outlier_high",
       "id": "q-2023-sogang-17",
@@ -30370,6 +30102,26 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_high",
+      "id": "q-2020-ewha-22",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "함숫값·도함수 합",
+      "difficulty": "hard",
+      "excerpt": "두 번 미분가능한 $f(x)$가 $f'(1)=2f'(2)\\ne 0$, $\\!\\displaystyle\\lim_{x\\to 1}\\dfrac{(f(2x)-1)^2}{(x-1)f(x)-\\ln x}=-2$를 만족할 때, $f(1)+f(2)+f'(1)+f'(2)$의 값을 구하시오.",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=1"
+      ],
+      "meta": {
+        "currentIndex": 4,
+        "predictedIndex": 1,
+        "delta": -3
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_high",
       "id": "q-2020-ewha-25",
       "subject": "공학수학",
       "unit": "복소수",
@@ -30559,6 +30311,47 @@
       "severity": "P2",
       "category": "difficulty",
       "code": "difficulty_maybe_too_high",
+      "id": "q-2022-ewha-15",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "평등 연속 판별",
+      "difficulty": "hard",
+      "excerpt": "다음 함수 중 평등 연속인 것을 모두 고르시오. a. $f:[0,\\infty)\\to\\mathbb{R},\\,f(x)=e^{-x}$ b. $f:(0,1)\\to\\mathbb{R},\\,f(x)=\\sin(1/x)$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(x^2)$",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=1"
+      ],
+      "meta": {
+        "currentIndex": 4,
+        "predictedIndex": 1,
+        "delta": -3
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_high",
+      "id": "q-2022-ewha-17",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수열 수렴 명제",
+      "difficulty": "hard",
+      "excerpt": "다음 중 함수 수열 $\\{f_n\\},\\{g_n\\}$에 대한 설명 중 옳은 것을 모두 고르시오. a. $f_n$이 $f$로 평등수렴하면 점별수렴한다. b. 각 $f_n$이 연속이고 $f$로 평등수렴하면 $f$도 연속. c. $f_n,g_n$이 각각 $f,g$로 평등수렴하면 $f_n g_n$이 $fg$로 평등수렴. d. $\\!\\sum f_n,\\!\\sum g_n$이 각 평등수렴이면 $\\!\\sum ...",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=1",
+        "multiStatement"
+      ],
+      "meta": {
+        "currentIndex": 4,
+        "predictedIndex": 2,
+        "delta": -2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_high",
       "id": "q-2022-ewha-26",
       "subject": "미분학",
       "unit": "최대/최소",
@@ -30679,6 +30472,26 @@
         "currentIndex": 4,
         "predictedIndex": 2,
         "delta": -2
+      }
+    },
+    {
+      "severity": "P2",
+      "category": "difficulty",
+      "code": "difficulty_maybe_too_high",
+      "id": "q-2023-ewha-13",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "평등 연속 판별",
+      "difficulty": "hard",
+      "excerpt": "다음 함수 중 평등 연속인 함수를 모두 고르시오. a. $f:[1,\\infty)\\to\\mathbb{R},\\,f(x)=1/x$ b. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\sin(e^x)$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(e^x)$ e. $f...",
+      "message": "Heuristic estimate differs from current difficulty.",
+      "reasons": [
+        "unitBase=1"
+      ],
+      "meta": {
+        "currentIndex": 4,
+        "predictedIndex": 1,
+        "delta": -3
       }
     },
     {
@@ -56323,68 +56136,6 @@
     },
     {
       "severity": "P3",
-      "category": "dependency",
-      "code": "explanation_mentions_visual_without_question_visual",
-      "id": "q-ryu-self-warmup-r02-06",
-      "subject": "적분학",
-      "unit": "정적분의 성질",
-      "concept": "적분함수와 연속/미분가능성",
-      "difficulty": "medium",
-      "excerpt": "6. 함수 $f(t)$ 와 $F(x)$ 가 다음과 같을 때 $F(x)$ 에 대한 설명 중 옳지 않은 것은? $$f(t)=\\left\\{\\begin{array}{ll} 2 t & (0 \\leq t \\leq 1) \\\\ 2-t & (1 \\leq t \\leq 3) \\end{array}, \\quad F(x)=\\int_{0}^{x} f(t) d t\\right.$$",
-      "message": "Explanation references a visual while no question visual is attached.",
-      "reasons": [
-        "/그래프(?:처럼|와\\s*같이|과\\s*같이|에\\s*나타낸|가\\s*주어|를\\s*보|을\\s*보)/"
-      ]
-    },
-    {
-      "severity": "P3",
-      "category": "dependency",
-      "code": "explanation_mentions_visual_without_question_visual",
-      "id": "q-white-final-a-r07-9",
-      "subject": "다변수함수",
-      "unit": "삼중적분과 극좌표계",
-      "concept": "삼중적분",
-      "difficulty": "hard",
-      "excerpt": "$\\mathbb{R}^{3}$ 에서 주어진 영역 $r^{2} \\leq 2 \\cos 2 \\theta, z \\leq \\sqrt{2-r^{2}}, z \\geq 0$ 의 부피를 구하면?",
-      "message": "Explanation references a visual while no question visual is attached.",
-      "reasons": [
-        "/(?:아래|위|다음|오른쪽|왼쪽)\\s*(?:그림|그래프|표)/",
-        "/그림(?:에서|처럼|과\\s*같이|와\\s*같이|에\\s*나타낸|을\\s*보|를\\s*보)/"
-      ]
-    },
-    {
-      "severity": "P3",
-      "category": "dependency",
-      "code": "explanation_mentions_visual_without_question_visual",
-      "id": "q-white-final-a-r08-25",
-      "subject": "미분학",
-      "unit": "추가내용",
-      "concept": "Final A",
-      "difficulty": "hard",
-      "excerpt": "$r=2 \\sin 4 \\theta$ 의 내부, $r=1$ 의 내부 공통영역의 넓이는?",
-      "message": "Explanation references a visual while no question visual is attached.",
-      "reasons": [
-        "/(?:아래|위|다음|오른쪽|왼쪽)\\s*(?:그림|그래프|표)/"
-      ]
-    },
-    {
-      "severity": "P3",
-      "category": "dependency",
-      "code": "explanation_mentions_visual_without_question_visual",
-      "id": "q-white-final-a-r10-10",
-      "subject": "미분학",
-      "unit": "추가내용",
-      "concept": "Final A",
-      "difficulty": "hard",
-      "excerpt": "곡선 $x=2 \\cos t-\\sin 2 t, y=\\sin t, 0 \\leq t \\leq 2 \\pi$ 으로둘러싸인 영역의 넓이를 구하면?",
-      "message": "Explanation references a visual while no question visual is attached.",
-      "reasons": [
-        "/(?:아래|위|다음|오른쪽|왼쪽)\\s*(?:그림|그래프|표)/",
-        "/그림(?:에서|처럼|과\\s*같이|와\\s*같이|에\\s*나타낸|을\\s*보|를\\s*보)/"
-      ]
-    },
-    {
-      "severity": "P3",
       "category": "difficulty",
       "code": "unit_difficulty_outlier_high",
       "id": "q-2017-kwangwoon-07",
@@ -56537,31 +56288,6 @@
       "severity": "P3",
       "category": "difficulty",
       "code": "unit_difficulty_outlier_high",
-      "id": "q-2020-ewha-10",
-      "subject": "공학수학",
-      "unit": "추가내용",
-      "concept": "이중첨자 수열 합 차",
-      "difficulty": "killer",
-      "excerpt": "$0\\le k\\le l$을 만족하는 모든 정수쌍 $(k,l)$에 대하여 실수 $a_{l,k}$가 주어졌고: 1) $a_{0,0}=1,\\,a_{l,0}=a_{l-1,0}$ 2) $a_{l,k}=a_{l,k-1}+a_{l-1,k}$ ($0<k<l$) 3) $a_{l,l}=a_{l,l-1}$ $a_{6,6}-\\!\\sum_{k=0}^{5}a_{5,k}$의 값을 구하시오.",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=공학수학|추가내용",
-        "groupSize=31",
-        "median=2",
-        "current=5"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "공학수학|추가내용",
-        "groupSize": 31,
-        "median": 2,
-        "currentIndex": 5
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
       "id": "q-2020-ewha-16",
       "subject": "다변수함수",
       "unit": "Taylor급수와 최대/최소",
@@ -56591,21 +56317,21 @@
       "subject": "미분학",
       "unit": "미분",
       "concept": "함숫값·도함수 합",
-      "difficulty": "killer",
+      "difficulty": "hard",
       "excerpt": "두 번 미분가능한 $f(x)$가 $f'(1)=2f'(2)\\ne 0$, $\\!\\displaystyle\\lim_{x\\to 1}\\dfrac{(f(2x)-1)^2}{(x-1)f(x)-\\ln x}=-2$를 만족할 때, $f(1)+f(2)+f'(1)+f'(2)$의 값을 구하시오.",
       "message": "Difficulty is an outlier inside unit group.",
       "reasons": [
         "group=미분학|미분",
         "groupSize=246",
         "median=1",
-        "current=5"
+        "current=4"
       ],
       "meta": {
         "groupLevel": "unit",
         "groupKey": "미분학|미분",
         "groupSize": 246,
         "median": 1,
-        "currentIndex": 5
+        "currentIndex": 4
       }
     },
     {
@@ -56812,31 +56538,6 @@
       "severity": "P3",
       "category": "difficulty",
       "code": "unit_difficulty_outlier_high",
-      "id": "q-2021-ewha-26",
-      "subject": "미분학",
-      "unit": "함수",
-      "concept": "역삼각 항등식 결정",
-      "difficulty": "killer",
-      "excerpt": "음이 아닌 모든 실수 $x$에 대하여 $\\sin^{-1}\\!\\left(\\dfrac{x-1}{x+1}\\right)=a\\tan^{-1}(x^b)+c$를 만족시키는 상수 $a,b,c$를 구하고 $2b-ac$의 값을 구하시오.",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=미분학|함수",
-        "groupSize=64",
-        "median=1",
-        "current=5"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "미분학|함수",
-        "groupSize": 64,
-        "median": 1,
-        "currentIndex": 5
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
       "id": "q-2021-ewha-27",
       "subject": "선형대수",
       "unit": "고유치와 대각화",
@@ -56854,31 +56555,6 @@
         "groupLevel": "unit",
         "groupKey": "선형대수|고유치와 대각화",
         "groupSize": 238,
-        "median": 2,
-        "currentIndex": 5
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
-      "id": "q-2021-ewha-30",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "조각함수 미분가능 $a$ 개수",
-      "difficulty": "killer",
-      "excerpt": "$f(x)$는 연속이며 $\\sin x\\!\\int_0^x\\!f(t)dt-\\!\\int_0^x\\!\\sin t\\,f(t)dt=\\cos^2 x$를 만족. $-4\\pi\\le a\\le 4\\pi$인 $a$에 대해 $g(x)=\\sin(|x-a|)f(x)$가 미분가능하도록 하는 $a$의 개수를 구하시오.",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=적분학|정적분의 계산",
-        "groupSize=427",
-        "median=2",
-        "current=5"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "적분학|정적분의 계산",
-        "groupSize": 427,
         "median": 2,
         "currentIndex": 5
       }
@@ -57016,21 +56692,21 @@
       "subject": "미분학",
       "unit": "극한과 연속",
       "concept": "평등 연속 판별",
-      "difficulty": "killer",
+      "difficulty": "hard",
       "excerpt": "다음 함수 중 평등 연속인 것을 모두 고르시오. a. $f:[0,\\infty)\\to\\mathbb{R},\\,f(x)=e^{-x}$ b. $f:(0,1)\\to\\mathbb{R},\\,f(x)=\\sin(1/x)$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(x^2)$",
       "message": "Difficulty is an outlier inside unit group.",
       "reasons": [
         "group=미분학|극한과 연속",
         "groupSize=278",
         "median=1",
-        "current=5"
+        "current=4"
       ],
       "meta": {
         "groupLevel": "unit",
         "groupKey": "미분학|극한과 연속",
         "groupSize": 278,
         "median": 1,
-        "currentIndex": 5
+        "currentIndex": 4
       }
     },
     {
@@ -57041,21 +56717,21 @@
       "subject": "미분학",
       "unit": "극한과 연속",
       "concept": "함수열 수렴 명제",
-      "difficulty": "killer",
+      "difficulty": "hard",
       "excerpt": "다음 중 함수 수열 $\\{f_n\\},\\{g_n\\}$에 대한 설명 중 옳은 것을 모두 고르시오. a. $f_n$이 $f$로 평등수렴하면 점별수렴한다. b. 각 $f_n$이 연속이고 $f$로 평등수렴하면 $f$도 연속. c. $f_n,g_n$이 각각 $f,g$로 평등수렴하면 $f_n g_n$이 $fg$로 평등수렴. d. $\\!\\sum f_n,\\!\\sum g_n$이 각 평등수렴이면 $\\!\\sum ...",
       "message": "Difficulty is an outlier inside unit group.",
       "reasons": [
         "group=미분학|극한과 연속",
         "groupSize=278",
         "median=1",
-        "current=5"
+        "current=4"
       ],
       "meta": {
         "groupLevel": "unit",
         "groupKey": "미분학|극한과 연속",
         "groupSize": 278,
         "median": 1,
-        "currentIndex": 5
+        "currentIndex": 4
       }
     },
     {
@@ -57079,31 +56755,6 @@
         "groupLevel": "unit",
         "groupKey": "선형대수|고유치와 대각화",
         "groupSize": 238,
-        "median": 2,
-        "currentIndex": 5
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
-      "id": "q-2022-ewha-25",
-      "subject": "적분학",
-      "unit": "정적분의 계산",
-      "concept": "함수방정식 + 부분적분",
-      "difficulty": "killer",
-      "excerpt": "$f(x)$는 세 번 미분가능, 모든 정수에 대해 $f(n)-f(n-1)=n,\\,f'(n)=(n+1)^2$. $\\!\\int_0^1(1-x)f''(x)dx$의 값을 구하시오.",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=적분학|정적분의 계산",
-        "groupSize=427",
-        "median=2",
-        "current=5"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "적분학|정적분의 계산",
-        "groupSize": 427,
         "median": 2,
         "currentIndex": 5
       }
@@ -57241,21 +56892,21 @@
       "subject": "미분학",
       "unit": "극한과 연속",
       "concept": "평등 연속 판별",
-      "difficulty": "killer",
+      "difficulty": "hard",
       "excerpt": "다음 함수 중 평등 연속인 함수를 모두 고르시오. a. $f:[1,\\infty)\\to\\mathbb{R},\\,f(x)=1/x$ b. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\sin(e^x)$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(e^x)$ e. $f...",
       "message": "Difficulty is an outlier inside unit group.",
       "reasons": [
         "group=미분학|극한과 연속",
         "groupSize=278",
         "median=1",
-        "current=5"
+        "current=4"
       ],
       "meta": {
         "groupLevel": "unit",
         "groupKey": "미분학|극한과 연속",
         "groupSize": 278,
         "median": 1,
-        "currentIndex": 5
+        "currentIndex": 4
       }
     },
     {
@@ -57337,31 +56988,6 @@
       "severity": "P3",
       "category": "difficulty",
       "code": "unit_difficulty_outlier_high",
-      "id": "q-2024-cau-08",
-      "subject": "미분학",
-      "unit": "극한과 연속",
-      "concept": "floor 함수 불연속",
-      "difficulty": "hard",
-      "excerpt": "함수 $f(x)=[2\\cos x-\\cos 2x]$에 대하여 구간 $0<x<3\\pi$에서 불연속인 점의 개수는? (단, $[x]$는 $x$보다 크지 않은 최대의 정수이다.)",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=미분학|극한과 연속",
-        "groupSize=278",
-        "median=1",
-        "current=4"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "미분학|극한과 연속",
-        "groupSize": 278,
-        "median": 1,
-        "currentIndex": 4
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
       "id": "q-2024-ewha-08",
       "subject": "선형대수",
       "unit": "고유치와 대각화",
@@ -57405,31 +57031,6 @@
         "groupKey": "적분학|급수의 수렴/발산",
         "groupSize": 306,
         "median": 2,
-        "currentIndex": 5
-      }
-    },
-    {
-      "severity": "P3",
-      "category": "difficulty",
-      "code": "unit_difficulty_outlier_high",
-      "id": "q-2024-ewha-14",
-      "subject": "미분학",
-      "unit": "미분",
-      "concept": "등비합 도함수",
-      "difficulty": "killer",
-      "excerpt": "$f(x)=\\sin x+\\dfrac{\\sin^2 x}{2}+\\dfrac{\\sin^3 x}{3}+\\cdots+\\dfrac{\\sin^{2024}x}{2024}$에 대하여 $f'(\\pi/4)$의 값을 구하시오.",
-      "message": "Difficulty is an outlier inside unit group.",
-      "reasons": [
-        "group=미분학|미분",
-        "groupSize=246",
-        "median=1",
-        "current=5"
-      ],
-      "meta": {
-        "groupLevel": "unit",
-        "groupKey": "미분학|미분",
-        "groupSize": 246,
-        "median": 1,
         "currentIndex": 5
       }
     },

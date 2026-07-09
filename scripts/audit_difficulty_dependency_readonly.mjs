@@ -134,8 +134,8 @@ const CONTEXT_STRONG = [
 ];
 
 const CONTEXT_WEAK = [
-  /연계|묶음\s*문제|공통\s*조건/,
-  /위\s*식|위와\s*같이|위의\s*함수|앞서/,
+  /연계\s*(?:문제|문항)|묶음\s*문제|공통\s*조건/,
+  /위\s*식|위의\s*함수|앞서/,
   /\((?:가|나|다)\)\s*(?:에서|의\s*결과)/,
 ];
 
@@ -393,7 +393,7 @@ for (const q of questions) {
   const delta = estimated.predictedIndex - current;
   const hasEvidence = hasDifficultyEvidence(estimated.reasons);
   const hasStrongEvidence = hasStrongDifficultyEvidence(estimated.reasons);
-  if (Math.abs(delta) >= 4 || (Math.abs(delta) >= 3 && (hasEvidence || delta < 0))) {
+  if (Math.abs(delta) >= 4 || (Math.abs(delta) >= 3 && hasEvidence)) {
     addIssue({
       severity: "P1",
       category: "difficulty",

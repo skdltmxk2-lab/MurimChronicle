@@ -1,0 +1,107 @@
+{
+  "generatedAt": "2026-07-09T04:31:44.140Z",
+  "dryRun": false,
+  "scope": "manual difficulty review batch 1: over-labeled P1 candidates",
+  "changes": [
+    {
+      "id": "q-2020-ewha-10",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "점화식 구조 파악과 텔레스코핑이 필요하지만 계산 경로가 짧아 킬러보다는 상 난이도가 적절함",
+      "subject": "공학수학",
+      "unit": "추가내용",
+      "concept": "이중첨자 수열 합 차",
+      "questionExcerpt": "$0\\le k\\le l$을 만족하는 모든 정수쌍 $(k,l)$에 대하여 실수 $a_{l,k}$가 주어졌고: 1) $a_{0,0}=1,\\,a_{l,0}=a_{l-1,0}$ 2) $a_{l,k}=a_{l,k-1}+a_{l-1,k}$ ($0<k<l$) 3) $a_{l,l}=a_{l,l-1}$ $a_{6,6}-\\!\\sum_{k=0}^{5}a_{5,k}$의 값을 구하시오."
+    },
+    {
+      "id": "q-2020-ewha-22",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "극한 조건과 로피탈을 두 번 쓰는 고난도 미분 문제이나 발상형 킬러 수준은 아님",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "함숫값·도함수 합",
+      "questionExcerpt": "두 번 미분가능한 $f(x)$가 $f'(1)=2f'(2)\\ne 0$, $\\!\\displaystyle\\lim_{x\\to 1}\\dfrac{(f(2x)-1)^2}{(x-1)f(x)-\\ln x}=-2$를 만족할 때, $f(1)+f(2)+f'(1)+f'(2)$의 값을 구하시오."
+    },
+    {
+      "id": "q-2021-ewha-26",
+      "from": "killer",
+      "to": "mediumHard",
+      "rationale": "특수값 대입으로 상수 결정이 가능해 계산 부담은 중상 수준",
+      "subject": "미분학",
+      "unit": "함수",
+      "concept": "역삼각 항등식 결정",
+      "questionExcerpt": "음이 아닌 모든 실수 $x$에 대하여 $\\sin^{-1}\\!\\left(\\dfrac{x-1}{x+1}\\right)=a\\tan^{-1}(x^b)+c$를 만족시키는 상수 $a,b,c$를 구하고 $2b-ac$의 값을 구하시오."
+    },
+    {
+      "id": "q-2021-ewha-30",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "적분식 미분과 절댓값 미분가능 조건을 결합해야 하므로 상 난이도, 킬러로 보긴 과함",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "조각함수 미분가능 $a$ 개수",
+      "questionExcerpt": "$f(x)$는 연속이며 $\\sin x\\!\\int_0^x\\!f(t)dt-\\!\\int_0^x\\!\\sin t\\,f(t)dt=\\cos^2 x$를 만족. $-4\\pi\\le a\\le 4\\pi$인 $a$에 대해 $g(x)=\\sin(|x-a|)f(x)$가 미분가능하도록 하는 $a$의 개수를 구하시오."
+    },
+    {
+      "id": "q-2022-ewha-15",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "평등연속 판별 개념 문제로 이론 숙련이 필요하지만 표준 판별 목록에 가까움",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "평등 연속 판별",
+      "questionExcerpt": "다음 함수 중 평등 연속인 것을 모두 고르시오. a. $f:[0,\\infty)\\to\\mathbb{R},\\,f(x)=e^{-x}$ b. $f:(0,1)\\to\\mathbb{R},\\,f(x)=\\sin(1/x)$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(x^2)$"
+    },
+    {
+      "id": "q-2022-ewha-17",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "함수열 평등수렴 명제의 반례 판단이 필요하나 정형 이론 문제임",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수열 수렴 명제",
+      "questionExcerpt": "다음 중 함수 수열 $\\{f_n\\},\\{g_n\\}$에 대한 설명 중 옳은 것을 모두 고르시오. a. $f_n$이 $f$로 평등수렴하면 점별수렴한다. b. 각 $f_n$이 연속이고 $f$로 평등수렴하면 $f$도 연속. c. $f_n,g_n$이 각각 $f,g$로 평등수렴하면 $f_n g_n$이 $fg$로 평등수렴. d. $\\!\\sum f_n,\\!\\sum g_n$이 각 평등수렴이면 $\\!\\sum "
+    },
+    {
+      "id": "q-2022-ewha-25",
+      "from": "killer",
+      "to": "mediumHard",
+      "rationale": "부분적분 한 번으로 정리되는 구조라 킬러보다는 중상 난이도가 적절함",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "함수방정식 + 부분적분",
+      "questionExcerpt": "$f(x)$는 세 번 미분가능, 모든 정수에 대해 $f(n)-f(n-1)=n,\\,f'(n)=(n+1)^2$. $\\!\\int_0^1(1-x)f''(x)dx$의 값을 구하시오."
+    },
+    {
+      "id": "q-2023-ewha-13",
+      "from": "killer",
+      "to": "hard",
+      "rationale": "평등연속과 불연속 판별을 함께 묻지만 표준 개념 조합이라 상 난이도가 적절함",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "평등 연속 판별",
+      "questionExcerpt": "다음 함수 중 평등 연속인 함수를 모두 고르시오. a. $f:[1,\\infty)\\to\\mathbb{R},\\,f(x)=1/x$ b. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\sin(e^x)$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(e^x)$ e. $f"
+    },
+    {
+      "id": "q-2024-cau-08",
+      "from": "hard",
+      "to": "mediumHard",
+      "rationale": "바닥함수 불연속점 개수 세기 문제로 계산량은 있으나 발상 난도는 중상 수준",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "floor 함수 불연속",
+      "questionExcerpt": "함수 $f(x)=[2\\cos x-\\cos 2x]$에 대하여 구간 $0<x<3\\pi$에서 불연속인 점의 개수는? (단, $[x]$는 $x$보다 크지 않은 최대의 정수이다.)"
+    },
+    {
+      "id": "q-2024-ewha-14",
+      "from": "killer",
+      "to": "medium",
+      "rationale": "항별 미분 후 등비수열 합을 계산하는 직접형 문제로 중 난이도가 적절함",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "등비합 도함수",
+      "questionExcerpt": "$f(x)=\\sin x+\\dfrac{\\sin^2 x}{2}+\\dfrac{\\sin^3 x}{3}+\\cdots+\\dfrac{\\sin^{2024}x}{2024}$에 대하여 $f'(\\pi/4)$의 값을 구하시오."
+    }
+  ]
+}
