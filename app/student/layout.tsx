@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { StudentHeader } from "@/components/layout/StudentHeader";
 import { StudentShell } from "@/components/layout/StudentShell";
 import { StudentFooter } from "@/components/layout/StudentFooter";
-import { SubscriptionInquiryModal } from "@/components/layout/SubscriptionInquiryModal";
 import { UserNotifications } from "@/components/layout/UserNotifications";
 
 export default function StudentLayout({
@@ -17,7 +16,6 @@ export default function StudentLayout({
         <StudentShell>{children}</StudentShell>
       </div>
       <StudentFooter />
-      <SubscriptionInquiryModal />
       <UserNotifications />
     </div>
   );

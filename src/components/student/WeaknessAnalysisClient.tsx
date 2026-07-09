@@ -8,7 +8,6 @@ import {
   LineChart, Line, CartesianGrid,
 } from "recharts";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { adminFetch } from "@/lib/api/adminFetch";
 
 type UnitStat = {
@@ -51,7 +50,6 @@ export function WeaknessAnalysisClient() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
-  const [showProModal, setShowProModal] = useState(false);
 
   useEffect(() => {
     if (!authChecked || !user) return;
@@ -80,7 +78,7 @@ export function WeaknessAnalysisClient() {
   async function startWeaknessExam() {
     if (!eligibility) return;
     if (eligibility.tierGate !== "allowed") {
-      setShowProModal(true);
+      router.push("/student/pricing");
       return;
     }
     if (!eligibility.eligible) return;
@@ -257,7 +255,6 @@ export function WeaknessAnalysisClient() {
         </>
       )}
 
-      {showProModal ? <ProUpgradeModal onClose={() => setShowProModal(false)} /> : null}
     </main>
   );
 }
@@ -319,7 +316,7 @@ function CTASection({
           onClick={onStart}
           className="mt-4 w-full rounded-lg bg-orange-600 px-5 py-3 text-sm font-black text-white hover:bg-orange-700"
         >
-          Pro 업그레이드 문의하기
+          요금제 보기
         </button>
       </section>
     );
@@ -379,48 +376,5 @@ function CTASection({
         시험 더 풀러가기
       </Link>
     </section>
-  );
-}
-
-function ProUpgradeModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-soft"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="bg-gradient-to-b from-orange-50 to-white px-7 pt-9 text-center">
-          <div className="mx-auto mb-4 grid size-14 place-items-center rounded-full bg-orange-500 text-3xl">
-            🎯
-          </div>
-          <h2 className="text-xl font-black text-ink">{tierLockMessage("pro")}</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            취약유형 모의고사로 자주 틀리는 유형을 집중 공략해 보세요.
-            <br />
-            업그레이드는 카카오톡 오픈채팅으로 문의해 주세요.
-          </p>
-        </div>
-        <div className="px-7 pb-7 pt-4">
-          <a
-            href="https://open.kakao.com/o/sBAS3Yti"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FEE500] px-5 py-3.5 text-sm font-black text-[#191600]"
-          >
-            카카오톡 오픈채팅으로 문의하기
-          </a>
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-2 w-full rounded-xl px-5 py-2.5 text-xs font-semibold text-slate-400 hover:text-slate-600"
-          >
-            닫기
-          </button>
-        </div>
-      </div>
-    </div>
   );
 }

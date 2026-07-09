@@ -1,0 +1,288 @@
+{
+  "generatedAt": "2026-07-09T05:00:04.123Z",
+  "dryRun": false,
+  "scope": "manual ultra-short explanation fixes batch 3",
+  "changes": [
+    {
+      "id": "q-daily-eng-r10-5",
+      "rationale": "멱급수 점화식 유도 보강",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "멱급수해",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r15-4",
+      "rationale": "선형계 임계점 분류 근거 보강",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "임계점 분류",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r15-2",
+      "rationale": "특이적분 발산 이유 보강",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "발산 판정",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-ewha-17",
+      "rationale": "함수열 명제 판정 이유 보강",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수열 수렴 명제",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r19-2",
+      "rationale": "부분공간 차원 계산 보강",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "부분공간 차원",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r22-4",
+      "rationale": "행렬식 성질 설명 보강",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "행렬식 성질",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r05-2",
+      "rationale": "정답만 있던 삼중적분 해설 보강",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "중적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r06-14",
+      "rationale": "정답만 있던 선형사상 표현행렬 해설 보강",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형사상",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r09-19",
+      "rationale": "정답만 있던 중적분 해설 보강",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "중적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r13-12",
+      "rationale": "정답만 있던 평면 거리 해설 보강 및 보기 꼬리 문구 제거",
+      "subject": "미분학",
+      "unit": "추가내용",
+      "concept": "Final A",
+      "fields": [
+        "options",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r14-26",
+      "rationale": "정답만 있던 고유분해 해설 보강",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고유치와 대각화",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r14-6",
+      "rationale": "정답만 있던 변곡점 극한 해설 보강",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "극한",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r31-3",
+      "rationale": "극좌표 적분 해설 보강",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "무한 적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-inha-27",
+      "rationale": "Viviani 곡면 넓이 계산 보강",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "발산정리(반구)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r19-3",
+      "rationale": "보존벡터장 판정 근거 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "보존벡터장 판정",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r34-5",
+      "rationale": "최소제곱 정규방정식 계산 보강",
+      "subject": "선형대수",
+      "unit": "추가내용",
+      "concept": "최소제곱직선",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r24-5",
+      "rationale": "두 선분 선적분 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-r22-1",
+      "rationale": "표준 지수극한 계산 보강",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수의 극한",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r23-3",
+      "rationale": "그린 정리 영역 적분 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r17-5",
+      "rationale": "벡터공간 판정 근거 보강",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "벡터공간 정의",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r20-5",
+      "rationale": "영공간 차원 계산 보강",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "영공간 차원",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r6-3",
+      "rationale": "연립방정식 소거 과정 보강",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "연립방정식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r23-5",
+      "rationale": "삼각형 그린 정리 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r16-6",
+      "rationale": "라플라스 부분분수 전개 보강",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 역변환",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-inha-07",
+      "rationale": "감마함수 치환 설명 보강",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "감마함수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-hongik-11",
+      "rationale": "잘못된 적분 보기 판정 보강",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "적분 계산 잘못 찾기",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r15-6",
+      "rationale": "라플라스 역변환 부분분수 보강",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 역변환",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r22-3",
+      "rationale": "보존장 선적분 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "보존장 선적분",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

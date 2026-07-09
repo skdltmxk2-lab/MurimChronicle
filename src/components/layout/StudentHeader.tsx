@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { setSubscriptionInquiryPending } from "@/components/layout/SubscriptionInquiryModal";
 import { supabase } from "@/lib/supabase/client";
 import { InquiryModal } from "@/components/inquiry/InquiryModal";
 import { TrackToggle } from "@/components/layout/TrackToggle";
@@ -89,7 +88,6 @@ export function StudentHeader() {
       setUser(result.user);
       setStudentEmail("");
       setStudentPassword("");
-      setSubscriptionInquiryPending();
       if (isAdminUser(result.user)) {
         router.replace("/admin");
       }

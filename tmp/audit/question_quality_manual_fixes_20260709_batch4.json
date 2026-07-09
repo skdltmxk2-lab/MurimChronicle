@@ -1,0 +1,187 @@
+{
+  "generatedAt": "2026-07-09T05:02:47.036Z",
+  "dryRun": false,
+  "scope": "manual short explanation fixes batch 4",
+  "changes": [
+    {
+      "id": "q-daily-la-r31-1",
+      "rationale": "핵 차원 계산 보강",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "핵의 차원",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r5-4",
+      "rationale": "역행렬 행렬식 계산 보강",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "역행렬 행렬식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-cau-19",
+      "rationale": "라플라스 변환형 이상적분 설명 보강",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "이상적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r20-3",
+      "rationale": "곡선 무게중심 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "무게중심",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r26-4",
+      "rationale": "발산정리 부피적분 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r5-1",
+      "rationale": "이변수 극한 경로 의존 설명 보강",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "이변수 극한",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r8-3",
+      "rationale": "편미분 정의 계산 보강",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "편미분 정의",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-kyunghee-24",
+      "rationale": "직교행렬 명제 판정 보강",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "직교행렬 명제 판정",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-sookmyung-02",
+      "rationale": "역삼각함수 극한 설명 보강",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "$\\sin^{-1}$ 형식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r21-4",
+      "rationale": "벡터 선적분 매개화 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "벡터 선적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r24-2",
+      "rationale": "원판 그린 정리 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r32-5",
+      "rationale": "함수 내적 직교 조건 계산 보강",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "함수 내적 직교",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-cau-21",
+      "rationale": "로그 멱급수 공식 보강",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "로그 멱급수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r17-3",
+      "rationale": "조각함수 단위계단 표현 보강",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "조각함수 Laplace",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r21-2",
+      "rationale": "곡선 선적분 매개화 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "벡터 선적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r18-4",
+      "rationale": "Volterra 방정식 라플라스 풀이 보강",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Volterra 적분방정식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r26-2",
+      "rationale": "사면체 발산정리 계산 보강",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산 정리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r26-1",
+      "rationale": "점-원뿔 거리 최소화 계산 보강",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "점-곡면 거리",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

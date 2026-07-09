@@ -99,7 +99,7 @@ export default async function OpengraphImage() {
             display: "flex",
           }}
         >
-          1타강사 현장조교 풀이 · AI 검증 · {qStat} 문항
+          AI 풀이 · 취약유형 모의고사 · {qStat} 문항
         </div>
 
         {/* URL 칩 */}

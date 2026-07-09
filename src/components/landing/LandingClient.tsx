@@ -7,8 +7,6 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { StudentHeader } from "@/components/layout/StudentHeader";
 import { StudentFooter } from "@/components/layout/StudentFooter";
 
-const KAKAO_CHANNEL_URL = "https://pf.kakao.com/_IwHRX";
-
 type Feature = {
   emoji: string;
   title: string;
@@ -60,10 +58,10 @@ const FEATURES: Feature[] = [
     tint: "bg-coral-50 text-coral-600 dark:bg-coral-50 dark:text-coral-600",
   },
   {
-    emoji: "💬",
-    title: "1:1 강사 상담",
-    desc: "실제 현장조교 · 출신 강사가 카톡으로 직접 상담.",
-    tint: "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-200",
+    emoji: "📊",
+    title: "오답·학습 기록",
+    desc: "최근 오답과 취약 단원을 모아 다음 학습으로 바로 이어집니다.",
+    tint: "bg-slate-100 text-slate-700 dark:bg-white/10 dark:text-slate-100",
   },
 ];
 
@@ -81,7 +79,7 @@ export function LandingClient({
     { label: "등록 문항", value: questionStat },
     { label: "기출 학교", value: "28개" },
     { label: "사용 중인 학생", value: `${displayedUsers.toLocaleString("ko-KR")}명` },
-    { label: "1타강사 현장조교 풀이 + AI 검증", value: "전 문항" },
+    { label: "문항·해설 품질 점검", value: "상시" },
   ];
 
   // 이미 로그인된 사용자는 마케팅 랜딩 대신 학습 페이지로
@@ -115,7 +113,7 @@ export function LandingClient({
               가장 빠른 길.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/90 sm:text-lg">
-              실제 1타강사 현장조교가 만든 <b className="font-black">{questionStat} 문항</b> ·
+              편입수학·편입영어 <b className="font-black">{questionStat} 문항</b> ·
               <b className="font-black">AI 풀이·검색·튜터</b> ·{" "}
               <b className="font-black">취약유형 맞춤 모의고사</b>까지 한 곳에서.
             </p>
@@ -178,29 +176,29 @@ export function LandingClient({
           </div>
         </section>
 
-        {/* ─────── 강사진 ─────── */}
+        {/* ─────── 학습 흐름 ─────── */}
         <section className="bg-slate-50 py-16 dark:bg-white/[0.02] sm:py-20">
-          <div className="mx-auto max-w-4xl px-5 text-center">
-            <h2 className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">
-              1:1 무료 상담
+          <div className="mx-auto max-w-5xl px-5">
+            <h2 className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+              Study Flow
             </h2>
             <p className="mt-2 text-3xl font-black leading-tight text-ink sm:text-4xl">
-              1타강사 현장조교에게 <br className="sm:hidden" />
-              직접 상담받기
+              풀고, 확인하고, <br className="sm:hidden" />
+              다시 뽑는 흐름.
             </p>
-            <p className="mt-3 text-base leading-7 text-slate-600">
-              <b className="text-ink">김영편입 1타강사 영수 현장조교</b>가
-              <br className="sm:hidden" /> 카카오톡으로 직접 상담해드립니다.
-            </p>
-
-            <a
-              href={KAKAO_CHANNEL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#FEE500] px-6 py-3 text-sm font-black text-[#191600] shadow-sm transition hover:brightness-95"
-            >
-              💬 카톡으로 상담하기 →
-            </a>
+            <div className="mt-8 grid gap-4 md:grid-cols-3">
+              {[
+                ["01", "단원별 문제 풀이", "과목과 단원을 고르면 바로 문제를 풀 수 있습니다."],
+                ["02", "오답·해설 확인", "틀린 문제는 해설과 함께 다시 볼 수 있습니다."],
+                ["03", "취약유형 재구성", "누적 기록을 바탕으로 다음 모의고사를 구성합니다."],
+              ].map(([step, title, desc]) => (
+                <div key={step} className="rounded-lg border border-line bg-white p-5 shadow-soft">
+                  <div className="text-xs font-black text-brand-600">{step}</div>
+                  <h3 className="mt-3 text-lg font-black text-ink">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">{desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -246,7 +244,7 @@ export function LandingClient({
                 <li>✓ AI 문제 검색·풀이·튜터</li>
                 <li>✓ 광고 제거</li>
                 <li>✓ 오답 복습 30일</li>
-                <li>✓ 1:1 문의 우선 답변</li>
+                <li>✓ 실전 학습 기록 확장</li>
               </ul>
             </div>
           </div>

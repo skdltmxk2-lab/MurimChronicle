@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { LiveChatPanel } from "@/components/chat/LiveChatPanel";
 import { MobileChatButton } from "@/components/chat/MobileChatButton";
-import { ConsultCard } from "@/components/consult/ConsultCard";
 
 /**
  * 학생 화면 공통 셸.
@@ -25,9 +24,8 @@ export function StudentShell({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="mx-auto flex w-full max-w-[1800px] justify-center gap-4 px-0 xl:px-4">
-        {/* 좌측 — 1타강사 상담 카드 + (초대형 화면일 때) 광고 레일 */}
+        {/* 좌측 — 초대형 화면 광고 레일 */}
         <aside className="hidden shrink-0 space-y-4 pt-6 xl:block xl:w-80">
-          <ConsultCard />
           <div className="hidden 2xl:block">
             <AdSlot slot="rail-left" format="rail" />
           </div>

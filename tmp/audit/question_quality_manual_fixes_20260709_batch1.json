@@ -1,0 +1,385 @@
+{
+  "generatedAt": "2026-07-09T04:53:41.254Z",
+  "dryRun": false,
+  "scope": "manual question quality fixes batch 1",
+  "changes": [
+    {
+      "id": "q-2019-ewha-03",
+      "rationale": "문항 원문에 문제 오류 문구가 들어가 있었고, 실제 나머지는 2번이 맞음",
+      "subject": "미분학",
+      "unit": "함수",
+      "concept": "다항식 나머지 정리 (문제 오류)",
+      "fields": [
+        "question",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021-soongsil-19",
+      "rationale": "곡면 문항으로 저장되어 극값 문항 의미가 불명확해 함수 극값 문항으로 정리",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "다변수 극값(문제 오류)",
+      "fields": [
+        "question",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2019-dankook-34",
+      "rationale": "실제 수렴 조건 계산상 값이 0이라 보기와 정답 보정",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "이상적분 + 미정 상수",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2019-dankook-41",
+      "rationale": "류갓티비 표현과 생략된 적분 계산 정리",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "피적분함수 양수 조건 (최댓값)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2019-dankook-47",
+      "rationale": "검산 메모와 외부 출처 표현 제거",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형결합 + 행 축약",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2019-sejong-18",
+      "rationale": "확인 필요 메모와 제곱완성 부호 표현 정리",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "두 부분공간 교집합 + 내적",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-ajou-41",
+      "rationale": "비표준 표현 제거",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "각도형 선적분 (타원 경로)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-dankook-40",
+      "rationale": "중간 계산 끊김과 외부 출처 표현 제거",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "극값 합 (삼각함수)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-dankook-44",
+      "rationale": "보존장 계산상 기존 보기에 정답이 없어 선지와 정답 보정",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "보존벡터장 (포텐셜)",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-konkuk-22",
+      "rationale": "극한 계산상 실제 정답이 기존 보기에 없어 선지와 정답 보정",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "역함수의 미분 + 적분평균",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021-skku-19",
+      "rationale": "확인 필요 메모 제거 및 보존장 포텐셜 설명 정리",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "보존장 선적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021am-dankook-34",
+      "rationale": "외부 출처 표현 제거",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "이상적분 수렴 식별",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021pm-ajou-48",
+      "rationale": "비표준 표현 제거",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "보존장·특이점 둘러쌈 판정",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021pm-dankook-33",
+      "rationale": "외부 출처 표현 제거 및 면적 계산 보강",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "여러 곡선 둘러싼 면적",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021pm-dankook-46",
+      "rationale": "외부 출처 표현 제거 및 좌표 계산 보강",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "다항식 공간 선형변환",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-konkuk-37",
+      "rationale": "비표준 표현 제거",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그놈(원점 포함 여부)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-kwangwoon-10",
+      "rationale": "계산 중단 메모와 외부 출처 표현 제거",
+      "subject": "적분학",
+      "unit": "Maclaurin급수의 응용",
+      "concept": "매클로린 + n계 도함수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-kwangwoon-16",
+      "rationale": "문항과 정답이 맞도록 로그 표기를 명확히 정리",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "전미분·선형근사",
+      "fields": [
+        "question",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-kyunghee-18",
+      "rationale": "실제 미분방정식 계산상 기존 보기에 정답이 없어 선지와 정답 보정",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "1계 선형",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022am-dankook-46",
+      "rationale": "불필요한 메모 제거",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "표준행렬 성분 합",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022am-dankook-50",
+      "rationale": "불필요한 메모 제거 및 행렬지수 풀이 정리",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "연립 ODE (라플라스)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022pm-dankook-43",
+      "rationale": "측면 면적분 실제값이 0이라 선지와 해설 보정",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "발산정리 (기울어진 원기둥, 출제 오류)",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-gachon-a-15",
+      "rationale": "초기조건 계산 오류 정정",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "특수해+제차해",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-gachon-b-12",
+      "rationale": "극좌표 면적 계산상 실제 답은 4번이라 정답 보정",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "극좌표 영역 넓이",
+      "fields": [
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023am-dankook-37",
+      "rationale": "중간 부호 메모 제거",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "두 점 직선과 xy평면 교점",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023am-dankook-42",
+      "rationale": "불필요한 메모 제거",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "발산정리 (반구 면적분)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023pm-dankook-38",
+      "rationale": "검산 메모 제거",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "방향도함수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-ajou-48",
+      "rationale": "비표준 표현 제거",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "선적분 분해(그놈+보존)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-hanyang-09",
+      "rationale": "정답과 맞도록 피봇 열 문항 표기 정정",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "부분공간·열공간·고유값",
+      "fields": [
+        "question",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-hanyang-15",
+      "rationale": "실제 지수 계산값에 맞게 선지 보정",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "분리형 ODE",
+      "fields": [
+        "options",
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-mju-25",
+      "rationale": "해설의 임시 말투 제거",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "관련 변화율(수영장 단면)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-dku-am-22",
+      "rationale": "Bernoulli 치환 부호 오류 정정",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "Bernoulli ODE",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-inha-26",
+      "rationale": "확인 필요 메모 제거 및 skew line 거리 공식 보강",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "점-직선 거리",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-sogang-06",
+      "rationale": "검산 메모 제거",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "선적분(매개화)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r14-5",
+      "rationale": "치환적분 계산상 정답은 1번이라 정답 보정",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "치환 + 부분분수",
+      "fields": [
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-ryu-self-warmup-r04-13",
+      "rationale": "불필요한 문구 제거",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분순서 변경",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

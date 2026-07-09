@@ -364,6 +364,17 @@ export function AdminCoachingClient() {
         : "",
     [sheet]
   );
+  const unitUsageSummary = useMemo(() => {
+    if (sheet?.sourceLabel !== "unit-mock") return { used: 0, unused: 0 };
+    return sheet.questions.reduce(
+      (summary, question) => {
+        if (unitMockUseCount(question) > 0) summary.used += 1;
+        else summary.unused += 1;
+        return summary;
+      },
+      { used: 0, unused: 0 }
+    );
+  }, [sheet]);
 
   useEffect(() => {
     setQuestionPageHeaders(Array.from({ length: questionPageCount }, () => ""));
@@ -439,6 +450,13 @@ export function AdminCoachingClient() {
     });
   }
 
+  function applySingleUnitPreset(count: number) {
+    setUnitSections((current) => {
+      const base = current[0] ?? createUnitMockSection(SUBJECT_NAMES[0], count);
+      return [{ ...base, count }];
+    });
+  }
+
   function removeUnitSection(sectionId: string) {
     setUnitSections((current) =>
       current.length <= 1
@@ -459,6 +477,31 @@ export function AdminCoachingClient() {
     setUnitSelectedQuestionIds((current) =>
       current.length === sheet.questions.length ? [] : sheet.questions.map((question) => question.id)
     );
+  }
+
+  function selectUnitQuestionsByUsage(used: boolean) {
+    if (sheet?.sourceLabel !== "unit-mock") return;
+    const ids = sheet.questions
+      .filter((question) => (used ? unitMockUseCount(question) > 0 : unitMockUseCount(question) === 0))
+      .map((question) => question.id);
+    setUnitSelectedQuestionIds(ids);
+    setUnitMsg(
+      ids.length > 0
+        ? `${used ? "사용된" : "미사용"} 문제 ${ids.length}개를 선택했습니다.`
+        : `${used ? "사용된" : "미사용"} 문제가 없습니다.`
+    );
+  }
+
+  async function replaceUsedUnitQuestions() {
+    if (sheet?.sourceLabel !== "unit-mock") return;
+    const usedIds = sheet.questions
+      .filter((question) => unitMockUseCount(question) > 0)
+      .map((question) => question.id);
+    if (usedIds.length === 0) {
+      setUnitMsg("사용된 문제가 없습니다.");
+      return;
+    }
+    await replaceUnitQuestions(usedIds);
   }
 
   function resolveUnitSections(): UnitMockRequestSection[] | null {
@@ -1798,13 +1841,25 @@ export function AdminCoachingClient() {
             <section className="mt-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="text-xs font-black text-slate-600">단원 구성</div>
-                <button
-                  type="button"
-                  onClick={addUnitSection}
-                  className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700"
-                >
-                  + 단원 추가
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  {[6, 12, 20].map((count) => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => applySingleUnitPreset(count)}
+                      className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700"
+                    >
+                      단일 {count}문항
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addUnitSection}
+                    className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700"
+                  >
+                    + 단원 추가
+                  </button>
+                </div>
               </div>
               <div className="mt-3 space-y-3">
                 {unitSections.map((section, index) => {
@@ -1919,7 +1974,7 @@ export function AdminCoachingClient() {
                   <div>
                     <h3 className="text-sm font-black text-ink">단원별 모고 구성 결과</h3>
                     <p className="mt-1 text-xs font-bold text-slate-500">
-                      {sheet.questions.length}문항 · 선택 {unitSelectedQuestionIds.length}문항
+                      {sheet.questions.length}문항 · 사용됨 {unitUsageSummary.used}문항 · 미사용 {unitUsageSummary.unused}문항 · 선택 {unitSelectedQuestionIds.length}문항
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -1933,6 +1988,22 @@ export function AdminCoachingClient() {
                     </button>
                     <button
                       type="button"
+                      disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.used === 0}
+                      onClick={() => selectUnitQuestionsByUsage(true)}
+                      className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-amber-500 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      사용된 문제 선택
+                    </button>
+                    <button
+                      type="button"
+                      disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.unused === 0}
+                      onClick={() => selectUnitQuestionsByUsage(false)}
+                      className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    >
+                      미사용 문제 선택
+                    </button>
+                    <button
+                      type="button"
                       disabled={
                         unitLoading ||
                         replacingUnitQuestionIds.length > 0 ||
@@ -1943,6 +2014,14 @@ export function AdminCoachingClient() {
                     >
                       선택 문제 교체 ({unitSelectedQuestionIds.length})
                     </button>
+                    <button
+                      type="button"
+                      disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.used === 0}
+                      onClick={() => void replaceUsedUnitQuestions()}
+                      className="rounded-md bg-amber-600 px-3 py-2 text-xs font-black text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    >
+                      사용된 문제 전부 교체
+                    </button>
                   </div>
                 </div>
                 <ol className="mt-4 grid gap-2 lg:grid-cols-2">
@@ -1952,7 +2031,12 @@ export function AdminCoachingClient() {
                     const isSelected = unitSelectedQuestionIds.includes(question.id);
                     const isReplacing = unitReplacingSet.has(question.id);
                     return (
-                      <li key={question.id} className="rounded-md border border-line bg-white p-3">
+                      <li
+                        key={question.id}
+                        className={`rounded-md border bg-white p-3 ${
+                          isSelected ? "border-brand-400 ring-2 ring-brand-100" : "border-line"
+                        }`}
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <label className="flex min-w-0 flex-1 items-start gap-3">
                             <input

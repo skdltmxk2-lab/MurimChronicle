@@ -2,8 +2,6 @@
 
 import { useAuth } from "@/lib/auth/AuthContext";
 
-const KAKAO_OPEN_CHAT_URL = "https://open.kakao.com/o/sBAS3Yti";
-
 const PRO_PRICE = 29900;
 
 type TierId = "free" | "pro";
@@ -60,7 +58,7 @@ const FEATURES: FeatureRow[] = [
   { label: "실전 모의고사", desc: "기출기반·학교별·파이널", values: { free: false, pro: true } },
   { label: "AI 문제 검색", desc: "캡쳐 검색·출제 분석", values: { free: false, pro: true } },
   { label: "광고 제거", values: { free: false, pro: true } },
-  { label: "1:1 문의 우선 답변", values: { free: false, pro: true } },
+  { label: "30일 오답 복습", values: { free: false, pro: true } },
 ];
 
 function formatWon(n: number) {
@@ -98,14 +96,9 @@ export function PricingClient() {
             </div>
           </div>
           {!isAdmin && currentTier.id !== "pro" ? (
-            <a
-              href={KAKAO_OPEN_CHAT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-lg bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-700"
-            >
-              PRO 업그레이드 문의
-            </a>
+            <span className="rounded-lg bg-slate-100 px-4 py-2 text-xs font-black text-slate-500">
+              Free 이용 중
+            </span>
           ) : null}
         </section>
       ) : null}
@@ -157,14 +150,9 @@ export function PricingClient() {
                 )}
               </div>
               {isPro ? (
-                <a
-                  href={KAKAO_OPEN_CHAT_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-amber-500 px-5 py-3 text-sm font-black text-white transition hover:bg-amber-600"
-                >
-                  PRO 시작하기
-                </a>
+                <div className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-amber-500 px-5 py-3 text-sm font-black text-white">
+                  계정 등급 적용 후 이용
+                </div>
               ) : (
                 <div className="mt-5 inline-flex w-full items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-500">
                   가입 즉시 이용 가능
@@ -228,18 +216,10 @@ export function PricingClient() {
 
       {/* 가입 안내 */}
       <section className="mt-8 rounded-2xl border border-line bg-white p-8 text-center shadow-soft">
-        <h3 className="text-xl font-black text-ink">PRO 가입 문의</h3>
+        <h3 className="text-xl font-black text-ink">PRO 기능 안내</h3>
         <p className="mt-2 text-sm text-slate-600">
-          가입은 카카오톡 오픈채팅으로 편하게 문의해 주세요. 평일 24시간 이내 답변드립니다.
+          계정 등급이 PRO로 적용되면 실전 모의고사, AI 문제 검색, 30일 오답 복습, 광고 제거가 자동으로 열립니다.
         </p>
-        <a
-          href={KAKAO_OPEN_CHAT_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#FEE500] px-6 py-3 text-sm font-black text-[#191600] transition hover:brightness-95"
-        >
-          💬 카카오톡 오픈채팅으로 문의하기
-        </a>
         <p className="mt-3 text-[11px] text-slate-400">
           * 표시된 가격은 부가세 포함, 월 결제 기준입니다.
         </p>

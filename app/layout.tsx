@@ -7,7 +7,7 @@ import "./globals.css";
 const SITE_URL = "https://routrans.com";
 const SITE_NAME = "루트편입";
 const SITE_DESC =
-  "편입수학·편입영어 CBT. 실제 1타강사 현장조교가 만든 5,000+ 문항, AI 풀이·검색·튜터, 취약유형 맞춤 모의고사까지. 가입 1분, 신용카드 불필요.";
+  "편입수학·편입영어 CBT. 5,000+ 문항, AI 풀이·검색·튜터, 취약유형 맞춤 모의고사까지. 가입 1분, 신용카드 불필요.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

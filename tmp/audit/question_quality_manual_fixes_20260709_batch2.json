@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-07-09T04:56:07.549Z",
+  "dryRun": false,
+  "scope": "manual question quality fixes batch 2",
+  "changes": [
+    {
+      "id": "q-2018-hanyang-13",
+      "rationale": "문항 보기의 R^5 오기를 R^3로 바로잡고 출제 의도 메모 제거",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "부분공간 판정",
+      "fields": [
+        "question",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-konkuk-40",
+      "rationale": "비표준 표현 제거 및 편각 선적분 설명 정리",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그놈 적분(원점 포함)",
+      "fields": [
+        "concept",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-sejong-21",
+      "rationale": "해설의 검산 중간 메모 제거 및 겉넓이 분할 설명 정리",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "곡면 겉넓이 (대칭 분할)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-konkuk-40",
+      "rationale": "비표준 표현 제거 및 열린 곡선 편각 변화 설명 정리",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그놈 적분(각도)",
+      "fields": [
+        "concept",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-skku-04",
+      "rationale": "방향장 해설의 부호 표현을 명확히 정리",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "방향장 식별",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024am-dankook-36",
+      "rationale": "외부 출처 표현 제거 및 극좌표 넓이 계산 정리",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "4엽 장미 영역 넓이",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

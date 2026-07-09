@@ -1,0 +1,4268 @@
+{
+  "summary": {
+    "generatedAt": "2026-07-09T05:05:41.679Z",
+    "questionCount": 5532,
+    "issueCount": 236,
+    "reviewQuestionCount": 217,
+    "severityCounts": {
+      "P3": 236
+    },
+    "categoryCounts": {
+      "quality": 236
+    },
+    "codeCounts": {
+      "complex_problem_low_math_explanation": 43,
+      "explanation_maybe_thin": 193
+    }
+  },
+  "issues": [
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2017-kwangwoon-02",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "극한 함수의 교점 범위",
+      "difficulty": "medium",
+      "excerpt": "다음 두 함수 $f(x),g(x)$에 대해 $f(x)=g(x)$인 $x$가 포함된 범위는? $$f(x)=\\displaystyle\\lim_{n\\to\\infty}\\!\\left(1-\\dfrac{3x^{2n}}{3+x^{2n+1}}\\right),\\quad g(x)=\\lim_{n\\to\\infty}\\dfrac{1}{1+n\\sin^2\\pi x}$$",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$f$ 극한: $|x|>1$이면 $1-3/x$, $|x|<1$이면 $1$. $g$: $\\sin\\pi x=0$ ($x$ 정수)이면 $1$, 아니면 $0$. $f=g$ 만족하는 $x$: $x=0$ ($f=1=g$). $0\\le x<2$ 범위에 포함."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2019-ewha-10",
+      "subject": "미분학",
+      "unit": "접선의 방정식",
+      "concept": "직선과 접선의 각",
+      "difficulty": "mediumHard",
+      "excerpt": "그래프 $y=x^2$의 $x=1/2$에서의 접선을 $m$이라 하자. 직선 $y=\\dfrac{3}{2}x-\\dfrac{1}{2}$과 직선 $l$은 직선 $m$과 같은 각을 이룬다. 직선 $l$의 방정식을 구하시오.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=12",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$m: y=x-1/4$(점 $(1/2,1/4)$). 주어진 직선을 $m$에 대해 대칭이동: $y=3x/2-1/2$ → 평행이동 후 $y=x$에 대칭이동 적용 → $y=2x/3+1/6$. 다시 평행이동: $y=2x/3-1/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2019-kookmin-08",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "연속함수 명제 판별",
+      "difficulty": "medium",
+      "excerpt": "연속함수에 대한 다음 설명 중 옳은 것을 모두 고르면? ㄱ. 함수 $f(x)=\\dfrac{\\ln x+e^x}{x^2-1}$는 구간 $(-\\infty,-1)$과 $(1,\\infty)$에서 연속이다. ㄴ. 방정식 $4x^3-6x^2+3x-2=0$의 해는 $1$과 $2$ 사이에 존재한다. ㄷ. 함수 $f(x)=\\ln(1+\\cos x)$는 $x=(2n-1)\\pi$에서 불연속이다. 단, $n$은 정수. ㄹ. 합성함수 $g\\circ f$...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ. 거짓: $\\ln x$는 $x>0$, $(-\\infty,-1)$에서 $f$ 정의 X. ㄴ. 참: 중간값 정리 ($f(1)=-1$, $f(2)=12$). ㄷ. 참: $\\cos x=-1$ 때 $\\ln 0$. ㄹ. 거짓: 명제의 역."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2019-soongsil-11",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "변수상한 적분 명제",
+      "difficulty": "medium",
+      "excerpt": "구간 $[0,1]$에서 연속인 함수 $f(x)$에 대하여 다음 중 옳은 것을 모두 고른 것은? (가) $F(x)=\\!\\displaystyle\\int_0^x f(t)dt$는 $(0,1)$에서 미분가능. (나) $\\!\\displaystyle\\int_0^1 f(x)dx=0$이면 $f(c)=0$이 되는 $c$가 $[0,1]$에 존재. (다) $[0,1]$의 모든 $x$에 대하여 $\\!\\displaystyle\\int_0^x f(t)dt...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=14",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 적분기본정리 ⇒ 참. (나) 적분 평균값 정리 ⇒ 참. (다) 미분하면 $f=0$ ⇒ 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2019-soongsil-17",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "이상적분 수렴 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 특이적분 중 수렴하는 것은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=16",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(1) $\\sim 1/x$ 발산. (2) $\\ln\\ln x$ 발산. (3) $=-1$ 수렴. (4) $x=1$에서 발산."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-ewha-21",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경 곱",
+      "difficulty": "medium",
+      "excerpt": "다음 세 무한급수의 수렴반경 중 가장 큰 것과 가장 작은 것의 곱을 구하시오. a. $\\!\\sum_{n=1}^{\\infty}\\dfrac{n!x^{n+1}}{n^n}$ b. $\\!\\sum_{n=1}^{\\infty}\\dfrac{\\sqrt n\\,x^{2n}}{9^n}$ c. $\\!\\sum_{n=1}^{\\infty}\\dfrac{(n!)^2 x^n}{(2n)!}$",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=22",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "a: $R=e$. b: $R=3$ (이차항). c: $R=4$. 최대 $4$, 최소 $e$. 곱 $=4e$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-ewha-22",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "함숫값·도함수 합",
+      "difficulty": "hard",
+      "excerpt": "두 번 미분가능한 $f(x)$가 $f'(1)=2f'(2)\\ne 0$, $\\!\\displaystyle\\lim_{x\\to 1}\\dfrac{(f(2x)-1)^2}{(x-1)f(x)-\\ln x}=-2$를 만족할 때, $f(1)+f(2)+f'(1)+f'(2)$의 값을 구하시오.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "분모 $0\\to 0$이려면 $f(2)=1$. 로피탈 후 분자/분모 모두 $0$이 되도록 $f(1)=1$. 다시 로피탈 → $f'(1)=-1$, $f'(2)=-1/2$. 합 $=1+1-1-1/2=1/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-inha-11",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "평면과 직선의 교점",
+      "difficulty": "easyMedium",
+      "excerpt": "세 점 $(-1,1,2),\\ (0,3,5),\\ (-3,-1,-1)$을 지나는 평면과 원점을 지나는 직선이 수직으로 만날 때, 교점은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "법선벡터 $(1,2,3)\\times(-2,-2,-3)=(0,-3,2)$. 평면 $-3y+2z=-1$. 원점 지나는 직선 방향이 평면 법선과 같으므로 $(0,-3t,2t)$. 평면 대입: $13t=-1$, $t=-1/13$. 답: 4."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-kookmin-19",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선 성질 명제",
+      "difficulty": "medium",
+      "excerpt": "공간상의 곡선에 대한 다음 설명 중 옳은 것의 개수는? ㄱ. $r(t)=ti+aj+(a^2-t^2)k$는 $t=a$에서 연속이다.(단, $a$는 상수) ㄴ. $\\dfrac{d}{dt}(r(t)\\cdot u(t))=r'(t)\\cdot u(t)+r(t)\\cdot u'(t)$ ㄷ. $\\dfrac{d}{dt}\\|r(t)\\|=\\|r'(t)\\|$ ㄹ. $r(t)=(e^t\\sin t)i+(e^t\\cos t)j$일 때, $r(t)$와 $r'...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=9",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ. 참. ㄴ. 참 (곱미분). ㄷ. 거짓: 일반적으로 다름. ㄹ. 참: 직접 계산 $r\\cdot r''=0$. 3개."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-seoultech-18",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "비제차 연립방정식 해 조건",
+      "difficulty": "mediumHard",
+      "excerpt": "연립방정식 $\\!\\begin{pmatrix}2&6&6&4\\\\2&6&9&5\\\\-1&-3&3&0\\end{pmatrix}\\!\\begin{pmatrix}x_1\\\\x_2\\\\x_3\\\\x_4\\end{pmatrix}=\\!\\begin{pmatrix}b_1\\\\b_2\\\\b_3\\end{pmatrix}$이 모든 $b_1,b_2,b_3$에 대해서 근을 가질 필요충분조건이 $\\alpha b_1+\\beta b_2+2b_3=0$일 때 $\\alpha+\\bet...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=16",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "계수행렬의 열공간 한 원소 $(2,2,-1)$을 조건식에 대입: $2\\alpha+2\\beta-2=0$ ⇒ $\\alpha+\\beta=1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2020-soongsil-06",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "일대일 선형사상 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 중 $\\mathbb R^3$에서 $T_A\\!\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}=A\\!\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}$로 정의되는 선형사상이 일대일 함수가 아닌 행렬 $A$는?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(3) rank $=2$ (행 사이 등차) ⇒ 핵 차원 $=1$ ⇒ 일대일 아님. 나머지는 모두 rank $=3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2021-seoultech-17",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "선형대수 명제 참/거짓(6개)",
+      "difficulty": "mediumHard",
+      "excerpt": "다음 중 참인 명제의 개수는? ㄱ. $n\\times n$ 정사각행렬 $A,B,C$에 대하여 $A$의 계수가 $n$이고 $AB=AC$이면 $B=C$이다. ㄴ. $n\\times n$ 정사각행렬은 항상 $n$개의 서로 다른 고유값을 갖는다. ㄷ. $A^T=A^{-1}$을 만족하는 실수 정사각행렬 $A$의 행렬식 $\\det A=1$이다. ㄹ. $A^T=A^{-1}$을 만족하는 실수 정사각행렬 $A$의 고유값을 $\\lambda$라 할 ...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ 참(가역). ㄴ 거짓. ㄷ 거짓($\\pm 1$). ㄹ 참(직교행렬 고유값 절대값 $=1$). ㅁ 참(대칭). ㅂ 거짓($a+b=n$). 참: ㄱ,ㄹ,ㅁ → $3$개."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2022-dgu-11",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "반원 영역 이중적분 표현",
+      "difficulty": "medium",
+      "excerpt": "$x^2+y^2\\le 1,\\,y\\ge 0$으로 정의된 영역 $S$에서 적분가능한 함수 $f(x,y)$에 대해 다음 보기 중 이중적분 $\\!\\displaystyle\\iint_S f(x,y)dA$와 같은 것을 모두 고르면? A. $\\!\\int_{-1}^1\\!\\!\\int_0^{\\sqrt{1-x^2}}f(x,y)dy\\,dx$ B. $\\!\\int_0^1\\!\\!\\int_{-\\sqrt{1-y^2}}^{\\sqrt{1-y^2}}f(x,y)dx...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=33",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "A 참 (수직 슬라이스). B 참 (수평 슬라이스). C 거짓 (극좌표 야코비안 $r$ 누락)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2022-ewha-17",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수열 수렴 명제",
+      "difficulty": "hard",
+      "excerpt": "다음 중 함수 수열 $\\{f_n\\},\\{g_n\\}$에 대한 설명 중 옳은 것을 모두 고르시오. a. $f_n$이 $f$로 평등수렴하면 점별수렴한다. b. 각 $f_n$이 연속이고 $f$로 평등수렴하면 $f$도 연속. c. $f_n,g_n$이 각각 $f,g$로 평등수렴하면 $f_n g_n$이 $fg$로 평등수렴. d. $\\!\\sum f_n,\\!\\sum g_n$이 각 평등수렴이면 $\\!\\sum f_n g_n$도 평등수렴.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=19",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "a는 평등수렴이면 각 점에서의 수렴이 자동으로 따르므로 참이다. b는 연속함수열의 평등수렴 극한이 연속이라는 정리로 참이다. c는 곱의 평등수렴에 유계 조건이 추가로 필요하므로 일반적으로 거짓이고, d도 급수의 곱에 대한 평등수렴이 자동으로 보장되지 않는다. 따라서 a, b만 옳다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2022-hongik-15",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "열방정식 경계값 문제",
+      "difficulty": "medium",
+      "excerpt": "길이가 $L$인 막대가 $x$축의 구간 $[0,L]$에 놓여 있고 막대 내에서 $x$축 방향으로 열전도가 일어날 때 경계값 문제: $k\\dfrac{\\partial^2 u}{\\partial x^2}=\\dfrac{\\partial u}{\\partial t},\\,\\dfrac{\\partial u}{\\partial x}\\bigg|_{x=0}=0,\\,u(L,t)=0,\\,u(x,0)=f(x)$. 위 문제 상황과 맞지 않는 것을 고르시오.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=15",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(1) 거짓: $u(x,t)$는 시간에 따라 변하는 온도 분포이지 평형상태 아님. (2)(3)(4) 모두 경계값 문제의 조건을 정확히 해석."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2022pm-dankook-47",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "해공간 차원 (rank-nullity)",
+      "difficulty": "medium",
+      "excerpt": "연립일차방정식 $\\begin{cases}x_1+3x_2-2x_3+2x_5=0\\\\2x_1+6x_2-5x_3-2x_4+4x_5-3x_6=0\\\\x_3+2x_4+3x_5=0\\\\x_1+3x_2+4x_4+2x_5+9x_6=0\\end{cases}$의 해공간의 차원(dimension)은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=19",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "행 축약 후 rank 계산: rank $=3$. 변수 6개 - rank 3 $=$ 해공간 차원 $3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2023-ewha-13",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "평등 연속 판별",
+      "difficulty": "hard",
+      "excerpt": "다음 함수 중 평등 연속인 함수를 모두 고르시오. a. $f:[1,\\infty)\\to\\mathbb{R},\\,f(x)=1/x$ b. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=e^{\\cos x}$ c. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\sin(e^x)$ d. $f:\\mathbb{R}\\to\\mathbb{R},\\,f(x)=\\cos(e^x)$ e. $f:\\mathbb{R}\\to\\mathb...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "a 참: $f'$ 유계. b 참: $f'$ 유계. c 거짓: 진동. d 거짓: 진동. e 거짓: $x=0$에서 불연속(점프)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2023-hongik-15",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "변수치환(코시·극좌표·파동)",
+      "difficulty": "mediumHard",
+      "excerpt": "(가)~(다) 중 변수 치환에 의해 식이 옳게 변형된 것의 개수를 구하시오. (가) $x=e^t$에 의해 $ax^2\\dfrac{d^2 y}{dx^2}+bx\\dfrac{dy}{dx}+cy=0$은 $a\\dfrac{d^2 y}{dt^2}+(b-a)\\dfrac{dy}{dt}+cy=0$으로 변형 (나) $x=r\\cos\\theta,\\,y=r\\sin\\theta$에 의해 $\\dfrac{\\partial^2 u}{\\partial x^2}+\\df...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=59",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 코시-오일러 → 상수계수: $a\\ddot y+(b-a)\\dot y+cy=0$ ⇒ 참. (나) 극좌표 라플라스 ⇒ 참. (다) 파동 방정식 D'Alembert 치환 ⇒ 참. 모두 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2023-kyunghee-03",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "$\\!\\int_0^\\infty 1/x^p$ 수렴",
+      "difficulty": "easy",
+      "excerpt": "적분 $\\!\\displaystyle\\int_0^\\infty\\dfrac{1}{x^p}\\,dx$에 관한 설명으로 옳은 것은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=9",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$[0,1]$에서는 $p<1$이어야 수렴, $[1,\\infty)$에서는 $p>1$이어야 수렴. 둘 다 만족하는 $p$ 없음 ⇒ 항상 발산."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2024-cau-15",
+      "subject": "적분학",
+      "unit": "부정적분",
+      "concept": "부분분수 + 유리함수 조건",
+      "difficulty": "medium",
+      "excerpt": "다음 <보기> 중 두 개를 더했을 때, 유리함수로 표현할 수 있는 것은? (단, 유리함수는 분모와 분자가 다항식으로 구성된 함수이다.) (가) $\\!\\displaystyle\\int\\dfrac{2x}{x^2-1}dx$ (나) $\\!\\displaystyle\\int\\dfrac{2}{x(x+1)}dx$ (다) $\\!\\displaystyle\\int\\dfrac{x^2+1}{x^2(x+1)^2}dx$ (라) $\\!\\displaystyle\\...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=19",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(나) $=2\\ln|x|-2\\ln|x+1|$, (다) $=-2\\ln|x|-1/x+2\\ln|x+1|-2/(x+1)$. 합 $=-1/x-2/(x+1)$ → 유리함수."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2024-ewha-17",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "수열 명제 판별",
+      "difficulty": "medium",
+      "excerpt": "다음 중 옳은 것을 모두 고르시오. a. $\\!\\lim(a_n+b_n)=\\lim a_n+\\lim b_n$. b. $\\lim|a_n|=0$이면 $\\lim a_n\\sin(n\\pi/6)=0$. c. $\\lim a_n=L$이고 $f$가 $L$에서 연속이면 $\\lim f(a_n)=f(L)$. d. 위로 유계인 단조수열은 수렴한다.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=19",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "a 거짓: 각각 수렴해야 함. b 참: 유계×0. c 참. d 거짓: 단조감소+유계 아래여야 수렴."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2024-soongsil-08",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "극한 명제",
+      "difficulty": "medium",
+      "excerpt": "다음 중 항상 참인 것을 모두 고르면? (가) $\\!\\displaystyle\\lim_{x\\to 3}f(x)=5$이고 $\\!\\displaystyle\\lim_{x\\to 3}g(x)=0$이면, $\\!\\displaystyle\\lim_{x\\to 3}[f(x)/g(x)]$는 존재하지 않는다. (나) $\\!\\displaystyle\\lim_{x\\to a}f(x)$와 $\\!\\displaystyle\\lim_{x\\to a}g(x)$ 둘 다 존재하...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=27",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 참: $0$이 아닌 값/$0$ 형태. (나) 거짓: $f=1/x$, $g=-1/x$. (다) 참: 만약 존재한다면 $g$ 수렴하므로 모순. (라) 거짓: 함숫값과 극한값은 다를 수 있다(불연속)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2024-uos-25",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "대각화 $A=PDP^{-1}$",
+      "difficulty": "mediumHard",
+      "excerpt": "행렬 $A=\\!\\begin{pmatrix}4&2&-1\\\\-1&1&3\\\\1&1&2\\end{pmatrix}$를 $A=PDP^{-1}$ 형태로 대각화하자. $D=\\!\\begin{pmatrix}\\lambda_1&0&0\\\\0&\\lambda_2&0\\\\0&0&\\lambda_3\\end{pmatrix}$($\\lambda_1<\\lambda_2<\\lambda_3$), $P=\\!\\begin{pmatrix}a&b&c\\\\d&e&f\\\\g&h&i\\end{...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=19",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "고유값 $\\lambda=1,2,4$. 고유벡터: $\\lambda=1$: $(3,-4,1)$, $\\lambda=2$: $(1,-1,0)$, $\\lambda=4$: $(3,1,2)$. $d=-4,e=-1,f=1,g=1,h=0,i=2$. 합 $=16+1+1+1+0+4=23$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2025-kw-13",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "외적·스칼라삼중적",
+      "difficulty": "medium",
+      "excerpt": "공간 벡터 $\\mathbf{u},\\mathbf{v},\\mathbf{w}$에 대해 다음 중 옳은 것을 모두 고른 것은? ㄱ. $(\\mathbf{u}\\times\\mathbf{v})\\cdot\\mathbf{w}=|\\mathbf{u}\\times\\mathbf{v}||\\mathbf{w}|\\cos\\theta$ (단, $\\theta$는 $\\mathbf{u}\\times\\mathbf{v}$와 $\\mathbf{w}$의 사잇각) ㄴ. $\\mathbf...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=12",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "모두 표준 항등식: 내적의 정의, 외적의 직교성, 스칼라삼중적의 순환, 평행사변형 항등식. 모두 옳음."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2025-kyunghee-25",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬 명제 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 명제 중 참인 것을 모두 고른 것은? ㄱ. 행렬 $A=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}$가 임의의 $2\\times 2$ 행렬 $B$에 대하여 $AB=BA$를 만족할 필요충분조건은 $a=d,\\,b=c=0$. ㄴ. $A$가 $m\\times n$행렬일 때 $A^TA$가 가역이기 위한 필요충분조건은 $\\mathrm{rank}(A)=m$. ㄷ. $0$이 아닌 실수 $a,b,c$에 대하여 $a=b+c...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=21",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ 참(스칼라 행렬 ↔ 모든 행렬과 가환). ㄴ 거짓(필요충분은 $\\mathrm{rank}(A)=n$). ㄷ 거짓(반례 가능). ㄹ 참(역행렬의 행렬식 계산으로 확인). ㅁ 참(반대칭 행렬은 부분공간). 답: ㄱ, ㄹ, ㅁ."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-2025-sookmyung-09",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴 판정 (스털링)",
+      "difficulty": "mediumHard",
+      "excerpt": "다음 급수 중 수렴하는 것을 모두 고른 것은? (가) $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{n!}{n^n}$ (나) $\\displaystyle\\sum_{n=1}^{\\infty}(-1)^n\\sin\\!\\left(\\dfrac{\\pi}{n}\\right)$ (다) $\\displaystyle\\sum_{n=1}^{\\infty}\\!\\left(1+\\dfrac{1}{n}\\right)^{n^2}$ (라) $\\di...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=28",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 비율판정 $\\to 1/e<1$ 수렴. (나) 교대급수 ($\\sin(\\pi/n)\\downarrow 0$) 수렴. (다) 일반항 $\\to e>1$ 발산. (라) 비율판정 $\\to 2/3<1$ 수렴."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-eng-r17-4",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "조각함수 Laplace",
+      "difficulty": "medium",
+      "excerpt": "$f(t)=\\{0,t<2\\pi;\\sin t,2\\pi\\le t\\le 3\\pi;0,t>3\\pi\\}$의 라플라스 변환은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=15",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$f=\\sin t\\,u(t-2\\pi)-\\sin t\\,u(t-3\\pi)$. 평행 변환."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-eng-r27-3",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "면적분 + 발산정리",
+      "difficulty": "medium",
+      "excerpt": "반구 $S:x^2+y^2+z^2=1,z\\ge 0$, $F=(ye^{z^2}\\sin z,xe^{z^2}\\cos z,4x^2+z)$. $\\iint_S F\\cdot n dS$의 값은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=13",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$xy$평면 닫고 발산정리: $\\iiint 1 dV+\\pi=2\\pi/3+\\pi=5\\pi/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-la-r27-2",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "확률행렬 극한",
+      "difficulty": "medium",
+      "excerpt": "행렬 $A=\\begin{pmatrix}0.8&0.2\\\\0.2&0.8\\end{pmatrix}$이고 벡터 $v_0=\\begin{pmatrix}2\\\\1\\end{pmatrix}$일 때 수열 $\\{v_k|v_k=Av_{k-1}\\}$의 극한 $\\lim_{k\\to\\infty}v_k$는?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=15",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "확률행렬, $\\lambda=1,0.6$. 정상상태에서 두 성분이 같음. 보존량 $2+1=3$이므로 $(1.5,1.5)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-la-r28-2",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형변환 값",
+      "difficulty": "easyMedium",
+      "excerpt": "$T$가 $2\\times 3$ 행렬이고 $T\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix}=\\begin{pmatrix}1\\\\-3\\end{pmatrix},\\ T\\begin{pmatrix}0\\\\1\\\\0\\end{pmatrix}=\\begin{pmatrix}2\\\\5\\end{pmatrix},\\ T\\begin{pmatrix}2\\\\3\\\\1\\end{pmatrix}=\\begin{pmatrix}8\\\\-5\\end{pmatrix}$일...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$T(0,0,1)=T(2,3,1)-2T(1,0,0)-3T(0,1,0)=(8,-5)-(2,-6)-(6,15)=(0,-14)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-la-r28-6",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "기저 변환 표현행렬",
+      "difficulty": "medium",
+      "excerpt": "선형사상 $T:R^3\\to R^2$가 $T(x,y,z)=(2x+3y-4z,x-5y+z)$로 정의된다. $E_1=\\{(1,1,1),(1,1,0),(1,0,0)\\}$와 $E_2=\\{(1,1),(0,1)\\}$에 관한 $T$의 표현행렬을 구하라.",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=10",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$T(1,1,1)=(1,-3)=1(1,1)-4(0,1)$, $T(1,1,0)=(5,-4)=5(1,1)-9(0,1)$, $T(1,0,0)=(2,1)=2(1,1)-1(0,1)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r1-3",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "벡터함수 접선",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\vec r(t)=(3t,4\\sin t,4\\cos t)$의 그래프 위의 점 $\\left(\\dfrac{3}{2}\\pi,4,0\\right)$에서의 접선 방정식은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=9",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "점에서 $t=\\pi/2$. $\\vec r'(t)=(3,4\\cos t,-4\\sin t)$이고 $\\vec r'(\\pi/2)=(3,0,-4)$. 따라서 $y$ 방향 0이므로 $y=4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r29-6",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^1\\int_{-\\sqrt{1-y^2}}^0\\cos(x^2+y^2)dxdy$의 값은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=15",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$\\pi/2\\le\\theta\\le\\pi,0\\le r\\le 1$. $\\pi/2\\cdot\\sin 1/2=\\pi\\sin 1/4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r30-2",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "영역 $D=\\{(x,y)|x^2+y^2\\le 1,|x|\\le y\\}$에서 $\\iint_D\\sqrt{x^2+y^2}dA$의 값은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$\\pi/4\\le\\theta\\le 3\\pi/4,0\\le r\\le 1$. $\\pi/2\\cdot 1/3=\\pi/6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r35-5",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "구면좌표",
+      "difficulty": "medium",
+      "excerpt": "$z=\\sqrt{(x^2+y^2)/3}$의 위쪽이며 $x^2+y^2+z^2=1$의 안쪽에 놓이는 영역 $E$에서 $\\iiint_E 8ze^{x^2+y^2+z^2}dV$의 값은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=12",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "구좌표 $0\\le\\phi\\le\\pi/3,0\\le\\rho\\le 1$. 적분 결과 $3\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r36-1",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "변수변환",
+      "difficulty": "medium",
+      "excerpt": "영역 $R=\\{(x,y,z)|9x^2+4y^2+z^2\\le 1\\}$에 대해 $\\iiint_R(9x^2+4y^2+z^2)^2 dxdydz$의 값은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=14",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$3x=X,2y=Y,z=Z$. Jacobian $1/6$. 구좌표 적분 결과 $2\\pi/21$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r36-3",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "원뿔-구 부피",
+      "difficulty": "medium",
+      "excerpt": "원뿔 $z=\\sqrt{3(x^2+y^2)}$의 윗부분과 구 $x^2+y^2+z^2=2z$로 둘러싸인 영역의 부피는?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "구 중심 (0,0,1), 반경 1. 구좌표 $\\rho=2\\cos\\phi$. 적분 결과 $7\\pi/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-daily-mv-r9-2",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "편미분 / 미분가능성",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(x,y)=\\begin{cases}xy^2\\sqrt{x^2+y^2}/(x^2+y^4),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$. 옳은 것을 모두 고르면? ⓐ 원점에서 $f_x$ 존재 / ⓑ 원점에서 $f_y$ 존재 / ⓒ 원점에서 미분가능",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=13",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "원점에서 두 편미분 모두 0으로 존재. 그러나 미분가능성 정의 한계 검증 시 실패."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-ryu-self-warmup-r04-19",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "함수의 증가감소와 볼록성",
+      "difficulty": "mediumHard",
+      "excerpt": "19. 함수 $y=f(x)$ 가 $f(0)=0$ 이고 연속 함수 $g$ 에 대한 미분방정식 $y^{\\prime}=g(x)$ 의 해라 한다. 다음 명제 중 옳은 것을 모두 고르면? (a) $\\lim _{x \\rightarrow \\infty} g(x)=1$ 이면 $\\lim _{x \\rightarrow \\infty}\\{f(x)-x\\}=0$ 이다. (b) $x \\geq 0$ 에서 $g$ 가 감소함수이면 $f$ 도 $x \\geq 0$ ...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=11",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$f'(x)=g(x)$이다. ㄱ은 $g(x)\\to1$이어도 $f(x)-x$가 반드시 $0$으로 갈 필요는 없어 거짓이다. ㄴ도 $g$가 감소한다고 해서 $f$ 자체가 감소하는 것은 아니므로 거짓이다. ㄷ은 $g'(x)<0$이면 $f''(x)<0$이므로 위로 볼록이 되어 참이다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-ryu-self-warmup-r05-09",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "영공간 정사영",
+      "difficulty": "mediumHard",
+      "excerpt": "9. 행렬 $A=\\left[\\begin{array}{llll}1 & 6 & 3 & 1 \\\\ 1 & 4 & 2 & 1 \\\\ 0 & 2 & 1 & 0\\end{array}\\right]$ 의 영공간(nullspace)을 $V$ 라고 하자. 벡터 $x=(2,0,5,0)$ 의 $V$ 위로의 정사영을 $p=\\left(p_{1}, p_{2}, p_{3,} p_{4}\\right)$ 라고 할 때, $p_{1}+p_{2}+p_{3}+p_{4}$ ...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=9",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "$A$의 영공간 기저를 구하면 $(0,-1,2,0)$, $(-1,0,0,1)$로 잡을 수 있다. $x=(2,0,5,0)$을 이 부분공간에 정사영하면 $p=(1,-2,4,-1)$이 되고, 성분의 합은 $1-2+4-1=2$이다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-ryu-self-warmup-r07-08",
+      "subject": "적분학",
+      "unit": "정적분의 성질",
+      "concept": "리만적분 가능성",
+      "difficulty": "easyMedium",
+      "excerpt": "8. 다음 중 구간 $[-5,5]$ 에서 적분 가능한 함수를 모두 고르면? (a) $f(x)=\\left[1+\\frac{x}{3}\\right]$ (b) $g(x)=\\sum_{m=1}^{100}\\left(1+\\frac{x}{m}\\right)^{2}$ (c) $h(x)=\\left\\{\\begin{array}{ll}1, & x \\in(-1,0) \\\\ 2, & x \\notin(-1,0)\\end{array}\\right.$ (단, $[x]$...",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=12",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "계단함수처럼 유한 개의 점에서만 뛰는 함수는 닫힌구간에서 적분 가능하다. 다항식은 연속이므로 당연히 가능하고, 주어진 조각함수도 불연속점이 유한 개뿐이다. 따라서 세 함수 모두 $[-5,5]$에서 적분 가능하다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-ryu-self-warmup-r10-11",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "두 곡면 교선의 접선",
+      "difficulty": "medium",
+      "excerpt": "11. 두 곡면 $T_{1}$ 과 $T_{2}$ 가 각각 다음 방정식으로 정의된다. $$\\begin{array}{c} T_{1}: x^{2}+y^{2}+z^{2}=12 \\\\ T_{2}: z=(x-1)^{2}+(y-1)^{2} \\end{array}$$ 두 곡면이 만나는 교선을 $C$ 라 할 때, 곡선 $C$ 의 점 $(2,2,2)$ 에서의 접선 위에 놓 인 점은?",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=13",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "두 곡면의 법선은 점 $(2,2,2)$에서 각각 $(1,1,1)$, $(2,2,-1)$ 방향이다. 교선의 접선방향은 두 법선의 외적이므로 $(1,-1,0)$ 방향으로 잡을 수 있다. 접선은 $(2,2,2)+t(1,-1,0)$이고, 보기 중 $(3,1,2)$가 이 직선 위에 있다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "complex_problem_low_math_explanation",
+      "id": "q-ryu-self-warmup-r15-11",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "이변수 극한",
+      "difficulty": "medium",
+      "excerpt": "11. 다음 보기의 극한값 계산 중 옳은 것을 모두 고른 것을 고르시오. (가) $\\lim _{(x, y) \\rightarrow(0,0)} \\frac{x^{3} y}{x^{2}+y^{4}}=0$ (나) $\\lim _{(x, y) \\rightarrow(1,1)}|x|^{\\ln _{y}}=1$ (다) $\\lim _{(x, y) \\rightarrow(0,0)} \\frac{x y}{\\sin ^{2} y}=1$",
+      "message": "Complex math problem has an explanation with little mathematical detail.",
+      "reasons": [
+        "complexity=17",
+        "explanationMathDensity=0"
+      ],
+      "field": "explanation",
+      "evidence": "(가)는 분모의 차수 우세를 이용해 $0$으로 눌러 잡을 수 있어 극한이 $0$이다. (나)는 지수형으로 보아 $\\ln|x|\\ln y\\to0$이므로 값이 $1$로 간다. (다)는 경로 $x=y$와 $x=0$에서 값이 달라 극한이 존재하지 않는다. 따라서 옳은 것은 (가), (나)이다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2017-kwangwoon-06",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "여인수 직교성",
+      "difficulty": "medium",
+      "excerpt": "$n$차 정사각 행렬 $A=(a_{ij})$에 대하여 다음 식의 값은? (단, $A_{ij}=(-1)^{i+j}M_{ij}$이고 $M_{ij}$는 $i$행과 $j$열을 제거하여 만든 부분 행렬의 행렬식이다.) $$a_{i1}A_{j1}+a_{i2}A_{j2}+\\cdots+a_{in}A_{jn}\\quad(\\text{단, }i\\ne j)$$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "여인수 직교성 정리: $\\sum_k a_{ik}A_{jk}=|A|\\delta_{ij}$. $i\\ne j$이므로 $0$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2017-kwangwoon-12",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "르장드르 방정식",
+      "difficulty": "medium",
+      "excerpt": "자연수 $n$에 대해 $y=\\dfrac{d^n}{dx^n}(x^2-1)^n$이 다음 미분 방정식을 만족시킨다고 할 때 $k$의 값은? $$(1-x^2)y''-2xy'+ky=0$$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "르장드르 다항식 $P_n(x)$의 미분방정식: $(1-x^2)y''-2xy'+n(n+1)y=0$. $k=n(n+1)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2018-cau-07",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "감마함수",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^{\\infty}x^3 e^{-x}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=62",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$\\!\\int_0^{\\infty}x^n e^{-x}dx=\\Gamma(n+1)=n!$. $n=3$: $3!=6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2019-kookmin-14",
+      "subject": "공학수학",
+      "unit": "추가내용",
+      "concept": "최대공약수 성질",
+      "difficulty": "medium",
+      "excerpt": "세 정수 $a,b,c$에 대하여 $a$와 $b$의 최대공약수를 $\\gcd(a,b)$라 할 때 다음 중 $\\textbf{틀린}$ 것은? ㄱ. $\\gcd(a,b)=c$이면 $\\gcd\\!\\left(\\dfrac{a}{c},\\dfrac{b}{c}\\right)>1$이다. ㄴ. $a$와 $b$가 $c$의 약수이고 $\\gcd(a,b)=1$이면 $ab$는 $c$의 약수이다. ㄷ. $a$가 $bc$의 약수이고 $\\gcd(a,b)=1$이면 $a$...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=2"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ. 거짓: $\\gcd(a,b)=c$이면 $a/c,b/c$는 서로소 ⇒ $\\gcd=1$. ㄴ,ㄷ,ㄹ은 표준 정리."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2019-sookmyung-17",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경",
+      "difficulty": "easy",
+      "excerpt": "멱급수 $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{(x-5)^n}{n2^n}$이 절대수렴하는 $x$의 범위가 $a<x<b$일 때 $a+b$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "수렴반경 $R=2$ (비율판정). $|x-5|<2\\Rightarrow 3<x<7$. $a+b=3+7=10$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2019-soongsil-11",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "변수상한 적분 명제",
+      "difficulty": "medium",
+      "excerpt": "구간 $[0,1]$에서 연속인 함수 $f(x)$에 대하여 다음 중 옳은 것을 모두 고른 것은? (가) $F(x)=\\!\\displaystyle\\int_0^x f(t)dt$는 $(0,1)$에서 미분가능. (나) $\\!\\displaystyle\\int_0^1 f(x)dx=0$이면 $f(c)=0$이 되는 $c$가 $[0,1]$에 존재. (다) $[0,1]$의 모든 $x$에 대하여 $\\!\\displaystyle\\int_0^x f(t)dt...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 적분기본정리 ⇒ 참. (나) 적분 평균값 정리 ⇒ 참. (다) 미분하면 $f=0$ ⇒ 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2019-soongsil-17",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "이상적분 수렴 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 특이적분 중 수렴하는 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=16"
+      ],
+      "field": "explanation",
+      "evidence": "(1) $\\sim 1/x$ 발산. (2) $\\ln\\ln x$ 발산. (3) $=-1$ 수렴. (4) $x=1$에서 발산."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-ewha-14",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그놈문제 (원점 둘러쌈)",
+      "difficulty": "medium",
+      "excerpt": "원점을 제외한 평면에서 $P(x,y)=-\\dfrac{y}{x^2+y^2},\\,Q(x,y)=\\dfrac{x}{x^2+y^2}$. $C_1$: 중심 $(2020,2020)$, 반지름 $2020$인 원, $C_2$: 중심 $(2020,2020)$, 반지름 $4040$인 원. 시계반대방향. $\\!\\int_{C_1}P\\,dx+Q\\,dy=a_1$, $\\!\\int_{C_2}P\\,dx+Q\\,dy=a_2$. $a_1-a_2$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=18"
+      ],
+      "field": "explanation",
+      "evidence": "$C_1$: 원점 미포함 → $a_1=0$. $C_2$: 원점 포함 → $a_2=2\\pi$. 차 $=-2\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-ewha-21",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경 곱",
+      "difficulty": "medium",
+      "excerpt": "다음 세 무한급수의 수렴반경 중 가장 큰 것과 가장 작은 것의 곱을 구하시오. a. $\\!\\sum_{n=1}^{\\infty}\\dfrac{n!x^{n+1}}{n^n}$ b. $\\!\\sum_{n=1}^{\\infty}\\dfrac{\\sqrt n\\,x^{2n}}{9^n}$ c. $\\!\\sum_{n=1}^{\\infty}\\dfrac{(n!)^2 x^n}{(2n)!}$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=21"
+      ],
+      "field": "explanation",
+      "evidence": "a: $R=e$. b: $R=3$ (이차항). c: $R=4$. 최대 $4$, 최소 $e$. 곱 $=4e$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-kookmin-19",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "공간곡선 성질 명제",
+      "difficulty": "medium",
+      "excerpt": "공간상의 곡선에 대한 다음 설명 중 옳은 것의 개수는? ㄱ. $r(t)=ti+aj+(a^2-t^2)k$는 $t=a$에서 연속이다.(단, $a$는 상수) ㄴ. $\\dfrac{d}{dt}(r(t)\\cdot u(t))=r'(t)\\cdot u(t)+r(t)\\cdot u'(t)$ ㄷ. $\\dfrac{d}{dt}\\|r(t)\\|=\\|r'(t)\\|$ ㄹ. $r(t)=(e^t\\sin t)i+(e^t\\cos t)j$일 때, $r(t)$와 $r'...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ. 참. ㄴ. 참 (곱미분). ㄷ. 거짓: 일반적으로 다름. ㄹ. 참: 직접 계산 $r\\cdot r''=0$. 3개."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-kookmin-23",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬식 명제 판별",
+      "difficulty": "medium",
+      "excerpt": "$n$차 정사각행렬 $A$에 대하여 다음 중 옳은 것을 모두 고르면? ㄱ. $A$의 전치행렬을 $A^T$라 하면 $\\det(A^T)=-\\det(A)$이다. ㄴ. $A$의 두 열을 교환하여 얻은 행렬을 $B$라 하면 $\\det(B)=-\\det(A)$이다. ㄷ. $A$의 한 행에 $k$배를 하여 얻은 행렬을 $C$라 하면 $\\det(C)=k\\det(A)$이다. ㄹ. $A$의 한 열을 그 열에 다른 한 열의 $k$배를 더한 것으로 ...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "ㄱ. 거짓: $\\det(A^T)=\\det(A)$. ㄴ. 참. ㄷ. 참. ㄹ. 거짓: $\\det$ 불변. ㅁ. 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-soongsil-04",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴 급수 판정",
+      "difficulty": "easy",
+      "excerpt": "다음 중 수렴하는 급수는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=22"
+      ],
+      "field": "explanation",
+      "evidence": "(2) 텔레스코핑: $1$ 수렴. (1),(3),(4) $\\sum 1/n$ 또는 $\\sum 1/(n+1)$ 발산항 포함."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2020-soongsil-06",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "일대일 선형사상 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 중 $\\mathbb R^3$에서 $T_A\\!\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}=A\\!\\begin{pmatrix}x\\\\y\\\\z\\end{pmatrix}$로 정의되는 선형사상이 일대일 함수가 아닌 행렬 $A$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "(3) rank $=2$ (행 사이 등차) ⇒ 핵 차원 $=1$ ⇒ 일대일 아님. 나머지는 모두 rank $=3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-ewha-09",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "유사행렬 대각성분 곱",
+      "difficulty": "easy",
+      "excerpt": "$3\\times 3$행렬 $A=\\!\\begin{pmatrix}-1&2&4\\\\0&3&7\\\\0&0&-2\\end{pmatrix}$에 대하여 $A=PDP^{-1}$을 만족하는 행렬 $D=\\!\\begin{pmatrix}d_1&0&0\\\\0&d_2&0\\\\0&0&d_3\\end{pmatrix}$에 대하여 $d_1 d_2 d_3$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$D$는 대각화이므로 대각성분이 $A$의 고윳값. 곱 $=\\det(D)=\\det(A)=(-1)(3)(-2)=6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-ewha-10",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경 곱",
+      "difficulty": "easy",
+      "excerpt": "$\\!\\sum_{n=2}^{\\infty}(-1)^n\\dfrac{(x+3)^n}{n2^n}$의 수렴반경 $R_1$, $\\!\\sum_{n=2}^{\\infty}n(n-1)(2x)^n$의 수렴반경 $R_2$. $R_1 R_2$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=16"
+      ],
+      "field": "explanation",
+      "evidence": "$R_1=2$ ($|x+3|<2$), $R_2=1/2$ ($|2x|<1$). 곱 $=1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-ewha-27",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "기저 변환 고유값 곱",
+      "difficulty": "killer",
+      "excerpt": "$\\mathbb{R}^3$의 기저 $\\{v_1,v_2,v_3\\}$에 대하여 $3\\times 3$ 행렬 $A$가 $(A-I)(v_1+v_2)=0,\\,(A-2I)(v_2+v_3)=0,\\,(A+4I)(v_3+v_1)=0$을 만족할 때 $\\det(A)$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=49",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$A$의 고윳값 $1,2,-4$. $\\det A=1\\cdot 2\\cdot(-4)=-8$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-inha-03",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "로그 미분",
+      "difficulty": "easy",
+      "excerpt": "함수 $f(x)=x^x\\ (x>0)$에 대하여 $f'(e)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$f(x)=e^{x\\ln x}$, $f'(x)=x^x(\\ln x+1)$. $f'(e)=e^e(1+1)=2e^e$. 답: 2."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-kwangwoon-09",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "성망형(astroid) 길이",
+      "difficulty": "easy",
+      "excerpt": "$a$가 양의 실수일 때 곡선 $\\sqrt[3]{x^2}+\\sqrt[3]{y^2}=\\sqrt[3]{a^2}$의 길이는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$x^{2/3}+y^{2/3}=a^{2/3}$ (성망형/astroid). 표준 길이 공식: $L=6a$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-kwangwoon-24",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "극한 + 적분 (균등수렴)",
+      "difficulty": "medium",
+      "excerpt": "$\\displaystyle\\lim_{n\\to\\infty}\\!\\int_0^1\\dfrac{dx}{1+x^n}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$0<x<1$이면 $x^n\\to 0$ ⇒ $1/(1+x^n)\\to 1$ (균등수렴). $\\!\\int_0^1 1\\,dx=1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-kwangwoon-27",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "역행렬 행렬식",
+      "difficulty": "medium",
+      "excerpt": "다음 행렬 $A$의 역행렬 $A^{-1}$의 행렬식 $\\det(A^{-1})$은? $$A=\\begin{pmatrix}1&-1&-1&1\\\\-1&1&3&1\\\\-3&1&-1&1\\\\1&3&1&-1\\end{pmatrix}$$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "행축약으로 $|A|=48$. $\\det(A^{-1})=\\dfrac{1}{|A|}=\\dfrac{1}{48}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-skku-06",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "정사영 표준행렬 고유값",
+      "difficulty": "medium",
+      "excerpt": "벡터공간 $\\mathbb R^2$에서 벡터 $a\\in\\mathbb R^2$에 의해 생성되는 부분공간을 $W$라고 하자. 선형변환 $T:\\mathbb R^2\\to\\mathbb R^2$가 $W$로의 직교 사영(orthogonal projection)일 때 $T$의 표준행렬(standard matrix)의 고윳값(eigenvalue)에 대한 설명으로 옳은 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=4"
+      ],
+      "field": "explanation",
+      "evidence": "정사영 $T$는 $W$ 위에서 항등 (고윳값 1), $W^{\\perp}$ 위에서 영 (고윳값 0). 고윳값 $1,\\,0$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2021-soongsil-15",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "이상적분 수렴 판정",
+      "difficulty": "easy",
+      "excerpt": "다음 이상적분의 수렴, 발산을 올바르게 고른 것은? (가) $\\!\\int_1^{\\infty}\\!\\dfrac{x}{x^3+1}\\,dx$ (나) $\\!\\int_0^1\\!\\dfrac{1}{\\sqrt x}\\,dx$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "(가) $\\dfrac{x}{x^3+1}\\sim\\dfrac{1}{x^2}$ 수렴. (나) $p=1/2<1$이므로 수렴."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ajou-40",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "역함수 값",
+      "difficulty": "easy",
+      "excerpt": "실수 전체에서 정의된 함수 $f(x)=\\dfrac{1}{3}x^3+\\dfrac{2}{3}x+1$과 $f$의 역함수 $g$에 대하여 $g(5)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$f(2)=\\dfrac{8}{3}+\\dfrac{4}{3}+1=4+1=5$이므로 $g(5)=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-dgu-11",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "반원 영역 이중적분 표현",
+      "difficulty": "medium",
+      "excerpt": "$x^2+y^2\\le 1,\\,y\\ge 0$으로 정의된 영역 $S$에서 적분가능한 함수 $f(x,y)$에 대해 다음 보기 중 이중적분 $\\!\\displaystyle\\iint_S f(x,y)dA$와 같은 것을 모두 고르면? A. $\\!\\int_{-1}^1\\!\\!\\int_0^{\\sqrt{1-x^2}}f(x,y)dy\\,dx$ B. $\\!\\int_0^1\\!\\!\\int_{-\\sqrt{1-y^2}}^{\\sqrt{1-y^2}}f(x,y)dx...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=27"
+      ],
+      "field": "explanation",
+      "evidence": "A 참 (수직 슬라이스). B 참 (수평 슬라이스). C 거짓 (극좌표 야코비안 $r$ 누락)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ewha-07",
+      "subject": "적분학",
+      "unit": "Maclaurin급수의 응용",
+      "concept": "$\\sin^2 x$ 4차 테일러",
+      "difficulty": "medium",
+      "excerpt": "$f(x)=\\sin^2 x$의 $x=0$에서의 4차 테일러 다항식을 $T_4(x)$라 할 때 $T_4(1)$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$\\sin^2 x=x^2-x^4/3+\\cdots$. $T_4(x)=x^2-x^4/3$, $T_4(1)=1-1/3=2/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ewha-11",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "멱급수 수렴구간 (ln)",
+      "difficulty": "medium",
+      "excerpt": "$\\!\\displaystyle\\sum_{n=2}^{\\infty}\\dfrac{1}{(\\ln n)^2}x^n$의 수렴 범위를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$R=1$ (비율판정). $x=1$: $\\sum 1/(\\ln n)^2$ 발산. $x=-1$: 교대급수 수렴."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ewha-14",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "이상적분 수렴 판정",
+      "difficulty": "medium",
+      "excerpt": "다음 특이적분 중 수렴하는 것을 모두 고르시오. a. $\\!\\int_0^1\\ln x\\,dx$ b. $\\!\\int_0^1\\dfrac{1}{\\sqrt x}\\sin\\dfrac{1}{x}\\,dx$ c. $\\!\\int_1^{\\infty}\\dfrac{\\sin x}{x}\\,dx$ d. $\\!\\int_2^{\\infty}\\dfrac{\\ln x}{x}\\,dx$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=17"
+      ],
+      "field": "explanation",
+      "evidence": "a 수렴(-1). b 수렴: $1/x=t$ 치환. c 수렴: 디리클레. d 발산: $(\\ln x)^2/2\\to\\infty$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ewha-16",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "급수 명제",
+      "difficulty": "medium",
+      "excerpt": "다음 중 옳은 것을 모두 고르시오. a. $\\!\\sum a_n,\\!\\sum b_n$ 모두 수렴이면 $\\!\\sum a_n b_n$ 수렴. b. $\\!\\sum a_n$ 수렴 + $\\!\\sum b_n$ 절대수렴이면 $\\!\\sum a_n b_n$ 절대수렴. c. 양항급수 $\\!\\sum a_n$ 수렴이면 $\\!\\sum\\sqrt{a_n}$ 수렴. d. $\\!\\sum n a_n$ 수렴이면 $\\!\\sum a_n$ 수렴.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=23"
+      ],
+      "field": "explanation",
+      "evidence": "a 거짓: 반례 $a_n=b_n=(-1)^n/\\sqrt n$. b 참. c 거짓: 반례 $a_n=1/n^2$. d 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-ewha-21",
+      "subject": "공학수학",
+      "unit": "추가내용",
+      "concept": "파스칼 삼각형 $a_{8,4}$",
+      "difficulty": "medium",
+      "excerpt": "$0\\le k\\le l$ 정수쌍에 대해 $a_{l,k}$: 1) $a_{l,0}=1$, 2) $a_{l+1,k+1}=a_{l,k}+a_{l,k+1}$ ($0\\le k<l$). $a_{8,4}$를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "파스칼 삼각형 패턴: $a_{l,k}=\\!\\binom{l}{k}$. $a_{8,4}=\\!\\binom{8}{4}=70$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-inha-15",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "전미분",
+      "difficulty": "easy",
+      "excerpt": "2변수 함수 $f(x,y)$가 $\\dfrac{\\partial f}{\\partial x}=y^2 e^{xy}+2x-1,\\ \\dfrac{\\partial f}{\\partial y}=(2y+xy^2)e^{xy}$를 만족한다. $f(0,0)=1$일 때, $f(1,1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=62",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$f=ye^{xy}+x^2-x+C$. $f(0,0)=C=1$. $f(1,1)=e+1-1+1=e+1$. 답: 1."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-kyunghee-25",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "기저에 대한 좌표벡터",
+      "difficulty": "medium",
+      "excerpt": "집합 $S=\\!\\left\\{\\!\\begin{pmatrix}1\\\\2\\\\1\\end{pmatrix},\\!\\begin{pmatrix}2\\\\9\\\\0\\end{pmatrix},\\!\\begin{pmatrix}3\\\\3\\\\4\\end{pmatrix}\\right\\}$가 $\\mathbb R^3$의 기저일 때 벡터 $\\!\\begin{pmatrix}5\\\\-1\\\\9\\end{pmatrix}$의 $S$에 관한 좌표벡터의 성분의 합은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=36",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "행 축약 풀이: $a=1,\\,b=-1,\\,c=2$. 합 $=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022-kyunghee-29",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "최소제곱 회귀직선",
+      "difficulty": "medium",
+      "excerpt": "네 점 $(1,0),(2,1),(4,2),(5,2)$에 대하여 최소제곱오차를 갖는 직선은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=45",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "정규방정식 풀이: $a=\\dfrac{1}{2},\\,b=-\\dfrac{1}{4}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2022pm-dankook-47",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "해공간 차원 (rank-nullity)",
+      "difficulty": "medium",
+      "excerpt": "연립일차방정식 $\\begin{cases}x_1+3x_2-2x_3+2x_5=0\\\\2x_1+6x_2-5x_3-2x_4+4x_5-3x_6=0\\\\x_3+2x_4+3x_5=0\\\\x_1+3x_2+4x_4+2x_5+9x_6=0\\end{cases}$의 해공간의 차원(dimension)은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=19"
+      ],
+      "field": "explanation",
+      "evidence": "행 축약 후 rank 계산: rank $=3$. 변수 6개 - rank 3 $=$ 해공간 차원 $3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-ewha-01",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "직교행렬 역행렬 = 전치",
+      "difficulty": "easy",
+      "excerpt": "행렬 $A=\\!\\begin{pmatrix}1/\\sqrt 2&1/\\sqrt 6&1/\\sqrt 3\\\\0&-2/\\sqrt 6&1/\\sqrt 3\\\\-1/\\sqrt 2&1/\\sqrt 6&1/\\sqrt 3\\end{pmatrix}$의 역행렬 $A^{-1}$을 찾으시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=39"
+      ],
+      "field": "explanation",
+      "evidence": "$A$가 직교행렬이므로 $A^{-1}=A^T$. $A^T$는 $A$의 행과 열을 바꾼 것."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-ewha-09",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "타원 30° 회전",
+      "difficulty": "medium",
+      "excerpt": "$2$차원 평면의 타원 $4x^2+y^2=4$를 원점 중심으로 반시계 방향 $30°$ 회전시킨 곡선의 방정식을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=17"
+      ],
+      "field": "explanation",
+      "evidence": "회전 후 $13x^2+6\\sqrt 3 xy+7y^2=16$ (계산은 회전 행렬 곱)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-ewha-18",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "가우스 적분",
+      "difficulty": "easy",
+      "excerpt": "특이적분 $\\!\\displaystyle\\int_0^{\\infty}e^{-x^2}dx$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=48",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "가우스 적분: $\\!\\int_0^\\infty e^{-x^2}dx=\\sqrt\\pi/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-ewha-21",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그린정리 (단위원)",
+      "difficulty": "easy",
+      "excerpt": "단위원 $C$에 대하여 $\\!\\int_C(3y-e^{\\sin x})\\,dx+(7x+\\sqrt{y^4+1})\\,dy$를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=40",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "그린정리: $\\!\\iint_D(7-3)dA=4\\cdot\\pi=4\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-inha-27",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "파푸스 정리",
+      "difficulty": "easyMedium",
+      "excerpt": "곡면 $x^2+y^2+z^2=4\\sqrt{x^2+y^2}-3$으로 둘러싸인 입체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$z=0$ 단면에서 큰원·작은원 구조의 토러스 형태로 분석. 파푸스 정리로 $V=4\\pi^2$. 답: 4."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-inha-30",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "스톡스 정리",
+      "difficulty": "easyMedium",
+      "excerpt": "좌표공간에서 곡면 $S$는 $z=x^2+y^2,\\ x^2+y^2\\le 1$로 주어진다. 벡터장 $F(x,y,z)=(\\sin(x^2)+yz,\\ x^2+z^2,\\ 3y+e^{\\cos x})$와 $\\vec n\\cdot(0,0,1)>0$을 만족하는 곡면 $S$의 단위법선벡터 $\\vec n$에 대하여 $\\displaystyle\\iint_S(\\nabla\\times F)\\cdot\\vec n\\,dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "스톡스 정리로 경계 $z=1,\\ x^2+y^2=1$ 위 선적분. 그린정리 적용 후 $-\\pi$. 답: 2."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-kyunghee-05",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "거듭제곱급수 표현",
+      "difficulty": "medium",
+      "excerpt": "함수 $f(x)=\\dfrac{x^2+x}{(1-x)^3}$의 거듭제곱급수 표현이 $\\!\\displaystyle\\sum_{n=1}^{\\infty}(an+b)^c x^n$이면 $a+b+c$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$\\dfrac{x(x+1)}{(1-x)^3}=\\!\\sum n^2 x^n$. ⇒ $a=1,b=0,c=2$. 합 $=3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-kyunghee-28",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "비자명해 조건",
+      "difficulty": "medium",
+      "excerpt": "연립일차방정식 $\\begin{cases}x_1+kx_2=1\\\\ x_2+kx_3=1\\\\ x_3+kx_4=1\\\\ x_4+kx_1=1\\end{cases}$의 해가 존재하지 않도록 하는 $k$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "네 식 합: $(1+k)(x_1+x_2+x_3+x_4)=4$. $k=-1$이면 좌변 $=0\\ne 4$ ⇒ 해 없음."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-seoultech-05",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "극곡선 직교좌표 변환",
+      "difficulty": "easy",
+      "excerpt": "극곡선 $r^2\\sin 2\\theta=1$의 직교좌표방정식은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$r^2\\sin 2\\theta=2r^2\\sin\\theta\\cos\\theta=2xy=1$ ⇒ $y=\\dfrac{1}{2x}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2023-uos-09",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬 명제(틀린 것)",
+      "difficulty": "medium",
+      "excerpt": "$n\\times n$ 행렬 $A,B,C$에 대하여 다음 중 틀린 것을 모두 고르시오. (단, $n$은 임의의 자연수, $k$는 임의의 실수) (가) $A(B+C)=(B+C)A$ (나) $k(AB)=A(kB)$ (다) $(kA)^T=kA^T$ (라) $A(BC)=(AB)C$ (마) $(AB)^T=A^T B^T$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "(가) 거짓: 교환법칙 일반적으로 성립 안 함. (나)(다)(라) 참. (마) 거짓: $(AB)^T=B^T A^T$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-dgu-08",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "리만합·정적분",
+      "difficulty": "medium",
+      "excerpt": "극한 $\\!\\displaystyle\\lim_{n\\to\\infty}\\!\\sum_{k=0}^{n-1}\\dfrac{k}{n^2}\\sin\\!\\left(\\dfrac{k}{n}\\right)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=62",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$=\\!\\int_0^1 x\\sin x\\,dx=[-x\\cos x+\\sin x]_0^1=\\sin 1-\\cos 1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-dgu-18",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경(우세항)",
+      "difficulty": "medium",
+      "excerpt": "멱급수 $\\!\\displaystyle\\sum_{n=0}^{\\infty}\\dfrac{2^n+5^n}{4^n+6^n}x^n$의 수렴반경은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "큰 항 비율 $\\dfrac{5^n}{6^n}=(5/6)^n$. $|x|<\\dfrac{6}{5}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-ewha-17",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "수열 명제 판별",
+      "difficulty": "medium",
+      "excerpt": "다음 중 옳은 것을 모두 고르시오. a. $\\!\\lim(a_n+b_n)=\\lim a_n+\\lim b_n$. b. $\\lim|a_n|=0$이면 $\\lim a_n\\sin(n\\pi/6)=0$. c. $\\lim a_n=L$이고 $f$가 $L$에서 연속이면 $\\lim f(a_n)=f(L)$. d. 위로 유계인 단조수열은 수렴한다.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=55",
+        "questionMathDensity=15"
+      ],
+      "field": "explanation",
+      "evidence": "a 거짓: 각각 수렴해야 함. b 참: 유계×0. c 참. d 거짓: 단조감소+유계 아래여야 수렴."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-ewha-19",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "교대급수합 ($\\ln(1+x)$)",
+      "difficulty": "medium",
+      "excerpt": "$\\dfrac{1}{1\\cdot 2}-\\dfrac{1}{2\\cdot 2^2}+\\dfrac{1}{3\\cdot 2^3}-\\dfrac{1}{4\\cdot 2^4}+\\cdots=\\!\\sum_{n=1}^{\\infty}\\dfrac{(-1)^{n+1}}{n\\cdot 2^n}$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=15"
+      ],
+      "field": "explanation",
+      "evidence": "$\\ln(1+x)=\\!\\sum(-1)^{n+1}x^n/n$, $x=1/2$ 대입. $\\ln(3/2)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-ewha-20",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고유값 곱 = 행렬식",
+      "difficulty": "medium",
+      "excerpt": "실수 위의 $3$차원 벡터공간 기저 $\\{v_1,v_2,v_3\\}$에 대해 $3\\times 3$ 행렬 $A$가 $(A-2I)v_1=(A+2I)v_2=(A-4I)v_3=0$을 만족할 때 $\\det(A)$의 값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=51",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$A$의 고유값 $2,-2,4$. $\\det(A)=2\\cdot(-2)\\cdot 4=-16$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-ewha-21",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "스펙트럼 곱 = 행렬식",
+      "difficulty": "medium",
+      "excerpt": "$A=\\!\\begin{pmatrix}12&1&-1\\\\1&0&2\\\\-1&2&3\\end{pmatrix}$에 대해 단위 직교 열벡터 $u_1,u_2,u_3$와 실수 $a_1,a_2,a_3$가 $A=a_1 u_1 u_1^T+a_2 u_2 u_2^T+a_3 u_3 u_3^T$를 만족할 때 $a_1 a_2 a_3$을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=52",
+        "questionMathDensity=22"
+      ],
+      "field": "explanation",
+      "evidence": "대칭행렬 스펙트럼 분해에서 $a_i$는 고유값. $a_1 a_2 a_3=\\det A=-55$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-inha-07",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "제약 최적화",
+      "difficulty": "easyMedium",
+      "excerpt": "$x^2+4y^2\\le 4$일 때, $x^2+4y^2+2x+4y+1$의 최댓값과 최솟값의 합은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "식을 $u=x^2+4y^2$ 등으로 변환하고 라그랑지로 경계 점검. 합 $=8+4\\sqrt 2$. 답: 4."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-inha-30",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "스톡스 정리",
+      "difficulty": "easyMedium",
+      "excerpt": "좌표공간에서 곡면 $S$는 $x^2+y^2+z^2=4,\\ z\\ge\\sqrt 3$으로 주어진다. 벡터장 $F(x,y,z)=(e^{x^2}+2y,\\ x^2+\\sqrt 3 xz,\\ xy+\\ln z)$와 $\\vec n\\cdot(0,0,1)>0$을 만족하는 곡면 $S$의 단위법선벡터 $\\vec n$에 대해서 $\\displaystyle\\iint_S(\\nabla\\times F)\\cdot\\vec n\\,dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "스톡스 정리로 경계곡선($z=\\sqrt 3$, $x^2+y^2=1$)에서 선적분. 그린정리 적용 후 $\\pi$. 답: 4."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-soongsil-02",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반경(비판정)",
+      "difficulty": "easy",
+      "excerpt": "급수 $\\!\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{(-2)^n x^n}{\\sqrt[3]{n+1}}$의 수렴반경을 구하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "비판정: $\\!\\lim\\!\\left|\\dfrac{(-2)^{n+1}}{(-2)^n}\\right|=2$, $R=1/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2024-soongsil-04",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "역함수 미분",
+      "difficulty": "easy",
+      "excerpt": "$f(x)=1+2x+x^3+e^x$일 때, $(f^{-1})'(2)$를 구하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$f(0)=2$. $f'(x)=2+3x^2+e^x$, $f'(0)=3$. $(f^{-1})'(2)=1/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-ajou-18",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "비율판정 수렴반경",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\langle$아래$\\rangle$ 멱급수의 수렴 반경을 구하세요. $\\displaystyle\\sum_{n=1}^{\\infty}\\dfrac{(-1)^n 2^n n!}{n^n}x^n$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "비율판정: $|a_{n+1}/a_n|=2(n+1)/((1+1/n)^n n)\\to 2/e$. 수렴 ⇔ $|x|<e/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-cau-09",
+      "subject": "미분학",
+      "unit": "도함수의 응용",
+      "concept": "함수 최솟값",
+      "difficulty": "medium",
+      "excerpt": "폐구간 $\\!\\left[-\\dfrac{\\pi}{2},\\dfrac{\\pi}{2}\\right]$에서 다음과 같이 정의되는 함수 $S(x)$의 최솟값은? $S(x)=\\begin{cases}\\dfrac{\\sin x}{x}, & x\\ne 0\\\\ 1, & x=0\\end{cases}$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$S(x)$ 우함수, $[0,\\pi/2]$에서 감소. 최솟값 $S(\\pi/2)=\\dfrac{2}{\\pi}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-cau-12",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "$L^p$ 노름 극한",
+      "difficulty": "medium",
+      "excerpt": "$0<a<b$일 때 $\\displaystyle\\lim_{n\\to\\infty}(a^n+b^n)^{1/n}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=37",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "$=b\\lim(1+(a/b)^n)^{1/n}=b\\cdot 1=b$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-dgu-08",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "Leibniz 미분",
+      "difficulty": "medium",
+      "excerpt": "함수 $f(x)$가 양수의 집합에서 연속이고 모든 실수 $t$에 대하여 $\\displaystyle\\int_{1+t}^{e^x+t}f(x-t)\\,dx=4e^{3t}\\sin t$를 만족한다. $f'(e^x)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=40",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "변수 변환과 양변 미분 후 정리하면 $f'(e^x)=2e^{-x/2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-dgu-17",
+      "subject": "적분학",
+      "unit": "정적분과 무한급수",
+      "concept": "Riemann sum 변환",
+      "difficulty": "medium",
+      "excerpt": "극한 $\\displaystyle\\lim_{n\\to\\infty}\\sum_{k=1}^n\\dfrac{2k}{n^2}\\sin^{-1}\\!\\left(\\dfrac{k}{n}\\right)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "Riemann sum: $\\int_0^1 2x\\sin^{-1}x\\,dx$. 부분적분으로 $\\dfrac{\\pi}{4}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-inha-04",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "분수함수 적분",
+      "difficulty": "easy",
+      "excerpt": "정적분 $\\displaystyle\\int_0^2\\dfrac{x^2}{x^3+1}dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=49",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$\\dfrac{1}{3}[\\ln(x^3+1)]_0^2=\\dfrac{2}{3}\\ln 3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-inha-11",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "점-평면 거리",
+      "difficulty": "easy",
+      "excerpt": "좌표공간에서 평면 $\\dfrac{x}{2}-\\dfrac{y}{3}+z=1$과 원점 사이의 거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=61",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "평면 $3x-2y+6z=6$. $d=\\dfrac{|6|}{\\sqrt{9+4+36}}=\\dfrac{6}{7}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-inha-19",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬식",
+      "difficulty": "easyMedium",
+      "excerpt": "행렬 $A=\\begin{pmatrix}a & a & b\\\\ a & b & a\\\\ b & a & a\\end{pmatrix}$의 행렬식을 계산하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "행 교환 후 전개: $\\det A=-(b+2a)(b-a)^2=-(2a+b)(a-b)^2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-inha-28",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "그린정리",
+      "difficulty": "easyMedium",
+      "excerpt": "좌표평면에서 곡선 $C:[0,\\pi]\\to\\mathbb{R}^2$가 $C(t)=(\\cos t,\\sin t)$ $(0\\le t\\le\\pi)$일 때, 선적분 $\\displaystyle\\int_C(xy^2-y^3+3x^2)dx+(x^3+e^{y^2}+\\cos(y^3+1))dy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=15"
+      ],
+      "field": "explanation",
+      "evidence": "폐곡선 만들고 그린정리: $\\!\\iint(3x^2-2xy+3y^2)dA-(추가선)=\\dfrac{3}{4}\\pi-2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-kw-10",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "전치행렬 곱",
+      "difficulty": "easy",
+      "excerpt": "행렬 $A=[a_{ij}]_{n\\times n},\\,B=[b_{ij}]_{n\\times n}$에 대하여 다음 중 $AB^T$의 $(i,j)$성분과 같은 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=25"
+      ],
+      "field": "explanation",
+      "evidence": "$(AB^T)_{ij}=\\sum_k a_{ik}(B^T)_{kj}=\\sum_k a_{ik}b_{jk}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-kw-13",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "외적·스칼라삼중적",
+      "difficulty": "medium",
+      "excerpt": "공간 벡터 $\\mathbf{u},\\mathbf{v},\\mathbf{w}$에 대해 다음 중 옳은 것을 모두 고른 것은? ㄱ. $(\\mathbf{u}\\times\\mathbf{v})\\cdot\\mathbf{w}=|\\mathbf{u}\\times\\mathbf{v}||\\mathbf{w}|\\cos\\theta$ (단, $\\theta$는 $\\mathbf{u}\\times\\mathbf{v}$와 $\\mathbf{w}$의 사잇각) ㄴ. $\\mathbf...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=4"
+      ],
+      "field": "explanation",
+      "evidence": "모두 표준 항등식: 내적의 정의, 외적의 직교성, 스칼라삼중적의 순환, 평행사변형 항등식. 모두 옳음."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-2025-sejong-03",
+      "subject": "적분학",
+      "unit": "급수의 수렴/발산",
+      "concept": "수렴반지름",
+      "difficulty": "easyMedium",
+      "excerpt": "거듭제곱급수 $\\displaystyle\\sum_{n=0}^{\\infty}\\dfrac{(x-3)^n}{\\sqrt{2n+1}}$의 수렴반지름은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "비율판정: $\\lim\\sqrt{(2n+1)/(2n+3)}=1$이라 $|x-3|<1$ → 수렴반지름 $1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r11-1",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "멱급수해",
+      "difficulty": "medium",
+      "excerpt": "$y=\\sum_{k=0}^\\infty c_k x^k$가 $y''-(\\sin x)y=0,y(0)=0,y'(0)=1$을 만족할 때 $c_0+c_1+c_2+c_3+c_4$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "$c_0=0,c_1=1,c_2=0,c_3=0,12c_4-1=0$. 합 $1+1/12=13/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r12-2",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "연립 ODE",
+      "difficulty": "medium",
+      "excerpt": "$\\binom{x_1(0)}{x_2(0)}=\\binom{2}{0}$ 만족, $x_1'=x_1+x_2,x_2'=4x_1+x_2$. $\\binom{x_1(1)}{x_2(1)}$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=17"
+      ],
+      "field": "explanation",
+      "evidence": "고유치 $3,-1$. 풀이로 $x_1=e^{3t}+e^{-t},x_2=2e^{3t}-2e^{-t}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r12-3",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "연립 ODE",
+      "difficulty": "medium",
+      "excerpt": "연립 $y_1'=-5y_1-y_2,y_2'=4y_1-y_2,y_1(1)=0,y_2(1)=1$일 때 $(y_1(2),y_2(2))$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "고유치 $-3$ 중근. $y_1=-3e^{-3t},y_2=e^{-3t}$ at $t=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r13-1",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "연립 ODE",
+      "difficulty": "medium",
+      "excerpt": "$\\binom{y_1'}{y_2'}=\\begin{pmatrix}1&2\\\\-1&4\\end{pmatrix}\\binom{y_1}{y_2},\\binom{y_1(0)}{y_2(0)}=\\binom{1}{-1}$의 해 $y_1,y_2$. $y_1(1)-y_2(1)$은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "$Y=y_1-y_2$ 도함수 $2Y$. $Y=2e^{2t}$. $Y(1)=2e^2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r15-5",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비선형 임계점",
+      "difficulty": "medium",
+      "excerpt": "$y_1'=4y_1-y_1^2,y_2'=y_2$의 임계점과 그 유형이 바르게 짝지어진 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$(0,0)$: Jacobian 고윳값 $4,1$ 마디점. $(4,0)$: $-4,1$ 안장점."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r16-2",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 변환",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(t)=t\\sin 3t$의 라플라스변환 $L(f)$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=12"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathcal L(tf)=-F'(s)$. $F=3/(s^2+9)$, $-F'=6s/(s^2+9)^2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r16-3",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 변환",
+      "difficulty": "medium",
+      "excerpt": "$f(x)=xe^{-x}\\sin 2x$의 라플라스변환은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathcal L(t\\sin 2t)=4s/(s^2+4)^2$. $s\\to s+1$ 평행이동."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r16-5",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 역변환",
+      "difficulty": "medium",
+      "excerpt": "$Y(s)=\\dfrac{2}{s-3}+\\dfrac{2}{(s-3)^5}$ 일 때 $f(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$f(t)=2e^{3t}+\\frac{1}{12}e^{3t}t^4$. $f(1)=25e^3/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r17-1",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 역변환",
+      "difficulty": "medium",
+      "excerpt": "$\\dfrac{s+1}{(s^2+2s+5)^2}$의 역 라플라스변환은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$F=(s+1)/((s+1)^2+4)^2$. 평행이동 후 $\\frac{1}{4}t\\sin 2t$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r17-2",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace 역변환",
+      "difficulty": "medium",
+      "excerpt": "$F(s)=\\dfrac{2(s+3)}{((s+3)^2+1)^2},G(s)=\\ln\\dfrac{s}{s-1}$의 역변환은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=51",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$F$: $te^{-3t}\\sin t$. $G$: $-(1-e^t)/t=(e^t-1)/t$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r17-4",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "조각함수 Laplace",
+      "difficulty": "medium",
+      "excerpt": "$f(t)=\\{0,t<2\\pi;\\sin t,2\\pi\\le t\\le 3\\pi;0,t>3\\pi\\}$의 라플라스 변환은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "$f=\\sin t\\,u(t-2\\pi)-\\sin t\\,u(t-3\\pi)$. 평행 변환."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r17-5",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "조각함수 Laplace",
+      "difficulty": "medium",
+      "excerpt": "$f(x)=\\{x(0<x<2);\\ 0(x>2)\\}$일 때 $L\\{f\\}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=16"
+      ],
+      "field": "explanation",
+      "evidence": "$f=t-tu(t-2)$. $\\mathcal L=\\frac{1}{s^2}-e^{-2s}\\mathcal L\\{t+2\\}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r18-1",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Laplace ODE",
+      "difficulty": "easyMedium",
+      "excerpt": "$y$가 $y''+4y'+2y=0,y(0)=1,y'(0)=-1$의 해일 때 $L[y](s)$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=55",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathcal L$ 양변: $(s^2+4s+2)Y=s\\cdot 1-1+4\\cdot 1=s+3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r18-3",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "적분방정식 ODE",
+      "difficulty": "medium",
+      "excerpt": "$y'+4y+4\\int_0^t y(\\tau)d\\tau=1,y(0)=0$ 만족할 때 $y(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=46",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$Y=1/(s+2)^2$. $y(t)=te^{-2t}$. $y(1)=e^{-2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r19-1",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "적분방정식",
+      "difficulty": "medium",
+      "excerpt": "$\\dfrac{dy}{dt}-y(t)+\\int_0^t(t-\\eta)y'(\\eta)d\\eta-\\int_0^t y(\\eta)d\\eta=t,y(0)=-1$의 해 $y(t)$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "Laplace 변환 풀이. $Y(s-1)=-1\\Rightarrow Y=-1/(s-1)$… 정리 후 $y=-e^{-t}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r19-2",
+      "subject": "공학수학",
+      "unit": "Laplace변환",
+      "concept": "Volterra 적분방정식",
+      "difficulty": "medium",
+      "excerpt": "$y(t)+e^t\\int_0^t y(\\tau)e^{-\\tau}d\\tau=\\cos 2t$일 때 $y(\\pi/4)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$y=\\cos 2t-\\frac{1}{2}\\sin 2t$. $y(\\pi/4)=0-1/2=-1/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r19-6",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "스칼라 선적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$C:\\vec r(t)=(t,t^2),0\\le t\\le 1$에 대해 $\\int_C(x+\\sqrt y)ds$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$ds=\\sqrt{1+4t^2}dt$. $\\int_0^1 2t\\sqrt{1+4t^2}dt=(5\\sqrt 5-1)/6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r2-2",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "1계 선형 ODE",
+      "difficulty": "easyMedium",
+      "excerpt": "$(1+x^2)\\dfrac{dy}{dx}+xy=e^x\\sqrt{1+x^2},y(0)=1$의 해를 $y(x)$라 하면 $y(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "정리 후 $y=e^x/\\sqrt{1+x^2}+C/\\sqrt{1+x^2}$. $C=0$. $y(1)=e/\\sqrt 2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r2-3",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "분리형 ODE",
+      "difficulty": "easy",
+      "excerpt": "$\\dfrac{dy}{dx}-2xy=0$에서 $y(0)=2$를 만족하는 해는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$y'/y=2x\\Rightarrow\\ln y=x^2+C\\Rightarrow y=Ce^{x^2},C=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r2-6",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "완전미분방정식",
+      "difficulty": "medium",
+      "excerpt": "$[(x+1)e^x-e^y]dx=xe^y dy,y(1)=0$의 해를 푸시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "정리하면 $xe^x-xe^y=C$. $y(1)=0$: $e-1=C$. $x(e^x-e^y)=e-1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r20-1",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "스칼라 선적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$C:x^2+y^2=4$의 상반부일 때 $\\int_C(2+x^2y)ds$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=51",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "매개 $r(t)=(2\\cos t,2\\sin t),ds=2dt$. 적분 $4\\pi+32/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r20-2",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "선적분 질량",
+      "difficulty": "easyMedium",
+      "excerpt": "반원 $x^2+y^2=4,y\\ge 0$, 밀도 $\\rho(x,y)=x^4y$일 때 철사 질량은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=61",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$m=\\int 16\\cos^4 t\\cdot 2\\sin t\\cdot 2 dt=64\\cdot 2/5=128/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r20-5",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "교선 선적분",
+      "difficulty": "medium",
+      "excerpt": "$y^2+z^2=2$와 $z=x$가 만나는 곡선 $C$ 위의 $\\int_C\\sqrt{2+y^2}ds$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "매개화 $y=\\sqrt 2\\cos t,z=\\sqrt 2\\sin t,x=\\sqrt 2\\sin t$. 결과 $6\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r20-6",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "스칼라 선적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$C:x=t^3,y=t,z=t^2,0\\le t\\le 1$일 때 $\\int_C x^2y\\sqrt z dz$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$\\int_0^1 t^6\\cdot t\\cdot t\\cdot 2t dt=\\int 2t^9 dt=1/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r21-1",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "벡터 선적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$C:y=x^3+2$ 위 $(0,2)\\to(1,3)$, $\\int_C(x^2y dx+xdy)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=61",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$x=t,y=t^3+2$. $\\int_0^1(t^5+2t^2+3t^3)dt=1/6+2/3+3/4=19/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r21-3",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "선분 선적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$C:(-5,-3)\\to(0,2)$ 선분, $\\int_C y^2 dx+xdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=41",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "$y=x+2$. $\\int_{-5}^0((x+2)^2+x)dx=-5/6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r23-2",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "difficulty": "medium",
+      "excerpt": "$y=x^2,y=1$로 둘러싸인 영역 둘레 $C$ (반시계), $\\oint_C(e^{x^2}+2xy)dx+(x^3+\\sin y)dy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$Q_x-P_y=3x^2-2x$. 영역에서 적분 $\\iint(3x^2-2x)dA=4/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r24-1",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리",
+      "difficulty": "easyMedium",
+      "excerpt": "$x=0,2,y=0,2$ 사각형 $C$에서 $\\int_C e^y dx+2xe^y dy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=46",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "그린: $\\iint(2e^y-e^y)dA=\\iint e^y dA=2(e^2-1)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r24-4",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "그린 정리/면적 공식",
+      "difficulty": "easy",
+      "excerpt": "한 변 1인 정삼각형 $C$ (반시계), $\\int_C xdy-ydx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$\\int xdy-ydx=2\\cdot\\text{면적}=2\\cdot\\sqrt 3/4=\\sqrt 3/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r25-3",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "면적분",
+      "difficulty": "medium",
+      "excerpt": "$S:z=x+y^2,0\\le x\\le 1,0\\le y\\le 2$일 때 $\\iint_S y dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$dS=\\sqrt{1+1+4y^2}dxdy=\\sqrt{2+4y^2}dxdy$. 적분 결과 $13\\sqrt 2/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r25-4",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "구면 면적분",
+      "difficulty": "medium",
+      "excerpt": "$\\Sigma:x^2+y^2+z^2=1,x\\ge 0,y\\ge 0,z\\ge\\sqrt{x^2+y^2}$일 때 $\\iint 24yz dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "구좌표 $0\\le\\theta\\le\\pi/2,0\\le\\phi\\le\\pi/4$. 적분 결과 $2\\sqrt 2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r26-5",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산 정리",
+      "difficulty": "medium",
+      "excerpt": "$z=x^2+y^2$과 $z=1$ 경계 $S$, $\\iint_S(yi+xj+z^2k)\\cdot dA$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathrm{div}=0+0+2z=2z$. $\\iiint 2z dV$ 원기둥좌표에서 $2\\pi/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r26-6",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산 정리",
+      "difficulty": "medium",
+      "excerpt": "$F=x^3 i+y^3 j+z^3 k$, 단위구 $x^2+y^2+z^2=1$의 표면을 통한 바깥쪽 flux는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathrm{div}=3x^2+3y^2+3z^2=3\\rho^2$. 구좌표 적분 $12\\pi/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r27-1",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산 정리",
+      "difficulty": "medium",
+      "excerpt": "구면 $S$ 반경 $R$, $F=(x^3+y\\cos z,y^3+xz,x^3+y^3+z^3)$. $\\iint_S F\\cdot dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=50",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathrm{div}=3x^2+3y^2+3z^2$. 구좌표: $12\\pi R^5/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r27-3",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "면적분 + 발산정리",
+      "difficulty": "medium",
+      "excerpt": "반구 $S:x^2+y^2+z^2=1,z\\ge 0$, $F=(ye^{z^2}\\sin z,xe^{z^2}\\cos z,4x^2+z)$. $\\iint_S F\\cdot n dS$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=52",
+        "questionMathDensity=12"
+      ],
+      "field": "explanation",
+      "evidence": "$xy$평면 닫고 발산정리: $\\iiint 1 dV+\\pi=2\\pi/3+\\pi=5\\pi/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r3-1",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "완전미분방정식",
+      "difficulty": "medium",
+      "excerpt": "초깃값 $(3x+2y^2)dx+2xydy=0,y(1)=1$의 해를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "적분인자 $x$. $\\int(3x^2+2xy^2)dx+\\int 2x^2y dy=C$로 $x^3+x^2y^2=C=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r4-6",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "적분방정식",
+      "difficulty": "medium",
+      "excerpt": "연속함수 $f(x)$가 $1+\\int_1^x f(t)dt=f(x)$를 만족할 때 $f(0)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=55",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "양변 미분: $f'=f$. $f=Ce^x$. $f(1)=1$: $C=1/e$. $f(0)=1/e$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r5-3",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "2계 동차 ODE",
+      "difficulty": "easyMedium",
+      "excerpt": "$y''+5y'+6y=0,y(0)=3,y'(0)=-7$일 때 $y(1)+y'(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "근 $-2,-3$. $y=2e^{-2x}+e^{-3x}$. $y(1)+y'(1)=-2e^{-2}-2e^{-3}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r5-5",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "2계 중근 ODE",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\dfrac{d^2y}{dx^2}-6\\dfrac{dy}{dx}+9y=0,y(0)=3,y'(0)=1$의 해를 구하라.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=46",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "중근 $3$. $y=(c_1+c_2 x)e^{3x}$. $c_1=3,c_2=-8$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r6-4",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE",
+      "difficulty": "medium",
+      "excerpt": "$y''-6y'+8y=-2e^{3x}$의 일반해 $y=k_1 e^{ax}+k_2 e^{bx}+ce^{dx}$일 때 $a+b+c+d$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$y=k_1 e^{2x}+k_2 e^{4x}+2e^{3x}$. $a+b+c+d=2+4+2+3=11$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r6-5",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE",
+      "difficulty": "medium",
+      "excerpt": "$y''+3y'+2y=6e^x,y(0)=1,y(\\ln 2)=3$일 때 $y(3)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$y=4e^{-x}-4e^{-2x}+e^x$. $y(3)=4e^{-3}-4e^{-6}+e^3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r7-5",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE",
+      "difficulty": "medium",
+      "excerpt": "$f''(t)-6f'(t)+9f(t)=t^2 e^{3t},f(0)=2,f'(0)=6$일 때 $f(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "특수해 $t^4 e^{3t}/12$. $f=2e^{3t}+t^4 e^{3t}/12$. $f(1)=25e^3/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r8-1",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE",
+      "difficulty": "medium",
+      "excerpt": "$y''+2y'+y=e^{-x}\\cos 2x,y(0)=0,y'(0)=-1$의 해는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "특수해 $-\\frac{1}{4}e^{-x}\\cos 2x$. 일반해와 초기값으로 정리."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r8-2",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE 특수해",
+      "difficulty": "medium",
+      "excerpt": "$y''-4y'+4y=e^{2x}+\\sin x$의 특수해는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$e^{2x}$ 부분: $x^2 e^{2x}/2$. $\\sin x$ 부분: $(3\\sin x+4\\cos x)/25$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-eng-r9-3",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "Cauchy-Euler 중근",
+      "difficulty": "medium",
+      "excerpt": "$y=y(x)$가 $x^2y''-3xy'+4y=0,y(1)=5,y'(1)=3$의 해일 때 $y(e^2)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$(D-2)^2=0$, 중근 $2$. $y=(5-7\\ln x)x^2$. $y(e^2)=(5-14)e^4=-9e^4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r1-4",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "치환적분",
+      "difficulty": "easy",
+      "excerpt": "$\\displaystyle\\int_4^{12}\\dfrac{1}{\\sqrt{1+2x}}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$\\int(1+2x)^{-1/2}\\,dx=\\sqrt{1+2x}+C$. $[\\sqrt{1+2x}]_4^{12}=5-3=2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r11-3",
+      "subject": "적분학",
+      "unit": "정적분의 성질",
+      "concept": "대칭성",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^{2014}\\dfrac{\\sqrt{2014-x}}{\\sqrt{x}+\\sqrt{2014-x}}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$u=2014-x$ 치환 후 $I+I=\\int_0^{2014}1\\,dx=2014$이므로 $I=1007$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r11-4",
+      "subject": "적분학",
+      "unit": "정적분의 성질",
+      "concept": "대칭성",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^{\\pi/2}\\dfrac{\\sqrt{\\tan^3 x}}{\\sqrt{\\tan^3 x}+\\sqrt{\\cot^3 x}}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=62",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "$u=\\pi/2-x$ 치환 → $I+I=\\int_0^{\\pi/2}1\\,dx=\\pi/2$이므로 $I=\\pi/4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r13-4",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "적분과 극한",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\lim_{x\\to\\pi}\\dfrac{1}{x-\\pi}\\int_\\pi^x\\dfrac{\\sin t\\cos t}{t+\\pi}\\,dt$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "L'Hopital 또는 미분 정의: $\\dfrac{\\sin\\pi\\cos\\pi}{2\\pi}=0$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r14-2",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "감마함수",
+      "difficulty": "easy",
+      "excerpt": "$\\displaystyle\\int_0^\\infty xe^{-x^2}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$u=x^2$ 치환: $\\dfrac{1}{2}\\int_0^\\infty e^{-u}\\,du=\\dfrac{1}{2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r16-4",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "감마함수",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^\\infty\\sqrt{x}\\,e^{-x}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$\\Gamma(3/2)=\\dfrac{1}{2}\\Gamma(1/2)=\\dfrac{\\sqrt{\\pi}}{2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r16-5",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "부분적분",
+      "difficulty": "easy",
+      "excerpt": "$\\displaystyle\\int_0^1\\ln x\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=32",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "부분적분: $[x\\ln x-x]_0^1=0-1-0=-1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r17-3",
+      "subject": "적분학",
+      "unit": "정적분과 무한급수",
+      "concept": "리만합",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\lim_{n\\to\\infty}\\sum_{k=1}^n\\dfrac{2}{n}\\sqrt{4-\\!\\left(\\dfrac{2k}{n}\\right)^2}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$\\int_0^2\\sqrt{4-x^2}\\,dx=\\dfrac{1}{4}\\pi\\cdot 4=\\pi$ (반원 1/4)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r2-6",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "치환적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^{1/2}\\dfrac{e^{\\sin^{-1}x}}{\\sqrt{1-x^2}}\\,dx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=12"
+      ],
+      "field": "explanation",
+      "evidence": "$t=\\sin^{-1}x$. $\\int_0^{\\pi/6}e^t\\,dt=[e^t]_0^{\\pi/6}=e^{\\pi/6}-1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r21-3",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "회전체 부피",
+      "difficulty": "easyMedium",
+      "excerpt": "$y=-2x+3$과 $y=x^2$과 $y$축으로 둘러싸인 1사분면 영역을 $x$축 회전한 입체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "교점 $x=1$. 와셔: $V=\\pi\\int_0^1((-2x+3)^2-x^4)dx=\\dfrac{62\\pi}{15}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r21-6",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "회전체 부피",
+      "difficulty": "easyMedium",
+      "excerpt": "두 곡선 $y=x^2$과 $x=y^2$으로 둘러싸인 영역을 직선 $y=-1$에 대하여 회전한 입체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "와셔: $V=\\pi\\int_0^1((\\sqrt{x}+1)^2-(x^2+1)^2)dx=\\dfrac{29\\pi}{30}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r22-1",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "회전체 부피 (셸)",
+      "difficulty": "easyMedium",
+      "excerpt": "$y=x-x^2$과 $x$축으로 둘러싸인 영역을 $y$축 둘레로 회전한 입체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "셸: $V=2\\pi\\int_0^1 x(x-x^2)dx=2\\pi(1/3-1/4)=\\dfrac{\\pi}{6}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r23-1",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "회전체 부피 (셸)",
+      "difficulty": "easyMedium",
+      "excerpt": "곡선 $y=\\sin^{-1}x$ ($0\\le x\\le 1$), 직선 $x=1$, $x$축으로 둘러싸인 도형을 $y$축 회전한 회전체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "셸: $V=2\\pi\\int_0^1 x\\sin^{-1}x\\,dx=\\dfrac{\\pi^2}{4}$ (부분적분)."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r26-2",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "넓이",
+      "difficulty": "easyMedium",
+      "excerpt": "곡선 $x=2y^2, x=4+y^2$과 직선 $y=0$으로 둘러싸인 부분의 넓이는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "교점 $y=\\pm 2$, $y\\ge 0$ 영역: $\\int_0^2(4+y^2-2y^2)dy=\\dfrac{16}{3}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r26-6",
+      "subject": "적분학",
+      "unit": "정적분의 응용",
+      "concept": "파푸스 정리",
+      "difficulty": "easyMedium",
+      "excerpt": "영역 $R=\\{(x,y)\\mid(x-3)^2+y^2\\le 1\\}$을 $y$축 회전한 회전체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=55",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "파푸스: $V=2\\pi\\bar{x}\\cdot A=2\\pi\\cdot 3\\cdot\\pi=6\\pi^2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-int-r35-3",
+      "subject": "적분학",
+      "unit": "극좌표와 응용",
+      "concept": "극곡선 넓이",
+      "difficulty": "easyMedium",
+      "excerpt": "극방정식 $r=4\\cos\\theta$의 내부와 $r=2$의 외부로 이루어진 부분의 면적은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "교점 $\\cos\\theta=1/2$. 적분 후 $\\dfrac{4\\pi}{3}+2\\sqrt{3}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r16-2",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "직선-평면 거리",
+      "difficulty": "easyMedium",
+      "excerpt": "점 $P(3,5,-4)$와 평면 $-2x+y+z-3=0$ 사이의 최단거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$\\frac{|-6+5-4-3|}{\\sqrt 6}=\\frac{8}{\\sqrt 6}=\\frac{4\\sqrt 6}{3}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r16-5",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "두 평면 사이 거리",
+      "difficulty": "easyMedium",
+      "excerpt": "두 평면 $x-3y+2z-1=0$과 $x-3y+2z+3=0$ 사이의 거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$\\frac{|-1-3|}{\\sqrt{14}}=\\frac{4}{\\sqrt{14}}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r16-6",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "점-구면 거리",
+      "difficulty": "easy",
+      "excerpt": "점 $(1,-2,5)$로부터 구면 $x^2+y^2+z^2=9$ 위에 있는 가장 먼 점과의 거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$|OA|=\\sqrt{30}$, 반지름 $3$. 최장거리 $=3+\\sqrt{30}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r17-4",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "벡터공간 정의",
+      "difficulty": "medium",
+      "excerpt": "집합 $\\{(v_1,v_2,v_3)\\in R^3\\}$가 다음 조건을 만족할 때 벡터공간이 아닌 것은? ① $v_1+v_2=0$ ② $v_1+v_2+v_3=1$ ③ $2v_2=v_3,\\ v_1+v_3=0$ ④ $v_1=2v_2=3v_3$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=16"
+      ],
+      "field": "explanation",
+      "evidence": "원점을 지나야 하는데 ②는 $v_1+v_2+v_3=1$이라 원점을 지나지 않음. 벡터공간 아님."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r19-6",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "부분공간 포함 조건",
+      "difficulty": "medium",
+      "excerpt": "세 벡터 $v_1=(1,-1,-2),\\ v_2=(5,-4,-7),\\ v_3=(-3,1,0)$에 대하여 $u=(-4,3,k)$가 $v_1,v_2,v_3$에 의해 생성된 $R^3$의 부분공간에 속하도록 하는 $k$값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$v_1,v_2,v_3$의 행공간은 rank $2$. 첨가행렬 행 연산하여 일관성 조건에서 $k=5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r23-2",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "Cayley-Hamilton",
+      "difficulty": "medium",
+      "excerpt": "$3\\times 3$ 행렬 $A$가 $A\\begin{pmatrix}1\\\\-2\\\\0\\end{pmatrix}=\\begin{pmatrix}-1\\\\2\\\\0\\end{pmatrix},\\ A\\begin{pmatrix}0\\\\2\\\\-1\\end{pmatrix}=\\begin{pmatrix}0\\\\-4\\\\2\\end{pmatrix},\\ A\\begin{pmatrix}1\\\\0\\\\2\\end{pmatrix}=\\begin{pmatrix}0\\\\0\\\\0\\end{p...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$A$의 고윳값 $-1,-2,0$. $f(\\lambda)=\\lambda^2-\\lambda+1$ 적용: $3+7+1=11$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r23-3",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "거듭제곱의 trace",
+      "difficulty": "medium",
+      "excerpt": "행렬 $A=\\begin{pmatrix}-3&5\\\\-2&4\\end{pmatrix}$가 주어질 때 행렬 $A^{10}$의 트레이스 $\\mathrm{tr}(A^{10})$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=62",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$\\lambda=-1,2$이므로 $A^{10}$의 고윳값 $1,2^{10}$. trace $=2^{10}+1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r24-4",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "역행렬 특성다항식",
+      "difficulty": "medium",
+      "excerpt": "$4\\times 4$ 행렬 $A$의 특성다항식이 $\\det(A-tI)=t^4-10t^3+35t^2-50t+24$일 때 $A^{-1}$의 특성다항식을 $\\det(A^{-1}-tI)=t^4+c_3 t^3+c_2 t^2+c_1 t+c_0$이라 하면 $c_2+c_3$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=54",
+        "questionMathDensity=20"
+      ],
+      "field": "explanation",
+      "evidence": "고윳값 역수 활용. $c_3=-50/24,\\ c_2=35/24$. 합 $=-15/24=-5/8$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r24-6",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "닮은 행렬",
+      "difficulty": "medium",
+      "excerpt": "복소수 성분을 갖는 정방행렬 $A,B$와 가역행렬 $P$가 $A=PBP^{-1}$의 관계를 만족할 때 다음 중 틀린 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=3"
+      ],
+      "field": "explanation",
+      "evidence": "닮은 행렬은 행렬식, 대각합, rank, 고윳값, 특성방정식이 모두 같지만 고유벡터는 일반적으로 다르다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r25-4",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "대각화 가능성",
+      "difficulty": "medium",
+      "excerpt": "다음 중 대각화가 가능한 행렬을 모두 고른 것은? $A=\\begin{pmatrix}2&0&0\\\\0&2&0\\\\0&0&2\\end{pmatrix},\\ B=\\begin{pmatrix}2&0&0\\\\0&2&1\\\\0&0&2\\end{pmatrix},\\ C=\\begin{pmatrix}2&1&0\\\\0&2&1\\\\0&0&2\\end{pmatrix}$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=3"
+      ],
+      "field": "explanation",
+      "evidence": "$A$는 이미 대각. $B,C$는 모두 고윳값 2의 대수적 중복도 3이지만 기하적 중복도 1, 2로 다르므로 대각화 불가."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r26-2",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "행렬 거듭제곱",
+      "difficulty": "medium",
+      "excerpt": "행렬 $A=\\begin{pmatrix}1&-10\\\\0&-1\\end{pmatrix}$과 벡터 $x=\\begin{pmatrix}6\\\\1\\end{pmatrix}$일 때 $A^{10}x$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "특성방정식 $\\lambda^2-1=0$이므로 $A^2=I$. $A^{10}=I$, $A^{10}x=x=(6,1)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r26-5",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "행렬 거듭제곱",
+      "difficulty": "medium",
+      "excerpt": "행렬 $\\begin{pmatrix}1&2\\\\4&3\\end{pmatrix}^{100}$의 $(1,1)$ 원소를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "$\\lambda=5,-1$. 대각화 후 $(1,1)$ 성분 $=\\frac{1}{3}(5^{100}+2)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r27-2",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "확률행렬 극한",
+      "difficulty": "medium",
+      "excerpt": "행렬 $A=\\begin{pmatrix}0.8&0.2\\\\0.2&0.8\\end{pmatrix}$이고 벡터 $v_0=\\begin{pmatrix}2\\\\1\\end{pmatrix}$일 때 수열 $\\{v_k|v_k=Av_{k-1}\\}$의 극한 $\\lim_{k\\to\\infty}v_k$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "확률행렬, $\\lambda=1,0.6$. 정상상태에서 두 성분이 같음. 보존량 $2+1=3$이므로 $(1.5,1.5)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r28-2",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형변환 값",
+      "difficulty": "easyMedium",
+      "excerpt": "$T$가 $2\\times 3$ 행렬이고 $T\\begin{pmatrix}1\\\\0\\\\0\\end{pmatrix}=\\begin{pmatrix}1\\\\-3\\end{pmatrix},\\ T\\begin{pmatrix}0\\\\1\\\\0\\end{pmatrix}=\\begin{pmatrix}2\\\\5\\end{pmatrix},\\ T\\begin{pmatrix}2\\\\3\\\\1\\end{pmatrix}=\\begin{pmatrix}8\\\\-5\\end{pmatrix}$일...",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$T(0,0,1)=T(2,3,1)-2T(1,0,0)-3T(0,1,0)=(8,-5)-(2,-6)-(6,15)=(0,-14)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r28-3",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형변환 값",
+      "difficulty": "medium",
+      "excerpt": "일차변환 $T:R^3\\to R^2$에 대해 $T(1,0,0)=(2,1),\\ T(2,1,0)=(2,1),\\ T(1,-1,-1)=(5,2)$가 성립한다. $T(2x_1,-x_2,x_3)$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=26"
+      ],
+      "field": "explanation",
+      "evidence": "$T(0,1,0)$, $T(0,0,1)$ 구한 후 적용. 계산 결과 $(4x_1+2x_2-x_3,2x_1+x_2)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r28-5",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "표현행렬",
+      "difficulty": "easyMedium",
+      "excerpt": "선형변환 $F\\begin{pmatrix}x_1\\\\x_2\\\\x_3\\end{pmatrix}=\\begin{pmatrix}x_1-4x_2+2x_3\\\\x_2+x_3\\end{pmatrix}$일 때 $F(x)=Ax$가 되는 행렬 $A$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=15"
+      ],
+      "field": "explanation",
+      "evidence": "표준기저에서의 표현행렬. $A=\\begin{pmatrix}1&-4&2\\\\0&1&1\\end{pmatrix}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r3-5",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬식 방정식",
+      "difficulty": "easyMedium",
+      "excerpt": "$A=\\begin{pmatrix}a&a^2&a^3\\\\a^2&a^3&a\\\\a^3&a&a^2\\end{pmatrix}$에 대하여 $\\det A=0$이 되게 하는 서로 다른 실수 $a$의 합은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$a^3(a^3-1)^2=0$. 실근 $a=0,1$ (1은 중복), 서로 다른 실근의 합 $0+1=1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r31-3",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "단사 / 차원",
+      "difficulty": "medium",
+      "excerpt": "선형사상 $T:R^2\\to R^3,\\ T(x,y)=(2y,x-y,3x)$에 대한 다음 중 옳은 것을 모두 고르면? ⓐ $T$는 단사인 선형사상이다 ⓑ $U=\\{T(x,y)|(x,y)\\in R^2\\}$의 차원은 2이다 ⓒ $W=\\{(x,y)\\in R^2|T(x,y)=(0,0,0)\\}$의 차원은 1이다",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=4"
+      ],
+      "field": "explanation",
+      "evidence": "$\\mathrm{rank}=2$이므로 단사 ✓, 치역 차원 2 ✓. 핵 차원 0이므로 ⓒ 거짓."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r31-4",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형변환 성질",
+      "difficulty": "medium",
+      "excerpt": "선형사상 $T:R^2\\to M_{2\\times 2}(R),\\ T(a,b)=\\begin{pmatrix}\\check{}\\check{}\\\\0&a+2b\\end{pmatrix}$에 대한 다음 성질 중 옳은 것을 모두 고르면? 가. $T$는 일대일 사상이다 나. $T$의 핵의 차원은 1이다 다. $T(\\{(a,a-b)|a,b\\in R\\})$의 차원은 3이다",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=49",
+        "questionMathDensity=3"
+      ],
+      "field": "explanation",
+      "evidence": "$T$는 단사이므로 핵 차원 0 (나 거짓). 치역 차원 ≤ 2 (다 거짓). 가만 참."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r35-5",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "스펙트럴 분해",
+      "difficulty": "medium",
+      "excerpt": "$A=\\begin{pmatrix}0&2&-1\\\\2&3&-2\\\\-1&-2&0\\end{pmatrix}$는 직교행렬 $P$에 대해 $P^{-1}AP=\\begin{pmatrix}-1&0&0\\\\0&-1&0\\\\0&0&5\\end{pmatrix}$을 만족. $P$의 열을 순서대로 $u_1,u_2,u_3$라 할 때 $u_1u_1^T+u_2u_2^T$를 구하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=18"
+      ],
+      "field": "explanation",
+      "evidence": "$\\sum u_iu_i^T=I$. $u_1u_1^T+u_2u_2^T=I-u_3u_3^T=5u_3u_3^T-A$를 정리."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r5-2",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "역행렬 성분합",
+      "difficulty": "easyMedium",
+      "excerpt": "행렬 $\\begin{pmatrix}1&1&1\\\\0&-1&2\\\\0&0&-1\\end{pmatrix}$의 역행렬이 $(a_{ij})$일 때 $\\sum_{i=1}^{3}\\sum_{j=1}^{3}a_{ij}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "역행렬 $\\begin{pmatrix}1&1&3\\\\0&-1&-2\\\\0&0&-1\\end{pmatrix}$의 모든 성분합 $1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r6-1",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "케일리해밀턴 역행렬",
+      "difficulty": "easyMedium",
+      "excerpt": "정사각행렬 $A$가 $A^3-3A+2I=O$를 만족시킬 때 $A$의 역행렬은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=12"
+      ],
+      "field": "explanation",
+      "evidence": "$2I=-A^3+3A=A(-A^2+3I)$이므로 $A^{-1}=-\\frac{1}{2}A^2+\\frac{3}{2}I$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-la-r6-4",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "LU 분해",
+      "difficulty": "medium",
+      "excerpt": "$A=\\begin{pmatrix}1&1&1\\\\1&2&1\\\\0&-1&2\\end{pmatrix}$의 $LU$분해는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "행 1 → 행 2 빼서 $E_1$, 행 3에 행 2 더해 $E_2$. $A=E_1^{-1}E_2^{-1}U$로 분해."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r10-4",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "연쇄법칙",
+      "difficulty": "easyMedium",
+      "excerpt": "세 함수 $z=f(x,y),x=g(s,t),y=h(s,t)$. $g(1,2)=3,h(1,2)=6,g_s(1,2)=-1,g_t(1,2)=4,h_s(1,2)=-5,h_t(1,2)=10,f_x(3,6)=7,f_y(3,6)=8$일 때 $s=1,t=2$에서 $\\dfrac{\\partial z}{\\partial t}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=45",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$z_t=f_x g_t+f_y h_t=7\\cdot 4+8\\cdot 10=108$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r11-4",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "음함수 미분",
+      "difficulty": "easyMedium",
+      "excerpt": "$x^3+y^3+z^3+6xyz=1$일 때 $\\dfrac{\\partial z}{\\partial x}$를 구하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=18"
+      ],
+      "field": "explanation",
+      "evidence": "$F_x=3x^2+6yz,\\ F_z=3z^2+6xy$. $z_x=-F_x/F_z=-(x^2+2yz)/(z^2+2xy)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r13-3",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "방향도함수",
+      "difficulty": "easyMedium",
+      "excerpt": "점 $P_0(-1,1)$에서 $P_1(2,4)$ 향하는 방향도함수 $\\sqrt 2$, $P_2(1,2)$ 향하는 방향도함수 $1/\\sqrt 5$일 때 $P_3(2,5)$ 향하는 방향도함수는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "조건 풀이로 $\\nabla f=(-1,3)$. $P_3$ 방향 $(3,4)/5$. 내적 $=(-3+12)/5=9/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r14-2",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "최대 방향",
+      "difficulty": "easyMedium",
+      "excerpt": "점 $(2,-1)$에서 $f(x,y)=(x-y)/(x+y)$의 방향도함수가 최대가 되는 단위벡터는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=49",
+        "questionMathDensity=16"
+      ],
+      "field": "explanation",
+      "evidence": "$\\nabla f(2,-1)=(-2,-4)$. 단위벡터 $(-1,-2)/\\sqrt 5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r14-3",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "최대 방향",
+      "difficulty": "easy",
+      "excerpt": "산의 높이가 $z=100-x^2-y^2$로 나타난다. 점 $(1,1)$에서 경사가 가장 급격히 증가하는 방향의 단위벡터는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=48",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$\\nabla z(1,1)=(-2,-2)$. 단위벡터 $(-1,-1)/\\sqrt 2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r15-2",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "최대 방향 도함수",
+      "difficulty": "easyMedium",
+      "excerpt": "원뿔 $z=1-\\sqrt{x^2+y^2}$의 $xy$평면 위의 점 $P_0(1/\\sqrt 2,1/\\sqrt 2)$에서 함수 $z$가 가장 빨리 증가하는 방향이 $a\\vec i+b\\vec j$일 때 이 방향으로의 기울기는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "$\\nabla z(1/\\sqrt 2,1/\\sqrt 2)=(-1/\\sqrt 2,-1/\\sqrt 2)$. 크기 $1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r16-6",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "점-접평면 거리",
+      "difficulty": "easyMedium",
+      "excerpt": "구면 $x^2+y^2+z^2=3$ 상의 점 $(1,1,1)$에서의 접평면을 $P$라 할 때 점 $(1,2,3)$에서 평면 $P$까지의 거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "접평면 $x+y+z=3$. 거리 $=|1+2+3-3|/\\sqrt 3=3/\\sqrt 3=\\sqrt 3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r18-4",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "교선의 접선",
+      "difficulty": "easyMedium",
+      "excerpt": "두 곡면 $x^2+y^2-z^2=1,\\ x+y+z=5$의 교선 위 $(1,2,2)$에서 접선의 대칭방정식은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=18"
+      ],
+      "field": "explanation",
+      "evidence": "$\\nabla F=(2,4,-4),\\nabla G=(1,1,1)$. 외적 $(8,-6,-2)\\propto(4,-3,-1)$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r2-3",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "호의 길이",
+      "difficulty": "easyMedium",
+      "excerpt": "곡선 $\\vec r(t)=2t\\vec i+t^2\\vec j+\\dfrac{1}{3}t^3\\vec k\\ (0\\le t\\le 1)$의 호의 길이는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$|\\vec r'|=\\sqrt{4+4t^2+t^4}=t^2+2$. $\\int_0^1(t^2+2)dt=1/3+2=7/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r22-5",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "코시-슈바르츠",
+      "difficulty": "easyMedium",
+      "excerpt": "구면 $x^2+y^2+z^2=1$에서 $f(x,y,z)=x+y$의 최댓값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=52",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$(x+y)^2\\le(1^2+1^2)(x^2+y^2+z^2)=2$. 최댓값 $\\sqrt 2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r24-4",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "라그랑주",
+      "difficulty": "easyMedium",
+      "excerpt": "$x+2y=1$을 만족하는 실수 $(x,y)$에 대해 $x^2+xy+y^2$의 최솟값을 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=48",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$x=1-2y$ 대입: $f=3y^2-3y+1$. $y=1/2$에서 최솟값 $1/4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r26-2",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "점-곡면 거리",
+      "difficulty": "easyMedium",
+      "excerpt": "점 $(1,1,0)$에서 포물면 $z=x^2+y^2$까지의 최단거리는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=49",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "라그랑주로 $(1/2,1/2,1/2)$. 거리 $\\sqrt{3/4}=\\sqrt 3/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r26-4",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "이중적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_{-3}^{3}\\int_0^{\\pi/2}(y+y^2\\cos x)dxdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$\\int(y\\pi/2+y^2)dy = [\\pi y^2/4+y^3/3]_{-3}^{3}=0+18=18$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r27-2",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분 순서 변경",
+      "difficulty": "medium",
+      "excerpt": "$\\displaystyle\\int_0^1\\int_{e^x}^e\\dfrac{1}{\\ln y}dydx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "순서 바꾸면 $\\int_1^e\\int_0^{\\ln y}\\frac{1}{\\ln y}dxdy=\\int_1^e 1dy=e-1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r28-1",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "적분 순서 변경",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^1\\int_y^1 e^{x^2}dxdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=66",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "순서 바꾸면 $\\int_0^1\\int_0^x e^{x^2}dydx=\\int_0^1 xe^{x^2}dx=(e-1)/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r29-3",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_{-2}^{2}\\int_0^{\\sqrt{4-x^2}}(x^2+y^2)^{3/2}dydx$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=68",
+        "questionMathDensity=15"
+      ],
+      "field": "explanation",
+      "evidence": "반원 영역, 극좌표: $\\int_0^\\pi\\int_0^2 r^3\\cdot r drd\\theta=\\pi\\cdot 32/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r29-6",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_0^1\\int_{-\\sqrt{1-y^2}}^0\\cos(x^2+y^2)dxdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=14"
+      ],
+      "field": "explanation",
+      "evidence": "$\\pi/2\\le\\theta\\le\\pi,0\\le r\\le 1$. $\\pi/2\\cdot\\sin 1/2=\\pi\\sin 1/4$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r3-4",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "곡률",
+      "difficulty": "easyMedium",
+      "excerpt": "벡터함수 $\\vec r(t)=\\langle\\cos t,\\sin t,2t\\rangle$로 주어진 곡선 위의 점 $\\left(\\cos\\dfrac{1}{\\sqrt 7},\\sin\\dfrac{1}{\\sqrt 7},\\dfrac{2}{\\sqrt 7}\\right)$에서의 곡률은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "원형나선: $\\kappa=a/(a^2+b^2)$. 여기서 $a=1,b=2$이므로 $\\kappa=1/5$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r3-5",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "곡률",
+      "difficulty": "easyMedium",
+      "excerpt": "곡선 $\\vec r(t)=(3t,4\\sin t,4\\cos t)$의 곡률은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=38",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "$a=4,b=3$인 나선. $\\kappa=4/(16+9)=4/25$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r30-2",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "영역 $D=\\{(x,y)|x^2+y^2\\le 1,|x|\\le y\\}$에서 $\\iint_D\\sqrt{x^2+y^2}dA$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$\\pi/4\\le\\theta\\le 3\\pi/4,0\\le r\\le 1$. $\\pi/2\\cdot 1/3=\\pi/6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r30-3",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "극좌표",
+      "difficulty": "easyMedium",
+      "excerpt": "$D=\\{(x,y)|16\\le x^2+y^2\\le 81\\}\\cap\\{(x,y)|x\\le-y\\}$에서 $\\iint_D\\dfrac{1}{\\sqrt{x^2+y^2}}dxdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$3\\pi/4\\le\\theta\\le 7\\pi/4$ 사이의 절반, $4\\le r\\le 9$. $\\pi\\cdot 5=5\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r31-2",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "무한 적분",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\int_{-\\infty}^\\infty\\int_{-\\infty}^\\infty\\dfrac{1}{(x^2+y^2+1)^2}dxdy$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "극좌표: $2\\pi\\int_0^\\infty\\frac{r}{(r^2+1)^2}dr=2\\pi\\cdot 1/2=\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r31-4",
+      "subject": "다변수함수",
+      "unit": "중적분",
+      "concept": "이중적분",
+      "difficulty": "easyMedium",
+      "excerpt": "곡선 $y=x^2$과 $y=\\sqrt x$로 둘러싸인 영역 $D$에서 $\\iint_D 4xy dA$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$0\\le x\\le 1,x^2\\le y\\le\\sqrt x$. $\\int_0^1 2x[x-x^4]dx=2/3-1/3=1/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r33-2",
+      "subject": "다변수함수",
+      "unit": "체적과 곡면적",
+      "concept": "두 원기둥 교차",
+      "difficulty": "medium",
+      "excerpt": "두 원기둥 $x^2+y^2=1,\\ y^2+z^2=1$로 갇힌 입체의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=61",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "Steinmetz solid: $V=2\\int_{-1}^1 2(1-y^2)dy=8\\cdot 2/3=16/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r33-4",
+      "subject": "다변수함수",
+      "unit": "체적과 곡면적",
+      "concept": "포물면 부피",
+      "difficulty": "medium",
+      "excerpt": "포물면 $z=x^2+4y^2$과 $xy$평면 그리고 두 포물주면 $y^2=x,x^2=y$에 의해 둘러싸인 입체 영역의 부피를 구하시오.",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=46",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$0\\le x\\le 1,x^2\\le y\\le\\sqrt x$. 적분 결과 $3/7$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r35-5",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "구면좌표",
+      "difficulty": "medium",
+      "excerpt": "$z=\\sqrt{(x^2+y^2)/3}$의 위쪽이며 $x^2+y^2+z^2=1$의 안쪽에 놓이는 영역 $E$에서 $\\iiint_E 8ze^{x^2+y^2+z^2}dV$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=51",
+        "questionMathDensity=11"
+      ],
+      "field": "explanation",
+      "evidence": "구좌표 $0\\le\\phi\\le\\pi/3,0\\le\\rho\\le 1$. 적분 결과 $3\\pi$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r36-1",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "변수변환",
+      "difficulty": "medium",
+      "excerpt": "영역 $R=\\{(x,y,z)|9x^2+4y^2+z^2\\le 1\\}$에 대해 $\\iiint_R(9x^2+4y^2+z^2)^2 dxdydz$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=53",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "$3x=X,2y=Y,z=Z$. Jacobian $1/6$. 구좌표 적분 결과 $2\\pi/21$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r36-3",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "원뿔-구 부피",
+      "difficulty": "medium",
+      "excerpt": "원뿔 $z=\\sqrt{3(x^2+y^2)}$의 윗부분과 구 $x^2+y^2+z^2=2z$로 둘러싸인 영역의 부피는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "구 중심 (0,0,1), 반경 1. 구좌표 $\\rho=2\\cos\\phi$. 적분 결과 $7\\pi/12$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r5-2",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "이변수 극한",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\lim_{(x,y)\\to(0,0)}\\dfrac{xy^2}{x^2+y^4}$의 극한값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=47",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$x=my^2$ 대입 시 $m/(m^2+1)$이 $m$에 따라 달라짐. 존재 안 함."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r5-3",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "이변수 극한",
+      "difficulty": "easyMedium",
+      "excerpt": "다음 중 극한값이 존재하는 것은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=48",
+        "questionMathDensity=20"
+      ],
+      "field": "explanation",
+      "evidence": "④: $|2xy^2/(x^2+y^2)|\\le 2|y|\\to 0$. 나머지는 경로 의존."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r5-4",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "이변수 극한",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\lim_{(x,y)\\to(0,0)}\\dfrac{e^{-x^2-y^2}-1}{x^2+y^2}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=55",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "$t=x^2+y^2\\to 0$. $\\lim_{t\\to 0}\\frac{e^{-t}-1}{t}=-1$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r5-6",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "연속 정의",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(x,y)=\\dfrac{\\cos(x^2+y^2)-1}{x^2+y^2},\\ (x,y)\\ne(0,0)$일 때 $f$가 $(0,0)$에서 연속이 되도록 $f(0,0)$을 정의하면?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=44",
+        "questionMathDensity=5"
+      ],
+      "field": "explanation",
+      "evidence": "$t=x^2+y^2\\to 0$, $\\frac{\\cos t-1}{t}\\to 0$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r6-4",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "편미분",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(x,y,z)=\\dfrac{x+y+z}{(x^2+y^2+z^2)^2}$에 대해 점 $(1,0,2)$에서 $\\dfrac{\\partial f}{\\partial x}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=63",
+        "questionMathDensity=13"
+      ],
+      "field": "explanation",
+      "evidence": "$f(x,0,2)=(x+2)/(x^2+4)^2$. 미분 후 $x=1$ 대입: $(5-12)/125=-7/125$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r6-5",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "Euler 동차함수",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(x,y,z)=2x^2-y^2+3z^2-xy+4yz$에 대해 $g(x,y,z)=xf_x+yf_y+zf_z$. $g(1,1,1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$f$는 2차 동차 함수이므로 $g=2f$. $f(1,1,1)=2-1+3-1+4=7$. $g=14$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r7-2",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "테일러급수",
+      "difficulty": "easyMedium",
+      "excerpt": "함수 $f(x,y)=\\ln(1+xy)$의 점 $(1,2)$에서 테일러급수에서 $(x-1)^2$ 항의 계수는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=59",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$f_{xx}=-y^2/(1+xy)^2|_{(1,2)}=-4/9$. 계수 $=f_{xx}/2!=-2/9$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r7-3",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "이차 근사",
+      "difficulty": "easyMedium",
+      "excerpt": "점 $(0,0)$에서 $f(x,y)=e^{x^2+y}$의 이차 근사다항식은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=67",
+        "questionMathDensity=10"
+      ],
+      "field": "explanation",
+      "evidence": "$f(0,0)=1,f_x=0,f_y=1,f_{xx}=2,f_{yy}=1,f_{xy}=0$. $1+y+x^2+y^2/2$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r8-4",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "교차 편미분",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(0,0)=0,\\ (x,y)\\ne(0,0)$이면 $f(x,y)=\\dfrac{2xy(y^2-2x^2)}{x^2+3y^2}$. $\\alpha=\\dfrac{\\partial^2 f}{\\partial y\\partial x}(0,0),\\beta=\\dfrac{\\partial^2 f}{\\partial x\\partial y}(0,0)$. $\\alpha+\\beta$는?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=69",
+        "questionMathDensity=19"
+      ],
+      "field": "explanation",
+      "evidence": "$f_x(0,0)=0,f_y(0,0)=0$. $f_{xy}(0,0)=2/3,f_{yx}(0,0)=-4$. 합 $-10/3$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r9-1",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "미분가능성",
+      "difficulty": "easyMedium",
+      "excerpt": "함수 $f(x,y)=\\begin{cases}x^2y/(x^4+y^2),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$ 중 옳은 것을 모두 고르면? 가. 원점에서 연속 / 나. 원점에서 미분가능 / 다. $f_x(0,0)=0,f_y(0,0)=0$",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=56",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$y=mx^2$ 경로 의존이라 가 거짓, 불연속이라 나 거짓. 다만 편미분은 0,0에서 0으로 존재."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-mv-r9-2",
+      "subject": "다변수함수",
+      "unit": "편도함수",
+      "concept": "편미분 / 미분가능성",
+      "difficulty": "easyMedium",
+      "excerpt": "$f(x,y)=\\begin{cases}xy^2\\sqrt{x^2+y^2}/(x^2+y^4),&(x,y)\\ne(0,0)\\\\0,&(0,0)\\end{cases}$. 옳은 것을 모두 고르면? ⓐ 원점에서 $f_x$ 존재 / ⓑ 원점에서 $f_y$ 존재 / ⓒ 원점에서 미분가능",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=46",
+        "questionMathDensity=9"
+      ],
+      "field": "explanation",
+      "evidence": "원점에서 두 편미분 모두 0으로 존재. 그러나 미분가능성 정의 한계 검증 시 실패."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-r1-2",
+      "subject": "미분학",
+      "unit": "함수",
+      "concept": "역삼각함수",
+      "difficulty": "easy",
+      "excerpt": "$\\tan^{-1} 2 + \\cot^{-1} 2$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=60",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "모든 실수 $x$에 대하여 $\\tan^{-1}x + \\cot^{-1}x = \\dfrac{\\pi}{2}$이다."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-r21-5",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수의 극한",
+      "difficulty": "easyMedium",
+      "excerpt": "$\\displaystyle\\lim_{n\\to\\infty}\\!\\left(1-\\dfrac{3}{2n-5}\\right)^n$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=58",
+        "questionMathDensity=8"
+      ],
+      "field": "explanation",
+      "evidence": "지수 부분 $-\\dfrac{3n}{2n-5}\\to-\\dfrac{3}{2}$. 따라서 $e^{-3/2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-r22-4",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수의 극한",
+      "difficulty": "easy",
+      "excerpt": "극한 $\\displaystyle\\lim_{x\\to 0}(\\cos x+3x)^{2/x}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=64",
+        "questionMathDensity=7"
+      ],
+      "field": "explanation",
+      "evidence": "$\\cos x+3x=1+3x+O(x^2)$. 지수 $\\dfrac{2\\cdot 3x}{x}=6$. 따라서 $e^6$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-daily-r4-2",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "함수의 극한",
+      "difficulty": "easy",
+      "excerpt": "$\\displaystyle\\lim_{x\\to 5^+}\\dfrac{5-x}{2|x-5|}$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=65",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$x \\to 5^+$이면 $|x-5|=x-5$이므로 $\\dfrac{5-x}{2(x-5)}=-\\dfrac{1}{2}$."
+    },
+    {
+      "severity": "P3",
+      "category": "quality",
+      "code": "explanation_maybe_thin",
+      "id": "q-sample-1778085491269-4",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "로그함수 미분",
+      "difficulty": "easy",
+      "excerpt": "$f(x) = \\ln(2x^2 + 1)$일 때 $f'(1)$의 값은?",
+      "message": "Explanation may be too short.",
+      "reasons": [
+        "length=57",
+        "questionMathDensity=6"
+      ],
+      "field": "explanation",
+      "evidence": "$f'(x) = \\dfrac{4x}{2x^2 + 1}$이므로 $f'(1) = \\dfrac{4}{3}$."
+    }
+  ]
+}

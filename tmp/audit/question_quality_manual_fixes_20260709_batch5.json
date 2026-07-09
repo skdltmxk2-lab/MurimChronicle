@@ -1,0 +1,27 @@
+{
+  "generatedAt": "2026-07-09T05:05:32.761Z",
+  "dryRun": false,
+  "scope": "manual final quality cleanup batch 5",
+  "changes": [
+    {
+      "id": "q-white-final-a-r13-11",
+      "rationale": "정답만 있던 행렬식 명제 해설 보강",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r14-27",
+      "rationale": "해설 앞 문제번호 제거 및 사영 설명 정리",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "선형사상",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}
