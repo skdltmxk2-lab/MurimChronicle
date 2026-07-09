@@ -144,14 +144,14 @@ const PROBLEMS = [
     question:"벡터장 $F(x,y)=(4x^3 y+e^{x^2})\\mathbf i+(x^4+2y\\cos(y^2))\\mathbf j$이고 $C$는 $r(t)=(e^{t^3-t^2}-\\cos(2\\pi t))\\mathbf i+(3\\sin(\\pi t^3/2)-2t^7)\\mathbf j,\\,0\\le t\\le 1$로 주어진 곡선일 때 선적분 $\\displaystyle\\int_C F\\cdot dr$의 값은?",
     options:opts5("$\\sin 1$","$\\cos 1$","$0$","$\\dfrac{11}{26}$","$\\dfrac{7}{25}$"),
     correct:"1",
-    explanation:"$M_y=4x^3=N_x$이므로 보존장. $\\Phi(x,y)=x^4 y+\\dfrac{1}{2}e^{x^2}+\\sin(y^2)$ (확인 필요). 정확히는 $F$의 잠재함수 찾으면 $\\Phi$.\n$r(0)=(0,0),\\,r(1)=(0,1)$. $\\Phi(0,1)-\\Phi(0,0)=\\sin 1-0=\\sin 1$.",
+    explanation:"$M_y=4x^3=N_x$이므로 보존장이다. 포텐셜을 $\\Phi(x,y)=x^4y+H(x)+\\sin(y^2)$로 두면 $H'(x)=e^{x^2}$이다. 경로의 양 끝점은 $r(0)=(0,0)$, $r(1)=(0,1)$이므로 $H(x)$ 항과 $x^4y$ 항은 양 끝에서 모두 같다. 따라서 $\\int_C F\\cdot dr=\\Phi(0,1)-\\Phi(0,0)=\\sin1$이다.",
   },
   {n:20, subject:"공학수학", unit:"미분방정식", concept:"비제차 ODE 특수해",
     difficulty:"medium",
     question:"$y_p(t)$를 미분방정식 $y''-y'-2y=-8e^t\\cos 2t$의 특수해(particular solution)라고 할 때 $y_p\\!\\left(\\dfrac{\\pi}{2}\\right)$의 값은?",
     options:opts5("$\\dfrac{8}{5}$","$-\\dfrac{6}{5}e^{\\pi/2}$","$\\dfrac{6}{5}e^{-\\pi/2}+\\dfrac{2}{5}$","$\\dfrac{2}{5}e^{\\pi/2}+\\dfrac{6}{5}$","$\\dfrac{2}{5}e^{\\pi/2}$"),
     correct:"2",
-    explanation:"$y_p=e^t(A\\cos 2t+B\\sin 2t)$ 시도. $y_p''-y_p'-2y_p=e^t[(-3A-3B)\\cos 2t+(3A-3B)\\sin 2t-?]$ 정확 계산하면 $A=2/5,\\,B=-2/5$ 또는 부호 정리하면 결과.\n$y_p(\\pi/2)=e^{\\pi/2}(A\\cos\\pi+B\\sin\\pi)=-A e^{\\pi/2}\\Rightarrow$ 보기 (2) $-\\dfrac{6}{5}e^{\\pi/2}$.",
+    explanation:"$y_p=e^t(A\\cos 2t+B\\sin 2t)$로 두고 대입하면 $y_p''-y_p'-2y_p=e^t[(-6A-2B)\\cos2t+(2A-6B)\\sin2t]$이다. 우변 $-8e^t\\cos2t$와 비교하면 $A=\\dfrac65,\\ B=-\\dfrac25$이다. 따라서 $y_p(\\pi/2)=e^{\\pi/2}\\left(A\\cos\\pi+B\\sin\\pi\\right)=-\\dfrac65e^{\\pi/2}$이다.",
   },
 ];
 

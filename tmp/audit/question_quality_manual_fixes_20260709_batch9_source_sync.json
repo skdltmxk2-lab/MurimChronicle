@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-07-09T09:27:10.593Z",
+  "dryRun": false,
+  "scope": "source-script sync for process artifacts, correct answer, and confirmed explanation fixes",
+  "changes": [
+    {
+      "id": "q-2021-sookmyung-14",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "경계 최대·최소",
+      "previousCorrectOptionId": "4",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-dku-am-20",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "Stokes 정리",
+      "previousCorrectOptionId": "2",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r15-1",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "점-직선 거리",
+      "previousCorrectOptionId": "1",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r17-2",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "접평면 매개",
+      "previousCorrectOptionId": "3",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r14-5",
+      "subject": "적분학",
+      "unit": "특이적분",
+      "concept": "치환 + 부분분수",
+      "previousCorrectOptionId": "1",
+      "fields": [
+        "correct_option_id",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2018-kwangwoon-15",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "점-직선 거리",
+      "previousCorrectOptionId": "5",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2021-skku-20",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "비제차 ODE 특수해",
+      "previousCorrectOptionId": "2",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

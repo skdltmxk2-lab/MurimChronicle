@@ -1,0 +1,349 @@
+{
+  "generatedAt": "2026-07-09T09:03:34.708Z",
+  "dryRun": false,
+  "scope": "manual ultra-short explanation fixes batch 6",
+  "changes": [
+    {
+      "id": "p-cb01-03",
+      "subject": "미분학",
+      "unit": "미분",
+      "concept": "미분계수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "p-la01-03",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "역행렬",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "p-la01-04",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고유값",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2020-dankook-47",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬 계수 (rank)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-dgu-14",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "고유값 합(trace)",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-ewha-05",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "정사영 넓이 제곱합",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-kyunghee-25",
+      "subject": "선형대수",
+      "unit": "벡터와 공간도형",
+      "concept": "기저에 대한 좌표벡터",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2022-seoultech-20",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "영공간 차원",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2024-seoultech-17",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "rank 계산",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-cau-12",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "$L^p$ 노름 극한",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-hansung-06",
+      "subject": "미분학",
+      "unit": "극한과 연속",
+      "concept": "분수함수 극한",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-inha-10",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "외접원 반지름",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r10-3",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "Cauchy-Euler",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r11-2",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "복소근 ODE",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-eng-r15-2",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "안정 임계점",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r16-5",
+      "subject": "적분학",
+      "unit": "정적분의 계산",
+      "concept": "부분적분",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r34-4",
+      "subject": "적분학",
+      "unit": "극좌표와 응용",
+      "concept": "극곡선 접선",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-int-r35-2",
+      "subject": "적분학",
+      "unit": "극좌표와 응용",
+      "concept": "극곡선 넓이",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r18-1",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "선형독립 최대 개수",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r20-4",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "영공간 차원",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r21-4",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고유벡터",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r21-5",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고윳값의 합",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r21-6",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "고윳값의 합",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r22-6",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "특성다항식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r27-6",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "최소다항식",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r3-1",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬식 성질",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r3-2",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬식 거듭제곱",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r30-5",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "치역",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r33-3",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "직교여공간 기저",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r35-3",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "대칭행렬 직교성",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r6-6",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "rank",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r7-2",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "연립방정식 해 존재성",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-la-r7-4",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "무수히 많은 해",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r14-1",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "최대 방향",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r15-1",
+      "subject": "다변수함수",
+      "unit": "경도 및 방향도함수",
+      "concept": "최대 변화율",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r21-4",
+      "subject": "다변수함수",
+      "unit": "Taylor급수와 최대/최소",
+      "concept": "극값 판정",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-daily-mv-r3-5",
+      "subject": "다변수함수",
+      "unit": "곡선과 곡면",
+      "concept": "곡률",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-white-final-a-r13-13",
+      "subject": "선형대수",
+      "unit": "행렬",
+      "concept": "행렬",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

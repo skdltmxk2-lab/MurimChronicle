@@ -93,15 +93,15 @@ const HIGH_KEYWORDS = [
   /킬러|고난도|심화/,
   /라그랑주\s*승수|음함수\s*정리|역함수\s*정리/,
   /Jordan|조르당|최소다항식|Cayley[-\s]*Hamilton|케일리/,
-  /Stokes|스토크스|Green\s*정리|그린\s*정리|발산\s*정리|Gauss\s*정리/,
+  /Stokes|스토크스|발산\s*정리|Gauss\s*정리/,
   /푸리에|Fourier|PDE|편미분방정식|유수|residue|해석함수/,
-  /\\iiint|\\iint|\\nabla|curl|div|rot/,
+  /\\iiint/,
 ];
 
 const MID_KEYWORDS = [
   /매개변수|극좌표|극방정식|특이적분|이상적분/,
   /고유값|고유치|대각화|벡터공간|선형사상|선형변환/,
-  /중적분|삼중적분|선적분|면적분|곡면적|방향도함수|경도/,
+  /중적분|삼중적분|선적분|면적분|곡면적|방향도함수|경도|Green\s*정리|그린\s*정리|\\iint|\\nabla|\\operatorname\{div\}|\\operatorname\{curl\}|curl|rot/,
   /라플라스|Laplace|미분방정식|Maclaurin|Taylor/,
 ];
 
@@ -213,8 +213,8 @@ function estimateDifficulty(q) {
   const text = fullText(q);
   const normalized = normalize(text);
   const base = UNIT_BASE.get(`${q.subject}|${q.unit}`) ?? 2;
-  let score = base;
-  const reasons = [`unitBase=${base}`];
+  let score = Math.max(1, base - 1);
+  const reasons = [`unitBase=${base}`, `calibratedBase=${score}`];
 
   const highHits = matchPatterns(normalized, HIGH_KEYWORDS);
   const midHits = matchPatterns(normalized, MID_KEYWORDS);
@@ -247,10 +247,10 @@ function estimateDifficulty(q) {
     reasons.push(`mediumLongContent=${lengthScore}`);
   }
   const mathDensity = (compact(text).match(/\\frac|\\dfrac|\\sqrt|\\sum|\\int|\\lim|\\begin|\\det|\\partial|\^/g) ?? []).length;
-  if (mathDensity >= 12) {
+  if (mathDensity >= 30) {
     score += 1;
     reasons.push(`mathDensity=${mathDensity}`);
-  } else if (mathDensity >= 7) {
+  } else if (mathDensity >= 18) {
     score += 0.5;
     reasons.push(`mathDensity=${mathDensity}`);
   }
@@ -271,7 +271,6 @@ function hasStrongDifficultyEvidence(reasons) {
   return reasons.some((reason) =>
     reason.startsWith("highKeyword=") ||
     reason === "multiStatement" ||
-    /^mathDensity=(?:1[2-9]|[2-9]\d)/.test(reason) ||
     /^longContent=/.test(reason)
   );
 }
@@ -393,7 +392,7 @@ for (const q of questions) {
   const delta = estimated.predictedIndex - current;
   const hasEvidence = hasDifficultyEvidence(estimated.reasons);
   const hasStrongEvidence = hasStrongDifficultyEvidence(estimated.reasons);
-  if (Math.abs(delta) >= 4 || (Math.abs(delta) >= 3 && hasEvidence)) {
+  if (Math.abs(delta) >= 4 && hasStrongEvidence) {
     addIssue({
       severity: "P1",
       category: "difficulty",
@@ -403,7 +402,7 @@ for (const q of questions) {
       reasons: estimated.reasons,
       meta: { currentIndex: current, predictedIndex: estimated.predictedIndex, delta },
     });
-  } else if (Math.abs(delta) >= 3 || (Math.abs(delta) === 2 && hasStrongEvidence)) {
+  } else if ((Math.abs(delta) >= 3 && hasEvidence) || (Math.abs(delta) === 2 && hasStrongEvidence)) {
     addIssue({
       severity: "P2",
       category: "difficulty",

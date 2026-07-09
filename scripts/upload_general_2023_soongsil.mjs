@@ -232,11 +232,11 @@ const problems = [
     explanation: "회전 후 $r=3\\cos\\theta$ vs $r=\\sqrt 3+\\cos\\theta$. 교점: $\\cos\\theta=\\sqrt 3/2$ ⇒ $\\theta=\\pi/6$.\n$S=2\\cdot\\dfrac{1}{2}\\!\\int_0^{\\pi/6}\\!(9\\cos^2\\theta-(\\sqrt 3+\\cos\\theta)^2)\\,d\\theta=\\pi/6$."
   }),
   build({
-    num: 23, subject: "적분학", unit: "삼중적분", concept: "직접 직교좌표 삼중적분", difficulty: "easy",
+    num: 23, subject: "적분학", unit: "삼중적분", concept: "직접 직교좌표 삼중적분", difficulty: "mediumHard",
     question: "$R=\\{(x,y,z)\\mid 0\\le x\\le\\sqrt y,\\;0\\le y\\le 2,\\;0\\le z\\le 3x\\}$일 때, 삼중적분 $\\!\\displaystyle\\iiint_R(x^2+y^2+z^2)\\,dx\\,dy\\,dz$의 값은?",
     options: [o("1","$8$"), o("2","$14$"), o("3","$4\\pi$"), o("4","$8\\pi$")],
     answer: 2,
-    explanation: "$z$적분: $3x^3+3xy^2+9x^3$.\n$x$적분 $[0,\\sqrt y]$: $\\dfrac{3}{4}y^2+\\dfrac{3}{2}y^2+\\dfrac{9}{4}y^2=\\dfrac{9}{2}y^2$ → 검산 후 $\\dfrac{3}{4}y^4+\\dfrac{3}{2}y^2 y+\\dfrac{9}{4}y^2$. (해설 참고)\n$y$적분 $[0,2]$: $14$."
+    explanation: "$z$부터 적분하면 $\\int_0^{3x}(x^2+y^2+z^2)\\,dz=3x^3+3xy^2+9x^3=12x^3+3xy^2$이다. 따라서 $\\int_0^{\\sqrt y}(12x^3+3xy^2)\\,dx=3y^2+\\dfrac32y^3$이고, 마지막으로 $\\int_0^2(3y^2+\\dfrac32y^3)\\,dy=8+6=14$이다."
   }),
   build({
     num: 24, subject: "다변수함수", unit: "곡면적", concept: "비비아니 곡면", difficulty: "mediumHard",

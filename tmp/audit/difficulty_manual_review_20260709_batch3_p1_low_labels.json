@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-07-09T09:17:17.164Z",
+  "dryRun": false,
+  "scope": "manual difficulty review batch 3: remaining P1 under-labeled low difficulty rows",
+  "changes": [
+    {
+      "id": "q-2019-inha-25",
+      "from": "easyMedium",
+      "to": "mediumHard",
+      "rationale": "원기둥좌표 영역 해석과 삼중적분 세팅이 필요해 중하보다 높음",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "원기둥좌표",
+      "questionExcerpt": "$V=\\{(x,y,z)\\mid (x+1)^2+y^2\\le 1,\\ y\\ge 0,\\ 0\\le z\\le 2\\}$에서 적분 $\\displaystyle\\iiint_V xyz\\,dx\\,dy\\,dz$의 값은?"
+    },
+    {
+      "id": "q-2019-inha-29",
+      "from": "easyMedium",
+      "to": "mediumHard",
+      "rationale": "발산정리 적용과 구면 대칭 적분 판단이 필요한 유속 문제",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "발산정리",
+      "questionExcerpt": "$S$는 구면 $x^2+y^2+z^2=1$이라고 할 때 $S$ 위에서 벡터장 $F=\\langle x^3+e^{y^2},\\ 3yz^2+\\sin z,\\ 3y^2z\\rangle$의 유속 $\\displaystyle\\iint_S F\\cdot\\hat n\\,dS$의 값은? ($\\hat n$은 $S$에서 외부로 향하는 단위벡터.)"
+    },
+    {
+      "id": "q-2021-inha-29",
+      "from": "easyMedium",
+      "to": "mediumHard",
+      "rationale": "복합 입체 영역에서 발산정리와 원기둥/구면 경계 해석이 필요함",
+      "subject": "다변수함수",
+      "unit": "선적분과 면적분",
+      "concept": "발산정리",
+      "questionExcerpt": "좌표공간에서 $x^2+y^2\\le 1,\\ x^2+y^2+z^2\\le 4$로 주어진 영역의 경계를 $S$라고 하고 $\\vec n$을 외향 단위법선벡터라고 하자. 벡터장 $F(x,y,z)=(x^2,y,z^2)$에 대하여 벡터장 $F$의 $S$에서의 유속 $\\displaystyle\\iint_S F\\cdot\\vec n\\,dS$의 값은?"
+    },
+    {
+      "id": "q-2023-soongsil-23",
+      "from": "easy",
+      "to": "mediumHard",
+      "rationale": "직교좌표 삼중적분의 적분순서와 다항식 계산량이 있어 하 난이도로 부적절",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "직접 직교좌표 삼중적분",
+      "questionExcerpt": "$R=\\{(x,y,z)\\mid 0\\le x\\le\\sqrt y,\\;0\\le y\\le 2,\\;0\\le z\\le 3x\\}$일 때, 삼중적분 $\\!\\displaystyle\\iiint_R(x^2+y^2+z^2)\\,dx\\,dy\\,dz$의 값은?"
+    },
+    {
+      "id": "q-ryu-self-warmup-r15-20",
+      "from": "easy",
+      "to": "mediumHard",
+      "rationale": "사면체 영역에서 발산정리와 삼중적분을 구성해야 하는 벡터해석 문제",
+      "subject": "공학수학",
+      "unit": "벡터해석",
+      "concept": "발산정리",
+      "questionExcerpt": "20. $F(x, y, z)=<-y^{3}, x z^{2}, 3 z>$ 이고 $S$ 가 네 평면 $x+y+z=1, x=0, y=0$, $z=0$ 으로 이루어진 사면체 $E$ 의 경계일 때 면적분 $\\iint_{S} F \\cdot d S$ 의 값은? (단, $S$ 의 방향은 $E$ 의 외부 쪽으로 향하는 방향이다.)"
+    }
+  ]
+}

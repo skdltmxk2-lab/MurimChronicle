@@ -121,7 +121,7 @@ const problems = [
   build({ num: 23, subject: "선형대수", unit: "벡터공간", concept: "기저 좌표벡터", difficulty: "easyMedium",
     question: "기저 $B=\\{\\langle 1,2,1\\rangle,\\langle 2,9,0\\rangle,\\langle 3,3,4\\rangle\\}$에 대한 벡터 $\\langle 5,-1,9\\rangle$의 좌표벡터 $[\\langle 5,-1,9\\rangle]_B$가 $\\langle 1,a,2\\rangle$일 때, 실수 $a$의 값은?",
     options: [o("1","$-4$"),o("2","$-3$"),o("3","$-2$"),o("4","$-1$")], answer: 4,
-    explanation: "$1\\cdot(1,2,1)+a(2,9,0)+2(3,3,4)=(7+2a,\\,8+9a,\\,9)$. 첫 성분 $5$ → $a=-1$. 검산 둘째 $8-9=-1$ ✓." }),
+    explanation: "$[\\langle5,-1,9\\rangle]_B=\\langle1,a,2\\rangle$이므로 $1(1,2,1)+a(2,9,0)+2(3,3,4)=(5,-1,9)$이다. 왼쪽을 정리하면 $(7+2a,8+9a,9)$이고 첫 성분에서 $7+2a=5$이므로 $a=-1$이다. 이때 둘째 성분도 $8+9(-1)=-1$로 일치한다." }),
   build({ num: 24, subject: "공학수학", unit: "미분방정식", concept: "Wronskian 변환", difficulty: "medium",
     question: "두 함수 $f(x),g(x)$의 론스키안 $W(f,g)=e^x$이다. $F(x)=af(x)+bg(x),\\,G(x)=cf(x)+dg(x)$에 대하여 $\\det\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}=2$일 때 $W(F,G)=ke^x$이다. 상수 $k$의 값은?",
     options: [o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$")], answer: 2,

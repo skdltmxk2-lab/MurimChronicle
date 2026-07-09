@@ -203,6 +203,8 @@ function validateLatex(q, field, text) {
   }
 }
 
+const placeholderArtifactRx = /\\check\{\}|\\check\{m\}/;
+
 function auditQuestion(q) {
   const optionsValidArray = Array.isArray(q.options);
   const options = optionsValidArray ? q.options : [];
@@ -354,7 +356,7 @@ function auditQuestion(q) {
     });
   }
 
-  const artifactRx = /!\[[^\]]*\]\(|cdn\.mathpix|@@SECTION|\\section\*|\\begin\{tabular\}/;
+  const artifactRx = /!\[[^\]]*\]\(|cdn\.mathpix|@@SECTION|\\section\*|\\begin\{tabular\}|해설\s*참고|풀이\s*참고|검산\s*후|답지\s*(?:결과|따라)|\bwait\b/i;
   for (const item of fieldList(q)) {
     const text = String(item.text ?? "");
     if (artifactRx.test(text)) {
@@ -364,6 +366,16 @@ function auditQuestion(q) {
         id: q.id,
         field: item.field,
         message: "OCR or source artifact remains in content.",
+        excerpt: excerpt(text),
+      });
+    }
+    if (placeholderArtifactRx.test(text)) {
+      addIssue({
+        severity: "P1",
+        code: "placeholder_artifact",
+        id: q.id,
+        field: item.field,
+        message: "Leftover OCR or placeholder token remains in content.",
         excerpt: excerpt(text),
       });
     }

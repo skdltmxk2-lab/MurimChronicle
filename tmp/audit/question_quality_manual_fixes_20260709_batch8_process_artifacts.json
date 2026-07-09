@@ -1,0 +1,58 @@
+{
+  "generatedAt": "2026-07-09T09:22:40.266Z",
+  "dryRun": false,
+  "scope": "remaining process-artifact explanations and one confirmed difficulty label",
+  "changes": [
+    {
+      "id": "q-2024-hanyang-13",
+      "subject": "선형대수",
+      "unit": "고유치와 대각화",
+      "concept": "최소다항식",
+      "previousDifficulty": "hard",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2023-soongsil-23",
+      "subject": "다변수함수",
+      "unit": "삼중적분과 극좌표계",
+      "concept": "직접 직교좌표 삼중적분",
+      "previousDifficulty": "mediumHard",
+      "fields": [
+        "difficulty",
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-dku-pm-23",
+      "subject": "선형대수",
+      "unit": "벡터공간",
+      "concept": "기저 좌표벡터",
+      "previousDifficulty": "easyMedium",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2025-hanyang-16",
+      "subject": "공학수학",
+      "unit": "미분방정식",
+      "concept": "라플라스 변환(공명)",
+      "previousDifficulty": "medium",
+      "fields": [
+        "explanation"
+      ]
+    },
+    {
+      "id": "q-2018-sogang-20",
+      "subject": "선형대수",
+      "unit": "선형사상",
+      "concept": "기저 표현",
+      "previousDifficulty": "medium",
+      "fields": [
+        "explanation"
+      ]
+    }
+  ]
+}

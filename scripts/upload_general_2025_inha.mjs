@@ -172,7 +172,7 @@ const problems = [
     question:"좌표공간에서 두 직선 $\\dfrac{x-2}{1}=\\dfrac{y+3}{-6}=\\dfrac{z+1}{2},\\,\\dfrac{x-3}{-1}=\\dfrac{y+2}{9}=\\dfrac{z-1}{-4}$ 사이의 거리는?",
     options:[o("1","$1$"),o("2","$2$"),o("3","$3$"),o("4","$4$"),o("5","$5$")],
     answer:2,
-    explanation:"두 직선 평행 ($-1=-1\\cdot 1\\cdot$ 비율 확인 필요). $L_1$ 평행한 평면 $L_2$포함 → 거리 $=2$."
+    explanation:"첫 직선의 한 점과 방향벡터는 $P_1=(2,-3,-1)$, $\\vec d_1=(1,-6,2)$이고, 둘째 직선은 $P_2=(3,-2,1)$, $\\vec d_2=(-1,9,-4)$이다. 두 직선 사이의 거리는 $\\dfrac{|(P_2-P_1)\\cdot(\\vec d_1\\times\\vec d_2)|}{|\\vec d_1\\times\\vec d_2|}$이다. $\\vec d_1\\times\\vec d_2=(6,2,3)$, $P_2-P_1=(1,1,2)$이므로 거리는 $\\dfrac{|6+2+6|}{\\sqrt{36+4+9}}=\\dfrac{14}{7}=2$이다."
   }),
   build({ num:27, subject:"다변수함수", unit:"선적분과 면적분", concept:"발산정리(반구)", difficulty:"medium",
     question:"좌표공간에서 $S_1=\\{(x,y,z)\\in\\mathbb{R}^3\\mid x^2+y^2+z^2=4\\},\\,S_2=\\{(x,y,z)\\in\\mathbb{R}^3\\mid (x-1)^2+y^2\\le 1,\\,z\\ge 0\\}$일 때, 곡면 $S_1\\cap S_2$의 넓이는?",

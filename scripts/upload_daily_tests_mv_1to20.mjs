@@ -749,7 +749,7 @@ const problems = [
     question: "곡면 $x^2+2y^2-z^2=5$ 위 $(a,b,c)$에서 접평면 $x+4y+2z=d$ ($d>0$)일 때 $a+b+c+d$의 값은?",
     options: [o("1","$3$"),o("2","$5$"),o("3","$6$"),o("4","$7$"),o("5","$9$")],
     answer: "3",
-    explanation: "$\\nabla F\\propto(1,4,2)$ → $a=t,b=2t,c=-t$. 곡면 대입 $t^2+8t^2-t^2=5\\Rightarrow t=\\pm 1/\\sqrt{... wait}$ → 답지 결과 $a+b+c+d=6$." }),
+    explanation: "$F=x^2+2y^2-z^2-5$라 두면 $\\nabla F(a,b,c)=(2a,4b,-2c)$이고 접평면의 법선은 $(1,4,2)$이다. 따라서 $(2a,4b,-2c)=\\lambda(1,4,2)$라 놓으면 $a=\\lambda/2,\\ b=\\lambda,\\ c=-\\lambda$이다. 곡면식에 대입하면 $\\lambda^2/4+2\\lambda^2-\\lambda^2=5$이므로 $\\lambda=\\pm2$이고, $d=a+4b+2c=(5/2)\\lambda>0$에서 $\\lambda=2$이다. 따라서 $a+b+c+d=1+2-2+5=6$이다." }),
   build({ testNo: 17, num: 3, unit: "곡선과 곡면", concept: "법선 벡터", difficulty: "easyMedium",
     question: "곡면 $\\sin(xy)-2\\cos(yz)=0$ 위 점 $(\\pi/2,1,\\pi/3)$에서 곡면에 수직인 벡터는?",
     options: [

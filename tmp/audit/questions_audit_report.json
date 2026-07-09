@@ -1,15 +1,15 @@
 {
   "summary": {
-    "generatedAt": "2026-07-09T05:05:39.324Z",
+    "generatedAt": "2026-07-09T09:27:17.444Z",
     "questionCount": 5532,
     "generatedExamCount": 50,
-    "issueCount": 35,
+    "issueCount": 29,
     "severityCounts": {
-      "P2": 9,
+      "P2": 3,
       "P3": 26
     },
     "codeCounts": {
-      "generated_exam_stale_question_reference": 9,
+      "generated_exam_stale_question_reference": 3,
       "duplicate_question_text": 26
     },
     "optionCountDistribution": {
@@ -43,54 +43,6 @@
       "severity": "P2",
       "code": "generated_exam_stale_question_reference",
       "table": "generated_exams",
-      "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778478191913",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778062406488-9-jimi"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
-      "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778549249491",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778062406488-4-aal2"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
-      "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778603321762",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778062406488-19-aigu"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
-      "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778835955910",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778675417462-14-h55j"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
       "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778835955910",
       "field": "problems",
       "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
@@ -103,36 +55,12 @@
       "severity": "P2",
       "code": "generated_exam_stale_question_reference",
       "table": "generated_exams",
-      "id": "weakness-3fc0ec7e-5d7c-4b2a-abe0-ce865e3718e7-1778835955910",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778062406488-11-dpan"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
       "id": "weakness-60131359-d16c-4a23-84d3-e8a731de9261-1778476145917",
       "field": "problems",
       "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
       "excerpt": "",
       "meta": {
         "questionId": "q-import-1778062406488-17-tj4x"
-      }
-    },
-    {
-      "severity": "P2",
-      "code": "generated_exam_stale_question_reference",
-      "table": "generated_exams",
-      "id": "weakness-60131359-d16c-4a23-84d3-e8a731de9261-1778476145917",
-      "field": "problems",
-      "message": "Generated exam has a usable problem snapshot, but its original question ID is not present in questions.",
-      "excerpt": "",
-      "meta": {
-        "questionId": "q-import-1778062406488-9-jimi"
       }
     },
     {

@@ -116,7 +116,7 @@ const PROBLEMS = [
     question:"점 $(1,1,1)$로부터 다음 직선까지의 거리는?\n$$x-1=\\dfrac{y+1}{2}=\\dfrac{z+1}{3}$$",
     options:opts5("$\\sqrt{2/7}$","$\\sqrt{3/7}$","$\\sqrt{4/7}$","$\\sqrt{5/7}$","$\\sqrt{6/7}$"),
     correct:"5",
-    explanation:"직선: 점 $A(1,-1,-1)$, 방향 $\\vec{d}=(1,2,3)$.\n$\\vec{AP}=(0,2,2)$. $\\vec{AP}\\times\\vec{d}=(2,2,-2)\\sim$ 외적 모두 계산.\n$d=\\dfrac{|\\vec{AP}\\times\\vec{d}|}{|\\vec{d}|}=\\dfrac{\\sqrt{4+4+16}}{\\sqrt{14}}\\cdot$... 정확히 $=\\sqrt{6/7}$.",
+    explanation:"직선 위의 점을 $A=(1,-1,-1)$, 방향벡터를 $\\vec d=(1,2,3)$이라 두면 $\\vec{AP}=(0,2,2)$이다. 점과 직선 사이의 거리는 $\\dfrac{|\\vec{AP}\\times\\vec d|}{|\\vec d|}$이고, $\\vec{AP}\\times\\vec d=(2,2,-2)$이므로 $\\dfrac{2\\sqrt3}{\\sqrt{14}}=\\sqrt{\\dfrac67}$이다.",
   },
   {n:16, subject:"선형대수", unit:"행렬", concept:"행렬 성질 진위",
     difficulty:"medium",

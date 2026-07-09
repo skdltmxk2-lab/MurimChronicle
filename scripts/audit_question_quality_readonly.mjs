@@ -82,7 +82,13 @@ function fullText(q) {
 }
 
 function mathDensity(text) {
-  return (compact(text).match(/\\frac|\\dfrac|\\sqrt|\\sum|\\int|\\lim|\\begin|\\det|\\partial|\\nabla|\\Gamma|\^|_/g) ?? []).length;
+  const raw = String(text ?? "");
+  const compacted = compact(raw);
+  const commandCount = (compacted.match(/\\frac|\\dfrac|\\sqrt|\\sum|\\int|\\lim|\\begin|\\det|\\partial|\\nabla|\\Gamma|\^|_/g) ?? []).length;
+  const mathSegmentCount = (raw.match(/\$[^$]+\$/g) ?? []).length;
+  const relationCount = (compacted.match(/=|\\to|→|⇒|≤|≥|<|>|\\sim|∼/g) ?? []).length;
+  const namedMathCount = (raw.match(/rank|dim|det|trace|극한|수렴|발산|미분|적분|고유|행렬|편각|그린|발산정리|라플라스/g) ?? []).length;
+  return commandCount + Math.min(mathSegmentCount, 6) + Math.min(relationCount, 6) + Math.min(namedMathCount, 4);
 }
 
 function mapAnswerToken(token) {
@@ -117,6 +123,10 @@ const PROCESS_ARTIFACTS = [
   /그놈/,
   /류갓티비/,
   /출제\s*의도상/,
+  /해설\s*참고|풀이\s*참고/,
+  /검산\s*후/,
+  /답지\s*(?:결과|따라)/,
+  /\bwait\b/i,
   /확인\s*필요|TODO|FIXME|임시|미완|모름|불명/,
 ];
 
@@ -124,6 +134,11 @@ const ERROR_WORDS = [
   /정답\s*오류|문제\s*오류|해설\s*오류/,
   /오타\s*의심|틀린\s*해설/,
   /보기\s*오류|선지\s*오류/,
+];
+
+const PLACEHOLDER_ARTIFACTS = [
+  /\\check\{\}/,
+  /\\check\{m\}/,
 ];
 
 const NON_EXPLANATION = [
@@ -161,6 +176,20 @@ for (const q of questions) {
     (question.length > 450 ? 4 : question.length > 260 ? 2 : 0) +
     (opts.length >= 5 ? 1 : 0) +
     (/(옳은\s*것|모두|보기|ㄱ\.|ㄴ\.|ㄷ\.|가\)|나\)|다\))/.test(allText) ? 3 : 0);
+
+  const placeholderHits = hasPattern(allText, PLACEHOLDER_ARTIFACTS);
+  if (placeholderHits.length) {
+    addIssue({
+      severity: "P1",
+      category: "quality",
+      code: "content_placeholder_artifact",
+      ...issueBase(q),
+      message: "Question content contains a leftover OCR or placeholder token.",
+      reasons: placeholderHits,
+      field: "question/options/explanation",
+      evidence: excerpt(allText),
+    });
+  }
 
   if (explanation) {
     const processHits = hasPattern(explanation, PROCESS_ARTIFACTS);
@@ -243,7 +272,7 @@ for (const q of questions) {
         evidence: excerpt(q.explanation),
       });
     } else if (
-      (explanation.length < 70 && complexityScore >= 7) ||
+      (explanation.length < 50 && complexityScore >= 7) ||
       (explanation.length < 45 && (qMathDensity >= 5 || question.length >= 220))
     ) {
       addIssue({
@@ -258,7 +287,7 @@ for (const q of questions) {
       });
     }
 
-    if (complexityScore >= 9 && explanationMathDensity === 0 && explanation.length < 160) {
+    if (complexityScore >= 9 && explanationMathDensity < 3 && explanation.length < 120) {
       addIssue({
         severity: "P3",
         category: "quality",
