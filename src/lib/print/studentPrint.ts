@@ -47,16 +47,21 @@ export function printStudentPdf(options: PrintOptions = {}) {
     options.afterPrint?.();
   };
 
-  if (options.showGuide !== false) showPrintGuideOnce();
-
   root.classList.add(STUDENT_PRINT_CLASS);
   if (options.modeClass) root.classList.add(options.modeClass);
   window.addEventListener("afterprint", cleanup);
 
-  window.requestAnimationFrame(() => {
-    window.setTimeout(() => {
-      window.print();
-      window.setTimeout(cleanup, 30000);
-    }, 0);
-  });
+  if (options.showGuide === true) showPrintGuideOnce();
+
+  try {
+    // Keep print inside the original click gesture. Some browsers block or ignore
+    // window.print() once it is delayed through alert/requestAnimationFrame/timers.
+    document.body.getBoundingClientRect();
+    window.print();
+  } catch {
+    cleanup();
+    return;
+  }
+
+  window.setTimeout(cleanup, 30000);
 }
