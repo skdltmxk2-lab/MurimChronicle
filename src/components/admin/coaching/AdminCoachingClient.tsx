@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type DragEvent, type FocusEvent, type KeyboardEvent } from "react";
+import { flushSync } from "react-dom";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
@@ -26,6 +27,7 @@ import type {
 
 const MAX_UPLOAD_PAGES = 8;
 const QUESTIONS_PER_PRINT_PAGE = 6;
+const UNIT_USAGE_RECORD_TIMEOUT_MS = 10000;
 
 type Tab = "related" | "unit" | "twin";
 type PrintMode = "questions" | "answers";
@@ -1069,25 +1071,30 @@ export function AdminCoachingClient() {
   }
 
   function printSheet(mode: PrintMode) {
-    setPrintMode(mode);
-    window.requestAnimationFrame(() => {
-      window.setTimeout(() => window.print(), 0);
+    flushSync(() => {
+      setPrintMode(mode);
     });
+    document.body.getBoundingClientRect();
+    window.print();
   }
 
-  async function recordUnitMockPdfUsage(): Promise<boolean> {
-    if (sheet?.sourceLabel !== "unit-mock" || sheet.questions.length === 0) return true;
-    if (unitPdfSaving) return false;
+  async function recordUnitMockPdfUsage(): Promise<void> {
+    if (sheet?.sourceLabel !== "unit-mock" || sheet.questions.length === 0) return;
+    if (unitPdfSaving) return;
 
+    const questionIds = sheet.questions.map((question) => question.id);
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), UNIT_USAGE_RECORD_TIMEOUT_MS);
     setUnitPdfSaving(true);
-    setUnitMsg("");
+    setUnitMsg("PDF를 열었습니다. 사용 이력을 기록 중입니다.");
     try {
       const json = await ensureOk<{
         usage: Array<{ questionId: string; useCount: number; lastUsedAt: string | null }>;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock/usage", {
           method: "POST",
-          body: JSON.stringify({ questionIds: sheet.questions.map((question) => question.id) }),
+          body: JSON.stringify({ questionIds }),
+          signal: controller.signal,
         })
       );
       const usageById = new Map(json.usage.map((item) => [item.questionId, item]));
@@ -1106,22 +1113,26 @@ export function AdminCoachingClient() {
           }),
         };
       });
-      setUnitMsg(`문제지 PDF 사용 이력을 ${sheet.questions.length}문항 기록했습니다.`);
-      return true;
+      setUnitMsg(`문제지 PDF 사용 이력을 ${questionIds.length}문항 기록했습니다.`);
     } catch (error) {
-      setUnitMsg(error instanceof Error ? error.message : "PDF 사용 이력 기록에 실패했습니다.");
-      return false;
+      setUnitMsg(
+        error instanceof DOMException && error.name === "AbortError"
+          ? "PDF는 열었지만 사용 이력 기록이 시간 초과되었습니다."
+          : error instanceof Error
+            ? `PDF는 열었지만 사용 이력 기록에 실패했습니다: ${error.message}`
+            : "PDF는 열었지만 사용 이력 기록에 실패했습니다."
+      );
     } finally {
+      window.clearTimeout(timeoutId);
       setUnitPdfSaving(false);
     }
   }
 
-  async function saveSheetPdf(mode: PrintMode) {
-    if (mode === "questions" && sheet?.sourceLabel === "unit-mock") {
-      const recorded = await recordUnitMockPdfUsage();
-      if (!recorded) return;
-    }
+  function saveSheetPdf(mode: PrintMode) {
     printSheet(mode);
+    if (mode === "questions" && sheet?.sourceLabel === "unit-mock") {
+      void recordUnitMockPdfUsage();
+    }
   }
 
   function updateQuestionPageHeader(pageIndex: number, value: string) {
@@ -1529,16 +1540,14 @@ export function AdminCoachingClient() {
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                disabled={unitPdfSaving}
-                onClick={() => void saveSheetPdf("questions")}
+                onClick={() => saveSheetPdf("questions")}
                 className="rounded-md bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                {unitPdfSaving ? "사용 이력 기록 중..." : "문제지 PDF 저장"}
+                문제지 PDF 저장
               </button>
               <button
                 type="button"
-                disabled={unitPdfSaving}
-                onClick={() => void saveSheetPdf("answers")}
+                onClick={() => saveSheetPdf("answers")}
                 className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 해답지 PDF 저장
