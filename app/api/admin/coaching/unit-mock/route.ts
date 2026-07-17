@@ -4,6 +4,12 @@ import {
   COACHING_QUESTION_SELECT,
   questionRowsToRecords,
 } from "@/lib/admin/coaching";
+import {
+  coachingStudentStoreMessage,
+  findOwnedCoachingStudent,
+  isCoachingStudentId,
+  isMissingCoachingStudentStore,
+} from "@/lib/admin/coachingStudents";
 import { DIFFICULTY_KEYS, isKnownSubject, unitsForSubject } from "@/lib/taxonomy";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty } from "@/types/exam";
@@ -31,9 +37,7 @@ type CoachingUsage = {
 };
 
 type UsageLoadResult = {
-  available: boolean;
   usageByQuestionId: Map<string, CoachingUsage>;
-  message?: string;
 };
 
 function shuffle<T>(values: T[]): T[] {
@@ -45,36 +49,24 @@ function shuffle<T>(values: T[]): T[] {
   return next;
 }
 
-function isMissingUsageStore(error: { code?: string; message?: string }) {
-  const message = error.message ?? "";
-  return (
-    error.code === "42P01" ||
-    error.code === "42883" ||
-    error.code === "PGRST202" ||
-    message.includes("coaching_unit_mock_usage") ||
-    message.includes("record_coaching_unit_mock_usage")
-  );
-}
-
 async function loadCoachingUsage(
   supabase: SupabaseClient,
+  teacherId: string,
+  studentId: string,
   questionIds: string[]
 ): Promise<UsageLoadResult> {
   const ids = Array.from(new Set(questionIds.filter(Boolean)));
   const usageByQuestionId = new Map<string, CoachingUsage>();
-  if (ids.length === 0) return { available: true, usageByQuestionId };
+  if (ids.length === 0) return { usageByQuestionId };
 
   const { data, error } = await supabase
-    .from("coaching_unit_mock_usage")
+    .from("coaching_student_question_usage")
     .select("question_id, use_count, last_used_at")
+    .eq("teacher_id", teacherId)
+    .eq("student_id", studentId)
     .in("question_id", ids);
 
-  if (error) {
-    if (isMissingUsageStore(error)) {
-      return { available: false, usageByQuestionId, message: error.message };
-    }
-    throw error;
-  }
+  if (error) throw error;
 
   for (const row of data ?? []) {
     usageByQuestionId.set(row.question_id as string, {
@@ -83,7 +75,7 @@ async function loadCoachingUsage(
     });
   }
 
-  return { available: true, usageByQuestionId };
+  return { usageByQuestionId };
 }
 
 function attachCoachingUsage(question: QuestionRecord, usage: Map<string, CoachingUsage>): QuestionRecord {
@@ -107,6 +99,7 @@ export async function POST(request: Request) {
         difficulty?: "all" | Difficulty;
         pool?: "all" | QuestionPool;
         count?: number;
+        studentId?: string;
         excludeIds?: unknown[];
         excludeUsed?: boolean;
         sections?: unknown[];
@@ -118,12 +111,34 @@ export async function POST(request: Request) {
   const concept = typeof body?.concept === "string" ? body.concept.trim() : "";
   const difficulty = body?.difficulty ?? "all";
   const pool = body?.pool ?? "all";
+  const studentId = typeof body?.studentId === "string" ? body.studentId.trim() : "";
   const excludeUsed = body?.excludeUsed === true;
   const excludeIds = new Set(
     Array.isArray(body?.excludeIds)
       ? body.excludeIds.filter((id): id is string => typeof id === "string")
       : []
   );
+
+  if (!studentId) {
+    return NextResponse.json({ ok: false, message: "출제 대상 학생을 선택해 주세요." }, { status: 400 });
+  }
+  if (!isCoachingStudentId(studentId)) {
+    return NextResponse.json({ ok: false, message: "학생 ID가 올바르지 않습니다." }, { status: 400 });
+  }
+
+  const ownedStudent = await findOwnedCoachingStudent(auth.supabase, auth.userId, studentId);
+  if (ownedStudent.error) {
+    const message = isMissingCoachingStudentStore(ownedStudent.error)
+      ? coachingStudentStoreMessage()
+      : ownedStudent.error.message;
+    return NextResponse.json({ ok: false, message }, { status: 500 });
+  }
+  if (!ownedStudent.student) {
+    return NextResponse.json(
+      { ok: false, message: "선택한 학생을 찾을 수 없습니다. 학생 명단을 새로고침해 주세요." },
+      { status: 404 }
+    );
+  }
 
   if (difficulty !== "all" && !DIFFICULTY_KEYS.includes(difficulty)) {
     return NextResponse.json({ ok: false, message: "난이도 값이 올바르지 않습니다." }, { status: 400 });
@@ -175,7 +190,6 @@ export async function POST(request: Request) {
   let available = 0;
   let unusedAvailable = 0;
   let candidateCount = 0;
-  let usageTrackingAvailable = true;
 
   for (const section of sections) {
     let query = auth.supabase
@@ -197,22 +211,23 @@ export async function POST(request: Request) {
     const allQuestions = questionRowsToRecords((data ?? []) as unknown as Record<string, unknown>[]);
     let usage: UsageLoadResult;
     try {
-      usage = await loadCoachingUsage(auth.supabase, allQuestions.map((question) => question.id));
+      usage = await loadCoachingUsage(
+        auth.supabase,
+        auth.userId,
+        ownedStudent.student.id,
+        allQuestions.map((question) => question.id)
+      );
     } catch (error) {
+      const message =
+        error && typeof error === "object" && isMissingCoachingStudentStore(error as { code?: string; message?: string })
+          ? coachingStudentStoreMessage()
+          : error instanceof Error
+            ? error.message
+            : "사용 이력을 불러오지 못했습니다.";
       return NextResponse.json(
-        { ok: false, message: error instanceof Error ? error.message : "사용 이력을 불러오지 못했습니다." },
+        { ok: false, message },
         { status: 500 }
       );
-    }
-
-    if (!usage.available) {
-      usageTrackingAvailable = false;
-      if (excludeUsed) {
-        return NextResponse.json(
-          { ok: false, message: "코칭 사용 이력 테이블이 없습니다. 최신 Supabase 마이그레이션을 적용해 주세요." },
-          { status: 500 }
-        );
-      }
     }
 
     const questionsWithUsage = allQuestions.map((question) =>
@@ -250,6 +265,7 @@ export async function POST(request: Request) {
     questions: selectedQuestions,
     requestedCount,
     breakdown,
-    usageTrackingAvailable,
+    usageTrackingAvailable: true,
+    student: ownedStudent.student,
   });
 }

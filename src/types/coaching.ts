@@ -30,3 +30,12 @@ export type CoachingRelatedGroup = {
   skipped?: boolean;
   reason?: string;
 };
+
+export type CoachingStudent = {
+  id: string;
+  name: string;
+  memo: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
