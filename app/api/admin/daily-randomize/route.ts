@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { isStandaloneQuestion } from "@/lib/questions/standalone";
 
 function todayDate(): string {
   const d = new Date();
@@ -30,14 +31,24 @@ export async function POST(request: Request) {
   const supabase = auth.supabase;
 
   // 1. 데일리 풀 (subject/units 필터링)
-  let query = supabase.from("questions").select("id, subject, unit").contains("tags", ["daily"]);
+  let query = supabase
+    .from("questions")
+    .select("id, subject, unit, concept, question, tags")
+    .contains("tags", ["daily"]);
   if (body.subject) query = query.eq("subject", body.subject);
   const { data: poolRows, error: poolError } = await query;
   if (poolError) {
     return NextResponse.json({ ok: false, message: poolError.message }, { status: 500 });
   }
 
-  let pool = (poolRows ?? []) as Array<{ id: string; subject: string; unit: string }>;
+  let pool = ((poolRows ?? []) as Array<{
+    id: string;
+    subject: string;
+    unit: string;
+    concept: string;
+    question: string;
+    tags: string[];
+  }>).filter(isStandaloneQuestion);
   if (body.units && body.units.length > 0) {
     const unitSet = new Set(body.units);
     pool = pool.filter((q) => unitSet.has(q.unit));

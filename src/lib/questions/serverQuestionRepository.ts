@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { mockExams } from "@/data/mockData";
 import type { Problem } from "@/types/exam";
 import type { QuestionDraft, QuestionRecord } from "@/types/question";
+import { assertStandaloneQuestion } from "@/lib/questions/standalone";
 
 type DbRow = Record<string, unknown>;
 
@@ -140,6 +141,7 @@ export function fromQuestionDb(row: DbRow): QuestionRecord {
 }
 
 export async function createQuestion(supabase: SupabaseClient, draft: QuestionDraft) {
+  assertStandaloneQuestion(draft);
   const createdAt = nowIso();
   const isSubj = draft.questionType === "subjective";
   const record: QuestionRecord = {
@@ -159,6 +161,7 @@ export async function createQuestion(supabase: SupabaseClient, draft: QuestionDr
 }
 
 export async function updateQuestion(supabase: SupabaseClient, id: string, draft: QuestionDraft) {
+  assertStandaloneQuestion(draft);
   const { error } = await supabase
     .from("questions")
     .update({ ...draftToRow(draft), updated_at: nowIso() })
@@ -167,6 +170,14 @@ export async function updateQuestion(supabase: SupabaseClient, id: string, draft
 }
 
 export async function appendQuestions(supabase: SupabaseClient, drafts: QuestionDraft[]) {
+  drafts.forEach((draft, index) => {
+    try {
+      assertStandaloneQuestion(draft);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "단독 출제 가능 여부를 확인해 주세요.";
+      throw new Error(`가져오기 ${index + 1}번 문제: ${message}`);
+    }
+  });
   const createdAt = nowIso();
   const records = drafts.map((draft, index): QuestionRecord => {
     const isSubj = draft.questionType === "subjective";

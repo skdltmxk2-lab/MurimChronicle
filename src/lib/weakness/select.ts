@@ -17,6 +17,7 @@ import {
   distributeByWeight,
   strongUnits,
 } from "@/lib/weakness/score";
+import { isStandaloneQuestion } from "@/lib/questions/standalone";
 
 // 25문항 기준 비율
 const TARGET_TOTAL = 25;
@@ -40,6 +41,8 @@ type Candidate = {
   subject: string;
   unit: string;
   concept: string;
+  question: string;
+  tags: string[];
   difficulty: Difficulty;
 };
 
@@ -52,7 +55,7 @@ async function fetchQuestionsByUnits(
   const unitNames = Array.from(new Set(units.map((u) => u.unit)));
   const { data, error } = await supabase
     .from("questions")
-    .select("id, subject, unit, concept, difficulty")
+    .select("id, subject, unit, concept, question, tags, difficulty")
     .in("subject", subjects)
     .in("unit", unitNames);
   if (error) throw error;
@@ -64,9 +67,11 @@ async function fetchQuestionsByUnits(
       subject: q.subject as string,
       unit: q.unit as string,
       concept: q.concept as string,
+      question: q.question as string,
+      tags: (q.tags ?? []) as string[],
       difficulty: q.difficulty as Difficulty,
     }))
-    .filter((q) => pairSet.has(`${q.subject}|${q.unit}`));
+    .filter((q) => pairSet.has(`${q.subject}|${q.unit}`) && isStandaloneQuestion(q));
 }
 
 async function fetchAllQuestions(
@@ -77,7 +82,7 @@ async function fetchAllQuestions(
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from("questions")
-      .select("id, subject, unit, concept, difficulty")
+      .select("id, subject, unit, concept, question, tags, difficulty")
       .range(from, from + PAGE - 1);
     if (error) throw error;
     if (!data || data.length === 0) break;
@@ -87,12 +92,14 @@ async function fetchAllQuestions(
         subject: q.subject as string,
         unit: q.unit as string,
         concept: q.concept as string,
+        question: q.question as string,
+        tags: (q.tags ?? []) as string[],
         difficulty: q.difficulty as Difficulty,
       });
     }
     if (data.length < PAGE) break;
   }
-  return all;
+  return all.filter(isStandaloneQuestion);
 }
 
 // ============================================================

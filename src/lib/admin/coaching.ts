@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { QuestionDraft, QuestionRecord } from "@/types/question";
+import { assertStandaloneQuestion } from "@/lib/questions/standalone";
 
 type DbRow = Record<string, unknown>;
 
@@ -121,6 +122,7 @@ export async function createCoachingQuestion(
   supabase: SupabaseClient,
   draft: QuestionDraft
 ): Promise<QuestionRecord> {
+  assertStandaloneQuestion(draft);
   const createdAt = nowIso();
   const isSubjective = draft.questionType === "subjective";
   const record: QuestionRecord = {

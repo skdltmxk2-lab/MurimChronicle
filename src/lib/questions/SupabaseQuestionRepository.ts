@@ -5,6 +5,7 @@ import { mockExams } from "@/data/mockData";
 import type { Problem } from "@/types/exam";
 import type { QuestionDraft, QuestionFilters, QuestionRecord } from "@/types/question";
 import type { IQuestionRepository } from "@/lib/questions/IQuestionRepository";
+import { assertStandaloneQuestion } from "@/lib/questions/standalone";
 
 function nowIso() {
   return new Date().toISOString();
@@ -265,6 +266,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   },
 
   async create(draft: QuestionDraft): Promise<QuestionRecord> {
+    assertStandaloneQuestion(draft);
     const createdAt = nowIso();
     const isSubj = draft.questionType === "subjective";
     const record: QuestionRecord = {
@@ -284,6 +286,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   },
 
   async update(id: string, draft: QuestionDraft): Promise<void> {
+    assertStandaloneQuestion(draft);
     const { error } = await supabase
       .from("questions")
       .update({ ...draftToRow(draft), updated_at: nowIso() })
@@ -292,6 +295,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   },
 
   async appendMany(drafts: QuestionDraft[]): Promise<QuestionRecord[]> {
+    drafts.forEach((draft, index) => {
+      try {
+        assertStandaloneQuestion(draft);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "단독 출제 가능 여부를 확인해 주세요.";
+        throw new Error(`가져오기 ${index + 1}번 문제: ${message}`);
+      }
+    });
     const createdAt = nowIso();
     const records = drafts.map((draft, index): QuestionRecord => {
       const isSubj = draft.questionType === "subjective";

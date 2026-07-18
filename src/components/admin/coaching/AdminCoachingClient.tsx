@@ -76,6 +76,7 @@ type UnitMockBreakdown = {
   unusedAvailable: number;
   candidateCount: number;
   selectedCount: number;
+  excludedIncomplete: number;
 };
 
 type TwinResult = {
@@ -912,6 +913,7 @@ export function AdminCoachingClient() {
         candidateCount?: number;
         requestedCount: number;
         breakdown?: UnitMockBreakdown[];
+        excludedIncomplete?: number;
         usageTrackingAvailable?: boolean;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
@@ -935,6 +937,10 @@ export function AdminCoachingClient() {
           ? ` · 후보 ${json.candidateCount}문항`
           : "";
       const trackingText = json.usageTrackingAvailable === false ? " · 사용 이력 조회 불가" : "";
+      const exclusionText =
+        (json.excludedIncomplete ?? 0) > 0
+          ? ` · 불완전 묶음 ${json.excludedIncomplete}문항 제외`
+          : "";
       const breakdownText = (json.breakdown ?? [])
         .map((item) =>
           unitExcludeUsed
@@ -943,7 +949,7 @@ export function AdminCoachingClient() {
         )
         .join(" · ");
       setUnitMsg(
-        `${unitStudent.name} 학생 기준 · ${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${trackingText}${
+        `${unitStudent.name} 학생 기준 · ${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${exclusionText}${trackingText}${
           breakdownText ? ` (${breakdownText})` : ""
         }`
       );

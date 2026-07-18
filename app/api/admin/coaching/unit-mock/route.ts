@@ -11,6 +11,7 @@ import {
   isMissingCoachingStudentStore,
 } from "@/lib/admin/coachingStudents";
 import { DIFFICULTY_KEYS, isKnownSubject, unitsForSubject } from "@/lib/taxonomy";
+import { isStandaloneQuestion } from "@/lib/questions/standalone";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionPool, QuestionRecord } from "@/types/question";
@@ -29,6 +30,7 @@ type UnitMockBreakdown = {
   unusedAvailable: number;
   candidateCount: number;
   selectedCount: number;
+  excludedIncomplete: number;
 };
 
 type CoachingUsage = {
@@ -190,6 +192,7 @@ export async function POST(request: Request) {
   let available = 0;
   let unusedAvailable = 0;
   let candidateCount = 0;
+  let excludedIncomplete = 0;
 
   for (const section of sections) {
     let query = auth.supabase
@@ -233,9 +236,11 @@ export async function POST(request: Request) {
     const questionsWithUsage = allQuestions.map((question) =>
       attachCoachingUsage(question, usage.usageByQuestionId)
     );
-    const unusedQuestions = questionsWithUsage.filter((question) => (question.coachingUseCount ?? 0) === 0);
+    const eligibleQuestions = questionsWithUsage.filter(isStandaloneQuestion);
+    const sectionExcludedIncomplete = questionsWithUsage.length - eligibleQuestions.length;
+    const unusedQuestions = eligibleQuestions.filter((question) => (question.coachingUseCount ?? 0) === 0);
     const candidates = shuffle(
-      questionsWithUsage.filter(
+      eligibleQuestions.filter(
         (question) => !selectedIds.has(question.id) && (!excludeUsed || (question.coachingUseCount ?? 0) === 0)
       )
     );
@@ -243,17 +248,19 @@ export async function POST(request: Request) {
 
     for (const question of picked) selectedIds.add(question.id);
     selectedQuestions.push(...picked);
-    available += allQuestions.length;
+    available += eligibleQuestions.length;
     unusedAvailable += unusedQuestions.length;
     candidateCount += candidates.length;
+    excludedIncomplete += sectionExcludedIncomplete;
     breakdown.push({
       subject: section.subject,
       unit: section.unit,
       requestedCount: section.count,
-      available: allQuestions.length,
+      available: eligibleQuestions.length,
       unusedAvailable: unusedQuestions.length,
       candidateCount: candidates.length,
       selectedCount: picked.length,
+      excludedIncomplete: sectionExcludedIncomplete,
     });
   }
 
@@ -265,6 +272,7 @@ export async function POST(request: Request) {
     questions: selectedQuestions,
     requestedCount,
     breakdown,
+    excludedIncomplete,
     usageTrackingAvailable: true,
     student: ownedStudent.student,
   });

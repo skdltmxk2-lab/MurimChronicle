@@ -177,25 +177,25 @@ const problems = [
     explanation: "세 영역을 합치면 단위원 내부 일부 (각 $3\\pi/4\\sim\\pi/3$ 구간). 극좌표로 통합:\n$\\displaystyle\\int_{\\pi/6}^{3\\pi/4}\\!\\int_0^1\\!r\\sin\\theta\\cdot r\\,dr\\,d\\theta=\\!\\left[-\\cos\\theta\\right]_{\\pi/6}^{3\\pi/4}\\cdot\\dfrac{1}{3}=\\!\\left(\\dfrac{\\sqrt{2}}{2}+\\dfrac{\\sqrt{3}}{2}\\right)\\!\\cdot\\dfrac{1}{3}=\\dfrac{1}{3}\\!\\left(\\dfrac{1}{\\sqrt{2}}+\\dfrac{\\sqrt{3}}{2}\\right)$."
   }),
   build({
-    num: 48, subject: "적분학", unit: "이상적분", concept: "지수형 적분 변형 (지문 1)", difficulty: "medium",
+    num: 48, subject: "적분학", unit: "이상적분", concept: "지수형 이상적분의 제곱 완성", difficulty: "medium",
     question: "이상 적분 $I=\\displaystyle\\int_0^{\\infty}\\!e^{-x^2}e^{-4x^{-2}}dx$의 값을 구하는 요령에서 $e^{-(x^2+4x^{-2})}=e^{-\\alpha}\\cdot e^{-(x+\\beta x^{-1})^2}$일 때 $\\alpha+\\beta$의 값은?",
     options: [o("1","$-4$"), o("2","$-2$"), o("3","$0$"), o("4","$2$"), o("5","$4$")],
     answer: 4,
     explanation: "$(x+\\beta x^{-1})^2=x^2+2\\beta+\\beta^2 x^{-2}$. 비교: $x^2+2\\beta+\\beta^2 x^{-2}=x^2+4x^{-2}+\\alpha$ (지수 일치 조건).\n$\\beta^2=4\\Rightarrow\\beta=\\pm 2$. $2\\beta=\\alpha$. 정확한 식: $x^2+4x^{-2}=(x-2x^{-1})^2+4$ ⟹ $\\beta=-2,\\,\\alpha=4$. $\\alpha+\\beta=2$."
   }),
   build({
-    num: 49, subject: "적분학", unit: "이상적분", concept: "지수형 극한 (지문 2)", difficulty: "medium",
+    num: 49, subject: "적분학", unit: "이상적분", concept: "지수형 극한", difficulty: "medium",
     question: "$\\displaystyle\\lim_{x\\to\\mu}(1+\\gamma x^{-1})^{|x|}$을 구하면? ($\\gamma=2$, $\\mu=-\\infty$)",
     options: [o("1","$e^{-4}$"), o("2","$e^{-2}$"), o("3","$1$"), o("4","$e^2$"), o("5","$e^4$")],
     answer: 2,
     explanation: "$x=-t$ 치환 ($t\\to\\infty$, $|x|=t$).\n$\\displaystyle\\lim_{t\\to\\infty}\\!\\left(1-\\dfrac{2}{t}\\right)^{\\!t}=\\!\\left(\\lim\\!\\left(1+\\dfrac{-2}{t}\\right)^{\\!-t/2}\\right)^{\\!-2}=e^{-2}$."
   }),
   build({
-    num: 50, subject: "적분학", unit: "이상적분", concept: "지수형 적분 최종값 (지문 3)", difficulty: "medium",
+    num: 50, subject: "적분학", unit: "이상적분", concept: "지수형 이상적분 계산", difficulty: "medium",
     question: "$\\displaystyle\\int_0^{\\infty}\\!e^{-x^2}e^{-4x^{-2}}dx$의 값은?",
     options: [o("1","$\\dfrac{\\sqrt{\\pi}}{2}e^{-4}$"), o("2","$\\dfrac{\\sqrt{\\pi}}{4}e^{-4}$"), o("3","$1$"), o("4","$\\dfrac{\\sqrt{\\pi}}{4}e^{4}$"), o("5","$\\dfrac{\\sqrt{\\pi}}{2}e^{4}$")],
     answer: 1,
-    explanation: "$I=e^{-4}\\!\\int_0^{\\infty}\\!e^{-(x-2x^{-1})^2}dx$. $u=x-2x^{-1}$ 치환 ($du=(1+2x^{-2})dx$, $x:0\\to\\infty\\Rightarrow u:-\\infty\\to\\infty$). 가우시안 균형으로 $\\int_{-\\infty}^{\\infty}e^{-u^2}du=\\sqrt{\\pi}$. 인수 $1+2x^{-2}$가 평균 $1$로 정리: $2I=e^{-4}\\cdot\\sqrt{\\pi}$, $I=\\dfrac{\\sqrt{\\pi}}{2}e^{-4}$."
+    explanation: "$I=\\displaystyle\\int_0^{\\infty}e^{-(x^2+4x^{-2})}dx$라 하자. $x=2/t$로 치환하면 $I=\\int_0^{\\infty}2x^{-2}e^{-(x^2+4x^{-2})}dx$이므로, 두 식을 더해 $2I=\\int_0^{\\infty}(1+2x^{-2})e^{-(x^2+4x^{-2})}dx$를 얻는다.\n$x^2+4x^{-2}=(x-2x^{-1})^2+4$이고 $u=x-2x^{-1}$이면 $du=(1+2x^{-2})dx$이다. 따라서 $2I=e^{-4}\\int_{-\\infty}^{\\infty}e^{-u^2}du=e^{-4}\\sqrt{\\pi}$, 즉 $I=\\dfrac{\\sqrt{\\pi}}{2}e^{-4}$."
   }),
 ];
 

@@ -177,25 +177,25 @@ const problems = [
     explanation: "$\\displaystyle S=\\dfrac{1}{2}\\!\\int_0^{\\pi}r^2 d\\theta=\\dfrac{1}{2}\\!\\int_0^{\\pi}\\!\\sin^3\\theta\\,d\\theta$.\n월리스: $\\displaystyle\\int_0^{\\pi}\\!\\sin^3\\theta\\,d\\theta=2\\!\\int_0^{\\pi/2}\\!\\sin^3\\theta\\,d\\theta=2\\cdot\\dfrac{2}{3}=\\dfrac{4}{3}$.\n$S=\\dfrac{1}{2}\\cdot\\dfrac{4}{3}=\\dfrac{2}{3}$."
   }),
   build({
-    num: 48, subject: "적분학", unit: "이상적분", concept: "가우시안 변형 (지문 1)", difficulty: "easyMedium",
+    num: 48, subject: "적분학", unit: "이상적분", concept: "가우시안 적분의 극좌표 변환", difficulty: "easyMedium",
     question: "이상 적분 $I=\\displaystyle\\int_0^{\\infty}x^2 e^{-x^2}dx$의 값을 구하기 위하여 $I^2$을 극좌표로 변환했을 때 $I^2=\\displaystyle\\int_0^{a}\\!\\!\\left(\\int_0^{\\infty}r^m e^{-r^2}dr\\right)\\!\\sin^2\\theta\\cos^2\\theta\\,d\\theta$로 표현된다. $a$의 값은?",
     options: [o("1","$\\dfrac{\\pi}{4}$"), o("2","$\\dfrac{\\pi}{3}$"), o("3","$\\dfrac{\\pi}{2}$"), o("4","$\\pi$"), o("5","$2\\pi$")],
     answer: 3,
     explanation: "$I^2=\\!\\left(\\int_0^{\\infty}\\!x^2 e^{-x^2}dx\\right)\\!\\!\\left(\\int_0^{\\infty}\\!y^2 e^{-y^2}dy\\right)=\\!\\iint_{x,y\\ge 0}\\!x^2 y^2 e^{-(x^2+y^2)}dxdy$.\n영역은 제1사분면 ($0\\le x<\\infty$, $0\\le y<\\infty$)이므로 극좌표에서 $0\\le\\theta\\le\\dfrac{\\pi}{2}$, $0\\le r<\\infty$.\n따라서 $a=\\dfrac{\\pi}{2}$."
   }),
   build({
-    num: 49, subject: "적분학", unit: "이상적분", concept: "$\\sin^2\\cos^2$ 적분 (지문 2)", difficulty: "medium",
-    question: "지문 48의 변환에서 $\\sin^2\\theta\\cos^2\\theta=\\alpha+\\beta\\cos\\gamma\\theta$일 때 $\\displaystyle\\int_0^{a}(\\alpha+\\beta\\cos\\gamma\\theta)d\\theta=c$. $c$의 값은? ($a=\\pi/2$)",
+    num: 49, subject: "적분학", unit: "이상적분", concept: "$\\sin^2\\cos^2$ 적분", difficulty: "medium",
+    question: "$\\sin^2\\theta\\cos^2\\theta=\\alpha+\\beta\\cos\\gamma\\theta$일 때 $\\displaystyle\\int_0^{a}(\\alpha+\\beta\\cos\\gamma\\theta)d\\theta=c$라 하자. $a=\\pi/2$일 때 $c$의 값은?",
     options: [o("1","$\\dfrac{\\pi}{16}$"), o("2","$\\dfrac{\\pi}{4}$"), o("3","$1$"), o("4","$\\dfrac{\\pi^2}{4}$"), o("5","$\\dfrac{\\pi^2}{16}$")],
     answer: 1,
     explanation: "$\\sin^2\\theta\\cos^2\\theta=\\dfrac{1}{4}\\sin^2(2\\theta)=\\dfrac{1}{4}\\cdot\\dfrac{1-\\cos(4\\theta)}{2}=\\dfrac{1}{8}-\\dfrac{1}{8}\\cos(4\\theta)$.\n$\\alpha=\\dfrac{1}{8},\\,\\beta=-\\dfrac{1}{8},\\,\\gamma=4$.\n$\\displaystyle\\int_0^{\\pi/2}\\!\\left(\\dfrac{1}{8}-\\dfrac{1}{8}\\cos 4\\theta\\right)d\\theta=\\dfrac{1}{8}\\cdot\\dfrac{\\pi}{2}-0=\\dfrac{\\pi}{16}$."
   }),
   build({
-    num: 50, subject: "적분학", unit: "이상적분", concept: "가우시안 결합 (지문 3)", difficulty: "medium",
+    num: 50, subject: "적분학", unit: "이상적분", concept: "가우시안 적분 계산", difficulty: "medium",
     question: "$\\displaystyle\\int_0^{\\infty}x^2 e^{-x^2}dx$의 값을 구하면?",
     options: [o("1","$\\pi$"), o("2","$\\dfrac{\\pi}{2}$"), o("3","$1$"), o("4","$\\dfrac{\\sqrt{\\pi}}{2}$"), o("5","$\\dfrac{\\sqrt{\\pi}}{4}$")],
     answer: 5,
-    explanation: "$b=\\displaystyle\\int_0^{\\infty}r^5 e^{-r^2}dr$. $r^2=u$ 치환 ($2r\\,dr=du$): $r^5 dr=r^4\\cdot r\\,dr=u^2\\cdot\\dfrac{du}{2}$. $b=\\dfrac{1}{2}\\!\\int_0^{\\infty}\\!u^2 e^{-u}du=\\dfrac{1}{2}\\cdot 2!=1$.\n$I^2=b\\cdot c=1\\cdot\\dfrac{\\pi}{16}=\\dfrac{\\pi}{16}$, $I=\\dfrac{\\sqrt{\\pi}}{4}$ (since $I>0$)."
+    explanation: "$I=\\displaystyle\\int_0^{\\infty}x^2e^{-x^2}dx$라 하자. $I^2=\\iint_{x,y\\ge0}x^2y^2e^{-(x^2+y^2)}dxdy=\\left(\\int_0^{\\infty}r^5e^{-r^2}dr\\right)\\left(\\int_0^{\\pi/2}\\sin^2\\theta\\cos^2\\theta\\,d\\theta\\right)$.\n$r^2=u$로 치환하면 첫 적분은 $\\dfrac12\\int_0^{\\infty}u^2e^{-u}du=1$이고, 두 번째 적분은 $\\dfrac{\\pi}{16}$이다. 따라서 $I^2=\\dfrac{\\pi}{16}$이며 $I>0$이므로 $I=\\dfrac{\\sqrt{\\pi}}{4}$."
   }),
 ];
 

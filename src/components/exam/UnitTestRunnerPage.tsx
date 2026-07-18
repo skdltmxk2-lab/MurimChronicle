@@ -14,6 +14,7 @@ import { ExamRunner } from "@/components/exam/ExamRunner";
 import { buildSubjectMockRounds } from "@/lib/exam/buildSubjectMockRounds";
 import { DIFFICULTY_KEYS } from "@/lib/taxonomy";
 import { allowedSubjectsForMonth, monthFromDateString } from "@/lib/daily/schedule";
+import { isStandaloneQuestion } from "@/lib/questions/standalone";
 
 export const SUBJECT_MOCK_ROUNDS = 3;
 export const SUBJECT_MOCK_PER_ROUND = 20;
@@ -149,7 +150,7 @@ export function UnitTestRunnerPage() {
       let tags: string[];
 
       if (mode === "daily") {
-        const dailyPool = await questionRepo.listByTag("daily");
+        const dailyPool = (await questionRepo.listByTag("daily")).filter(isStandaloneQuestion);
         if (cancelled) return;
         if (dailyPool.length === 0) {
           fail("오늘의 데일리 테스트 문제가 아직 없습니다.\n관리자에서 데일리 문제를 추가해 주세요.");
@@ -217,7 +218,7 @@ export function UnitTestRunnerPage() {
           fail("과목 정보가 없습니다.\n시험 목록에서 다시 선택해 주세요.");
           return;
         }
-        const pool = await questionRepo.listBySubject(subject);
+        const pool = (await questionRepo.listBySubject(subject)).filter(isStandaloneQuestion);
         if (cancelled) return;
         if (pool.length === 0) {
           fail(`${subject} 과목의 문제가 아직 없습니다.\n관리자에 문의해 주세요.`);
@@ -239,11 +240,12 @@ export function UnitTestRunnerPage() {
         tags = [subject, "과목별 모의고사", `${round}회`];
       } else {
         const selectedUnits = unitsParam.split(",").filter(Boolean);
-        const [pool, attempts, generatedExams] = await Promise.all([
+        const [rawPool, attempts, generatedExams] = await Promise.all([
           questionRepo.listByUnits(subject, selectedUnits),
           attemptRepo.listResults(),
           examRepo.listGenerated(),
         ]);
+        const pool = rawPool.filter(isStandaloneQuestion);
         if (cancelled) return;
         if (pool.length === 0) {
           const unitStr = selectedUnits.join(", ");
