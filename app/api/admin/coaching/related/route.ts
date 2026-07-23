@@ -38,7 +38,8 @@ async function fetchQuestionsByIds(
   const { data, error } = await supabase
     .from("questions")
     .select(COACHING_QUESTION_SELECT)
-    .in("id", ids);
+    .in("id", ids)
+    .eq("quality_status", "approved");
   if (error) throw error;
   const records = questionRowsToRecords((data ?? []) as unknown as Record<string, unknown>[]);
   return new Map(records.map((record) => [record.id, record]));

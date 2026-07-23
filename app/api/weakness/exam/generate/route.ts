@@ -89,7 +89,8 @@ export async function POST(request: Request) {
     .select(
       "id, subject, unit, concept, difficulty, question, content_type, question_image, options, correct_option_id, explanation, explanation_content_type, explanation_image, question_type, answer_text"
     )
-    .in("id", ids);
+    .in("id", ids)
+    .eq("quality_status", "approved");
   if (qErr) {
     return NextResponse.json({ ok: false, message: qErr.message }, { status: 500 });
   }

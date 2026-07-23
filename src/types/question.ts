@@ -2,6 +2,7 @@ import type { ContentType, Difficulty, ProblemOption, QuestionType } from "@/typ
 
 export type QuestionSourceType = "mock" | "manual" | "imported" | "ai";
 export type QuestionPool = "general" | "daily" | "self_mock";
+export type QuestionQualityStatus = "pending" | "approved" | "quarantined";
 
 export const POOL_LABELS: Record<QuestionPool, string> = {
   general: "일반",
@@ -28,6 +29,10 @@ export type QuestionRecord = {
   explanationContentType?: ContentType;
   explanationImage?: string;
   tags: string[];
+  qualityStatus?: QuestionQualityStatus;
+  qualityReasons?: string[];
+  validatedAt?: string | null;
+  validatorVersion?: string | null;
   createdAt: string;
   updatedAt: string;
   coachingUseCount?: number;

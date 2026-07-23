@@ -6,6 +6,7 @@ import type {
   QuestionDraft,
   QuestionFilters,
   QuestionPool,
+  QuestionQualityStatus,
   QuestionRecord,
   QuestionSourceType,
 } from "@/types/question";
@@ -40,6 +41,15 @@ const sourceTypeStyles: Record<QuestionSourceType, string> = {
   manual: "bg-brand-50 text-brand-700",
   imported: "bg-amber-50 text-amber-700",
   ai: "bg-mint-50 text-mint-600"
+};
+
+const qualityStatusMeta: Record<
+  QuestionQualityStatus,
+  { label: string; className: string }
+> = {
+  approved: { label: "승인", className: "bg-mint-50 text-mint-700" },
+  pending: { label: "검수대기", className: "bg-amber-50 text-amber-700" },
+  quarantined: { label: "격리", className: "bg-coral-50 text-coral-700" },
 };
 
 const PAGE_SIZE = 100;
@@ -458,10 +468,11 @@ export function AdminQuestionsClient() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] border-collapse text-left">
+          <table className="w-full min-w-[1060px] border-collapse text-left">
             <thead className="bg-slate-50 text-xs font-black text-slate-500">
               <tr>
                 <th className="w-[90px] px-4 py-3">source</th>
+                <th className="w-[90px] px-4 py-3">검수</th>
                 <th className="w-[110px] px-4 py-3">과목</th>
                 <th className="w-[120px] px-4 py-3">단원</th>
                 <th className="w-[90px] px-4 py-3">난이도</th>
@@ -485,6 +496,20 @@ export function AdminQuestionsClient() {
                     >
                       {question.sourceType}
                     </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    {(() => {
+                      const status = question.qualityStatus ?? "approved";
+                      const meta = qualityStatusMeta[status];
+                      return (
+                        <span
+                          title={(question.qualityReasons ?? []).join(", ")}
+                          className={`rounded-full px-2.5 py-1 text-xs font-black ${meta.className}`}
+                        >
+                          {meta.label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-4 text-sm font-bold text-slate-700">{question.subject}</td>
                   <td className="px-4 py-4">
@@ -551,7 +576,7 @@ export function AdminQuestionsClient() {
               ))}
               {visibleQuestions.length === 0 ? (
                 <tr>
-                  <td className="px-4 py-10 text-center text-sm font-bold text-slate-500" colSpan={7}>
+                  <td className="px-4 py-10 text-center text-sm font-bold text-slate-500" colSpan={8}>
                     {listLoading ? "문제 목록을 불러오는 중입니다." : "조건에 맞는 문제가 없습니다."}
                   </td>
                 </tr>
@@ -625,6 +650,14 @@ export function AdminQuestionsClient() {
               <DifficultyBadge difficulty={previewQuestion.difficulty} />
               <span className={`rounded-full px-2 py-0.5 text-xs font-black ${sourceTypeStyles[previewQuestion.sourceType]}`}>
                 {previewQuestion.sourceType}
+              </span>
+              <span
+                title={(previewQuestion.qualityReasons ?? []).join(", ")}
+                className={`rounded-full px-2 py-0.5 text-xs font-black ${
+                  qualityStatusMeta[previewQuestion.qualityStatus ?? "approved"].className
+                }`}
+              >
+                {qualityStatusMeta[previewQuestion.qualityStatus ?? "approved"].label}
               </span>
               <span className="text-xs text-slate-500">
                 {previewQuestion.questionType === "subjective"

@@ -1,6 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { QuestionDraft, QuestionRecord } from "@/types/question";
-import { assertStandaloneQuestion } from "@/lib/questions/standalone";
+import {
+  STANDALONE_VALIDATOR_VERSION,
+  assertStandaloneQuestion,
+} from "@/lib/questions/standalone";
 
 type DbRow = Record<string, unknown>;
 
@@ -26,6 +29,7 @@ function normalizeOptions(options: QuestionDraft["options"]) {
 
 function draftToRow(draft: QuestionDraft) {
   const isSubjective = draft.questionType === "subjective";
+  const validatedAt = nowIso();
   return {
     subject: draft.subject,
     unit: draft.unit,
@@ -44,6 +48,10 @@ function draftToRow(draft: QuestionDraft) {
     explanation_content_type: draft.explanationContentType ?? null,
     explanation_image: draft.explanationImage ?? null,
     tags: unique(draft.tags),
+    quality_status: "approved",
+    quality_reasons: [],
+    validated_at: validatedAt,
+    validator_version: STANDALONE_VALIDATOR_VERSION,
   };
 }
 
@@ -66,6 +74,10 @@ export const COACHING_QUESTION_SELECT = [
   "explanation_content_type",
   "explanation_image",
   "tags",
+  "quality_status",
+  "quality_reasons",
+  "validated_at",
+  "validator_version",
   "created_at",
   "updated_at",
 ].join(", ");
@@ -113,6 +125,11 @@ export function fromQuestionDb(row: DbRow): QuestionRecord {
     explanationContentType: (row.explanation_content_type ?? undefined) as QuestionRecord["explanationContentType"],
     explanationImage: (row.explanation_image ?? undefined) as string | undefined,
     tags,
+    qualityStatus:
+      (row.quality_status as QuestionRecord["qualityStatus"] | null | undefined) ?? "approved",
+    qualityReasons: Array.isArray(row.quality_reasons) ? (row.quality_reasons as string[]) : [],
+    validatedAt: (row.validated_at as string | null | undefined) ?? null,
+    validatorVersion: (row.validator_version as string | null | undefined) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
   };
@@ -133,6 +150,10 @@ export async function createCoachingQuestion(
     correctOptionId: isSubjective ? "" : draft.correctOptionId,
     answerText: isSubjective ? (draft.answerText?.trim() ?? "") : undefined,
     tags: unique(draft.tags),
+    qualityStatus: "approved",
+    qualityReasons: [],
+    validatedAt: createdAt,
+    validatorVersion: STANDALONE_VALIDATOR_VERSION,
     createdAt,
     updatedAt: createdAt,
   };

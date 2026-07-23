@@ -8,6 +8,7 @@ import { generateExamFromQuestionBank } from "@/lib/examGenerator";
 import type { AdminExamMode, DifficultyRatio, GeneratedExam } from "@/types/generatedExam";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
+import { isPublishableQuestion } from "@/lib/questions/standalone";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import {
@@ -111,7 +112,7 @@ export function AdminExamsClient() {
       setAuthChecked(true);
       if (admin) {
         Promise.all([questionRepo.list(), examRepo.listGenerated()]).then(([qs, es]) => {
-          setQuestions(qs);
+          setQuestions(qs.filter(isPublishableQuestion));
           setGeneratedExams(es);
         });
       }

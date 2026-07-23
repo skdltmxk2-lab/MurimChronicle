@@ -7,10 +7,12 @@ const BATCH = 40;
 async function counts(supabase: import("@supabase/supabase-js").SupabaseClient) {
   const { count: total } = await supabase
     .from("questions")
-    .select("id", { count: "exact", head: true });
+    .select("id", { count: "exact", head: true })
+    .eq("quality_status", "approved");
   const { count: embedded } = await supabase
     .from("questions")
     .select("id", { count: "exact", head: true })
+    .eq("quality_status", "approved")
     .not("embedding", "is", null);
   const t = total ?? 0;
   const e = embedded ?? 0;
@@ -36,6 +38,7 @@ export async function POST(request: Request) {
     .from("questions")
     .select("id, subject, unit, concept, question")
     .is("embedding", null)
+    .eq("quality_status", "approved")
     .limit(BATCH);
   if (error) return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
   if (!rows || rows.length === 0) {

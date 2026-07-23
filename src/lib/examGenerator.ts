@@ -1,5 +1,6 @@
 import type { Difficulty, Problem } from "@/types/exam";
 import type { QuestionRecord } from "@/types/question";
+import { isPublishableQuestion } from "@/lib/questions/standalone";
 import type {
   AdminExamMode,
   DifficultyRatio,
@@ -256,6 +257,7 @@ function pickQuestionsByPlan(questions: QuestionRecord[], plan: DifficultyRatio)
 }
 
 function matchesConfig(question: QuestionRecord, config: ExamGenerationConfig) {
+  if (!isPublishableQuestion(question)) return false;
   const subjectOk = config.subjects.length === 0 || config.subjects.includes(question.subject);
   const unitOk = config.units.length === 0 || config.units.includes(question.unit);
   return subjectOk && unitOk;

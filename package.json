@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm run test:standalone",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "questions:audit": "node scripts/audit_standalone_questions_readonly.mjs",
+    "questions:validate": "node scripts/validate_question_quality.mjs",
+    "test:standalone": "node scripts/test_standalone_questions.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

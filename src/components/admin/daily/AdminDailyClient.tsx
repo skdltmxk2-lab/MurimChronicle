@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { questionRepo } from "@/lib/questions/questionRepository";
+import { isPublishableQuestion } from "@/lib/questions/standalone";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { SUBJECT_NAMES, SUBJECT_UNITS } from "@/lib/taxonomy";
 import type { QuestionRecord } from "@/types/question";
@@ -39,7 +40,9 @@ export function AdminDailyClient() {
       const admin = isAdminUser(user);
       setIsAdmin(admin);
       setAuthChecked(true);
-      if (admin) questionRepo.list().then(setAllQuestions);
+      if (admin) questionRepo.list().then((questions) => {
+        setAllQuestions(questions.filter(isPublishableQuestion));
+      });
     });
   }, []);
 

@@ -224,6 +224,7 @@ async function conceptMatch(supabase: SupabaseClient, extracted: Extracted): Pro
     .select("concept")
     .eq("subject", extracted.subject)
     .eq("unit", extracted.unit)
+    .eq("quality_status", "approved")
     .not("concept", "is", null)
     .limit(1000);
   const concepts = Array.from(
@@ -237,6 +238,7 @@ async function conceptMatch(supabase: SupabaseClient, extracted: Extracted): Pro
     .eq("subject", extracted.subject)
     .eq("unit", extracted.unit)
     .eq("concept", concept)
+    .eq("quality_status", "approved")
     .limit(5);
   return data ?? [];
 }
@@ -256,7 +258,11 @@ async function embeddingMatch(supabase: SupabaseClient, extracted: Extracted): P
     });
     const idList = ((ids ?? []) as { id: string }[]).map((r) => r.id);
     if (idList.length === 0) return [];
-    const { data } = await supabase.from("questions").select(SELECT).in("id", idList);
+    const { data } = await supabase
+      .from("questions")
+      .select(SELECT)
+      .in("id", idList)
+      .eq("quality_status", "approved");
     const rows = (data ?? []) as Record<string, unknown>[];
     const byId = new Map(rows.map((d) => [String(d.id), d]));
     return idList

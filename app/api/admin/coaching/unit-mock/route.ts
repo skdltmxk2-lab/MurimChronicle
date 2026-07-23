@@ -11,7 +11,7 @@ import {
   isMissingCoachingStudentStore,
 } from "@/lib/admin/coachingStudents";
 import { DIFFICULTY_KEYS, isKnownSubject, unitsForSubject } from "@/lib/taxonomy";
-import { isStandaloneQuestion } from "@/lib/questions/standalone";
+import { isPublishableQuestion } from "@/lib/questions/standalone";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionPool, QuestionRecord } from "@/types/question";
@@ -200,6 +200,7 @@ export async function POST(request: Request) {
       .select(COACHING_QUESTION_SELECT)
       .eq("subject", section.subject)
       .eq("unit", section.unit)
+      .eq("quality_status", "approved")
       .limit(1000);
 
     if (concept) query = query.eq("concept", concept);
@@ -236,7 +237,7 @@ export async function POST(request: Request) {
     const questionsWithUsage = allQuestions.map((question) =>
       attachCoachingUsage(question, usage.usageByQuestionId)
     );
-    const eligibleQuestions = questionsWithUsage.filter(isStandaloneQuestion);
+    const eligibleQuestions = questionsWithUsage.filter(isPublishableQuestion);
     const sectionExcludedIncomplete = questionsWithUsage.length - eligibleQuestions.length;
     const unusedQuestions = eligibleQuestions.filter((question) => (question.coachingUseCount ?? 0) === 0);
     const candidates = shuffle(

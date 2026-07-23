@@ -20,6 +20,10 @@ const ADMIN_QUESTION_LIST_COLUMNS = [
   "explanation",
   "explanation_content_type",
   "tags",
+  "quality_status",
+  "quality_reasons",
+  "validated_at",
+  "validator_version",
   "created_at",
   "updated_at"
 ].join(",");

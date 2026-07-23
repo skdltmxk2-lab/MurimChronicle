@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { isPublishableQuestion } from "@/lib/questions/standalone";
 
 function todayDate(): string {
   const d = new Date();
@@ -45,7 +46,34 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "questionIds가 필요합니다." }, { status: 400 });
   }
   const date = body.date || todayDate();
-  const ids = body.questionIds;
+  const ids = Array.from(new Set(body.questionIds.filter(Boolean)));
+
+  const { data: questionRows, error: questionError } = await auth.supabase
+    .from("questions")
+    .select("id, concept, question, explanation, tags, quality_status")
+    .in("id", ids);
+  if (questionError) {
+    return NextResponse.json({ ok: false, message: questionError.message }, { status: 500 });
+  }
+  const publishableIds = new Set(
+    (questionRows ?? [])
+      .filter((row) =>
+        isPublishableQuestion({
+          concept: row.concept,
+          question: row.question,
+          explanation: row.explanation,
+          tags: row.tags,
+          qualityStatus: row.quality_status,
+        })
+      )
+      .map((row) => row.id as string)
+  );
+  if (publishableIds.size !== ids.length) {
+    return NextResponse.json(
+      { ok: false, message: "검수 승인되지 않았거나 단독 출제할 수 없는 문제가 포함되어 있습니다." },
+      { status: 400 }
+    );
+  }
 
   const { error: upsertError } = await auth.supabase
     .from("daily_assignments")

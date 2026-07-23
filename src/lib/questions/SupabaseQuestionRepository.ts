@@ -5,7 +5,10 @@ import { mockExams } from "@/data/mockData";
 import type { Problem } from "@/types/exam";
 import type { QuestionDraft, QuestionFilters, QuestionRecord } from "@/types/question";
 import type { IQuestionRepository } from "@/lib/questions/IQuestionRepository";
-import { assertStandaloneQuestion } from "@/lib/questions/standalone";
+import {
+  STANDALONE_VALIDATOR_VERSION,
+  assertStandaloneQuestion,
+} from "@/lib/questions/standalone";
 
 function nowIso() {
   return new Date().toISOString();
@@ -31,6 +34,7 @@ function answerTextFromOption(options: QuestionRecord["options"], correctOptionI
 
 function draftToRow(draft: QuestionDraft) {
   const isSubj = draft.questionType === "subjective";
+  const validatedAt = nowIso();
   return {
     subject: draft.subject,
     unit: draft.unit,
@@ -49,6 +53,10 @@ function draftToRow(draft: QuestionDraft) {
     explanation_content_type: draft.explanationContentType ?? null,
     explanation_image: draft.explanationImage ?? null,
     tags: unique(draft.tags.map((t) => t.trim())),
+    quality_status: "approved",
+    quality_reasons: [],
+    validated_at: validatedAt,
+    validator_version: STANDALONE_VALIDATOR_VERSION,
   };
 }
 
@@ -71,6 +79,10 @@ function problemToRecord(problem: Problem, examTitle: string): QuestionRecord {
     explanationContentType: problem.explanationContentType ?? "latex",
     explanationImage: problem.explanationImage,
     tags: unique([problem.unit, problem.concept, examTitle]),
+    qualityStatus: "approved",
+    qualityReasons: [],
+    validatedAt: createdAt,
+    validatorVersion: STANDALONE_VALIDATOR_VERSION,
     createdAt,
     updatedAt: createdAt
   };
@@ -121,6 +133,11 @@ function fromDb(row: DbRow): QuestionRecord {
     explanationContentType: (row.explanation_content_type ?? undefined) as QuestionRecord["explanationContentType"],
     explanationImage: (row.explanation_image ?? undefined) as string | undefined,
     tags,
+    qualityStatus:
+      (row.quality_status as QuestionRecord["qualityStatus"] | null | undefined) ?? "approved",
+    qualityReasons: Array.isArray(row.quality_reasons) ? (row.quality_reasons as string[]) : [],
+    validatedAt: (row.validated_at as string | null | undefined) ?? null,
+    validatorVersion: (row.validator_version as string | null | undefined) ?? null,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string
   };
@@ -147,6 +164,10 @@ function toDb(record: QuestionRecord) {
     explanation_content_type: record.explanationContentType ?? null,
     explanation_image: record.explanationImage ?? null,
     tags: record.tags,
+    quality_status: record.qualityStatus ?? "approved",
+    quality_reasons: record.qualityReasons ?? [],
+    validated_at: record.validatedAt ?? record.updatedAt,
+    validator_version: record.validatorVersion ?? STANDALONE_VALIDATOR_VERSION,
     created_at: record.createdAt,
     updated_at: record.updatedAt
   };
@@ -181,6 +202,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         .from("questions")
         .select("*")
         .in("unit", units)
+        .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (subject) query = query.eq("subject", subject);
@@ -202,6 +224,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         .from("questions")
         .select("*")
         .eq("subject", subject)
+        .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
@@ -220,6 +243,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         .from("questions")
         .select("*")
         .contains("tags", [tag])
+        .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
@@ -238,6 +262,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         .from("questions")
         .select("*")
         .eq("pool", pool)
+        .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
@@ -251,7 +276,8 @@ export const supabaseQuestionRepo: IQuestionRepository = {
   async countAll(): Promise<number> {
     const { count, error } = await supabase
       .from("questions")
-      .select("id", { count: "exact", head: true });
+      .select("id", { count: "exact", head: true })
+      .eq("quality_status", "approved");
     if (error) throw error;
     return count ?? 0;
   },
@@ -260,7 +286,8 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     const { count, error } = await supabase
       .from("questions")
       .select("id", { count: "exact", head: true })
-      .contains("tags", [tag]);
+      .contains("tags", [tag])
+      .eq("quality_status", "approved");
     if (error) throw error;
     return count ?? 0;
   },
@@ -277,6 +304,10 @@ export const supabaseQuestionRepo: IQuestionRepository = {
       correctOptionId: isSubj ? "" : draft.correctOptionId,
       answerText: isSubj ? (draft.answerText?.trim() ?? "") : undefined,
       tags: unique(draft.tags.map((t) => t.trim())),
+      qualityStatus: "approved",
+      qualityReasons: [],
+      validatedAt: createdAt,
+      validatorVersion: STANDALONE_VALIDATOR_VERSION,
       createdAt,
       updatedAt: createdAt
     };
@@ -314,6 +345,10 @@ export const supabaseQuestionRepo: IQuestionRepository = {
         correctOptionId: isSubj ? "" : draft.correctOptionId,
         answerText: isSubj ? (draft.answerText?.trim() ?? "") : undefined,
         tags: unique(draft.tags.map((t) => t.trim())),
+        qualityStatus: "approved",
+        qualityReasons: [],
+        validatedAt: createdAt,
+        validatorVersion: STANDALONE_VALIDATOR_VERSION,
         createdAt,
         updatedAt: createdAt
       };

@@ -33,8 +33,9 @@ export async function POST(request: Request) {
   // 1. 데일리 풀 (subject/units 필터링)
   let query = supabase
     .from("questions")
-    .select("id, subject, unit, concept, question, tags")
-    .contains("tags", ["daily"]);
+    .select("id, subject, unit, concept, question, explanation, tags")
+    .contains("tags", ["daily"])
+    .eq("quality_status", "approved");
   if (body.subject) query = query.eq("subject", body.subject);
   const { data: poolRows, error: poolError } = await query;
   if (poolError) {
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
     unit: string;
     concept: string;
     question: string;
+    explanation: string;
     tags: string[];
   }>).filter(isStandaloneQuestion);
   if (body.units && body.units.length > 0) {

@@ -112,7 +112,7 @@ const PROBLEMS = [
   {
     n:14, subject:"선형대수", unit:"고유치와 대각화", concept:"스펙트럼 분해",
     difficulty:"hard",
-    question:"제시문의 행렬 $A$의 스펙트럼 분해 $A=\\lambda_1 P_1+\\lambda_2 P_2+\\lambda_3 P_3$ ($\\lambda_1<\\lambda_2<\\lambda_3$)와 $A^{2023}=\\mu_1 Q_1+\\mu_2 Q_2+\\mu_3 Q_3$ ($\\mu_1<\\mu_2<\\mu_3$)에 대하여, $\\det Q_1-\\lambda_2+\\mu_3$의 값은? (단, $\\det Q_1$은 $Q_1$의 행렬식이다.)",
+    question:"실대칭행렬 $A=\\begin{pmatrix}2&1&0\\\\1&2&0\\\\0&0&2\\end{pmatrix}$의 스펙트럼 분해 $A=\\lambda_1 P_1+\\lambda_2 P_2+\\lambda_3 P_3$ ($\\lambda_1<\\lambda_2<\\lambda_3$)와 $A^{2023}=\\mu_1 Q_1+\\mu_2 Q_2+\\mu_3 Q_3$ ($\\mu_1<\\mu_2<\\mu_3$)에 대하여, $\\det Q_1-\\lambda_2+\\mu_3$의 값은? (단, $\\det Q_1$은 $Q_1$의 행렬식이다.)",
     options:opts5("$3^{2023}-5$","$3^{2023}-4$","$3^{2023}-3$","$3^{2023}-2$","$3^{2023}-1$"),
     correct:"4",
     explanation:"$\\lambda_1=1,\\,\\lambda_2=2,\\,\\lambda_3=3$이고 $A^{2023}$의 고윳값은 $1,2^{2023},3^{2023}$. $\\mu_1<\\mu_2<\\mu_3$이므로 $\\mu_1=1,\\,\\mu_2=2^{2023},\\,\\mu_3=3^{2023}$. $Q_1=P_1$.\n$P_1$은 1차원 고유공간 $\\lambda=1$로의 직교 투영이므로 rank $1$, $\\det P_1=0$.\n$\\det Q_1-\\lambda_2+\\mu_3=0-2+3^{2023}=3^{2023}-2$.",

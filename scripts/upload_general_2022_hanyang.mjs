@@ -104,7 +104,7 @@ const PROBLEMS = [
   {
     n:13, subject:"선형대수", unit:"벡터공간", concept:"부분공간 정사영",
     difficulty:"medium",
-    question:"$T:M_2(\\mathbb R)\\to M_2(\\mathbb R)$를 행렬 $\\begin{pmatrix}1&0\\\\0&0\\end{pmatrix}$과 $\\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}$이 생성하는 부분공간 $W$로의 정사영(orthogonal projection)이라 하자. 행렬 $C=\\begin{pmatrix}4&2\\\\3&1\\end{pmatrix}$의 $W$ 위로의 정사영을 $T(C)=\\begin{pmatrix}\\alpha&\\beta\\\\\\gamma&\\delta\\end{pmatrix}$라 할 때, $\\alpha+\\beta+\\gamma+\\delta$의 값은?",
+    question:"벡터공간 $M_2(\\mathbb R)$에 내적 $\\langle A,B\\rangle=\\operatorname{tr}(A^TB)$를 정의하자. $T:M_2(\\mathbb R)\\to M_2(\\mathbb R)$를 행렬 $\\begin{pmatrix}1&0\\\\0&0\\end{pmatrix}$과 $\\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}$이 생성하는 부분공간 $W$로의 정사영(orthogonal projection)이라 하자. 행렬 $C=\\begin{pmatrix}4&2\\\\3&1\\end{pmatrix}$의 $W$ 위로의 정사영을 $T(C)=\\begin{pmatrix}\\alpha&\\beta\\\\\\gamma&\\delta\\end{pmatrix}$라 할 때, $\\alpha+\\beta+\\gamma+\\delta$의 값은?",
     options:opts5("$5$","$6$","$7$","$8$","$9$"),
     correct:"5",
     explanation:"내적 $\\langle A,B\\rangle=a_{11}b_{11}+a_{12}b_{12}+a_{21}b_{21}+a_{22}b_{22}$. 그람-슈미트로 $W$의 직교기저 만들기:\n$u_1=E_{11}$, $u_2=(E_{11}+E_{12}+E_{21})-\\langle\\cdot,u_1\\rangle u_1=E_{12}+E_{21}$. $\\|u_2\\|^2=2$.\n$T(C)=\\langle C,u_1\\rangle u_1+\\dfrac{\\langle C,u_2\\rangle}{2}u_2=4E_{11}+\\dfrac{2+3}{2}(E_{12}+E_{21})=\\begin{pmatrix}4&5/2\\\\5/2&0\\end{pmatrix}$.\n합 $=4+\\dfrac{5}{2}+\\dfrac{5}{2}+0=9$.",
@@ -112,7 +112,7 @@ const PROBLEMS = [
   {
     n:14, subject:"선형대수", unit:"벡터공간", concept:"정사영 행렬·행렬식",
     difficulty:"medium",
-    question:"제시문의 행렬 $P=(p_{ij})_{4\\times 4}$에 대하여 $p_{11}+p_{22}+p_{33}+p_{44}+\\det P$의 값은? (단, $\\det P$는 $P$의 행렬식이다.)",
+    question:"벡터공간 $M_2(\\mathbb R)$에 내적 $\\langle A,B\\rangle=\\operatorname{tr}(A^TB)$를 정의하고, $W=\\operatorname{span}\\left\\{\\begin{pmatrix}1&0\\\\0&0\\end{pmatrix},\\begin{pmatrix}1&1\\\\1&0\\end{pmatrix}\\right\\}$라 하자. $T:M_2(\\mathbb R)\\to M_2(\\mathbb R)$가 $W$로의 정사영일 때, 순서기저 $\\{E_{11},E_{12},E_{21},E_{22}\\}$에 대한 $T$의 행렬표현을 $P=(p_{ij})_{4\\times 4}$라 하자. 이때 $p_{11}+p_{22}+p_{33}+p_{44}+\\det P$의 값은? (단, $\\det P$는 $P$의 행렬식이다.)",
     options:opts5("$2$","$3$","$4$","$5$","$6$"),
     correct:"1",
     explanation:"표준기저에 대한 $T$의 행렬표현: $T(E_{11})=E_{11}$, $T(E_{12})=\\dfrac{1}{2}(E_{12}+E_{21})$, $T(E_{21})=\\dfrac{1}{2}(E_{12}+E_{21})$, $T(E_{22})=0$.\n$P=\\begin{pmatrix}1&0&0&0\\\\0&1/2&1/2&0\\\\0&1/2&1/2&0\\\\0&0&0&0\\end{pmatrix}$.\n대각합 $=1+\\dfrac{1}{2}+\\dfrac{1}{2}+0=2$. $\\det P=0$ (마지막 행이 영행).\n합 $=2+0=2$.",

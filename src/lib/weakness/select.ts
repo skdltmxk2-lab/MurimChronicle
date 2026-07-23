@@ -42,6 +42,7 @@ type Candidate = {
   unit: string;
   concept: string;
   question: string;
+  explanation: string;
   tags: string[];
   difficulty: Difficulty;
 };
@@ -55,9 +56,10 @@ async function fetchQuestionsByUnits(
   const unitNames = Array.from(new Set(units.map((u) => u.unit)));
   const { data, error } = await supabase
     .from("questions")
-    .select("id, subject, unit, concept, question, tags, difficulty")
+    .select("id, subject, unit, concept, question, explanation, tags, difficulty")
     .in("subject", subjects)
-    .in("unit", unitNames);
+    .in("unit", unitNames)
+    .eq("quality_status", "approved");
   if (error) throw error;
   // subject/unit pair 정확히 일치하는 것만 필터링
   const pairSet = new Set(units.map((u) => `${u.subject}|${u.unit}`));
@@ -68,6 +70,7 @@ async function fetchQuestionsByUnits(
       unit: q.unit as string,
       concept: q.concept as string,
       question: q.question as string,
+      explanation: q.explanation as string,
       tags: (q.tags ?? []) as string[],
       difficulty: q.difficulty as Difficulty,
     }))
@@ -82,7 +85,8 @@ async function fetchAllQuestions(
   for (let from = 0; ; from += PAGE) {
     const { data, error } = await supabase
       .from("questions")
-      .select("id, subject, unit, concept, question, tags, difficulty")
+      .select("id, subject, unit, concept, question, explanation, tags, difficulty")
+      .eq("quality_status", "approved")
       .range(from, from + PAGE - 1);
     if (error) throw error;
     if (!data || data.length === 0) break;
@@ -93,6 +97,7 @@ async function fetchAllQuestions(
         unit: q.unit as string,
         concept: q.concept as string,
         question: q.question as string,
+        explanation: q.explanation as string,
         tags: (q.tags ?? []) as string[],
         difficulty: q.difficulty as Difficulty,
       });
