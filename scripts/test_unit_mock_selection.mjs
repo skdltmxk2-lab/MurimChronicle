@@ -125,6 +125,24 @@ assert.deepEqual(fallbackSelection.selected.map((item) => item.id), [
 ]);
 assert.equal(fallbackSelection.selected.some((item) => item.difficulty === "hard"), false);
 
+const replacementFallbackSelection = selectUnitMockCandidates(
+  [
+    question("higher-unused", "최대/최소", "hard"),
+    question("next-lower-unused", "최대/최소", "medium"),
+    question("two-levels-lower-unused", "최대/최소", "easyMedium"),
+  ],
+  {
+    subject: "미분학",
+    unit: "최대/최소",
+    units: calculusUnits,
+    count: 1,
+    difficulty: "mediumHard",
+  }
+);
+assert.deepEqual(replacementFallbackSelection.selected.map((item) => item.id), [
+  "next-lower-unused",
+]);
+
 const unavailablePrioritySelection = selectUnitMockCandidates(
   [
     question("function-1", "함수", "medium"),
@@ -143,4 +161,4 @@ assert.deepEqual(unavailablePrioritySelection.selected.map((item) => item.id), [
   "extra-1",
 ]);
 
-console.log("unit mock selection: 12 regression checks passed");
+console.log("unit mock selection: 13 regression checks passed");

@@ -168,10 +168,6 @@ function haveSameStudentIds(
   return left.every((id) => rightSet.has(id));
 }
 
-function unitMockUsageKey(question: Pick<QuestionRecord, "subject" | "unit">): string {
-  return `${question.subject}\n${question.unit}`;
-}
-
 function formatUnitMockLastUsed(value?: string | null): string {
   if (!value) return "";
   const date = new Date(value);
@@ -1050,6 +1046,12 @@ export function AdminCoachingClient() {
         candidateCount?: number;
         requestedCount: number;
         usageTrackingAvailable?: boolean;
+        sectionSelections?: Array<{
+          requestKey: string;
+          requestedDifficulty: "all" | Difficulty;
+          questionIds: string[];
+          fallbackSelectedCount: number;
+        }>;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
@@ -1059,6 +1061,8 @@ export function AdminCoachingClient() {
               subject: question.subject,
               unit: question.unit,
               count: 1,
+              difficulty: question.difficulty,
+              requestKey: question.id,
             })),
             difficulty: unitDifficulty,
             pool: unitPool,
@@ -1068,24 +1072,27 @@ export function AdminCoachingClient() {
         })
       );
 
-      const replacementBuckets = new Map<string, QuestionRecord[]>();
-      for (const replacement of json.questions ?? []) {
-        const key = unitMockUsageKey(replacement);
-        replacementBuckets.set(key, [...(replacementBuckets.get(key) ?? []), replacement]);
-      }
-
+      const replacementsById = new Map(
+        (json.questions ?? []).map((replacement) => [replacement.id, replacement])
+      );
+      const selectionByRequestKey = new Map(
+        (json.sectionSelections ?? []).map((selection) => [selection.requestKey, selection])
+      );
       const replacementByIndex = new Map<number, QuestionRecord>();
       const replacedTargetIds = new Set<string>();
+      let fallbackReplacementCount = 0;
       for (const target of targets) {
-        const bucket = replacementBuckets.get(unitMockUsageKey(target.question));
-        const replacement = bucket?.shift();
+        const selection = selectionByRequestKey.get(target.question.id);
+        const replacementId = selection?.questionIds[0];
+        const replacement = replacementId ? replacementsById.get(replacementId) : undefined;
         if (!replacement) continue;
         replacementByIndex.set(target.index, replacement);
         replacedTargetIds.add(target.question.id);
+        fallbackReplacementCount += selection?.fallbackSelectedCount ?? 0;
       }
 
       if (replacementByIndex.size === 0) {
-        setUnitMsg("교체할 문제를 찾지 못했습니다.");
+        setUnitMsg("같은 난이도와 하위 난이도에서 미사용 교체 문제를 찾지 못했습니다.");
         return;
       }
 
@@ -1102,6 +1109,8 @@ export function AdminCoachingClient() {
       const trackingText = json.usageTrackingAvailable === false ? " · 사용 이력 조회 불가" : "";
       setUnitMsg(
         `문항 ${replacementByIndex.size}개를 교체했습니다.${
+          fallbackReplacementCount > 0 ? ` 하위 난이도 교체 ${fallbackReplacementCount}개.` : ""
+        }${
           missingCount > 0 ? ` 후보 부족 ${missingCount}개` : ""
         }${trackingText}`
       );

@@ -32,6 +32,8 @@ type UnitMockSection = {
   subject: string;
   unit: string;
   count: number;
+  difficulty: "all" | Difficulty;
+  requestKey: string;
 };
 
 type UnitMockBreakdown = {
@@ -63,6 +65,13 @@ type QuestionLoadFilters = {
   concept: string;
   difficulty: "all" | Difficulty;
   pool: "all" | QuestionPool;
+};
+
+type UnitMockSectionSelection = {
+  requestKey: string;
+  requestedDifficulty: "all" | Difficulty;
+  questionIds: string[];
+  fallbackSelectedCount: number;
 };
 
 function shuffle<T>(values: T[]): T[] {
@@ -293,6 +302,10 @@ export async function POST(request: Request) {
     const item = rawSection as Record<string, unknown>;
     const sectionSubject = typeof item.subject === "string" ? item.subject.trim() : "";
     const sectionUnit = typeof item.unit === "string" ? item.unit.trim() : "";
+    const sectionDifficulty =
+      typeof item.difficulty === "string" ? item.difficulty.trim() : difficulty;
+    const requestKey =
+      typeof item.requestKey === "string" ? item.requestKey.trim().slice(0, 200) : "";
     const rawCount = Number(item.count ?? 0);
 
     if (!isKnownSubject(sectionSubject)) {
@@ -304,15 +317,32 @@ export async function POST(request: Request) {
     if (!Number.isFinite(rawCount)) {
       return NextResponse.json({ ok: false, message: "문항 수를 입력해 주세요." }, { status: 400 });
     }
+    if (
+      sectionDifficulty !== "all" &&
+      !DIFFICULTY_KEYS.includes(sectionDifficulty as Difficulty)
+    ) {
+      return NextResponse.json({ ok: false, message: "단원별 난이도 값이 올바르지 않습니다." }, { status: 400 });
+    }
 
     const sectionCount = Math.max(1, Math.min(60, Math.round(rawCount)));
     const existing = sections.find(
-      (section) => section.subject === sectionSubject && section.unit === sectionUnit
+      (section) =>
+        !requestKey &&
+        !section.requestKey &&
+        section.subject === sectionSubject &&
+        section.unit === sectionUnit &&
+        section.difficulty === sectionDifficulty
     );
     if (existing) {
       existing.count += sectionCount;
     } else {
-      sections.push({ subject: sectionSubject, unit: sectionUnit, count: sectionCount });
+      sections.push({
+        subject: sectionSubject,
+        unit: sectionUnit,
+        count: sectionCount,
+        difficulty: sectionDifficulty as "all" | Difficulty,
+        requestKey,
+      });
     }
   }
 
@@ -327,6 +357,7 @@ export async function POST(request: Request) {
   const selectedIds = new Set(excludeIds);
   const selectedQuestions: QuestionRecord[] = [];
   const selectedDifficultyCounts: Partial<Record<Difficulty, number>> = {};
+  const sectionSelections: UnitMockSectionSelection[] = [];
   const breakdown: UnitMockBreakdown[] = [];
   let available = 0;
   let unusedAvailable = 0;
@@ -339,7 +370,7 @@ export async function POST(request: Request) {
       subject: section.subject,
       unit: section.unit,
       concept,
-      difficulty,
+      difficulty: section.difficulty,
       pool,
     });
     if (loaded.error) {
@@ -384,15 +415,27 @@ export async function POST(request: Request) {
       unit: section.unit,
       units,
       count: section.count,
-      difficulty,
+      difficulty: section.difficulty,
     });
 
+    const sectionFallbackSelectedCount =
+      section.difficulty === "all"
+        ? 0
+        : selection.selected.filter(
+            (question) => question.difficulty !== section.difficulty
+          ).length;
     for (const question of selection.selected) {
       selectedIds.add(question.id);
       incrementCount(selectedDifficultyCounts, question.difficulty);
-      if (difficulty !== "all" && question.difficulty !== difficulty) fallbackSelectedCount += 1;
     }
+    fallbackSelectedCount += sectionFallbackSelectedCount;
     selectedQuestions.push(...selection.selected);
+    sectionSelections.push({
+      requestKey: section.requestKey,
+      requestedDifficulty: section.difficulty,
+      questionIds: selection.selected.map((question) => question.id),
+      fallbackSelectedCount: sectionFallbackSelectedCount,
+    });
 
     const sectionExcludedIncomplete = questionsWithUsage.length - eligibleQuestions.length;
     available += eligibleQuestions.length;
@@ -430,9 +473,11 @@ export async function POST(request: Request) {
         excludedIncomplete: incompleteByUnit[unitName] ?? 0,
         selectedDifficultyCounts: countDifficulties(unitSelected),
         fallbackSelectedCount:
-          difficulty === "all"
+          section.difficulty === "all"
             ? 0
-            : unitSelected.filter((question) => question.difficulty !== difficulty).length,
+            : unitSelected.filter(
+                (question) => question.difficulty !== section.difficulty
+              ).length,
       });
     }
   }
@@ -448,6 +493,7 @@ export async function POST(request: Request) {
     excludedIncomplete,
     selectedDifficultyCounts,
     fallbackSelectedCount,
+    sectionSelections,
     difficultyOrder: difficultyFallbackOrder(difficulty),
     usageTrackingAvailable: true,
     students: ownedStudents.students,
