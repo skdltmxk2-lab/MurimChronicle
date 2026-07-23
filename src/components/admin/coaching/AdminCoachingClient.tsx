@@ -541,6 +541,28 @@ export function AdminCoachingClient() {
     });
   }
 
+  function removeUnitQuestion(questionId: string) {
+    if (
+      sheet?.sourceLabel !== "unit-mock" ||
+      unitLoading ||
+      replacingUnitQuestionIds.length > 0 ||
+      unitPdfSaving
+    ) {
+      return;
+    }
+    if (!sheet.questions.some((question) => question.id === questionId)) return;
+
+    setSheet((current) => {
+      if (current?.sourceLabel !== "unit-mock") return current;
+      return {
+        ...current,
+        questions: current.questions.filter((question) => question.id !== questionId),
+      };
+    });
+    setUnitSelectedQuestionIds((current) => current.filter((id) => id !== questionId));
+    setUnitMsg("해당 문제를 현재 구성에서 삭제했습니다. 원본 DB 문제는 삭제되지 않았습니다.");
+  }
+
   function toggleAllUnitQuestions() {
     if (sheet?.sourceLabel !== "unit-mock") return;
     setUnitSelectedQuestionIds((current) =>
@@ -2245,14 +2267,25 @@ export function AdminCoachingClient() {
                               </p>
                             </div>
                           </label>
-                          <button
-                            type="button"
-                            disabled={unitLoading || replacingUnitQuestionIds.length > 0}
-                            onClick={() => void replaceUnitQuestion(question.id)}
-                            className="shrink-0 rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
-                          >
-                            {isReplacing ? "교체 중..." : "이 문제 교체"}
-                          </button>
+                          <div className="flex shrink-0 flex-col gap-2">
+                            <button
+                              type="button"
+                              disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
+                              onClick={() => void replaceUnitQuestion(question.id)}
+                              className="rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              {isReplacing ? "교체 중..." : "이 문제 교체"}
+                            </button>
+                            <button
+                              type="button"
+                              title="원본 DB는 유지하고 현재 구성에서만 삭제"
+                              disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
+                              onClick={() => removeUnitQuestion(question.id)}
+                              className="rounded-md border border-coral-300 px-2 py-1 text-[11px] font-black text-coral-600 transition hover:border-coral-500 hover:bg-coral-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            >
+                              이 문제 삭제
+                            </button>
+                          </div>
                         </div>
                       </li>
                     );
