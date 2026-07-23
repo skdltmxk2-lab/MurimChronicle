@@ -3,6 +3,7 @@ import {
   ALL_UNIT_VALUE,
   balancedUnitTargets,
   difficultyFallbackOrder,
+  mergeUnitMockQuestionIds,
   prioritizedUnitsForSubject,
   selectUnitMockCandidates,
 } from "../src/lib/admin/unitMockSelectionCore.mjs";
@@ -65,6 +66,18 @@ assert.deepEqual(balancedUnitTargets("미분학", calculusUnits, 6), {
   함수: 1,
   추가내용: 1,
 });
+
+const firstCompositionHistory = mergeUnitMockQuestionIds(["a", "b"]);
+const historyAfterReplacement = mergeUnitMockQuestionIds(
+  firstCompositionHistory,
+  ["b"],
+  ["c"]
+);
+assert.deepEqual(historyAfterReplacement, ["a", "b", "c"]);
+assert.deepEqual(
+  ["a", "c", "d"].filter((id) => !new Set(historyAfterReplacement).has(id)),
+  ["d"]
+);
 
 const prioritySelection = selectUnitMockCandidates(
   [
@@ -161,4 +174,4 @@ assert.deepEqual(unavailablePrioritySelection.selected.map((item) => item.id), [
   "extra-1",
 ]);
 
-console.log("unit mock selection: 13 regression checks passed");
+console.log("unit mock selection: regression checks passed");

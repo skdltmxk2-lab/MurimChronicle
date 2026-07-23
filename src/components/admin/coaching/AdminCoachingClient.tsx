@@ -22,6 +22,7 @@ import {
 import {
   ALL_UNIT_VALUE,
   difficultyFallbackOrder,
+  mergeUnitMockQuestionIds,
 } from "@/lib/admin/unitMockSelection";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionDraft, QuestionPool, QuestionRecord } from "@/types/question";
@@ -323,6 +324,7 @@ export function AdminCoachingClient() {
   const pagesRef = useRef<UploadPage[]>([]);
   const twinImageRef = useRef<UploadPage | null>(null);
   const tabRef = useRef<Tab>("related");
+  const unitQuestionHistoryRef = useRef<string[]>([]);
 
   const [tab, setTab] = useState<Tab>("related");
   const [pages, setPages] = useState<UploadPage[]>([]);
@@ -425,11 +427,15 @@ export function AdminCoachingClient() {
   }
 
   const handleUnitStudentsChange = useCallback((students: CoachingStudent[]) => {
+    const studentIds = students.map((student) => student.id);
+    const previousStudentIds = unitStudents.map((student) => student.id);
     setUnitStudents(students);
     setUnitSelectedQuestionIds([]);
+    if (!haveSameStudentIds(previousStudentIds, studentIds)) {
+      unitQuestionHistoryRef.current = [];
+    }
     setSheet((current) => {
       if (current?.sourceLabel !== "unit-mock") return current;
-      const studentIds = students.map((student) => student.id);
       if (students.length === 0 || !haveSameStudentIds(current.recipientStudentIds, studentIds)) return null;
       const studentNames = students.map((student) => student.name);
       const oldNames = formatStudentNameValues(current.recipientStudentNames ?? []);
@@ -444,7 +450,7 @@ export function AdminCoachingClient() {
         recipientStudentNames: studentNames,
       };
     });
-  }, []);
+  }, [unitStudents]);
 
   function unitSheetFromQuestions(
     questions: QuestionRecord[],
@@ -960,10 +966,13 @@ export function AdminCoachingClient() {
     if (!resolvedSections) return;
     setUnitLoading(true);
     setUnitMsg("");
-    const excludeIds =
-      excludeCurrent && sheet?.sourceLabel === "unit-mock"
+    const currentQuestionIds =
+      sheet?.sourceLabel === "unit-mock"
         ? sheet.questions.map((question) => question.id)
         : [];
+    const excludeIds = excludeCurrent
+      ? mergeUnitMockQuestionIds(unitQuestionHistoryRef.current, currentQuestionIds)
+      : [];
     try {
       const json = await ensureOk<{
         questions: QuestionRecord[];
@@ -1025,6 +1034,12 @@ export function AdminCoachingClient() {
           ? ` · 하위 난이도 보충 ${json.fallbackSelectedCount}문항`
           : "";
       const studentLabel = formatStudentNames(unitStudents);
+      if (excludeCurrent && json.questions.length < json.requestedCount) {
+        setUnitMsg(
+          `${studentLabel} 기준 · 아직 구성에 사용하지 않은 문제는 ${json.questions.length}문항뿐이라 전체 구성을 변경하지 않았습니다.`
+        );
+        return;
+      }
       setUnitMsg(
         `${studentLabel} 기준 · ${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${exclusionText}${trackingText}${
           selectedDifficultyText ? ` · ${selectedDifficultyText}${fallbackText}` : ""
@@ -1033,6 +1048,14 @@ export function AdminCoachingClient() {
         }`
       );
       setSheet(unitSheetFromQuestions(json.questions, resolvedSections, unitStudents));
+      const generatedQuestionIds = json.questions.map((question) => question.id);
+      unitQuestionHistoryRef.current = excludeCurrent
+        ? mergeUnitMockQuestionIds(
+            unitQuestionHistoryRef.current,
+            currentQuestionIds,
+            generatedQuestionIds
+          )
+        : generatedQuestionIds;
       setUnitSelectedQuestionIds([]);
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
@@ -1060,7 +1083,11 @@ export function AdminCoachingClient() {
     setReplacingUnitQuestionIds(targets.map(({ question }) => question.id));
     setUnitMsg("");
     try {
-      const excludeIds = sheet.questions.map((question) => question.id);
+      const currentQuestionIds = sheet.questions.map((question) => question.id);
+      const excludeIds = mergeUnitMockQuestionIds(
+        unitQuestionHistoryRef.current,
+        currentQuestionIds
+      );
       const json = await ensureOk<{
         questions: QuestionRecord[];
         available: number;
@@ -1114,10 +1141,17 @@ export function AdminCoachingClient() {
       }
 
       if (replacementByIndex.size === 0) {
-        setUnitMsg("같은 난이도와 하위 난이도에서 미사용 교체 문제를 찾지 못했습니다.");
+        setUnitMsg(
+          "같은 난이도와 하위 난이도에서 아직 구성에 사용하지 않은 교체 문제를 찾지 못했습니다."
+        );
         return;
       }
 
+      unitQuestionHistoryRef.current = mergeUnitMockQuestionIds(
+        unitQuestionHistoryRef.current,
+        currentQuestionIds,
+        Array.from(replacementByIndex.values(), (question) => question.id)
+      );
       setSheet((current) => {
         if (current?.sourceLabel !== "unit-mock") return current;
         return {

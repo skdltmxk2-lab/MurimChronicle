@@ -2,6 +2,7 @@ export {
   ALL_UNIT_VALUE,
   balancedUnitTargets,
   difficultyFallbackOrder,
+  mergeUnitMockQuestionIds,
   prioritizedUnitsForSubject,
   selectUnitMockCandidates,
 } from "./unitMockSelectionCore.mjs";

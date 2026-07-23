@@ -51,6 +51,16 @@ export function balancedUnitTargets(subject, units, count) {
   return targets;
 }
 
+export function mergeUnitMockQuestionIds(...groups) {
+  return Array.from(
+    new Set(
+      groups.flatMap((group) =>
+        group.filter((id) => typeof id === "string" && id.length > 0)
+      )
+    )
+  );
+}
+
 function sortByDifficulty(candidates, difficulty) {
   if (difficulty === "all") return [...candidates];
   const order = difficultyFallbackOrder(difficulty);

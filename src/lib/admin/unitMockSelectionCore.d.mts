@@ -31,6 +31,7 @@ export function balancedUnitTargets(
   units: readonly string[],
   count: number
 ): Record<string, number>;
+export function mergeUnitMockQuestionIds(...groups: readonly string[][]): string[];
 export function selectUnitMockCandidates<T extends UnitMockSelectionCandidate>(
   candidates: T[],
   options: UnitMockSelectionOptions
