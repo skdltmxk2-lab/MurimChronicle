@@ -35,6 +35,39 @@ export async function findOwnedCoachingStudent(
   };
 }
 
+export async function findOwnedCoachingStudents(
+  supabase: SupabaseClient,
+  teacherId: string,
+  studentIds: readonly string[],
+  activeOnly = true
+): Promise<{ students: CoachingStudent[]; error: { code?: string; message: string } | null }> {
+  const ids = Array.from(new Set(studentIds.filter(Boolean)));
+  if (ids.length === 0) return { students: [], error: null };
+
+  let query = supabase
+    .from("coaching_students")
+    .select(COACHING_STUDENT_SELECT)
+    .eq("teacher_id", teacherId)
+    .in("id", ids);
+
+  if (activeOnly) query = query.eq("is_active", true);
+
+  const { data, error } = await query;
+  const studentsById = new Map(
+    (data ?? []).map((row) => {
+      const student = coachingStudentFromRow(row as Record<string, unknown>);
+      return [student.id, student] as const;
+    })
+  );
+  return {
+    students: ids.flatMap((id) => {
+      const student = studentsById.get(id);
+      return student ? [student] : [];
+    }),
+    error: error ? { code: error.code, message: error.message } : null,
+  };
+}
+
 export function isMissingCoachingStudentStore(error: { code?: string; message?: string }) {
   const message = error.message ?? "";
   return (

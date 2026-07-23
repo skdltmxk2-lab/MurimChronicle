@@ -36,6 +36,7 @@ export type QuestionRecord = {
   createdAt: string;
   updatedAt: string;
   coachingUseCount?: number;
+  coachingUsedStudentCount?: number;
   coachingLastUsedAt?: string | null;
 };
 

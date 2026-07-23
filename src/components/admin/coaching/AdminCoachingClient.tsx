@@ -19,6 +19,10 @@ import {
   SUBJECT_NAMES,
   SUBJECT_UNITS,
 } from "@/lib/taxonomy";
+import {
+  ALL_UNIT_VALUE,
+  difficultyFallbackOrder,
+} from "@/lib/admin/unitMockSelection";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionDraft, QuestionPool, QuestionRecord } from "@/types/question";
 import type {
@@ -51,8 +55,8 @@ type PrintSheet = {
   subtitle: string;
   questions: QuestionRecord[];
   sourceLabel?: string;
-  recipientStudentId?: string;
-  recipientStudentName?: string;
+  recipientStudentIds?: string[];
+  recipientStudentNames?: string[];
 };
 
 type UnitMockSection = {
@@ -77,6 +81,8 @@ type UnitMockBreakdown = {
   candidateCount: number;
   selectedCount: number;
   excludedIncomplete: number;
+  selectedDifficultyCounts?: Partial<Record<Difficulty, number>>;
+  fallbackSelectedCount?: number;
 };
 
 type TwinResult = {
@@ -141,6 +147,25 @@ function unitMockUseCount(question: QuestionRecord): number {
   return typeof question.coachingUseCount === "number" && Number.isFinite(question.coachingUseCount)
     ? question.coachingUseCount
     : 0;
+}
+
+function formatStudentNameValues(names: readonly string[]): string {
+  if (names.length === 0) return "";
+  if (names.length <= 3) return names.join(", ");
+  return `${names.slice(0, 2).join(", ")} 외 ${names.length - 2}명`;
+}
+
+function formatStudentNames(students: readonly Pick<CoachingStudent, "name">[]): string {
+  return formatStudentNameValues(students.map((student) => student.name));
+}
+
+function haveSameStudentIds(
+  left: readonly string[] | undefined,
+  right: readonly string[]
+): boolean {
+  if (!left || left.length !== right.length) return false;
+  const rightSet = new Set(right);
+  return left.every((id) => rightSet.has(id));
 }
 
 function unitMockUsageKey(question: Pick<QuestionRecord, "subject" | "unit">): string {
@@ -321,7 +346,7 @@ export function AdminCoachingClient() {
   ]);
   const [unitDifficulty, setUnitDifficulty] = useState<"all" | Difficulty>("all");
   const [unitPool, setUnitPool] = useState<PoolFilter>("all");
-  const [unitStudent, setUnitStudent] = useState<CoachingStudent | null>(null);
+  const [unitStudents, setUnitStudents] = useState<CoachingStudent[]>([]);
   const [unitExcludeUsed, setUnitExcludeUsed] = useState(false);
   const [unitLoading, setUnitLoading] = useState(false);
   const [unitMsg, setUnitMsg] = useState("");
@@ -403,20 +428,24 @@ export function AdminCoachingClient() {
       : null;
   }
 
-  const handleUnitStudentChange = useCallback((student: CoachingStudent | null) => {
-    setUnitStudent(student);
+  const handleUnitStudentsChange = useCallback((students: CoachingStudent[]) => {
+    setUnitStudents(students);
     setUnitSelectedQuestionIds([]);
     setSheet((current) => {
       if (current?.sourceLabel !== "unit-mock") return current;
-      if (!student || current.recipientStudentId !== student.id) return null;
-      if (current.recipientStudentName === student.name) return current;
-      const oldPrefix = current.recipientStudentName ? `${current.recipientStudentName} · ` : "";
+      const studentIds = students.map((student) => student.id);
+      if (students.length === 0 || !haveSameStudentIds(current.recipientStudentIds, studentIds)) return null;
+      const studentNames = students.map((student) => student.name);
+      const oldNames = formatStudentNameValues(current.recipientStudentNames ?? []);
+      const nextNames = formatStudentNameValues(studentNames);
+      if (oldNames === nextNames) return current;
+      const oldPrefix = oldNames ? `${oldNames} · ` : "";
       return {
         ...current,
         subtitle: oldPrefix && current.subtitle.startsWith(oldPrefix)
-          ? `${student.name} · ${current.subtitle.slice(oldPrefix.length)}`
+          ? `${nextNames} · ${current.subtitle.slice(oldPrefix.length)}`
           : current.subtitle,
-        recipientStudentName: student.name,
+        recipientStudentNames: studentNames,
       };
     });
   }, []);
@@ -424,18 +453,27 @@ export function AdminCoachingClient() {
   function unitSheetFromQuestions(
     questions: QuestionRecord[],
     sections: UnitMockRequestSection[],
-    student: CoachingStudent
+    students: CoachingStudent[]
   ): PrintSheet {
     const allocation = sections
-      .map((section) => `${section.subject} ${section.unit} ${section.count}문항`)
+      .map((section) =>
+        `${section.subject} ${section.unit === ALL_UNIT_VALUE ? "전체 단원" : section.unit} ${section.count}문항`
+      )
       .join(" · ");
+    const studentNames = students.map((student) => student.name);
+    const recipientLabel = formatStudentNames(students);
     return {
-      title: sections.length === 1 ? `${sections[0].unit} 단원 모의고사` : "복합 단원 모의고사",
-      subtitle: `${student.name} · ${allocation} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
+      title:
+        sections.length === 1
+          ? sections[0].unit === ALL_UNIT_VALUE
+            ? `${sections[0].subject} 전체 단원 모의고사`
+            : `${sections[0].unit} 단원 모의고사`
+          : "복합 단원 모의고사",
+      subtitle: `${recipientLabel} · ${allocation} · ${unitDifficulty === "all" ? "전체 난이도" : DIFFICULTY_LABELS[unitDifficulty]}`,
       questions,
       sourceLabel: "unit-mock",
-      recipientStudentId: student.id,
-      recipientStudentName: student.name,
+      recipientStudentIds: students.map((student) => student.id),
+      recipientStudentNames: studentNames,
     };
   }
 
@@ -462,7 +500,10 @@ export function AdminCoachingClient() {
           ? {
               ...section,
               subject,
-              unit: unitsForUnitMockSubject(subject)[0] ?? "",
+              unit:
+                section.unit === ALL_UNIT_VALUE
+                  ? ALL_UNIT_VALUE
+                  : unitsForUnitMockSubject(subject)[0] ?? "",
             }
           : section
       )
@@ -547,7 +588,7 @@ export function AdminCoachingClient() {
       const subject = section.subject.trim();
       const unitName = section.unit.trim();
       const availableUnits = unitsForUnitMockSubject(subject);
-      if (!availableUnits.includes(unitName)) {
+      if (unitName !== ALL_UNIT_VALUE && !availableUnits.includes(unitName)) {
         setUnitMsg("각 행의 과목과 단원을 확인해 주세요.");
         return null;
       }
@@ -893,8 +934,8 @@ export function AdminCoachingClient() {
 
   async function generateUnitMock(excludeCurrent = false) {
     if (unitLoading || replacingUnitQuestionIds.length > 0) return;
-    if (!unitStudent) {
-      setUnitMsg("출제 대상 학생을 먼저 선택해 주세요.");
+    if (unitStudents.length === 0) {
+      setUnitMsg("출제 대상 학생을 1명 이상 선택해 주세요.");
       return;
     }
     const resolvedSections = resolveUnitSections();
@@ -915,11 +956,13 @@ export function AdminCoachingClient() {
         breakdown?: UnitMockBreakdown[];
         excludedIncomplete?: number;
         usageTrackingAvailable?: boolean;
+        selectedDifficultyCounts?: Partial<Record<Difficulty, number>>;
+        fallbackSelectedCount?: number;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
           body: JSON.stringify({
-            studentId: unitStudent.id,
+            studentIds: unitStudents.map((student) => student.id),
             sections: resolvedSections,
             difficulty: unitDifficulty,
             pool: unitPool,
@@ -942,18 +985,36 @@ export function AdminCoachingClient() {
           ? ` · 불완전 묶음 ${json.excludedIncomplete}문항 제외`
           : "";
       const breakdownText = (json.breakdown ?? [])
+        .filter((item) => item.selectedCount > 0 || item.requestedCount > 0)
         .map((item) =>
           unitExcludeUsed
-            ? `${item.unit} ${item.selectedCount}/${item.requestedCount} · 미사용 ${item.unusedAvailable}`
-            : `${item.unit} ${item.selectedCount}/${item.requestedCount}`
+            ? `${item.unit} ${item.selectedCount}문항(미사용 후보 ${item.unusedAvailable})`
+            : `${item.unit} ${item.selectedCount}문항`
         )
         .join(" · ");
+      const selectedDifficultyText =
+        unitDifficulty === "all"
+          ? ""
+          : difficultyFallbackOrder(unitDifficulty)
+              .map((item) => {
+                const count = json.selectedDifficultyCounts?.[item] ?? 0;
+                return count > 0 ? `${DIFFICULTY_LABELS[item]} ${count}문항` : "";
+              })
+              .filter(Boolean)
+              .join(" · ");
+      const fallbackText =
+        (json.fallbackSelectedCount ?? 0) > 0
+          ? ` · 하위 난이도 보충 ${json.fallbackSelectedCount}문항`
+          : "";
+      const studentLabel = formatStudentNames(unitStudents);
       setUnitMsg(
-        `${unitStudent.name} 학생 기준 · ${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${exclusionText}${trackingText}${
+        `${studentLabel} 기준 · ${availableText} 중 ${json.questions.length}문항을 뽑았습니다.${candidateText}${exclusionText}${trackingText}${
+          selectedDifficultyText ? ` · ${selectedDifficultyText}${fallbackText}` : ""
+        }${
           breakdownText ? ` (${breakdownText})` : ""
         }`
       );
-      setSheet(unitSheetFromQuestions(json.questions, resolvedSections, unitStudent));
+      setSheet(unitSheetFromQuestions(json.questions, resolvedSections, unitStudents));
       setUnitSelectedQuestionIds([]);
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
@@ -964,8 +1025,12 @@ export function AdminCoachingClient() {
 
   async function replaceUnitQuestions(questionIds: string[]) {
     if (unitLoading || replacingUnitQuestionIds.length > 0 || sheet?.sourceLabel !== "unit-mock") return;
-    if (!unitStudent || sheet.recipientStudentId !== unitStudent.id) {
-      setUnitMsg("출제 대상 학생을 다시 선택한 뒤 문제를 구성해 주세요.");
+    const unitStudentIds = unitStudents.map((student) => student.id);
+    if (
+      unitStudents.length === 0 ||
+      !haveSameStudentIds(sheet.recipientStudentIds, unitStudentIds)
+    ) {
+      setUnitMsg("출제 대상 학생들을 다시 선택한 뒤 문제를 구성해 주세요.");
       return;
     }
     const targetIds = new Set(questionIds);
@@ -989,7 +1054,7 @@ export function AdminCoachingClient() {
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
           body: JSON.stringify({
-            studentId: unitStudent.id,
+            studentIds: unitStudentIds,
             sections: targets.map(({ question }) => ({
               subject: question.subject,
               unit: question.unit,
@@ -1127,29 +1192,57 @@ export function AdminCoachingClient() {
     if (sheet?.sourceLabel !== "unit-mock" || sheet.questions.length === 0) return;
     if (unitPdfSaving) return;
 
-    const studentId = sheet.recipientStudentId;
-    const studentName = sheet.recipientStudentName;
-    if (!studentId || !studentName) {
+    const studentIds = sheet.recipientStudentIds ?? [];
+    const studentNames = sheet.recipientStudentNames ?? [];
+    if (studentIds.length === 0 || studentNames.length !== studentIds.length) {
       setUnitMsg("출제 대상 학생 정보가 없어 사용 이력을 기록하지 못했습니다.");
       return;
     }
 
+    const studentLabel = formatStudentNameValues(studentNames);
     const questionIds = sheet.questions.map((question) => question.id);
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), UNIT_USAGE_RECORD_TIMEOUT_MS);
+    const timeoutMs = Math.min(
+      60_000,
+      UNIT_USAGE_RECORD_TIMEOUT_MS + studentIds.length * 1_000
+    );
+    const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
     setUnitPdfSaving(true);
-    setUnitMsg(`PDF를 열었습니다. ${studentName} 학생의 사용 이력을 기록 중입니다.`);
+    setUnitMsg(`PDF를 열었습니다. ${studentLabel} 사용 이력을 기록 중입니다.`);
     try {
       const json = await ensureOk<{
-        usage: Array<{ questionId: string; useCount: number; lastUsedAt: string | null }>;
+        usage: Array<{
+          studentId: string;
+          questionId: string;
+          useCount: number;
+          lastUsedAt: string | null;
+        }>;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock/usage", {
           method: "POST",
-          body: JSON.stringify({ studentId, questionIds }),
+          body: JSON.stringify({ studentIds, questionIds }),
           signal: controller.signal,
         })
       );
-      const usageById = new Map(json.usage.map((item) => [item.questionId, item]));
+      const usageById = new Map<
+        string,
+        { useCount: number; usedStudentCount: number; lastUsedAt: string | null }
+      >();
+      for (const item of json.usage) {
+        const current = usageById.get(item.questionId) ?? {
+          useCount: 0,
+          usedStudentCount: 0,
+          lastUsedAt: null,
+        };
+        usageById.set(item.questionId, {
+          useCount: current.useCount + item.useCount,
+          usedStudentCount: current.usedStudentCount + 1,
+          lastUsedAt:
+            item.lastUsedAt && (!current.lastUsedAt || item.lastUsedAt > current.lastUsedAt)
+              ? item.lastUsedAt
+              : current.lastUsedAt,
+        });
+      }
       setSheet((current) => {
         if (current?.sourceLabel !== "unit-mock") return current;
         return {
@@ -1160,12 +1253,15 @@ export function AdminCoachingClient() {
             return {
               ...question,
               coachingUseCount: usage.useCount,
+              coachingUsedStudentCount: usage.usedStudentCount,
               coachingLastUsedAt: usage.lastUsedAt,
             };
           }),
         };
       });
-      setUnitMsg(`${studentName} 학생의 문제지 사용 이력을 ${questionIds.length}문항 기록했습니다.`);
+      setUnitMsg(
+        `${studentLabel} ${studentIds.length}명의 문제지 사용 이력을 각각 ${questionIds.length}문항 기록했습니다.`
+      );
     } catch (error) {
       setUnitMsg(
         error instanceof DOMException && error.name === "AbortError"
@@ -1900,9 +1996,9 @@ export function AdminCoachingClient() {
               DB에 저장된 문제를 과목/단원 기준으로 뽑아 6문항 단위 인쇄용 문제지로 만듭니다.
             </p>
             <CoachingStudentPicker
-              selectedStudentId={unitStudent?.id ?? ""}
+              selectedStudentIds={unitStudents.map((student) => student.id)}
               disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
-              onStudentChange={handleUnitStudentChange}
+              onStudentsChange={handleUnitStudentsChange}
             />
             <section className="mt-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1954,6 +2050,7 @@ export function AdminCoachingClient() {
                           onChange={(event) => updateUnitSectionUnit(section.id, event.target.value)}
                           className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-normal"
                         >
+                          <option value={ALL_UNIT_VALUE}>전체 단원</option>
                           {options.map((item) => (
                             <option key={item} value={item}>{item}</option>
                           ))}
@@ -2021,17 +2118,17 @@ export function AdminCoachingClient() {
                 type="checkbox"
                 checked={unitExcludeUsed}
                 onChange={(event) => setUnitExcludeUsed(event.target.checked)}
-                disabled={!unitStudent}
+                disabled={unitStudents.length === 0}
                 className="size-4 rounded border-line"
               />
-              {unitStudent
-                ? `${unitStudent.name} 학생에게 사용한 문제 다시 사용하지 않기`
+              {unitStudents.length > 0
+                ? `선택한 ${unitStudents.length}명 중 한 명이라도 사용한 문제 다시 사용하지 않기`
                 : "학생을 선택하면 사용한 문제를 제외할 수 있습니다"}
             </label>
             <button
               type="button"
               onClick={() => void generateUnitMock()}
-              disabled={!unitStudent || unitLoading || replacingUnitQuestionIds.length > 0 || unitHasBlankCount}
+              disabled={unitStudents.length === 0 || unitLoading || replacingUnitQuestionIds.length > 0 || unitHasBlankCount}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
               {unitLoading ? "문제 뽑는 중..." : `단원별 모고 만들기 (${unitTotalCount}문항)`}
@@ -2043,7 +2140,7 @@ export function AdminCoachingClient() {
                   <div>
                     <h3 className="text-sm font-black text-ink">단원별 모고 구성 결과</h3>
                     <p className="mt-1 text-xs font-bold text-slate-500">
-                      {sheet.recipientStudentName} 학생 기준 · {sheet.questions.length}문항 · 사용됨 {unitUsageSummary.used}문항 · 미사용 {unitUsageSummary.unused}문항 · 선택 {unitSelectedQuestionIds.length}문항
+                      {formatStudentNameValues(sheet.recipientStudentNames ?? [])} 기준 · {sheet.questions.length}문항 · 사용됨 {unitUsageSummary.used}문항 · 미사용 {unitUsageSummary.unused}문항 · 선택 {unitSelectedQuestionIds.length}문항
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -2096,6 +2193,7 @@ export function AdminCoachingClient() {
                 <ol className="mt-4 grid gap-2 lg:grid-cols-2">
                   {sheet.questions.map((question, index) => {
                     const useCount = unitMockUseCount(question);
+                    const usedStudentCount = question.coachingUsedStudentCount ?? (useCount > 0 ? 1 : 0);
                     const lastUsed = formatUnitMockLastUsed(question.coachingLastUsedAt);
                     const isSelected = unitSelectedQuestionIds.includes(question.id);
                     const isReplacing = unitReplacingSet.has(question.id);
@@ -2128,7 +2226,9 @@ export function AdminCoachingClient() {
                                       : "bg-emerald-50 text-emerald-700"
                                   }`}
                                 >
-                                  {useCount > 0 ? "사용됨" : "미사용"} · 이 학생 {useCount}회
+                                  {useCount > 0
+                                    ? `사용됨 · ${usedStudentCount}명 · 총 ${useCount}회`
+                                    : "선택 학생 모두 미사용"}
                                 </span>
                               </div>
                               <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">

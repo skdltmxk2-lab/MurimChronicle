@@ -5,9 +5,9 @@ import { adminFetch } from "@/lib/api/adminFetch";
 import type { CoachingStudent } from "@/types/coaching";
 
 type CoachingStudentPickerProps = {
-  selectedStudentId: string;
+  selectedStudentIds: readonly string[];
   disabled?: boolean;
-  onStudentChange: (student: CoachingStudent | null) => void;
+  onStudentsChange: (students: CoachingStudent[]) => void;
 };
 
 async function ensureOk<T>(response: Response): Promise<T> {
@@ -25,10 +25,15 @@ function sortStudents(students: CoachingStudent[]) {
   });
 }
 
+function formatSelectedStudentNames(students: CoachingStudent[]) {
+  if (students.length <= 4) return students.map((student) => student.name).join(", ");
+  return `${students.slice(0, 3).map((student) => student.name).join(", ")} 외 ${students.length - 3}명`;
+}
+
 export function CoachingStudentPicker({
-  selectedStudentId,
+  selectedStudentIds,
   disabled = false,
-  onStudentChange,
+  onStudentsChange,
 }: CoachingStudentPickerProps) {
   const [students, setStudents] = useState<CoachingStudent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +48,8 @@ export function CoachingStudentPicker({
 
   const activeStudents = useMemo(() => students.filter((student) => student.isActive), [students]);
   const archivedStudents = useMemo(() => students.filter((student) => !student.isActive), [students]);
-  const selectedStudent = students.find((student) => student.id === selectedStudentId && student.isActive) ?? null;
+  const selectedStudentIdSet = useMemo(() => new Set(selectedStudentIds), [selectedStudentIds]);
+  const selectedStudents = activeStudents.filter((student) => selectedStudentIdSet.has(student.id));
 
   useEffect(() => {
     let cancelled = false;
@@ -58,15 +64,21 @@ export function CoachingStudentPicker({
         if (cancelled) return;
         const nextStudents = sortStudents(json.students ?? []);
         setStudents(nextStudents);
+        const selectedIdSet = new Set(selectedStudentIds);
+        const existingSelection = nextStudents.filter(
+          (student) => student.isActive && selectedIdSet.has(student.id)
+        );
         const initial =
-          nextStudents.find((student) => student.id === selectedStudentId && student.isActive) ??
-          nextStudents.find((student) => student.isActive) ??
-          null;
-        onStudentChange(initial);
+          existingSelection.length > 0
+            ? existingSelection
+            : nextStudents.find((student) => student.isActive)
+              ? [nextStudents.find((student) => student.isActive)!]
+              : [];
+        onStudentsChange(initial);
       } catch (error) {
         if (cancelled) return;
         setMessage(error instanceof Error ? error.message : "학생 명단을 불러오지 못했습니다.");
-        onStudentChange(null);
+        onStudentsChange([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -80,10 +92,27 @@ export function CoachingStudentPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function selectStudent(studentId: string) {
+  function toggleStudent(studentId: string) {
     const student = students.find((item) => item.id === studentId && item.isActive) ?? null;
-    onStudentChange(student);
-    setMessage(student ? `${student.name} 학생을 출제 대상으로 선택했습니다.` : "");
+    if (!student) return;
+    const next = selectedStudentIdSet.has(studentId)
+      ? selectedStudents.filter((item) => item.id !== studentId)
+      : activeStudents.filter(
+          (item) => selectedStudentIdSet.has(item.id) || item.id === studentId
+        );
+    onStudentsChange(next);
+    setMessage(
+      selectedStudentIdSet.has(studentId)
+        ? `${student.name} 학생을 출제 대상에서 제외했습니다.`
+        : `${student.name} 학생을 출제 대상으로 선택했습니다.`
+    );
+  }
+
+  function toggleAllStudents() {
+    const allSelected =
+      activeStudents.length > 0 && selectedStudents.length === activeStudents.length;
+    onStudentsChange(allSelected ? [] : activeStudents);
+    setMessage(allSelected ? "출제 대상 학생 선택을 해제했습니다." : `학생 ${activeStudents.length}명을 모두 선택했습니다.`);
   }
 
   async function addStudent(event: FormEvent<HTMLFormElement>) {
@@ -102,7 +131,11 @@ export function CoachingStudentPicker({
       setStudents(nextStudents);
       setNewName("");
       setNewMemo("");
-      onStudentChange(json.student);
+      onStudentsChange(
+        activeStudents
+          .filter((student) => selectedStudentIdSet.has(student.id))
+          .concat(json.student)
+      );
       setMessage(`${json.student.name} 학생을 등록하고 출제 대상으로 선택했습니다.`);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "학생 등록에 실패했습니다.");
@@ -130,7 +163,11 @@ export function CoachingStudentPicker({
         })
       );
       setStudents((current) => sortStudents(current.map((item) => (item.id === student.id ? json.student : item))));
-      if (selectedStudentId === student.id) onStudentChange(json.student);
+      if (selectedStudentIdSet.has(student.id)) {
+        onStudentsChange(
+          selectedStudents.map((item) => (item.id === student.id ? json.student : item))
+        );
+      }
       setEditingId("");
       setMessage(`${json.student.name} 학생 정보를 수정했습니다.`);
     } catch (error) {
@@ -162,8 +199,17 @@ export function CoachingStudentPicker({
         students.map((item) => (item.id === student.id ? json.student : item))
       );
       setStudents(nextStudents);
-      if (!isActive && selectedStudentId === student.id) {
-        onStudentChange(nextStudents.find((item) => item.isActive) ?? null);
+      if (!isActive && selectedStudentIdSet.has(student.id)) {
+        const remainingSelection = nextStudents.filter(
+          (item) => item.isActive && item.id !== student.id && selectedStudentIdSet.has(item.id)
+        );
+        onStudentsChange(
+          remainingSelection.length > 0
+            ? remainingSelection
+            : nextStudents.find((item) => item.isActive)
+              ? [nextStudents.find((item) => item.isActive)!]
+              : []
+        );
       }
       setMessage(
         isActive
@@ -179,40 +225,72 @@ export function CoachingStudentPicker({
 
   return (
     <section className="mt-5 border-y border-line bg-slate-50 px-4 py-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <label className="block flex-1 text-xs font-black text-slate-600">
-          출제 대상 학생
-          <select
-            value={selectedStudent?.id ?? ""}
-            onChange={(event) => selectStudent(event.target.value)}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black text-slate-600">출제 대상 학생</p>
+          <p className="mt-1 text-xs font-bold text-brand-700">
+            {selectedStudents.length > 0
+              ? `${formatSelectedStudentNames(selectedStudents)} · ${selectedStudents.length}명 선택`
+              : "학생을 1명 이상 선택해 주세요."}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
             disabled={disabled || loading || activeStudents.length === 0}
-            className="mt-2 w-full rounded-md border border-line bg-white px-3 py-2 text-sm font-bold text-ink disabled:bg-slate-100 disabled:text-slate-400"
+            onClick={toggleAllStudents}
+            className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <option value="">
-              {loading ? "학생 명단 불러오는 중..." : activeStudents.length === 0 ? "학생을 먼저 등록해 주세요" : "학생 선택"}
-            </option>
-            {activeStudents.map((student) => (
-              <option key={student.id} value={student.id}>
-                {student.name}{student.memo ? ` · ${student.memo}` : ""}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => setManaging((current) => !current)}
-          className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          {managing ? "학생 관리 닫기" : "학생 등록·관리"}
-        </button>
+            {selectedStudents.length === activeStudents.length && activeStudents.length > 0 ? "전체 해제" : "전체 선택"}
+          </button>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => setManaging((current) => !current)}
+            className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {managing ? "학생 관리 닫기" : "학생 등록·관리"}
+          </button>
+        </div>
       </div>
 
-      {selectedStudent ? (
-        <p className="mt-2 text-xs font-bold text-brand-700">
-          현재 {selectedStudent.name} 학생의 사용 이력을 기준으로 문제를 구성합니다.
-        </p>
-      ) : null}
+      <div
+        role="group"
+        aria-label="출제 대상 학생"
+        className="mt-3 grid max-h-64 gap-2 overflow-y-auto pr-1 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {loading ? (
+          <p className="text-xs font-bold text-slate-500">학생 명단 불러오는 중...</p>
+        ) : activeStudents.length === 0 ? (
+          <p className="text-xs font-bold text-slate-500">학생을 먼저 등록해 주세요.</p>
+        ) : (
+          activeStudents.map((student) => {
+            const checked = selectedStudentIdSet.has(student.id);
+            return (
+              <label
+                key={student.id}
+                className={`flex min-w-0 items-start gap-3 rounded-md border bg-white px-3 py-3 text-sm transition ${
+                  checked ? "border-brand-500 ring-2 ring-brand-100" : "border-line"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={disabled}
+                  onChange={() => toggleStudent(student.id)}
+                  className="mt-0.5 size-4 shrink-0 rounded border-line"
+                />
+                <span className="min-w-0">
+                  <span className="block truncate font-black text-ink">{student.name}</span>
+                  {student.memo ? (
+                    <span className="mt-0.5 block truncate text-xs text-slate-500">{student.memo}</span>
+                  ) : null}
+                </span>
+              </label>
+            );
+          })
+        )}
+      </div>
 
       {managing ? (
         <div className="mt-4 border-t border-line pt-4">
@@ -303,10 +381,10 @@ export function CoachingStudentPicker({
                           <button
                             type="button"
                             disabled={saving || disabled}
-                            onClick={() => selectStudent(student.id)}
+                            onClick={() => toggleStudent(student.id)}
                             className="rounded-md border border-line px-3 py-1.5 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:opacity-40"
                           >
-                            선택
+                            {selectedStudentIdSet.has(student.id) ? "선택 해제" : "선택"}
                           </button>
                         ) : null}
                         <button
