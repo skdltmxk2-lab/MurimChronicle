@@ -554,6 +554,62 @@ for (const q of questions) {
   }
 }
 
+// Exams copy question content at generation/submission time, so a repaired
+// `questions` row does not reach exams that were already built from it.
+async function auditSnapshots() {
+  const scanProblems = (problems, origin, pool) => {
+    for (const problem of Array.isArray(problems) ? problems : []) {
+      if (!problem || typeof problem !== "object") continue;
+      const record = {
+        id: `${origin}#${problem.id ?? "?"}`,
+        subject: problem.subject,
+        unit: problem.unit,
+        concept: problem.concept,
+        difficulty: problem.difficulty,
+        pool,
+        question_type: problem.questionType,
+      };
+      checkField(record, "question", problem.question, { isStem: true });
+      checkField(record, "explanation", problem.explanation);
+      checkField(record, "answer_text", problem.answerText);
+      (Array.isArray(problem.options) ? problem.options : []).forEach((option, index) => {
+        checkField(record, `option:${option?.id ?? index + 1}`, option?.text);
+      });
+    }
+  };
+
+  const { data: exams, error: examError } = await sb.from("generated_exams").select("id, problems");
+  if (examError) throw examError;
+  let examProblems = 0;
+  for (const exam of exams ?? []) {
+    examProblems += Array.isArray(exam.problems) ? exam.problems.length : 0;
+    scanProblems(exam.problems, `generated_exams:${exam.id}`, "generated_exam");
+  }
+
+  const { data: attempts, error: attemptError } = await sb.from("exam_attempts").select("attempt_id, result");
+  if (attemptError) throw attemptError;
+  let attemptProblems = 0;
+  for (const attempt of attempts ?? []) {
+    const problems = attempt.result?.examSnapshot?.problems;
+    attemptProblems += Array.isArray(problems) ? problems.length : 0;
+    scanProblems(problems, `exam_attempts:${attempt.attempt_id}`, "exam_attempt");
+  }
+
+  return {
+    generatedExams: exams?.length ?? 0,
+    generatedExamProblems: examProblems,
+    examAttempts: attempts?.length ?? 0,
+    examAttemptProblems: attemptProblems,
+  };
+}
+
+console.log("Scanning exam snapshots...");
+const snapshotCounts = await auditSnapshots();
+console.log(
+  `Scanned ${snapshotCounts.generatedExamProblems} generated-exam problems and ` +
+    `${snapshotCounts.examAttemptProblems} attempt problems.`,
+);
+
 const severityRank = { P0: 0, P1: 1, P2: 2, P3: 3 };
 issues.sort((a, b) => {
   const bySeverity = (severityRank[a.severity] ?? 9) - (severityRank[b.severity] ?? 9);
@@ -603,6 +659,7 @@ const reviewQueue = [...issuesByQuestion.entries()]
 const summary = {
   generatedAt: new Date().toISOString(),
   questionCount: questions.length,
+  snapshotCounts,
   issueCount: issues.length,
   affectedQuestionCount: reviewQueue.length,
   severityCounts: countBy(issues, (i) => i.severity),
