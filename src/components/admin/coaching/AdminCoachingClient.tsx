@@ -2423,7 +2423,17 @@ export function AdminCoachingClient() {
 
       {sheet ? (
         <>
-          <PrintableSheet sheet={sheet} pageHeaders={questionPageHeaders} />
+          <PrintableSheet
+            sheet={sheet}
+            pageHeaders={questionPageHeaders}
+            onReplaceQuestion={
+              sheet.sourceLabel === "unit-mock" ? (questionId) => void replaceUnitQuestion(questionId) : undefined
+            }
+            onRemoveQuestion={sheet.sourceLabel === "unit-mock" ? removeUnitQuestion : undefined}
+            replacingQuestionIds={replacingUnitQuestionIds}
+            actionsDisabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
+            statusMessage={unitMsg}
+          />
           <PrintableAnswerSheet sheet={sheet} />
         </>
       ) : (
@@ -2513,10 +2523,38 @@ function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
   );
 }
 
-function PrintableSheet({ sheet, pageHeaders }: { sheet: PrintSheet; pageHeaders: string[] }) {
+type PrintableSheetProps = {
+  sheet: PrintSheet;
+  pageHeaders: string[];
+  /** Supplied only for sheets whose questions can be swapped (unit mocks). */
+  onReplaceQuestion?: (questionId: string) => void;
+  onRemoveQuestion?: (questionId: string) => void;
+  replacingQuestionIds?: string[];
+  actionsDisabled?: boolean;
+  statusMessage?: string;
+};
+
+function PrintableSheet({
+  sheet,
+  pageHeaders,
+  onReplaceQuestion,
+  onRemoveQuestion,
+  replacingQuestionIds,
+  actionsDisabled = false,
+  statusMessage
+}: PrintableSheetProps) {
   const pages = chunk(sheet.questions, QUESTIONS_PER_PRINT_PAGE);
+  // The composition list sits far above this preview, so the same per-question
+  // actions are offered here to avoid scrolling back up to swap one problem.
+  const canEditQuestions = Boolean(onReplaceQuestion || onRemoveQuestion);
+  const replacingSet = new Set(replacingQuestionIds ?? []);
   return (
     <section className="coaching-print-area coaching-question-print-area mt-6">
+      {canEditQuestions && statusMessage ? (
+        <p className="admin-screen-only mb-3 rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
+          {statusMessage}
+        </p>
+      ) : null}
       {pages.map((questions, pageIndex) => {
         const headerText = (pageHeaders[pageIndex] ?? "").trim();
         return (
@@ -2573,6 +2611,31 @@ function PrintableSheet({ sheet, pageHeaders }: { sheet: PrintSheet; pageHeaders
                             답:
                           </div>
                         )}
+                        {canEditQuestions ? (
+                          <div className="admin-screen-only mt-3 flex flex-wrap items-center justify-end gap-2 border-t border-dashed border-line pt-2">
+                            {onReplaceQuestion ? (
+                              <button
+                                type="button"
+                                disabled={actionsDisabled}
+                                onClick={() => onReplaceQuestion(question.id)}
+                                className="rounded-md border border-line px-2 py-1 text-[11px] font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                {replacingSet.has(question.id) ? "교체 중..." : "이 문제 교체"}
+                              </button>
+                            ) : null}
+                            {onRemoveQuestion ? (
+                              <button
+                                type="button"
+                                title="원본 DB는 유지하고 현재 구성에서만 삭제"
+                                disabled={actionsDisabled}
+                                onClick={() => onRemoveQuestion(question.id)}
+                                className="rounded-md border border-coral-300 px-2 py-1 text-[11px] font-black text-coral-600 transition hover:border-coral-500 hover:bg-coral-50 disabled:cursor-not-allowed disabled:opacity-40"
+                              >
+                                이 문제 삭제
+                              </button>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     );
                   })}
