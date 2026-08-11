@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run test:standalone && npm run test:unit-mock",
+    "prebuild": "npm run test:standalone && npm run test:unit-mock && npm run test:render",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -12,6 +12,8 @@
     "questions:validate": "node scripts/validate_question_quality.mjs",
     "test:standalone": "node scripts/test_standalone_questions.mjs",
     "test:unit-mock": "node scripts/test_unit_mock_selection.mjs",
+    "test:render": "node scripts/test_render_pipeline.mjs",
+    "questions:render-audit": "node scripts/audit_render_breakage_readonly.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
