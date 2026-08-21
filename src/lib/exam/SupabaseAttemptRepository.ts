@@ -93,7 +93,17 @@ export const supabaseAttemptRepo: IAttemptRepository = {
   async saveResult(result: AttemptResult): Promise<void> {
     saveResultLocal(result);
 
-    const { data: { session } } = await supabase.auth.getSession();
+    // 여기부터는 서버 동기화(best-effort)다. 위에서 localStorage 저장이 이미 끝났으므로
+    // 아래 단계가 실패해도 채점 결과는 살아 있다. getSession()이 throw하면 호출자인
+    // submitExam이 "제출 실패"로 오인해 재제출을 유도하고, 그 재제출이 attemptId를 새로
+    // 발급해 중복 응시 기록이 남는다. 그래서 fetch 실패와 동일하게 조용히 넘긴다.
+    let session: Awaited<ReturnType<typeof supabase.auth.getSession>>["data"]["session"];
+    try {
+      ({ data: { session } } = await supabase.auth.getSession());
+    } catch (error) {
+      console.warn("[exam_attempts] session lookup failed; result kept in localStorage only.", error);
+      return;
+    }
     if (!session?.user) return;
 
     let res: Response;

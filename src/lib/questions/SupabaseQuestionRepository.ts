@@ -1,14 +1,41 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import { mockExams } from "@/data/mockData";
-import type { Problem } from "@/types/exam";
 import type { QuestionDraft, QuestionFilters, QuestionRecord } from "@/types/question";
 import type { IQuestionRepository } from "@/lib/questions/IQuestionRepository";
 import {
   STANDALONE_VALIDATOR_VERSION,
   assertStandaloneQuestion,
 } from "@/lib/questions/standalone";
+
+// 목록 조회에서 실제로 읽는 컬럼만 명시한다(fromDb 기준).
+// select("*") 를 쓰면 embedding vector(768) 까지 브라우저로 내려와 페이로드가 폭증한다.
+export const QUESTION_LIST_COLUMNS = [
+  "id",
+  "subject",
+  "unit",
+  "concept",
+  "difficulty",
+  "source_type",
+  "pool",
+  "question",
+  "content_type",
+  "question_image",
+  "question_type",
+  "options",
+  "correct_option_id",
+  "answer_text",
+  "explanation",
+  "explanation_content_type",
+  "explanation_image",
+  "tags",
+  "quality_status",
+  "quality_reasons",
+  "validated_at",
+  "validator_version",
+  "created_at",
+  "updated_at"
+].join(",");
 
 function nowIso() {
   return new Date().toISOString();
@@ -58,40 +85,6 @@ function draftToRow(draft: QuestionDraft) {
     validated_at: validatedAt,
     validator_version: STANDALONE_VALIDATOR_VERSION,
   };
-}
-
-function problemToRecord(problem: Problem, examTitle: string): QuestionRecord {
-  const createdAt = nowIso();
-  return {
-    id: problem.id,
-    subject: problem.subject,
-    unit: problem.unit,
-    concept: problem.concept,
-    difficulty: problem.difficulty,
-    sourceType: "mock",
-    pool: "general",
-    question: problem.question,
-    contentType: problem.contentType ?? "latex",
-    questionImage: problem.questionImage,
-    options: problem.options,
-    correctOptionId: problem.correctOptionId,
-    explanation: problem.explanation,
-    explanationContentType: problem.explanationContentType ?? "latex",
-    explanationImage: problem.explanationImage,
-    tags: unique([problem.unit, problem.concept, examTitle]),
-    qualityStatus: "approved",
-    qualityReasons: [],
-    validatedAt: createdAt,
-    validatorVersion: STANDALONE_VALIDATOR_VERSION,
-    createdAt,
-    updatedAt: createdAt
-  };
-}
-
-function getSeedQuestions(): QuestionRecord[] {
-  return mockExams.flatMap((exam) =>
-    exam.problems.map((problem) => problemToRecord(problem, exam.title))
-  );
 }
 
 type DbRow = Record<string, unknown>;
@@ -181,15 +174,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await supabase
         .from("questions")
-        .select("*")
+        .select(QUESTION_LIST_COLUMNS)
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
-      all.push(...(data as DbRow[]));
+      all.push(...(data as unknown as DbRow[]));
       if (data.length < PAGE) break;
     }
-    if (all.length === 0) return this.reset();
     return all.map(fromDb);
   },
 
@@ -200,7 +192,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     for (let from = 0; ; from += PAGE) {
       let query = supabase
         .from("questions")
-        .select("*")
+        .select(QUESTION_LIST_COLUMNS)
         .in("unit", units)
         .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
@@ -209,7 +201,7 @@ export const supabaseQuestionRepo: IQuestionRepository = {
       const { data, error } = await query;
       if (error) throw error;
       if (!data || data.length === 0) break;
-      all.push(...(data as DbRow[]));
+      all.push(...(data as unknown as DbRow[]));
       if (data.length < PAGE) break;
     }
     return all.map(fromDb);
@@ -222,14 +214,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await supabase
         .from("questions")
-        .select("*")
+        .select(QUESTION_LIST_COLUMNS)
         .eq("subject", subject)
         .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
-      all.push(...(data as DbRow[]));
+      all.push(...(data as unknown as DbRow[]));
       if (data.length < PAGE) break;
     }
     return all.map(fromDb);
@@ -241,14 +233,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await supabase
         .from("questions")
-        .select("*")
+        .select(QUESTION_LIST_COLUMNS)
         .contains("tags", [tag])
         .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
-      all.push(...(data as DbRow[]));
+      all.push(...(data as unknown as DbRow[]));
       if (data.length < PAGE) break;
     }
     return all.map(fromDb);
@@ -260,14 +252,14 @@ export const supabaseQuestionRepo: IQuestionRepository = {
     for (let from = 0; ; from += PAGE) {
       const { data, error } = await supabase
         .from("questions")
-        .select("*")
+        .select(QUESTION_LIST_COLUMNS)
         .eq("pool", pool)
         .eq("quality_status", "approved")
         .order("created_at", { ascending: false })
         .range(from, from + PAGE - 1);
       if (error) throw error;
       if (!data || data.length === 0) break;
-      all.push(...(data as DbRow[]));
+      all.push(...(data as unknown as DbRow[]));
       if (data.length < PAGE) break;
     }
     return all.map(fromDb);
@@ -397,13 +389,5 @@ export const supabaseQuestionRepo: IQuestionRepository = {
       subjects: unique(questions.map((q) => q.subject)),
       units: unique(questions.map((q) => q.unit))
     };
-  },
-
-  async reset(): Promise<QuestionRecord[]> {
-    await supabase.from("questions").delete().not("id", "is", null);
-    const seeds = getSeedQuestions();
-    const { error } = await supabase.from("questions").insert(seeds.map(toDb));
-    if (error) throw error;
-    return seeds;
   }
 };

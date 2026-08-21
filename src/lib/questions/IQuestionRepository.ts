@@ -14,5 +14,4 @@ export interface IQuestionRepository {
   deleteQuestion(id: string): Promise<void>;
   filter(questions: QuestionRecord[], filters: QuestionFilters): QuestionRecord[];
   getFilterOptions(questions: QuestionRecord[]): { subjects: string[]; units: string[] };
-  reset(): Promise<QuestionRecord[]>;
 }

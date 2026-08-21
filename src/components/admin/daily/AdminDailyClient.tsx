@@ -9,6 +9,14 @@ import { SUBJECT_NAMES, SUBJECT_UNITS } from "@/lib/taxonomy";
 import type { QuestionRecord } from "@/types/question";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 
+async function ensureOk(res: Response) {
+  const json = (await res.json().catch(() => null)) as { ok?: boolean; message?: string } | null;
+  if (!res.ok || json?.ok === false) {
+    throw new Error(json?.message ?? `HTTP ${res.status}`);
+  }
+  return json;
+}
+
 function getTodayParam(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -151,7 +159,10 @@ export function AdminDailyClient() {
       explanationImage: q.explanationImage,
       tags: [...q.tags.filter((t) => t !== "daily"), "daily"],
     };
-    await questionRepo.update(q.id, draft);
+    await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ draft }),
+    }));
     setAllQuestions((prev) =>
       prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
     );
@@ -176,7 +187,10 @@ export function AdminDailyClient() {
       explanationImage: q.explanationImage,
       tags: q.tags.filter((t) => t !== "daily"),
     };
-    await questionRepo.update(q.id, draft);
+    await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ draft }),
+    }));
     setAllQuestions((prev) =>
       prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
     );

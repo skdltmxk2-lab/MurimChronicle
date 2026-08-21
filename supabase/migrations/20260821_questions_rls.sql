@@ -1,0 +1,124 @@
+-- ───────────────────────────────────────────────────────────────
+-- questions 테이블 RLS 활성화 — 읽기만 허용, 쓰기는 전면 차단
+--
+-- 🛑 아직 적용하지 말 것. 선행 작업이 남아 있다. 아래 "적용 차단 사유" 참고.
+--    선행 작업을 끝낸 뒤 Supabase SQL 에디터에서 실행한다.
+--
+-- 배경: community_posts / inquiries / user_unit_stats / english_words 등
+--       다른 21개 테이블은 모두 RLS가 켜져 있는데 questions만 빠져 있다.
+--       그 결과 브라우저 번들에 그대로 노출되는 anon 키(NEXT_PUBLIC_SUPABASE_ANON_KEY)로
+--       문제은행 전체에 INSERT/UPDATE/DELETE가 가능하다.
+--       (문항 전체 삭제도 anon 키 한 줄이면 가능)
+--
+-- 조치: RLS를 켜고 SELECT 정책만 만든다. INSERT/UPDATE/DELETE 정책은
+--       "일부러 만들지 않는다" — RLS가 켜진 테이블에서 해당 명령의 정책이
+--       하나도 없으면 anon/authenticated의 쓰기는 전부 거부된다.
+--       반면 service_role 키는 RLS를 우회하므로(BYPASSRLS) 관리자 API
+--       라우트는 그대로 동작한다.
+--       (src/lib/auth/requireAdmin.ts — SUPABASE_SERVICE_ROLE_KEY로
+--        createClient 후 그 클라이언트를 라우트에 넘겨준다. requireTier.ts /
+--        requireUser.ts 도 동일.)
+--
+-- ───────────────────────────────────────────────────────────────
+-- 🛑 적용 차단 사유 — 이걸 해결하기 전에 실행하면 콘텐츠 파이프라인이 죽는다
+-- ───────────────────────────────────────────────────────────────
+--       scripts/ 아래 스크립트 140개가 anon 키로 questions에 직접
+--       INSERT/UPDATE/DELETE 한다(service_role 폴백 없음).
+--       그중 13개는 `_` 접두사 일회성 스크립트이고, 나머지 127개는
+--       상시 사용되는 콘텐츠 투입·정비 도구다:
+--         · upload_general_*.mjs      — 학교별 기출 업로드 (대다수)
+--         · upload_daily_tests_*.mjs  — 데일리 테스트 업로드
+--         · dedupe_questions.mjs, reclassify_questions.mjs,
+--           fix_duplicate_tags.mjs, fix_image_content_type.mjs 등 정비 도구
+--       이 SQL을 실행하는 순간 위 스크립트가 전부 쓰기에 실패한다.
+--       더 나쁜 것은 실패 방식이다(아래 "실패 신호" 참고) — UPDATE/DELETE는
+--       에러 없이 0행 처리되므로, 스크립트는 성공한 것처럼 끝난다.
+--
+--       선행 작업(둘 중 하나):
+--        (A) scripts/lib/ 에 service_role 클라이언트 헬퍼를 만들고
+--            위 스크립트들이 그것을 쓰도록 전환한다. (권장 — 근본 해결)
+--        (B) 최소한 앞으로 쓸 스크립트만 전환하고, 나머지는 실행 금지로
+--            표시한다. (임시방편)
+--
+-- ───────────────────────────────────────────────────────────────
+-- ⚠️ 실패 신호 — 오해하기 쉬움
+-- ───────────────────────────────────────────────────────────────
+--       RLS 거부는 명령마다 증상이 다르다.
+--         · INSERT        → 에러 42501 "new row violates row-level security policy"
+--         · UPDATE/DELETE → 에러 없음. 대상 행이 정책상 보이지 않아 0행 처리되고
+--                           정상 종료된다. 호출부는 성공으로 읽는다.
+--         · SELECT 거부   → HTTP 401/403이 아니라 200 + 빈 배열.
+--       즉 "에러가 안 났으니 괜찮다"는 판단은 틀린다. 적용 후 검증은
+--       반드시 실제로 행이 바뀌었는지(또는 조회되는지)로 확인해야 한다.
+--
+-- ───────────────────────────────────────────────────────────────
+-- ⚠️ 앱 배포 순서
+-- ───────────────────────────────────────────────────────────────
+--       브라우저에서 questions에 직접 쓰던 관리자 화면을 서버 API로 옮긴
+--       앱 코드가 **프로덕션에 배포된 뒤**에만 이 SQL을 적용한다.
+--         · src/components/admin/daily/AdminDailyClient.tsx
+--           — 문항 수정: questionRepo.update() = anon UPDATE 였음 → 서버 API로 이전 완료
+--         · src/components/admin/imports/AdminImportsClient.tsx
+--           — 일괄 등록: questionRepo.appendMany() = anon INSERT. **아직 이전 못 함.**
+--             CSV 임포트는 이미지를 base64 data URL로 draft에 담기 때문에
+--             (src/lib/files/readFileAsDataUrl.ts → src/lib/importQuestions.ts)
+--             Next API 라우트로 보내면 Vercel 요청 본문 4.5MB 제한에 걸린다.
+--             Supabase Storage 업로드 후 URL만 넘기도록 바꾸는 선행 작업이 필요하다.
+--       AdminExamsClient(목록 조회만) / AdminQuestionsClient(쓰기는 이미
+--       /api/admin/questions 경유)는 영향 없음.
+--       세 화면 모두 목록 조회는 questionRepo.list()(anon SELECT)를 계속 쓰므로
+--       읽기 정책은 반드시 남아 있어야 한다.
+--
+-- ───────────────────────────────────────────────────────────────
+-- SELECT를 공개로 둔 이유
+-- ───────────────────────────────────────────────────────────────
+--       app/student/exams/page.tsx의 마운트 useEffect가
+--       questionRepo.countAll() / countByTag("daily")를 deps [] 로 호출하는데,
+--       이 effect는 아래쪽 `if (!authChecked) return null` / `if (!user)`
+--       early return보다 먼저 등록되므로 비로그인 방문자의 브라우저에서도
+--       anon 키로 실행된다(early return은 render 단계라 effect를 막지 못한다).
+--       즉 "비로그인 익명 읽기"가 실제로 존재한다. 안전 쪽에 붙어
+--       USING (true)로 공개 읽기를 허용한다.
+--       → 이 카운트 조회를 서버(service_role)로 옮긴 뒤에는
+--         USING (auth.uid() IS NOT NULL) 로 좁힐 수 있다.
+--
+-- ───────────────────────────────────────────────────────────────
+-- 이 마이그레이션이 해결하지 '못하는' 것 — 정답 컬럼 노출
+-- ───────────────────────────────────────────────────────────────
+--       RLS는 행(row) 단위다. 컬럼을 가리지 못한다.
+--       따라서 이 SQL을 적용해도 로그인한 학생이 anon 키로 questions를 직접
+--       조회해 correct_option_id / answer_text를 읽는 것은 여전히 가능하다.
+--       지금은 채점이 브라우저에서 돌기 때문에(src/lib/exam/grading.ts —
+--       src/components/exam/ExamRunner.tsx에서 호출) 클라이언트가 정답을
+--       실제로 필요로 한다. 이 구멍을 닫으려면 채점을 서버로 옮겨야 하며,
+--       그건 별도 작업이다. 이 마이그레이션은 "누구나 문제은행을 지울 수 있다"만
+--       막는다.
+--
+-- ───────────────────────────────────────────────────────────────
+-- 남은 구멍 — generated_exams
+-- ───────────────────────────────────────────────────────────────
+--       questions만 빠진 게 아니다. generated_exams에도 RLS가 없고,
+--       src/lib/exams/SupabaseExamRepository.ts("use client")가 anon 키로
+--       insert / update / delete 를 직접 수행한다.
+--       같은 방식의 후속 마이그레이션이 필요하다. 다만 그쪽은 브라우저 쓰기가
+--       실제 기능 경로라서, 서버 API 이전이 먼저다.
+--
+-- 재실행 안전(idempotent): ENABLE ROW LEVEL SECURITY는 반복 실행 가능하고,
+--       정책은 DROP POLICY IF EXISTS 후 CREATE 한다.
+-- ───────────────────────────────────────────────────────────────
+
+ALTER TABLE public.questions ENABLE ROW LEVEL SECURITY;
+
+-- 읽기: 전체 공개 (비로그인 /student/exams 카운트 조회 때문에 필요)
+DROP POLICY IF EXISTS questions_public_read ON public.questions;
+CREATE POLICY questions_public_read ON public.questions FOR SELECT
+  USING (true);
+
+-- INSERT / UPDATE / DELETE 정책은 의도적으로 없음.
+-- anon·authenticated의 모든 쓰기는 거부되고, 문제 등록/수정/삭제는
+-- service_role 키를 쓰는 /api/admin/* 라우트로만 가능하다.
+
+-- 롤백(문제 발생 시):
+-- ALTER TABLE public.questions DISABLE ROW LEVEL SECURITY;
+-- (주의: RLS만 끄고 정책은 남겨도 무방하다. 반대로 정책만 DROP하고 RLS를
+--  켜둔 채로 두면 읽기까지 막혀 사이트가 조용히 빈 화면이 된다.)

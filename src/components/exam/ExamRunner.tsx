@@ -68,22 +68,32 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
       }
 
       submittedRef.current = true;
-      const attemptId = createAttemptId(exam.id);
-      const result = gradeExam({
-        exam,
-        answers: answersRef.current,
-        attemptId,
-        elapsedSec: Math.min(elapsedRef.current, exam.timeLimitSec),
-        retryHref
-      });
+      try {
+        const attemptId = createAttemptId(exam.id);
+        const result = gradeExam({
+          exam,
+          answers: answersRef.current,
+          attemptId,
+          elapsedSec: Math.min(elapsedRef.current, exam.timeLimitSec),
+          retryHref
+        });
 
-      await attemptRepo.saveResult(result);
-      await attemptRepo.clearAnswers(exam.id);
-      // 취약유형 모의고사는 별도 리포트 페이지로 진입
-      if (exam.id.startsWith("weakness-")) {
-        router.push(`/student/exams/weakness/report/${attemptId}`);
-      } else {
-        router.push(`/student/results/${attemptId}`);
+        await attemptRepo.saveResult(result);
+        await attemptRepo.clearAnswers(exam.id);
+        // 취약유형 모의고사는 별도 리포트 페이지로 진입
+        if (exam.id.startsWith("weakness-")) {
+          router.push(`/student/exams/weakness/report/${attemptId}`);
+        } else {
+          router.push(`/student/results/${attemptId}`);
+        }
+      } catch (error) {
+        // 저장·이동 중 실패하면 제출 플래그를 되돌린다.
+        // true로 남겨두면 다시 제출할 수도, 이탈 경고를 받을 수도 없어 시험 화면에 갇힌다.
+        // 서버 동기화 실패는 saveResult가 자체적으로 삼키므로 여기까지 오지 않는다.
+        // 즉 여기 도달했다면 채점 자체가 실패한 것이라, 원인을 네트워크로 단정하지 않는다.
+        submittedRef.current = false;
+        console.error("[exam] submit failed", error);
+        window.alert("제출을 완료하지 못했습니다.\n잠시 후 다시 제출해 주세요.");
       }
     },
     [exam, retryHref, router]
@@ -127,6 +137,29 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     answersRef.current = answers;
     void attemptRepo.saveAnswers(exam.id, answers);
   }, [answers, exam.id, loaded]);
+
+  useEffect(() => {
+    // 응시 중 새로고침·탭 닫기로 답안을 날리지 않도록 브라우저 기본 이탈 경고를 붙인다.
+    // 답안 하이드레이션이 끝나기 전(loaded=false)에는 등록하지 않는다.
+    // deps가 [loaded]뿐인 이유: submittedRef/answersRef는 모두 ref라 핸들러가 항상 최신 값을 읽는다.
+    // answers를 넣으면 보기를 클릭할 때마다 리스너를 재등록하게 되므로 넣지 않는다.
+    // 정상 이탈 3경로(제출 / 임시 저장 후 나가기 / 답안 삭제 후 나가기)는 모두
+    // submittedRef를 true로 세우므로 경고가 잘못 뜨지 않는다.
+    if (!loaded) return;
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (submittedRef.current) return;
+      // 화면의 응답 수 계산과 같은 기준을 쓴다(공백만 입력된 주관식은 미응답).
+      const answered = exam.problems.some((problem) => hasStoredAnswer(answersRef.current, problem.id));
+      if (!answered) return;
+      event.preventDefault();
+      // returnValue = "" 는 HTML 사양상 "경고하지 않음"에 해당한다.
+      // preventDefault()를 무시하던 구형 엔진까지 덮으려면 비어 있지 않은 값이어야 한다.
+      event.returnValue = true;
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [exam.problems, loaded]);
 
   useEffect(() => {
     // loaded 전에는 startedAtRef.current가 초기값(Date.now())이라 timer가 돌면

@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { ClientAuthWrapper } from "@/components/layout/ClientAuthWrapper";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
-const SITE_URL = "https://routrans.com";
-const SITE_NAME = "루트편입";
 const SITE_DESC =
   "편입수학·편입영어 CBT. 5,000+ 문항, AI 풀이·검색·튜터, 취약유형 맞춤 모의고사까지. 가입 1분, 신용카드 불필요.";
 
@@ -72,6 +72,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <JsonLd />
         <ClientAuthWrapper>{children}</ClientAuthWrapper>
         <Analytics />
       </body>
