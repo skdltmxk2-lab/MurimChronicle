@@ -29,6 +29,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
   const elapsedRef = useRef(0);
   const startedAtRef = useRef<number>(Date.now());
   const submittedRef = useRef(false);
+  // 제출이 실패해 재시도할 때 attemptId를 새로 뽑으면 한 번의 응시가
+  // 두 건의 기록으로 남는다(saveResult는 로컬 저장·서버 POST를 이미 마친 뒤일 수 있다).
+  // 그래서 한 번 발급한 id를 붙들고 재시도에서 그대로 재사용한다.
+  const attemptIdRef = useRef<string | null>(null);
 
   const answeredCount = useMemo(
     () => exam.problems.filter((problem) => hasStoredAnswer(answers, problem.id)).length,
@@ -69,7 +73,8 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
       submittedRef.current = true;
       try {
-        const attemptId = createAttemptId(exam.id);
+        const attemptId = attemptIdRef.current ?? createAttemptId(exam.id);
+        attemptIdRef.current = attemptId;
         const result = gradeExam({
           exam,
           answers: answersRef.current,

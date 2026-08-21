@@ -159,14 +159,19 @@ export function AdminDailyClient() {
       explanationImage: q.explanationImage,
       tags: [...q.tags.filter((t) => t !== "daily"), "daily"],
     };
-    await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
-      method: "PUT",
-      body: JSON.stringify({ draft }),
-    }));
-    setAllQuestions((prev) =>
-      prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
-    );
-    setSaving(null);
+    try {
+      await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ draft }),
+      }));
+      setAllQuestions((prev) =>
+        prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
+      );
+    } catch (error) {
+      setActionMsg(error instanceof Error ? error.message : "문항 저장에 실패했습니다.");
+    } finally {
+      setSaving(null);
+    }
   }
 
   async function removeFromDaily(q: QuestionRecord) {
@@ -187,14 +192,19 @@ export function AdminDailyClient() {
       explanationImage: q.explanationImage,
       tags: q.tags.filter((t) => t !== "daily"),
     };
-    await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
-      method: "PUT",
-      body: JSON.stringify({ draft }),
-    }));
-    setAllQuestions((prev) =>
-      prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
-    );
-    setSaving(null);
+    try {
+      await ensureOk(await adminFetch(`/api/admin/questions/${q.id}`, {
+        method: "PUT",
+        body: JSON.stringify({ draft }),
+      }));
+      setAllQuestions((prev) =>
+        prev.map((item) => (item.id === q.id ? { ...item, tags: draft.tags } : item))
+      );
+    } catch (error) {
+      setActionMsg(error instanceof Error ? error.message : "문항 저장에 실패했습니다.");
+    } finally {
+      setSaving(null);
+    }
   }
 
   async function randomize() {

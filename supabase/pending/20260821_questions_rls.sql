@@ -2,7 +2,11 @@
 -- questions 테이블 RLS 활성화 — 읽기만 허용, 쓰기는 전면 차단
 --
 -- 🛑 아직 적용하지 말 것. 선행 작업이 남아 있다. 아래 "적용 차단 사유" 참고.
---    선행 작업을 끝낸 뒤 Supabase SQL 에디터에서 실행한다.
+--
+--    그래서 이 파일은 supabase/migrations/ 가 아니라 supabase/pending/ 에 있다.
+--    migrations/ 에 두면 `supabase db push` 나 "최신 마이그레이션 실행"에
+--    딸려 들어가 선행 작업 없이 적용될 수 있다.
+--    선행 작업을 끝낸 뒤 migrations/ 로 옮기고 실행한다.
 --
 -- 배경: community_posts / inquiries / user_unit_stats / english_words 등
 --       다른 21개 테이블은 모두 RLS가 켜져 있는데 questions만 빠져 있다.

@@ -15,6 +15,10 @@
 > Supabase Storage 경유로 바꾸는 선행 작업이 필요하다.
 >
 > **선행 작업 목록은 `20260821_questions_rls.sql` 헤더의 "적용 차단 사유" 참고.**
+>
+> 이 파일들이 `supabase/migrations/` 가 아니라 `supabase/pending/` 에 있는 것도
+> 같은 이유다 — 마이그레이션 경로에 두면 실수로 일괄 적용될 수 있다.
+> 선행 작업이 끝나면 `migrations/` 로 옮긴 뒤 실행한다.
 
 무엇을 하는가: `public.questions`에 RLS를 켜고 **공개 SELECT 정책 1개만** 만든다.
 INSERT/UPDATE/DELETE 정책은 만들지 않으므로 anon 키의 쓰기는 전부 거부되고,
