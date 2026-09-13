@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { parseStudentOrder, sortCoachingStudents, studentOrderKey } from "@/lib/admin/coachingStudentOrder";
 import {
   COACHING_STUDENT_SELECT,
   coachingStudentFromRow,
@@ -39,10 +40,18 @@ export async function GET(request: Request) {
     return NextResponse.json({ ok: false, message }, { status: 500 });
   }
 
-  return NextResponse.json({
-    ok: true,
-    students: (data ?? []).map((row) => coachingStudentFromRow(row as Record<string, unknown>)),
-  });
+  const { data: setting, error: orderError } = await auth.supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", studentOrderKey(auth.userId))
+    .maybeSingle();
+  if (orderError) {
+    return NextResponse.json({ ok: false, message: "학생 순서를 불러오지 못했습니다. 다시 시도해 주세요." }, { status: 500 });
+  }
+  const students = (data ?? []).map((row) => coachingStudentFromRow(row as Record<string, unknown>));
+  const existingIds = new Set(students.map((student) => student.id));
+  const studentOrder = parseStudentOrder(setting?.value).filter((id) => existingIds.has(id));
+  return NextResponse.json({ ok: true, students: sortCoachingStudents(students, studentOrder), studentOrder });
 }
 
 export async function POST(request: Request) {

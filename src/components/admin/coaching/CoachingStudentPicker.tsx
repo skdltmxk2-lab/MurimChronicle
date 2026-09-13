@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
+import { moveCoachingStudent, sortCoachingStudents } from "@/lib/admin/coachingStudentOrder";
+import { useCoachingStudentDrag } from "./useCoachingStudentDrag";
 import type { CoachingStudent } from "@/types/coaching";
 
 type CoachingStudentPickerProps = {
@@ -36,6 +38,7 @@ export function CoachingStudentPicker({
   onStudentsChange,
 }: CoachingStudentPickerProps) {
   const [students, setStudents] = useState<CoachingStudent[]>([]);
+  const [studentOrder, setStudentOrder] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [managing, setManaging] = useState(false);
@@ -46,7 +49,8 @@ export function CoachingStudentPicker({
   const [editingName, setEditingName] = useState("");
   const [editingMemo, setEditingMemo] = useState("");
 
-  const activeStudents = useMemo(() => students.filter((student) => student.isActive), [students]);
+  const orderedStudents = useMemo(() => sortCoachingStudents(students, studentOrder), [students, studentOrder]);
+  const activeStudents = useMemo(() => orderedStudents.filter((student) => student.isActive), [orderedStudents]);
   const archivedStudents = useMemo(() => students.filter((student) => !student.isActive), [students]);
   const selectedStudentIdSet = useMemo(() => new Set(selectedStudentIds), [selectedStudentIds]);
   const selectedStudents = activeStudents.filter((student) => selectedStudentIdSet.has(student.id));
@@ -58,11 +62,12 @@ export function CoachingStudentPicker({
       setLoading(true);
       setMessage("");
       try {
-        const json = await ensureOk<{ students: CoachingStudent[] }>(
+        const json = await ensureOk<{ students: CoachingStudent[]; studentOrder?: string[] }>(
           await adminFetch("/api/admin/coaching/students")
         );
         if (cancelled) return;
-        const nextStudents = sortStudents(json.students ?? []);
+        const nextStudents = sortCoachingStudents(json.students ?? [], json.studentOrder ?? []);
+        setStudentOrder(json.studentOrder ?? []);
         setStudents(nextStudents);
         const selectedIdSet = new Set(selectedStudentIds);
         const existingSelection = nextStudents.filter(
@@ -249,6 +254,34 @@ export function CoachingStudentPicker({
     }
   }
 
+  async function reorderStudents(source: string, target: string) {
+    if (disabled || saving || loading) return;
+    const ids = activeStudents.map((student) => student.id);
+    const nextOrder = moveCoachingStudent(ids, source, target);
+    if (nextOrder.every((id, index) => id === ids[index])) return;
+    const previousOrder = studentOrder;
+    setStudentOrder(nextOrder);
+    setSaving(true);
+    setMessage("학생 순서 저장 중...");
+    try {
+      await ensureOk<{ studentOrder: string[] }>(
+        await adminFetch("/api/admin/coaching/students/order", {
+          method: "PUT", body: JSON.stringify({ studentIds: nextOrder }),
+        })
+      );
+      setMessage("학생 순서를 저장했습니다.");
+    } catch (error) {
+      setStudentOrder(previousOrder);
+      setMessage(error instanceof Error ? error.message : "학생 순서 저장에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const drag = useCoachingStudentDrag(disabled || saving || loading, (source, target) => {
+    void reorderStudents(source, target);
+  });
+
   return (
     <section className="mt-5 border-y border-line bg-slate-50 px-4 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -280,6 +313,7 @@ export function CoachingStudentPicker({
         </div>
       </div>
 
+      <p className="mt-3 text-xs text-slate-500">이름이나 왼쪽 손잡이를 드래그해서 순서를 바꿀 수 있습니다.</p>
       <div
         role="group"
         aria-label="출제 대상 학생"
@@ -295,10 +329,33 @@ export function CoachingStudentPicker({
             return (
               <div
                 key={student.id}
-                className={`flex min-w-0 items-center gap-2 rounded-md border bg-white px-3 py-3 text-sm transition ${
-                  checked ? "border-brand-500 ring-2 ring-brand-100" : "border-line"
-                }`}
+                data-coaching-student-id={student.id}
+                {...drag.handlers}
+                className={`flex min-w-0 select-none items-center gap-2 rounded-md border bg-white px-3 py-3 text-sm transition ${
+                  drag.targetId === student.id && drag.draggedId !== student.id
+                    ? "border-brand-500 ring-2 ring-brand-500"
+                    : checked ? "border-brand-500 ring-2 ring-brand-100" : "border-line"
+                } ${drag.draggedId === student.id ? "opacity-50" : ""}`}
               >
+                <button
+                  type="button"
+                  data-student-drag-handle
+                  disabled={disabled || saving || activeStudents.length < 2}
+                  aria-label={`${student.name} 학생 순서 이동`}
+                  title="드래그하거나 좌우 방향키로 순서 이동"
+                  className="flex size-7 shrink-0 touch-none cursor-grab items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-500 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-40"
+                  onKeyDown={(event) => {
+                    if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                    event.preventDefault();
+                    const index = activeStudents.findIndex((item) => item.id === student.id);
+                    const target = activeStudents[index + (event.key === "ArrowLeft" ? -1 : 1)];
+                    if (target) void reorderStudents(student.id, target.id);
+                  }}
+                >
+                  <svg aria-hidden="true" viewBox="0 0 16 20" className="h-5 w-4" fill="currentColor">
+                    {[4, 10, 16].map((y) => <g key={y}><circle cx="5" cy={y} r="1.5" /><circle cx="11" cy={y} r="1.5" /></g>)}
+                  </svg>
+                </button>
                 <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
                   <input
                     type="checkbox"
@@ -308,7 +365,7 @@ export function CoachingStudentPicker({
                     className="mt-0.5 size-4 shrink-0 rounded border-line"
                   />
                   <span className="min-w-0">
-                    <span className="block truncate font-black text-ink">{student.name}</span>
+                    <span className="block cursor-grab truncate font-black text-ink active:cursor-grabbing">{student.name}</span>
                     {student.memo ? (
                       <span className="mt-0.5 block truncate text-xs text-slate-500">{student.memo}</span>
                     ) : null}
@@ -363,7 +420,7 @@ export function CoachingStudentPicker({
 
           {students.length > 0 ? (
             <ul className="mt-4 divide-y divide-line border-y border-line bg-white">
-              {students.map((student) => (
+              {orderedStudents.map((student) => (
                 <li key={student.id} className="px-3 py-3">
                   {editingId === student.id ? (
                     <div className="grid gap-2 md:grid-cols-[minmax(140px,0.7fr)_minmax(220px,1.3fr)_auto_auto]">

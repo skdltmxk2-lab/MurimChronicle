@@ -89,6 +89,8 @@ const react = {
 };
 const { CoachingStudentPicker } = load('src/components/admin/coaching/CoachingStudentPicker.tsx', {
   react,
+  '@/lib/admin/coachingStudentOrder': load('src/lib/admin/coachingStudentOrder.ts'),
+  './useCoachingStudentDrag': { useCoachingStudentDrag: () => ({ handlers: {}, draggedId: '', targetId: '' }) },
   '@/lib/api/adminFetch': { adminFetch: async (url, init) => {
     requests.push({ url, method: init?.method || 'GET' });
     if (init?.method === 'DELETE') return Response.json(
