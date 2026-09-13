@@ -223,6 +223,32 @@ export function CoachingStudentPicker({
     }
   }
 
+  async function deleteStudent(student: CoachingStudent) {
+    if (disabled || saving) return;
+    const confirmed = window.confirm(
+      `${student.name} 학생을 삭제할까요?\n학생 명단과 이 학생의 문제 사용 이력이 영구 삭제됩니다. 삭제 후에는 복구할 수 없습니다.\n이력을 유지하려면 학생 등록·관리에서 '보관'을 선택해 주세요.`
+    );
+    if (!confirmed) return;
+
+    setSaving(true);
+    setMessage("");
+    try {
+      await ensureOk<{ deletedStudentId: string }>(
+        await adminFetch(`/api/admin/coaching/students/${student.id}`, { method: "DELETE" })
+      );
+      setStudents((current) => current.filter((item) => item.id !== student.id));
+      if (selectedStudentIdSet.has(student.id)) {
+        onStudentsChange(selectedStudents.filter((item) => item.id !== student.id));
+      }
+      if (editingId === student.id) setEditingId("");
+      setMessage(`${student.name} 학생을 삭제했습니다.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "학생 삭제에 실패했습니다.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <section className="mt-5 border-y border-line bg-slate-50 px-4 py-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -237,7 +263,7 @@ export function CoachingStudentPicker({
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
-            disabled={disabled || loading || activeStudents.length === 0}
+            disabled={disabled || saving || loading || activeStudents.length === 0}
             onClick={toggleAllStudents}
             className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -267,26 +293,37 @@ export function CoachingStudentPicker({
           activeStudents.map((student) => {
             const checked = selectedStudentIdSet.has(student.id);
             return (
-              <label
+              <div
                 key={student.id}
-                className={`flex min-w-0 items-start gap-3 rounded-md border bg-white px-3 py-3 text-sm transition ${
+                className={`flex min-w-0 items-center gap-2 rounded-md border bg-white px-3 py-3 text-sm transition ${
                   checked ? "border-brand-500 ring-2 ring-brand-100" : "border-line"
                 }`}
               >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled={disabled}
-                  onChange={() => toggleStudent(student.id)}
-                  className="mt-0.5 size-4 shrink-0 rounded border-line"
-                />
-                <span className="min-w-0">
-                  <span className="block truncate font-black text-ink">{student.name}</span>
-                  {student.memo ? (
-                    <span className="mt-0.5 block truncate text-xs text-slate-500">{student.memo}</span>
-                  ) : null}
-                </span>
-              </label>
+                <label className="flex min-w-0 flex-1 cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={disabled || saving}
+                    onChange={() => toggleStudent(student.id)}
+                    className="mt-0.5 size-4 shrink-0 rounded border-line"
+                  />
+                  <span className="min-w-0">
+                    <span className="block truncate font-black text-ink">{student.name}</span>
+                    {student.memo ? (
+                      <span className="mt-0.5 block truncate text-xs text-slate-500">{student.memo}</span>
+                    ) : null}
+                  </span>
+                </label>
+                <button
+                  type="button"
+                  disabled={disabled || saving}
+                  onClick={() => void deleteStudent(student)}
+                  aria-label={`${student.name} 학생 삭제`}
+                  className="shrink-0 rounded-md border border-line px-2 py-1.5 text-xs font-bold text-red-500 transition hover:border-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  삭제
+                </button>
+              </div>
             );
           })
         )}
@@ -403,6 +440,15 @@ export function CoachingStudentPicker({
                         >
                           {student.isActive ? "보관" : "복구"}
                         </button>
+                        <button
+                          type="button"
+                          disabled={disabled || saving}
+                          onClick={() => void deleteStudent(student)}
+                          aria-label={`${student.name} 학생 삭제`}
+                          className="rounded-md border border-line px-3 py-1.5 text-xs font-black text-red-500 hover:border-red-500 hover:bg-red-50 disabled:opacity-40"
+                        >
+                          삭제
+                        </button>
                       </div>
                     </div>
                   )}
@@ -417,7 +463,7 @@ export function CoachingStudentPicker({
         </div>
       ) : null}
 
-      {message ? <p className="mt-3 text-xs font-bold text-slate-600">{message}</p> : null}
+      {message ? <p role="status" className="mt-3 text-xs font-bold text-slate-600">{message}</p> : null}
     </section>
   );
 }

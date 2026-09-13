@@ -13,6 +13,38 @@ const MAX_MEMO_LENGTH = 200;
 
 type RouteContext = { params: Promise<{ studentId: string }> };
 
+export async function DELETE(request: Request, { params }: RouteContext) {
+  const auth = await requireAdmin(request);
+  if (!auth.ok) return auth.response;
+
+  const { studentId } = await params;
+  if (!isCoachingStudentId(studentId)) {
+    return NextResponse.json({ ok: false, message: "학생 ID가 올바르지 않습니다." }, { status: 400 });
+  }
+
+  // The owned-student foreign key removes only this student's coaching usage.
+  const { data, error } = await auth.supabase
+    .from("coaching_students")
+    .delete()
+    .eq("id", studentId)
+    .eq("teacher_id", auth.userId)
+    .select("id")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Failed to delete coaching student", error.code);
+    return NextResponse.json(
+      { ok: false, message: "학생 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요." },
+      { status: 500 }
+    );
+  }
+  if (!data) {
+    return NextResponse.json({ ok: false, message: "학생을 찾을 수 없습니다." }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true, deletedStudentId: data.id });
+}
+
 export async function PATCH(request: Request, { params }: RouteContext) {
   const auth = await requireAdmin(request);
   if (!auth.ok) return auth.response;
