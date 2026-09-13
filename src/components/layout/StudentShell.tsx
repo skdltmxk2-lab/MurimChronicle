@@ -3,46 +3,40 @@
 import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { AdSlot } from "@/components/ads/AdSlot";
-import { LiveChatPanel } from "@/components/chat/LiveChatPanel";
-import { MobileChatButton } from "@/components/chat/MobileChatButton";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { canUseTier } from "@/lib/auth/tierGuard";
 
 /**
  * 학생 화면 공통 셸.
- * - 와이드 데스크탑: [좌측 광고 레일] [메인 콘텐츠] [우측 실시간 채팅] 3단 배치.
- * - 좁은 화면: 레일/사이드 채팅은 숨기고, 채팅은 플로팅 버튼으로 접근.
+ * - 광고가 활성화된 경우에만 데스크탑에서 콘텐츠 양옆에 광고 레일을 배치한다.
+ * - 광고가 없으면 사이드 공간을 예약하지 않는다.
  * - 시험 응시 등 집중이 필요한 하위 경로에서는 사이드 요소를 모두 숨긴다.
  */
 export function StudentShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  // 응시·분석 화면은 풀집중. 문제검색은 자체 우측 AI 튜터 패널을 쓰므로 실시간 채팅/광고 레일을 숨긴다.
+  const { user } = useAuth();
+  const showAdRails = process.env.NEXT_PUBLIC_ADS_ENABLED === "true" && !canUseTier(user, "pro");
+  // 응시·분석 화면과 자체 AI 튜터 패널이 있는 문제검색에서는 광고 레일을 숨긴다.
   const focusMode =
     pathname === "/student/search" ||
     (pathname.startsWith("/student/exams/") && pathname !== "/student/exams");
 
-  if (focusMode) return <>{children}</>;
+  if (focusMode || !showAdRails) return <>{children}</>;
 
   return (
-    <>
-      <div className="mx-auto flex w-full max-w-[1800px] justify-center gap-4 px-0 xl:px-4">
-        {/* 좌측 — 초대형 화면 광고 레일 */}
-        <aside className="hidden shrink-0 space-y-4 pt-6 xl:block xl:w-80">
-          <div className="hidden 2xl:block">
-            <AdSlot slot="rail-left" format="rail" />
-          </div>
-        </aside>
+    <div className="mx-auto flex w-full max-w-[1800px] justify-center gap-4 px-0 xl:px-4">
+      {/* 좌측 — 초대형 화면 광고 레일 */}
+      <aside className="hidden shrink-0 pt-6 2xl:block 2xl:w-80">
+        <AdSlot slot="rail-left" format="rail" />
+      </aside>
 
-        {/* 메인 콘텐츠 */}
-        <div className="min-w-0 flex-1">{children}</div>
+      {/* 메인 콘텐츠 */}
+      <div className="min-w-0 flex-1">{children}</div>
 
-        {/* 우측 실시간 채팅 + 하단 광고 — 큰 화면에서만. 스크롤 시 따라오지 않음(non-sticky) */}
-        <aside className="hidden shrink-0 space-y-4 pt-6 xl:block xl:w-80">
-          <LiveChatPanel className="h-[460px]" />
-          <AdSlot slot="rail-right" format="rail" />
-        </aside>
-      </div>
-
-      {/* 좁은 화면용 채팅 플로팅 버튼 */}
-      <MobileChatButton />
-    </>
+      {/* 우측 광고 — 큰 화면에서만 */}
+      <aside className="hidden shrink-0 pt-6 xl:block xl:w-80">
+        <AdSlot slot="rail-right" format="rail" />
+      </aside>
+    </div>
   );
 }
