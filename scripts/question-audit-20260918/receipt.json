@@ -1,0 +1,2732 @@
+{
+  "date": "2026-09-18",
+  "manifestSha256": "d66ff4aba6ccfd13b6afb73ba06112232e6a5f5dd1077b3df4268916ca71abef",
+  "counts": {
+    "reviewedNonDaily": 4572,
+    "updatedQuestions": 256,
+    "difficulty": 194,
+    "questionImages": 45,
+    "optionImages": 5,
+    "quarantined": 7,
+    "exams": 46,
+    "dailyUnchanged": 961
+  },
+  "questions": [
+    {
+      "id": "q-2017-kwangwoon-04",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2017-kwangwoon-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2018-skku-08",
+      "fields": {
+        "question": {
+          "beforeSha256": "caecad63d267d445e9ac220af5dbdb8a3236338fbc6aa36e8db5f10e6d14cb7f",
+          "afterSha256": "e9ac4369a128398463ad615e9012b57203586b1392485994b204de26f4c42c0b"
+        }
+      }
+    },
+    {
+      "id": "q-2018-skku-10",
+      "fields": {
+        "question": {
+          "beforeSha256": "4670d62ce6154eaa0eb696978221aece00f37e79991bfbfb8e3604e67e750d30",
+          "afterSha256": "19a4a4b4efa33002cf9c1aed6df85ddb0d3d225930ba3abf045362f68f059692"
+        }
+      }
+    },
+    {
+      "id": "q-2018-sogang-03",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-dankook-42",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "b44e43587ceae4e8201ec8c1f556b21b816668b02d0a06d00c1ef84a6fc7dfc6"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2019-ewha-05",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "00da8f0fd4e0023c677dcd897d08cb731132b89ccd89461e55da4d12352d65b6"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "ecaec665259e9bea1713dc7e5efe481a91fa1bd04cbeb4b2956b7e6c69b52bc7",
+          "afterSha256": "795b25e4ed42845d9d1032758e91e90518841a864a5666caaee81a3f0ad113a7"
+        },
+        "explanation": {
+          "beforeSha256": "3876d48d0c1c3aa69682d7c9537729631c74fc13c6757177fb14e29ad8a48a67",
+          "afterSha256": "f3a4d2fa23a8e4c29d8197792080a2938f0e57cb99264e98e5fe37f378cb6903"
+        }
+      }
+    },
+    {
+      "id": "q-2019-ewha-10",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "3c6f7fc3a599499a1b9935c5836a36cad2f8edd48e33e8fa85a9c6f4f2fb20a2"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "213934d081981c6453b74286fc0bf825d81b4d1590aeb3632e11042388ff0b80",
+          "afterSha256": "55ae45d41d37da4945a4be9f35f456fd971f87575655f18af82cfa53f600eada"
+        },
+        "explanation": {
+          "beforeSha256": "62234e505e5bfd72befdf3579c9c1e629b9176c856c79366c34cb2c714c10291",
+          "afterSha256": "14abbc75add1a680b08305f24c327ccafbd086b9996a1acaa36f383479ba19b2"
+        }
+      }
+    },
+    {
+      "id": "q-2019-ewha-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2019-ewha-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-ewha-30",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-inha-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-inha-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-inha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-kookmin-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-kookmin-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-kwangwoon-21",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "4510ffa9d7d6850bde5235f3a60bbf690df342a2b0f41a655462452609d49594"
+        },
+        "explanation": {
+          "beforeSha256": "513202789b2fdbd37f63aba696d33e6124dec01878e01173a5058870f54f989c",
+          "afterSha256": "e6ad4dc2fd4190686ed4268029b2d982dbd80cf20024b72b2378af37a644e7f7"
+        }
+      }
+    },
+    {
+      "id": "q-2019-kwangwoon-26",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-kyonggi-44",
+      "fields": {
+        "question": {
+          "beforeSha256": "4a2be4e944fa1ab92f10f80a141a5409a94c8112a5a197836f5c56dc3c4fe2d8",
+          "afterSha256": "de3670b6f6b5a701e30d07fc6ea2eca91eed56a70bab7171f520d1728613dd34"
+        },
+        "explanation": {
+          "beforeSha256": "981c22de2f90820aa98b1189315734e02b4e0efaa3be33b283d4a421c517fe9a",
+          "afterSha256": "025db437a799f4634c07660e40d3c6b53cbe16f0ceae8f16e58ae9655d4d0fb8"
+        }
+      }
+    },
+    {
+      "id": "q-2019-seoultech-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-sogang-02",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-sogang-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-sookmyung-09",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-sookmyung-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2019-sookmyung-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2019-soongsil-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2020-cau-30",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        },
+        "explanation": {
+          "beforeSha256": "3dd6cdeecea5130bbfc436f478758fe1d5139c2edc451be6bd46244f3c48f722",
+          "afterSha256": "35ec1e62ea636b1bda153d0b46b96de1eb864482db39e53265055254d6cb914a"
+        }
+      }
+    },
+    {
+      "id": "q-2020-dankook-44",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "beb3c8c4450f7213ff437bbe6be2508f229ef3ecc197a4cfd57a5ea561342b5b"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "16a8ddc2ac39f5eeecce99dfcf0c0cb40ea37b210da822c4ce0afc39b718e111",
+          "afterSha256": "623c3755868de2d9b8c0e02268aa01f6f17b426170963bc124578f55b81b2785"
+        },
+        "options": {
+          "beforeSha256": "da3cb024bc6f7c2def6223b5677045c4862322f514ef80488d795ae10186a5c2",
+          "afterSha256": "d3e396eb52d6eedea5f326b3897d443d9f30b783ad83e756b8d1caa46faf3bb1"
+        },
+        "correct_option_id": {
+          "beforeSha256": "2bf175f9655e7bb7357b9f0a7c6051465a5ae701104ffe741b98e852c0e4d460",
+          "afterSha256": "391552c099c101b131feaf24c5795a6a15bc8ec82015424e0d2b4274a369a0bf"
+        },
+        "explanation": {
+          "beforeSha256": "d4aeaeb183979282a9b1276b9da687df14755ad64c25ee2d03e8bffa5490d46f",
+          "afterSha256": "f99af73f5abd2ec892efbadce4d83bfe2fb195d030bc700dd93dcf58605ffbb8"
+        }
+      }
+    },
+    {
+      "id": "q-2020-ewha-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "explanation": {
+          "beforeSha256": "55cdf4bcb5133fba9bc21a6a789f8c4b8be3b92fb8666fabb79a5fdef1ea48fa",
+          "afterSha256": "ea894727d8a08866193b4e81b65efb09552b6f10e0985fd60a9fab77ab079c97"
+        }
+      }
+    },
+    {
+      "id": "q-2020-ewha-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac"
+        }
+      }
+    },
+    {
+      "id": "q-2020-ewha-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2020-ewha-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-ewha-30",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-hanyang-erica-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-kookmin-04",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "9629ea21dec634665a0ea6caaa8058c9e246b3cc2060f5cde8ccabda734c3ffb"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2020-kookmin-06",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2020-kookmin-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "47560565eb7cb713d50694b6b2205e6fd318edbc7795b0808efea5ce7b7bd62e"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2020-kwangwoon-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2020-kwangwoon-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-mju-16",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "607bbeacc1cc45a5307e2f70b0022470bf599d2d1dc655c26f4d0c048da0fd66"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2020-mju-19",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-sejong-25",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "e574ede7ab62d6114b672789492dd78900f4491c0d0efdd544ce9eead6f67597"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2020-sookmyung-05",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-sookmyung-06",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2020-sookmyung-09",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2020-sookmyung-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-cau-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2021-cau-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2021-ewha-11",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "881307acb9585087a0480cac5cf8ac366713aba93eed5381c5d567ee81331fab"
+        },
+        "explanation": {
+          "beforeSha256": "0887e5e818cfb521e10ec719cb75778c79977bf66613583045f95ff343c78f91",
+          "afterSha256": "b20084fc486ed6c7be6878696bdc75f506fcccc3a6f949ba54bc37872a7e7aea"
+        }
+      }
+    },
+    {
+      "id": "q-2021-ewha-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-ewha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2021-ewha-30",
+      "fields": {
+        "question": {
+          "beforeSha256": "0791dfb2e099ef740a434dee71fdf3a70a08f5df491501b6a6f663802a6426e8",
+          "afterSha256": "483d22b719ef8d34a226b4534a520cc03645166d49e3046c0833d5cd0eb31679"
+        },
+        "explanation": {
+          "beforeSha256": "76695a58f51aab961c82ea4d0afdaaf5ce1dec46da4008b5d9d2867463bc5c9f",
+          "afterSha256": "1177c56b590a781291d862403bbae48fe7747636707b2442f284c4f9585a2aff"
+        }
+      }
+    },
+    {
+      "id": "q-2021-hanyang-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-inha-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-inha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-kookmin-02",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "89a346ae8594bebe699112179fadc8d9aef6e85460d2b4a8bd1b0eb76f496aa1"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "98992e21029070e1c04c0e116865cfab99bef0a9e4882461642bbc8d9d50f971",
+          "afterSha256": "6506cdec5f56de5bdd6fda4d7e480dd1cdc65db0a3d22d20be5b88a9e7608ad8"
+        }
+      }
+    },
+    {
+      "id": "q-2021-kookmin-03",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-kookmin-21",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d159f31ac5c02af7d55c8c8f5c339e3453ce17aff2c6399b73c093b61226d9fb"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021-kwangwoon-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-kwangwoon-26",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "8609b062cc66e63b0abbffe80d979a984fef98245a59c18218033deee5ee39e0"
+        },
+        "explanation": {
+          "beforeSha256": "292001ef30992582ee6fe294d5e37cef84c42ef9fc10fc9a8acb11214f8ba51c",
+          "afterSha256": "bf7e837bc5284c801c9b2eeebb057e5f1d7c3f7d00865175f165985bc8ad48bc"
+        }
+      }
+    },
+    {
+      "id": "q-2021-mju-13",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "f405773e0d0e646df4021c8a839fed4c5ba94e0e0516b7576417cd5ea9b532d4"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021-mju-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-skku-04",
+      "fields": {
+        "options": {
+          "beforeSha256": "14163c71b1046b0bb7ff765c9b0b0c74536483c5510485775398c09c55383a5d",
+          "afterSha256": "1aef8d40d3fe1a17ec981d33f36430470af2cc1c5f8a3ab3f0070130ddb14fe9"
+        }
+      }
+    },
+    {
+      "id": "q-2021-sogang-07",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d04af54f310fe55828c7a2da2de6a509c4f45e8e47f807067b70f6f16f2b2221"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021-sogang-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2021-sogang-18",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "c04f206b5e161dc3149a7432fc4a1213748c86e60d755a763a42ad767485bfee"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021-sookmyung-06",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "470531dd1a5fd7fe55fe8207e7e27bc9878dc2aaa22dbd1cca854f328643fdf3"
+        },
+        "explanation": {
+          "beforeSha256": "fe0a27a78108fef0ffdb5b833f01cd7e96735fd23645d1699103ec4c1d06980f",
+          "afterSha256": "a730d06a7de8f2e68a31a9a296e950c9b0eb1f6b937b008b12d47fc98785d768"
+        }
+      }
+    },
+    {
+      "id": "q-2021-sookmyung-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021am-ajou-27",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "856ece3fd9bae8e6c9b9ec98d1a959c4643461e5b281bb97c1082d648091c02b"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021am-ajou-35",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "997285fcdf923f6e4df3207bd08921c6f35b43a05e175cf84efd0fda9c8881cd"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021am-dankook-32",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "8cc776004854851e22e72451158ad572f55aa082bb2af50e7157c962f288ee2f"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "21992e6c99fed1094eefaa8709f76586a7e67ffbc5492019d3f6d28f76a3f414",
+          "afterSha256": "977d27ad245cb9af081954aa8fc5561706712570c566fda239fb37022d973845"
+        }
+      }
+    },
+    {
+      "id": "q-2021am-dankook-45",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2021pm-ajou-49",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2021pm-dankook-36",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2021pm-dankook-42",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d403385d4f1eb0105659d89285b32d57ea74e82a2b116c681aba7d83273fbbf3"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2021pm-dankook-45",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022-cau-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-ewha-20",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "9fc1291cb1f9ca62c7b884639d1991dffc368057cf6633a5150c5715e6bc0b54"
+        },
+        "explanation": {
+          "beforeSha256": "fda9fec16c7b025172cca451ae7b41cf3b56720b5629287f6b210e55996f6af1",
+          "afterSha256": "abbcc8a9be77631448a8526eb9ead07e642e11090c4cb99abe85a5202e1cef89"
+        }
+      }
+    },
+    {
+      "id": "q-2022-ewha-26",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-ewha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022-hansung-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2022-hansung-14",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "70a02981b1a68dfc30dd4364c8f9d8fe87a55202f0e2cec84bf595ce51c75f01"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2022-hanyang-22",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "30e98f83dd16f6b83fad0457bc193afdad626a695480728f64f4cb511525aa3d"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-05",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-13",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-inha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-konkuk-40",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-kwangwoon-01",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-kwangwoon-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022-kyunghee-26",
+      "fields": {
+        "question": {
+          "beforeSha256": "2955ea25c7a3d2693e214af0ae8c3d4519d60d69caf6d16dce12b391c48fa82a",
+          "afterSha256": "ea23ab9fd2f4542ff7dd89ade2ad8ea728cb2c6f730401d25422d7641d0b7194"
+        },
+        "options": {
+          "beforeSha256": "5be5c3b8aaa6f542bc18d17b5441c6aa532e414d9c6ea039a3370b251631dda8",
+          "afterSha256": "f0b3ad2bfba051e4e11248ee12a7c2caa8b913c9720a166c8cc24a906f35ac73"
+        },
+        "explanation": {
+          "beforeSha256": "971eef69e61b8fc843365546f35a79ecf44857d1d1eb09df68724e729884bc54",
+          "afterSha256": "65a4ff4c11fb933d2503a340ad577022432453f4828939e8dd0bacf7fe0a481e"
+        }
+      }
+    },
+    {
+      "id": "q-2022-mju-19",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "6acd89aefffb97dcb785d19ee6289920c4f78f43d0c6eda7c7d26c5ef6ec1632"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2022-mju-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-skku-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022-sogang-01",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2022-sogang-14",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "3ca1c6e26e4925cb2ea204576b360b7ab9d507f8a60a4f04feb9e13622101f34"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "3d1ed9f59193f0239e4b3d8f105586398cdf45eb78643c9c20ca62341ae1f86b",
+          "afterSha256": "8116da66059c7ac39521457da4a736fafc4ffcfdcd663add515351a98bb065cb"
+        },
+        "explanation": {
+          "beforeSha256": "ce3b5cef5611350a771cdcc156a5135b64e1efd7e62029efe9af17426b5fd1b7",
+          "afterSha256": "0f7a963d48d8cf8ec1422b6435d88396f342e84cd4113168f3c753f2a4df710c"
+        }
+      }
+    },
+    {
+      "id": "q-2022-sookmyung-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022am-dankook-42",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "c7b18bc7e52f124c4f9787fcc9db75d400cf292866bf9458371d6fa76c9de895"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2022am-dankook-47",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2022pm-dankook-33",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2022pm-dankook-41",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "48f5882834c98a974802bb0ac65cfe51f0429ce81795c70335908edb5178487b"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2023-cau-05",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-ewha-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-ewha-21",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2023-ewha-26",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2023-ewha-30",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-hanyang-02",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d389a5f627381bcdb8a16628d0f67cf0127f762c8388d6fa1a3585715378157c"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2023-hanyang-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2023-inha-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-inha-21",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-inha-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-inha-29",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2023-kwangwoon-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-kwangwoon-29",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "b4a01c2d5f5ce6d8bb79883dce6c74736b2f00627d5430e33fd20b0a2a38a733"
+        },
+        "explanation": {
+          "beforeSha256": "a8b1fe7650a4d3033f5012b46081cffa0e9048f85ee2eb90de20a24a17b17665",
+          "afterSha256": "87517ebfdc2e9d1446f940193faf25ee7e22885b29cbc1d370d5622cf8d76eae"
+        }
+      }
+    },
+    {
+      "id": "q-2023-mju-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-mju-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sejong-21",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "c8da706f338567c9980258b3e146cdaa74077aca272deef159d403a235689199"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sejong-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sejong-25",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "b11f0ae0bab6a29aab6e3ab402d6038c0aaaa0b38d5079c027d025ac25322b60"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2023-skku-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sogang-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sogang-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sogang-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2023-sookmyung-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2023-soongsil-13",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2023-soongsil-17",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "289e4609a827052c8894f7f9ee8845f16c38d2ef2fbf068541b07614a1c3c82a"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "6af065e4c764c7b31a301f408e71340692908165a35aec332eef6502f533efc7",
+          "afterSha256": "16dbc492274fbe75cd97cfaaa9dceeecb516988906cf5eaa98e88c4c9aace046"
+        }
+      }
+    },
+    {
+      "id": "q-2023-soongsil-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2023pm-dankook-39",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "8df57a49d69dae807430f728928cbcf0adcfa7d7cb27d79aafd02a507165a1bc"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2023pm-dankook-42",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "f30c2407f5124902c14cad8a58f9b03ecf325c3237d8bd6fea894fc22438ea23"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ajou-36",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-cau-04",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024-cau-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-08",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "explanation": {
+          "beforeSha256": "bb375c2b5a10eacb85e7d4897a4717ccce11b0f602d96f8c499161edef78fcd8",
+          "afterSha256": "bf76b2e1c7d5d4b1ccc76adc612316a28e7a39afd719e3b4e0f5bb6c538dedde"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-22",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-ewha-25",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d75f6310ab90ccd69d94be7580e620a3308e79043e1aa82dd81470a1bae5436f"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "746a002aeeb86e56d34880a253a1e5d12fd53ca828550da82a43425f9eda055f",
+          "afterSha256": "038560720ef39f8dd338e7d0d1909db48022375b675e642f67027eff89cceac4"
+        },
+        "explanation": {
+          "beforeSha256": "cc7cdb91f17a28f26fa2ab1e5a200fbedc563c7ba479548ba90d8364388a549a",
+          "afterSha256": "9d05a84a3d9c933565c754665cc46836b9aca1b18827c25e12b7690aeadfcd13"
+        }
+      }
+    },
+    {
+      "id": "q-2024-hanyang-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024-hongik-11",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "d7696525f186603dd1717b1c35acbf7a45c863f2a8a07f3abae13d69966a43bc"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-hongik-15",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "65755f61a23e1e40c8b53e702015cc36d7452dd337e41e22187219ecb7aad2ea"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-inha-05",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-inha-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-inha-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-inha-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-inha-29",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        },
+        "question": {
+          "beforeSha256": "f12d4469d2b8576ddb301ca5414ca9c88888409790889c519e84102699335f51",
+          "afterSha256": "1fb316ce3853eda6f40314d6c013139aa9dcc5dac7e603e4fa91e0bd7f07cf01"
+        }
+      }
+    },
+    {
+      "id": "q-2024-mju-22",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "636b565e556fa0741fcfdc2736f5e15a0c2630eabda67fed5bd97d635bf43bd9"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-mju-25",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "b0fb366cd05bdef0094c1225135ae3d344e0c573e8fbd31706232c4e289e26a1"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "11fbb91432768623f8fdea4e6f6d758bfd6adea0e915f05d1bdad5e641637959",
+          "afterSha256": "d49331246d1c3bad718e29897c785b98c1051bf9c302b36ce6597ff62d4df0c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-sejong-21",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "fda8c60e30aaaa4902f4d7d2e901ea8378f5b7b6f533d761162ed63eaebd1c97"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024-skku-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024-sookmyung-07",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "f39722d123b6b1dc9cec9d98763c2facac9175eb264479fe40525bcc6194d683"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "7c39096645fcd47b5e0c3428df3323cc8c81ed4ce90ebfd145488b2824383190",
+          "afterSha256": "5b2c0118fd24a02b29181632c52ffa9fb217cb4587c262b8074f9053642a2479"
+        }
+      }
+    },
+    {
+      "id": "q-2024-sookmyung-09",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2024-sookmyung-19",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2024-sookmyung-20",
+      "fields": {
+        "quality_status": {
+          "beforeSha256": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterSha256": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        "quality_reasons": {
+          "beforeSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterSha256": "51dd96d59ccf28d332aa177c7e6d1571b633a0c5f29a76033fad6214ccc36b0b"
+        },
+        "explanation": {
+          "beforeSha256": "e602d8fba5b99c1477ac5c5215ee792f915a9b940af8eb9380e6eaabfed8c931",
+          "afterSha256": "b8e99dc9d8697b97a9ccfdda339392de42efa379e3f87eb1c218988986f791c0"
+        }
+      }
+    },
+    {
+      "id": "q-2024-soongsil-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        },
+        "explanation": {
+          "beforeSha256": "42bad6d077372f0f117815c4361277caaf2a64029501cab89b39f7444220f656",
+          "afterSha256": "5d619c42343060fef66008de03333ac9e1efbc62dccf61e1a7856f5ebf1bc306"
+        }
+      }
+    },
+    {
+      "id": "q-2024-soongsil-21",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024-soongsil-25",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2024am-dankook-41",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2024am-dankook-43",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "6d7d5cf2aa4defce0bd49a92b7bb9f60f1b711df7b6cb25140afe26cbb8044be"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024am-dankook-46",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "e4dca189bb6dbf61ec55024aa77bbb642c5cc849bd78733ebabadf6d07093564"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2024pm-dankook-43",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "b0d3dd7b89ff3130c3cd5d0cfb26345c748a98f3d28392f74885ad3b19493f37"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "f766611fd5bb99c5f6c3ab1810ea38f5df25a0a0b458c3d9d34499ab177559d8",
+          "afterSha256": "e43566e898604fd127a00f2d897eb8469f6e0e6f7710358f7661e6ffcbb6e933"
+        }
+      }
+    },
+    {
+      "id": "q-2024pm-dankook-47",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-dku-am-26",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "4e1bb8c790cb9c4381dea6d8a5ba8157583132795c19f64b6ed0fc0bb7e5af7b"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2025-gachon-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        },
+        "question": {
+          "beforeSha256": "948d07e809d9290c60c3b2319dbaaf0d2ba95a0f66ba6847cff41334717bf1d9",
+          "afterSha256": "de54343847ae826a41f4cf767e705e7ac334dc62f39d406e11c3ad798dfe49e2"
+        }
+      }
+    },
+    {
+      "id": "q-2025-hanyang-01",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-inha-07",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-inha-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-inha-21",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-2025-inha-22",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-inha-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2025-kau-14",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "8f51caa715346fe0927ab8ce18ac7a70ba6ab7838c248f33425372b1730df17f"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "question": {
+          "beforeSha256": "07c2260cee2ebbc269b865f43a49cfa76ae44c49e6ae4eefb09b086e17fc106d",
+          "afterSha256": "684a83d8b1d94acffdb82102363c4b623557a89b13179362a1ea24c7658e84ae"
+        }
+      }
+    },
+    {
+      "id": "q-2025-kyunghee-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2025-mju-03",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "865ef549b97f6dd162509f0fbe00a77556d94583556c32b9f6075a3b821d691c"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "explanation": {
+          "beforeSha256": "072ebcd57e6f294293dda0c31be4b15e5cb0ba1d22a58c231ff44f4ea1abedc6",
+          "afterSha256": "1ff735e8dda0f44c0c3594ecb19fbfbf1a2ebf1448b7471add49623b34be37e5"
+        }
+      }
+    },
+    {
+      "id": "q-2025-mju-07",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "036f71f12938415fb910a3e36c6f0a844da9e9212a1b13b7216d9c4dcad5e4f5"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2025-mju-13",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "ff1222c624f278612ed31f478689a600207434c52848ac15177bcbc22d65a636"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      }
+    },
+    {
+      "id": "q-2025-mju-14",
+      "fields": {
+        "question_image": {
+          "beforeSha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterSha256": "ff1222c624f278612ed31f478689a600207434c52848ac15177bcbc22d65a636"
+        },
+        "content_type": {
+          "beforeSha256": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterSha256": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        "explanation": {
+          "beforeSha256": "8a23c856c9a3a62f57c7645f55877107ff6604607be637b4cb941914556c370d",
+          "afterSha256": "c2c296d9efe62fb6189579115f8009e2958b6356690d59585d0d1bc2cda48f26"
+        }
+      }
+    },
+    {
+      "id": "q-2025-sejong-19",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-2025-sejong-22",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2025-skku-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "63fa6cedde2b523b2946203162c11ae2a8a8e1356747509b328752d129fccd0b",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2025-sogang-04",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-2025-sogang-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-import-1778062406488-7-0omj",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r05-18",
+      "fields": {
+        "question": {
+          "beforeSha256": "e01cbed75134c417d66a4044a5362aa8fa66f71d185661ea103b1bf9d8c93d4d",
+          "afterSha256": "769f419f485362502e0b19e2bf43c0a421de67aecab6d7ba51128c6d73abbe21"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r06-06",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        },
+        "question": {
+          "beforeSha256": "bf65b5424239e949c8dc5162adf5bd345e68a8f92e9f5db8d427f7b127ad3d00",
+          "afterSha256": "8dee4ce9eeef6dbb2e57ea18347f66353aec3e73577eb8e0ebebe31a45f706df"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r06-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r08-14",
+      "fields": {
+        "question": {
+          "beforeSha256": "8aa0202ca2ad1f42e13f7dea90d773331269e5e729e064bcc5bd486b85dc9cdf",
+          "afterSha256": "d2ca1ef707d40e670146cb1b1d6e77631f8de3a3a701554174c73915bacebff3"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r10-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r11-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r12-12",
+      "fields": {
+        "question": {
+          "beforeSha256": "dc538c66d5932f7711b0c2917b5d715893a10948075e16c7d953b77ee4f16dd6",
+          "afterSha256": "595c4857f400a934ed2fbee0b5cc93b8c4ec7a0e2b24245546aa5a04bf3042eb"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r12-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r13-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r13-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r14-20",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r15-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-ryu-self-warmup-r16-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r01-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r01-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r01-5",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r01-6",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r02-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r02-2",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r03-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "question": {
+          "beforeSha256": "3248788811ad2c8e405f0545c212bcbef1c3c4049cce091725b80b50e2d08df9",
+          "afterSha256": "eab253e8fc9a5c85a756675a569e4b3c2f5c2ec8b6fb3d16e7f1305a42818022"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r03-22",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r03-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r03-3",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r03-6",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r04-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r04-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "question": {
+          "beforeSha256": "22f52b58951f02f2fc5b2273275b3d6a33cf4b689c69d9f36adf1276623200e3",
+          "afterSha256": "342bcdfadfe647ad738425518bb16cbfb4336d56ec445779e839dcee7b84dfb0"
+        },
+        "explanation": {
+          "beforeSha256": "4ab170733c98a0c331a0d8c0e2ea8d4c54d3d4f63af4e6ebd45d50dfaa5b1150",
+          "afterSha256": "d66b57189dae5b3679754f23da902c74257388599f8e0d85657c0ed94aadb5aa"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r04-4",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r04-8",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r05-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r05-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r05-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r06-10",
+      "fields": {
+        "explanation": {
+          "beforeSha256": "83a359b291469331f35f79904be33a3e886f4a46c57f3fa9335703aa34f8c0d1",
+          "afterSha256": "d5c3a3e10e4103ce08ec7d3424a7b98bea5b1dc454506b372825731a4b7e1ac7"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r06-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        },
+        "question": {
+          "beforeSha256": "ff7cacaa208da9c937522aeb4cd5666447110e1d24afe8a8a78b777bec5b8f6a",
+          "afterSha256": "2c9d4c5515eed73b528c3d36a1d75980a2776eb903ce8bdec4877788e9635231"
+        },
+        "explanation": {
+          "beforeSha256": "ae48043a2c8123d4b97a3caa47d32be51b7f1f7deb2216ca695388121407a4a6",
+          "afterSha256": "768e1a4aea040e1aa8f932b0123a536ce99958eb2700326211209d6ad67d2fd4"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r06-2",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703"
+        },
+        "explanation": {
+          "beforeSha256": "6a73813e2cf63319e4a4e13817c1f316b2b61035fb7e1801a6fc7804dae4b3ad",
+          "afterSha256": "75e204147d99b2a27ad4ad7a40a7ba65f9747fe6e62c702a53c4a113bc0b510b"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r06-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "explanation": {
+          "beforeSha256": "bea024fb1133acdb43907cf71011d08f6420d69a2312fcf3da185b356d6492e7",
+          "afterSha256": "81eeab5db061cf5d0254eb8b63ea9625c6c5b383be17853975a6d09a8bdfb440"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r07-2",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r07-8",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-1",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-17",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-19",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-26",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-27",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-29",
+      "fields": {
+        "question": {
+          "beforeSha256": "cd2a898fbc3680bf6b7bd07292cbc2282c49fe007fdcd7c2ba29e3a0cd638716",
+          "afterSha256": "40848e5affc287963893ad7c6d20c176d6d0ba545a4de8e8ff4389fa2b0e4168"
+        },
+        "explanation": {
+          "beforeSha256": "f6825fd49eb89629208efe67651c81017a650d50a910e1e8687a74e5563cd765",
+          "afterSha256": "629d69552270faee6f338212c82e76afa1ebc5e3d8e3a4ec2fc73e8ada825d32"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-3",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r08-9",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r09-6",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r10-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r10-14",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r10-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r10-4",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r11-1",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r11-16",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "explanation": {
+          "beforeSha256": "16168675d6a73c4cfdea03dfb64297f2b12847a12174cebe19373526d0146580",
+          "afterSha256": "41a197809101decb652ef5c1bf327eb777698e4822255b3db1511e203450714c"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r11-18",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "3ed870088e7410ee05d36e4fc20bf73104130ef98000b268b11378d0800d1703"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r11-3",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r11-4",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        },
+        "explanation": {
+          "beforeSha256": "7702deaa2ac7b5235124466c1e8489db93be536d16816e02b6c5f7c03b13d767",
+          "afterSha256": "4e4dcdc1ecb632f4b755216c7df7c9235fdbb965f1748356895b71f6c65a88a6"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-11",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-13",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-24",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-5",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-6",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-7",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r13-9",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-10",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-12",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        },
+        "explanation": {
+          "beforeSha256": "d7c20b49e629df83347a41742f72fcb97a2a5aa1205f34d4f1e9d5bb4059fd43",
+          "afterSha256": "b89fd1a00af62392647a9fc4e855474edf10c7cf8693065b7ec89ee3f8b646f4"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-15",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-2",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "0c405141b214c55339dc0253bd7e6bf3329b77094e5bc648664244428d8e1bce"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-21",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-23",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-6",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "56b01b600f1b50c13dd1a873a303ae68ff955633105d2b7ab6f34e7f71768948"
+        }
+      }
+    },
+    {
+      "id": "q-white-final-a-r14-8",
+      "fields": {
+        "difficulty": {
+          "beforeSha256": "b5c5b3125df259e8efe446e75e39b090291df72fceb88007780b17765bdccbac",
+          "afterSha256": "60d4c90eee5e731df8d3ef2891de541d2e755ff8ee9db358e26bdec49f6e0db9"
+        }
+      }
+    }
+  ]
+}
