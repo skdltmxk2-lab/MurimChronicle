@@ -97,6 +97,12 @@ export function AdminHomeClient() {
       emoji: "🎯",
     },
     {
+      href: "/admin/homework",
+      title: "숙제 배부 / 첨삭",
+      desc: "PDF 자료 배부·풀이 제출·문항별 AI 피드백 검토",
+      emoji: "📄",
+    },
+    {
       href: "/admin/messages",
       title: "공지 / 메시지",
       desc: "전체 공지 및 1대1 메시지 발송",
