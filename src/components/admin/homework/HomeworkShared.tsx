@@ -60,7 +60,7 @@ export function useHomeworkDraftWarning(dirty: boolean) {
 }
 
 export function Notice({ children, error = false }: { children: React.ReactNode; error?: boolean }) {
-  return <div role={error ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm leading-6 ${error ? "bg-red-50 text-red-700" : "bg-brand-50 text-brand-800"}`}>{children}</div>;
+  return <div role={error ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm leading-6 ${error ? "bg-red-50 text-red-700" : "bg-brand-50 text-brand-700"}`}>{children}</div>;
 }
 
 export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
