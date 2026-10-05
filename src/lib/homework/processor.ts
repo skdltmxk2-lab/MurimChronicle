@@ -36,7 +36,10 @@ export async function processHomeworkReference(supabase: SupabaseClient, materia
     const numbers = validateQuestionNumbers(material.question_numbers);
     const pdf = await downloadPdf(supabase, material.pdf_path);
     const generated = await generateHomeworkReference(pdf, numbers);
-    const reference = generated.map(row => row.sourcePages.some(page => page > material.pdf_pages) ? { ...row, needsReview: true, reviewReason: "원본 페이지를 확인해 주세요.", sourcePages: row.sourcePages.filter(page => page <= material.pdf_pages) } : row);
+    const reference = generated.map(row => ({ ...row, needsReview: true,
+      sourcePages: row.sourcePages.filter(page => page <= material.pdf_pages),
+      reviewReason: [row.reviewReason, row.sourcePages.some(page => page > material.pdf_pages) ? "원본 페이지를 확인해 주세요." : "", "AI가 만든 기준풀이입니다. 원본 문제·정답·풀이를 선생님이 확인해 주세요."].filter(Boolean).join(" "),
+    }));
     if (!(await loadHomeworkSettings(supabase)).aiEnabled) throw new Error("AI 처리가 중단되었습니다.");
     const saved = await supabase.from("homework_materials").update({ reference, reference_status: "draft", reference_error: null, reference_approved_at: null, reference_revision: revision + 1, reference_lock_token: null, updated_at: new Date().toISOString() }).eq("id", materialId).eq("reference_lock_token", lock).eq("reference_revision", revision);
     if (saved.error) throw saved.error;

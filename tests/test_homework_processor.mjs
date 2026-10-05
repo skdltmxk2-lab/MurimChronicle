@@ -317,6 +317,8 @@ await test("AI 기준풀이 생성 결과는 자동 승인하지 않고 새 검�
   assert.equal(h.state.material.reference_approved_at, null);
   assert.equal(h.state.material.reference_lock_token, null);
   assert.equal(h.state.aiCalls[0].kind, "reference");
+  assert.ok(h.state.material.reference.every((row) => row.needsReview === true), "AI가 자기 풀이를 확신해도 교사의 문항별 확인 표시를 대신하면 안 됩니다.");
+  assert.ok(h.state.material.reference.every((row) => row.reviewReason?.trim()), "교사가 원본과 비교해 확인해야 한다는 안내가 필요합니다.");
 });
 
 await test("기준풀이 생성 중 교사 승인·revision·새 worker 변경을 이전 AI가 덮어쓰지 않는다", async () => {
