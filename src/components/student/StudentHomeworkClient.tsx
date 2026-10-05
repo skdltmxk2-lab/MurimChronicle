@@ -22,7 +22,7 @@ type PreparedFile = { file: File; pages: number };
 const buttonClass = "rounded-xl border border-line bg-white px-4 py-2.5 text-sm font-bold text-ink transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50";
 const verdictClasses: Record<HomeworkFeedback["verdict"], string> = {
   correct: "bg-emerald-50 text-emerald-700",
-  partial: "bg-amber-50 text-amber-800",
+  partial: "bg-amber-50 text-amber-700",
   incorrect: "bg-rose-50 text-rose-700",
   unreadable: "bg-slate-100 text-slate-700",
   missing: "bg-slate-100 text-slate-700",
@@ -385,7 +385,7 @@ export function StudentHomeworkClient() {
                       </span>
                       <span className="mt-2 block break-words font-black leading-6 text-ink">{item.title}</span>
                       <span className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-                        <span className={`rounded-full px-2.5 py-1 font-bold ${isPublished(latest) ? "bg-emerald-50 text-emerald-700" : latest ? "bg-slate-100 text-slate-600" : "bg-amber-50 text-amber-800"}`}>
+                        <span className={`rounded-full px-2.5 py-1 font-bold ${isPublished(latest) ? "bg-emerald-50 text-emerald-700" : latest ? "bg-slate-100 text-slate-600" : "bg-amber-50 text-amber-700"}`}>
                           {submissionStatus(latest)}
                         </span>
                         <span className="text-slate-500">{item.dueAt ? `마감 ${formatDate(item.dueAt)}` : "마감일 없음"}</span>
@@ -429,7 +429,7 @@ export function StudentHomeworkClient() {
                 <h3 id="upload-title" className="text-lg font-black text-ink">{latestAttempt ? "풀이 다시 제출하기" : "풀이 PDF 제출하기"}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-600">풀이에 문항 번호가 보이도록 작성해 주세요. 여러 장의 풀이를 PDF 한 파일로 묶어 올리면 됩니다.</p>
                 {latestAttempt ? <p className="mt-2 text-xs leading-5 text-slate-500">재제출은 새 제출 회차로 기록됩니다. 이전 제출물과 피드백도 계속 확인할 수 있어요.</p> : null}
-                {selected.dueAt && Date.parse(selected.dueAt) < Date.now() ? <p className="mt-2 text-xs leading-5 text-amber-800">마감일이 지났지만 제출할 수 있어요. 마감 후 제출로 기록됩니다.</p> : null}
+                {selected.dueAt && Date.parse(selected.dueAt) < Date.now() ? <p className="mt-2 text-xs leading-5 text-amber-700">마감일이 지났지만 제출할 수 있어요. 마감 후 제출로 기록됩니다.</p> : null}
                 <form onSubmit={submitPdf} className="mt-4">
                   <label htmlFor="homework-pdf" className="block text-sm font-bold text-ink">풀이 PDF 선택 <span className="font-normal text-slate-500">(15MB · {HOMEWORK_MAX_PAGES}쪽 이하)</span></label>
                   <input id="homework-pdf" ref={fileRef} type="file" accept="application/pdf,.pdf" disabled={busy || checkingFile} onChange={(event) => void chooseFile(event)}
