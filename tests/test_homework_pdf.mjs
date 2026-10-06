@@ -105,7 +105,7 @@ function loadProductionParser() {
 }
 
 function inspectProductionTracing() {
-  const routes = ["admin/homework/materials", "student/homework/[id]/submit"];
+  const routes = ["admin/homework/materials", "admin/homework/materials/generated", "student/homework/[id]/submit"];
   for (const route of routes) {
     const trace = JSON.parse(readFileSync(path.join(root, ".next/server/app/api", route, "route.js.nft.json"), "utf8"));
     const files = trace.files.map(file => file.replaceAll("\\", "/"));

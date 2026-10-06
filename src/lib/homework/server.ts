@@ -8,9 +8,10 @@ import {
 } from "@/types/homework";
 import { validateQuestionNumbers, validateSettings } from "@/lib/homework/core.mjs";
 import { inspectHomeworkPdf } from "@/lib/homework/pdf-server";
+import { buildGeneratedHomeworkReference, GeneratedHomeworkError, loadGeneratedHomeworkQuestions, validateGeneratedQuestionIds, validateGeneratedQuestionPages } from "@/lib/homework/generated";
 
 type Row = Record<string, unknown>;
-const MATERIAL_SELECT = "id,title,kind,subject,description,question_numbers,pdf_path,pdf_name,pdf_size,pdf_pages,reference,reference_status,reference_error,reference_revision,reference_started_at,created_at";
+const MATERIAL_SELECT = "id,title,kind,subject,description,question_numbers,pdf_path,pdf_name,pdf_size,pdf_pages,reference,reference_status,reference_error,reference_revision,reference_started_at,source_kind,source_question_ids,archived_at,created_at";
 const SETTINGS_KEY = "homework_ai_settings";
 const INTERRUPTED_MESSAGE = "AI 처리가 중단되었습니다. 다시 생성하거나 직접 첨삭해 주세요.";
 
@@ -23,7 +24,7 @@ export function homeworkErrorResponse(error: unknown) {
 export function checkDatabase(error: { code?: string; message?: string } | null) {
   if (!error) return;
   const message = error.message ?? "";
-  if (["42P01", "42883", "PGRST202", "PGRST205"].includes(error.code ?? "")) throw new HomeworkError(503, "숙제 기능을 준비 중입니다. 관리자에게 알려 주세요.");
+  if (["42P01", "42703", "42883", "PGRST202", "PGRST204", "PGRST205"].includes(error.code ?? "")) throw new HomeworkError(503, "숙제 기능을 준비 중입니다. 관리자에게 알려 주세요.");
   if (message.includes("HOMEWORK_REVISION_CONFLICT")) throw new HomeworkError(409, "다른 수정 사항이 저장되었습니다. 새로고침 후 다시 확인해 주세요.");
   if (message.includes("HOMEWORK_STALE_SUBMISSION")) throw new HomeworkError(409, "학생이 새 풀이를 제출했습니다. 최신 제출을 확인해 주세요.");
   if (message.includes("HOMEWORK_UPLOAD_INVALID")) throw new HomeworkError(409, "업로드가 만료되었거나 이미 사용되었습니다. PDF를 다시 선택해 주세요.");
@@ -31,6 +32,8 @@ export function checkDatabase(error: { code?: string; message?: string } | null)
   if (message.includes("HOMEWORK_UPLOAD_RATE")) throw new HomeworkError(429, "PDF 업로드 한도에 도달했습니다. 학생은 1시간 10회, 하루 30회까지 업로드할 수 있습니다.");
   if (message.includes("HOMEWORK_FEEDBACK_NOT_READY")) throw new HomeworkError(400, "모든 문항의 피드백과 확인 표시를 완료한 후 보내 주세요.");
   if (message.includes("HOMEWORK_STUDENTS_INVALID")) throw new HomeworkError(400, "가입된 학생을 선택해 주세요. 관리자 계정에는 숙제를 배부할 수 없습니다.");
+  if (message.includes("HOMEWORK_QUESTIONS_CHANGED")) throw new HomeworkError(409, "문제 내용이 수정되었거나 사용할 수 없게 되었습니다. 최신 문제로 다시 생성해 주세요.");
+  if (message.includes("HOMEWORK_MATERIAL_ARCHIVED")) throw new HomeworkError(409, "삭제된 자료는 새로 배부할 수 없습니다. 자료를 복구한 후 배부해 주세요.");
   if (message.includes("HOMEWORK_FORBIDDEN") || error.code === "42501") throw new HomeworkError(403, "이 숙제에 접근할 권한이 없습니다.");
   if (message.includes("HOMEWORK_NOT_FOUND") || error.code === "23503") throw new HomeworkError(404, "숙제 또는 학생 정보를 찾을 수 없습니다.");
   throw new HomeworkError(500, "숙제 정보를 저장하거나 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
@@ -61,7 +64,7 @@ export function homeworkProcessingState<T extends string>(status: T, startedAt: 
 }
 export function mapMaterial(row: Row): HomeworkMaterial {
   const state = homeworkProcessingState(row.reference_status as HomeworkMaterial["referenceStatus"],row.reference_started_at,row.created_at);
-  return { id: String(row.id), title: String(row.title ?? ""), kind: row.kind === "daily" ? "daily" : "homework", subject: String(row.subject ?? ""), description: String(row.description ?? ""), questionNumbers: array<string>(row.question_numbers), pdfName: String(row.pdf_name ?? ""), pdfSize: Number(row.pdf_size), pdfPages: Number(row.pdf_pages), reference: array<HomeworkMaterial["reference"][number]>(row.reference), referenceStatus: state.status, referenceError: state.interrupted ? INTERRUPTED_MESSAGE : typeof row.reference_error === "string" ? row.reference_error : null, referenceRevision: Number(row.reference_revision ?? 0), createdAt: String(row.created_at) };
+  return { id: String(row.id), title: String(row.title ?? ""), kind: row.kind === "daily" ? "daily" : "homework", subject: String(row.subject ?? ""), description: String(row.description ?? ""), questionNumbers: array<string>(row.question_numbers), pdfName: String(row.pdf_name ?? ""), pdfSize: Number(row.pdf_size), pdfPages: Number(row.pdf_pages), reference: array<HomeworkMaterial["reference"][number]>(row.reference), referenceStatus: state.status, referenceError: state.interrupted ? INTERRUPTED_MESSAGE : typeof row.reference_error === "string" ? row.reference_error : null, referenceRevision: Number(row.reference_revision ?? 0),sourceKind:row.source_kind === "unit_mock" ? "unit_mock" : "pdf",sourceQuestionIds:array<string>(row.source_question_ids),archivedAt:typeof row.archived_at === "string" ? row.archived_at : null,createdAt: String(row.created_at) };
 }
 export async function getHomeworkMaterial(supabase: SupabaseClient, id: string): Promise<HomeworkMaterial> {
   const { data, error } = await supabase.from("homework_materials").select(MATERIAL_SELECT).eq("id", requireHomeworkId(id)).maybeSingle();
@@ -100,7 +103,7 @@ async function assignments(supabase: SupabaseClient, id?: string): Promise<Homew
 }
 export async function listHomeworkAdmin(supabase: SupabaseClient) {
   const [materials, assignmentList, settings] = await Promise.all([
-    supabase.from("homework_materials").select(MATERIAL_SELECT).order("created_at", { ascending: false }), assignments(supabase), loadHomeworkSettings(supabase),
+    supabase.from("homework_materials").select(MATERIAL_SELECT).is("archived_at",null).order("created_at", { ascending: false }), assignments(supabase), loadHomeworkSettings(supabase),
   ]);
   checkDatabase(materials.error);
   return { ok: true, materials: (materials.data ?? []).map(row => mapMaterial(row as Row)), assignments: assignmentList, settings, aiAvailable: Boolean(process.env.GEMINI_API_KEY) };
@@ -129,6 +132,27 @@ export async function createHomeworkMaterial(supabase: SupabaseClient, actorId: 
   await checkedUpload(supabase,actorId,body.uploadId,"material");
   const { data, error } = await supabase.rpc("homework_create_material", { p_upload_id: body.uploadId,p_actor_id: actorId,p_title: title,p_kind: kind,p_subject: subject,p_description: description,p_question_numbers: numbers });
   checkDatabase(error); return { ok: true, material: await getHomeworkMaterial(supabase,String(data)) };
+}
+export async function createGeneratedHomeworkMaterial(supabase: SupabaseClient, actorId: string, body: Row) {
+  const title = text(body.title,120,true); const kind = body.kind;
+  if (kind !== "homework" && kind !== "daily") throw new HomeworkError(400,"자료 종류를 선택해 주세요.");
+  let ids: string[];
+  try { ids = validateGeneratedQuestionIds(body.questionIds); } catch (error) { throw new HomeworkError(400,error instanceof Error ? error.message : "선택한 문제를 확인해 주세요."); }
+  let questions;
+  try { questions = await loadGeneratedHomeworkQuestions(supabase,ids,body.questionUpdatedAts); } catch (error) { throw new HomeworkError(error instanceof GeneratedHomeworkError ? error.status : 500,error instanceof Error ? error.message : "문제를 불러오지 못했습니다."); }
+  const ticket = await checkedUpload(supabase,actorId,body.uploadId,"material");
+  let pages: number[][];
+  try { pages = validateGeneratedQuestionPages(body.questionPages,ids.length,Number(ticket.pdf_pages)); } catch (error) { throw new HomeworkError(400,error instanceof Error ? error.message : "문제지의 페이지 정보를 확인해 주세요."); }
+  const subject = text(body.subject ?? [...new Set(questions.map(question => question.subject))].join(" · "),80);
+  const reference = buildGeneratedHomeworkReference(questions,pages);
+  const { data,error } = await supabase.rpc("homework_create_generated_material",{ p_upload_id:body.uploadId,p_actor_id:actorId,p_title:title,p_kind:kind,p_subject:subject,p_description:text(body.description ?? "",5000),p_question_ids:ids,p_question_updated_ats:body.questionUpdatedAts,p_reference:reference });
+  checkDatabase(error); return { ok:true,material:await getHomeworkMaterial(supabase,String(data)) };
+}
+export async function archiveHomeworkMaterial(supabase: SupabaseClient, actorId: string, id: string, restore = false) {
+  requireHomeworkId(id);
+  const { error } = await supabase.rpc("homework_archive_material",{ p_material_id:id,p_actor_id:actorId,p_restore:restore });
+  checkDatabase(error);
+  return restore ? { ok:true,material:await getHomeworkMaterial(supabase,id) } : { ok:true,id };
 }
 export async function createHomeworkAssignment(supabase: SupabaseClient, actorId: string, body: Row) {
   const materialId = requireHomeworkId(body.materialId);

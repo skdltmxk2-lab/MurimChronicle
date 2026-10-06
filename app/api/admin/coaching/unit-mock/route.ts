@@ -239,6 +239,7 @@ export async function POST(request: Request) {
         count?: number;
         studentId?: string;
         studentIds?: unknown[];
+        forHomework?: boolean;
         excludeIds?: unknown[];
         excludeUsed?: boolean;
         sections?: unknown[];
@@ -251,14 +252,15 @@ export async function POST(request: Request) {
   const difficulty = body?.difficulty ?? "all";
   const pool = body?.pool ?? "all";
   const studentIds = normalizeStudentIds(body);
-  const excludeUsed = body?.excludeUsed === true;
+  const forHomework = body?.forHomework === true;
+  const excludeUsed = !forHomework && body?.excludeUsed === true;
   const excludeIds = new Set(
     Array.isArray(body?.excludeIds)
       ? body.excludeIds.filter((id): id is string => typeof id === "string")
       : []
   );
 
-  if (studentIds.length === 0) {
+  if (!forHomework && studentIds.length === 0) {
     return NextResponse.json({ ok: false, message: "출제 대상 학생을 선택해 주세요." }, { status: 400 });
   }
   if (studentIds.length > MAX_STUDENTS) {
@@ -271,7 +273,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: "학생 ID가 올바르지 않습니다." }, { status: 400 });
   }
 
-  const ownedStudents = await findOwnedCoachingStudents(auth.supabase, auth.userId, studentIds);
+  const ownedStudents = studentIds.length > 0
+    ? await findOwnedCoachingStudents(auth.supabase, auth.userId, studentIds)
+    : { students: [], error: null };
   if (ownedStudents.error) {
     const message = isMissingCoachingStudentStore(ownedStudents.error)
       ? coachingStudentStoreMessage()
@@ -379,12 +383,12 @@ export async function POST(request: Request) {
 
     let usage: UsageLoadResult;
     try {
-      usage = await loadCoachingUsage(
+      usage = studentIds.length > 0 ? await loadCoachingUsage(
         auth.supabase,
         auth.userId,
         studentIds,
         loaded.questions.map((question) => question.id)
-      );
+      ) : { usageByQuestionId: new Map() };
     } catch (error) {
       const message =
         error && typeof error === "object" && isMissingCoachingStudentStore(error as { code?: string; message?: string })

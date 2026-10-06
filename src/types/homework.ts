@@ -42,6 +42,9 @@ export type HomeworkMaterial = {
   referenceStatus: "pending" | "processing" | "draft" | "approved" | "failed";
   referenceError: string | null;
   referenceRevision: number;
+  sourceKind: "pdf" | "unit_mock";
+  sourceQuestionIds: string[];
+  archivedAt: string | null;
   createdAt: string;
 };
 export type HomeworkAssignment = {

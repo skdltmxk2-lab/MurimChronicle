@@ -7,7 +7,7 @@ import { HomeworkFeedbackEditor } from "./HomeworkFeedbackEditor";
 import { buttonClass, deadlineIso, errorMessage, Field, formatHomeworkDate, homeworkApi, inputClass, Notice, panelClass, secondaryClass, toDeadlineInput, useHomeworkDraftWarning } from "./HomeworkShared";
 
 const groupLabels: Record<string, string> = { external: "외부", private: "과외", routemath: "루트" };
-export function HomeworkAssignmentsPanel({ active, materials, assignments, users, usersError, refreshUsers, initialMaterialId, settings, aiAvailable, refresh }: { active: boolean; materials: HomeworkMaterial[]; assignments: HomeworkAssignment[]; users: HomeworkUser[]; usersError: string; refreshUsers: () => Promise<void>; initialMaterialId: string; settings: HomeworkSettings; aiAvailable: boolean; refresh: () => Promise<void> }) {
+export function HomeworkAssignmentsPanel({ active, materials, assignments, users, usersError, refreshUsers, initialMaterialId, selectionVersion, settings, aiAvailable, refresh }: { active: boolean; materials: HomeworkMaterial[]; assignments: HomeworkAssignment[]; users: HomeworkUser[]; usersError: string; refreshUsers: () => Promise<void>; initialMaterialId: string; selectionVersion: number; settings: HomeworkSettings; aiAvailable: boolean; refresh: () => Promise<void> }) {
   const [materialId, setMaterialId] = useState(initialMaterialId || materials[0]?.id || "");
   const [selectedAssignment, setSelectedAssignment] = useState(assignments[0]?.id || "");
   const [search, setSearch] = useState("");
@@ -24,7 +24,8 @@ export function HomeworkAssignmentsPanel({ active, materials, assignments, users
   const selectedMaterial = materials.find((item) => item.id === materialId);
   const students = useMemo(() => users.filter((student) => !student.isAdmin), [users]);
   const visibleStudents = useMemo(() => students.filter((student) => (group === "all" || student.studentGroup === group) && `${student.name} ${student.email}`.toLowerCase().includes(search.toLowerCase().trim())), [students, group, search]);
-  useEffect(() => { if (initialMaterialId) setMaterialId(initialMaterialId); }, [initialMaterialId]);
+  useEffect(() => { if (initialMaterialId) setMaterialId(initialMaterialId); }, [initialMaterialId, selectionVersion]);
+  useEffect(() => { if (materialId && !materials.some((m) => m.id === materialId)) setMaterialId(""); }, [materials, materialId]);
   function toggle(id: string) { setStudentIds((previous) => previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]); }
   async function distribute(event: React.FormEvent) {
     event.preventDefault(); setError(""); setMessage("");
@@ -32,8 +33,9 @@ export function HomeworkAssignmentsPanel({ active, materials, assignments, users
     setBusy(true);
     try {
       const result = await homeworkApi<{ assignment: HomeworkAssignment }>("/api/admin/homework/assignments", { method: "POST", body: JSON.stringify({ materialId, studentIds, instructions: instructions.trim(), dueAt: deadlineIso(due), aiEnabled, releaseMode }) });
-      await refresh(); if (result.assignment?.id) setSelectedAssignment(result.assignment.id);
+      if (result.assignment?.id) setSelectedAssignment(result.assignment.id);
       setStudentIds([]); setInstructions(""); setDue(""); setMessage("선택한 학생에게 PDF를 배부했습니다. 학생의 숙제함에서 확인할 수 있습니다.");
+      try { await refresh(); } catch { setError("배부는 완료했습니다. 목록을 보려면 새로고침해 주세요."); }
     } catch (e) { setError(errorMessage(e)); } finally { setBusy(false); }
   }
   return <div className="space-y-6">

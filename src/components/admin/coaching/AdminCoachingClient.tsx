@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type
 import { flushSync } from "react-dom";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { CoachingStudentPicker } from "@/components/admin/coaching/CoachingStudentPicker";
+import { HomeworkSheetActions } from "@/components/admin/homework/HomeworkSheetActions";
+import type { HomeworkMaterial } from "@/types/homework";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
 import {
@@ -318,7 +320,9 @@ async function ensureOk<T>(res: Response): Promise<T> {
   return json as T;
 }
 
-export function AdminCoachingClient() {
+export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved }: { homeworkMode?: boolean; onHomeworkSaved?: (material: HomeworkMaterial, distribute: boolean) => Promise<void> }) {
+  const workspaceRef = useRef<HTMLElement>(null);
+  const [homeworkSaving, setHomeworkSaving] = useState(false);
   const relatedFileRef = useRef<HTMLInputElement>(null);
   const twinFileRef = useRef<HTMLInputElement>(null);
   const pagesRef = useRef<UploadPage[]>([]);
@@ -326,7 +330,7 @@ export function AdminCoachingClient() {
   const tabRef = useRef<Tab>("related");
   const unitQuestionHistoryRef = useRef<string[]>([]);
 
-  const [tab, setTab] = useState<Tab>("related");
+  const [tab, setTab] = useState<Tab>(homeworkMode ? "unit" : "related");
   const [pages, setPages] = useState<UploadPage[]>([]);
   const [uploadDragActive, setUploadDragActive] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -463,7 +467,7 @@ export function AdminCoachingClient() {
       )
       .join(" · ");
     const studentNames = students.map((student) => student.name);
-    const recipientLabel = formatStudentNames(students);
+    const recipientLabel = formatStudentNames(students) || "자료함";
     return {
       title:
         sections.length === 1
@@ -958,7 +962,7 @@ export function AdminCoachingClient() {
 
   async function generateUnitMock(excludeCurrent = false) {
     if (unitLoading || replacingUnitQuestionIds.length > 0) return;
-    if (unitStudents.length === 0) {
+    if (!homeworkMode && unitStudents.length === 0) {
       setUnitMsg("출제 대상 학생을 1명 이상 선택해 주세요.");
       return;
     }
@@ -990,6 +994,7 @@ export function AdminCoachingClient() {
           method: "POST",
           body: JSON.stringify({
             studentIds: unitStudents.map((student) => student.id),
+            forHomework: homeworkMode,
             sections: resolvedSections,
             difficulty: unitDifficulty,
             pool: unitPool,
@@ -1068,7 +1073,7 @@ export function AdminCoachingClient() {
     if (unitLoading || replacingUnitQuestionIds.length > 0 || sheet?.sourceLabel !== "unit-mock") return;
     const unitStudentIds = unitStudents.map((student) => student.id);
     if (
-      unitStudents.length === 0 ||
+      (!homeworkMode && unitStudents.length === 0) ||
       !haveSameStudentIds(sheet.recipientStudentIds, unitStudentIds)
     ) {
       setUnitMsg("출제 대상 학생들을 다시 선택한 뒤 문제를 구성해 주세요.");
@@ -1106,6 +1111,7 @@ export function AdminCoachingClient() {
           method: "POST",
           body: JSON.stringify({
             studentIds: unitStudentIds,
+            forHomework: homeworkMode,
             sections: targets.map(({ question }) => ({
               subject: question.subject,
               unit: question.unit,
@@ -1357,7 +1363,7 @@ export function AdminCoachingClient() {
   }
 
   return (
-    <main className={`coaching-workspace print-mode-${printMode} mx-auto max-w-7xl px-5 py-8`}>
+    <main ref={workspaceRef} className={`coaching-workspace print-mode-${printMode} mx-auto max-w-7xl ${homeworkMode ? "" : "px-5 py-8"}`}>
       <style jsx global>{`
         @page {
           size: A4;
@@ -1740,9 +1746,10 @@ export function AdminCoachingClient() {
         }
       `}</style>
 
-      <section className="admin-screen-only mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">관리자 콘솔</p>
-        <div className="mt-1 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <fieldset disabled={homeworkSaving} className="min-w-0">
+      <section className={`admin-screen-only mb-6 rounded-lg border border-line bg-white p-6 shadow-soft ${homeworkMode && !sheet ? "hidden" : ""}`}>
+        <p className={`text-xs font-black uppercase tracking-[0.18em] text-brand-600 ${homeworkMode ? "hidden" : ""}`}>관리자 콘솔</p>
+        <div className={`mt-1 flex-col gap-4 lg:flex-row lg:items-end lg:justify-between ${homeworkMode ? "hidden" : "flex"}`}>
           <div>
             <h1 className="text-3xl font-black text-ink">코칭 스튜디오</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -1796,7 +1803,7 @@ export function AdminCoachingClient() {
         ) : null}
       </section>
 
-      <section className="admin-screen-only mb-5 flex flex-wrap gap-2 rounded-lg border border-line bg-white p-2 shadow-soft">
+      <section className={`admin-screen-only mb-5 flex-wrap gap-2 rounded-lg border border-line bg-white p-2 shadow-soft ${homeworkMode ? "hidden" : "flex"}`}>
         {[
           { id: "related" as const, label: "관련문제 문제지" },
           { id: "unit" as const, label: "단원별 모고" },
@@ -2060,11 +2067,11 @@ export function AdminCoachingClient() {
             <p className="mt-1 text-sm text-slate-500">
               DB에 저장된 문제를 과목/단원 기준으로 뽑아 6문항 단위 인쇄용 문제지로 만듭니다.
             </p>
-            <CoachingStudentPicker
+            {!homeworkMode && <CoachingStudentPicker
               selectedStudentIds={unitStudents.map((student) => student.id)}
               disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
               onStudentsChange={handleUnitStudentsChange}
-            />
+            />}
             <section className="mt-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="text-xs font-black text-slate-600">단원 구성</div>
@@ -2178,7 +2185,7 @@ export function AdminCoachingClient() {
                 </select>
               </label>
             </div>
-            <label className="mt-4 flex items-center gap-3 rounded-md border border-line bg-slate-50 px-4 py-3 text-sm font-black text-slate-700">
+            <label className={`mt-4 items-center gap-3 rounded-md border border-line bg-slate-50 px-4 py-3 text-sm font-black text-slate-700 ${homeworkMode ? "hidden" : "flex"}`}>
               <input
                 type="checkbox"
                 checked={unitExcludeUsed}
@@ -2193,7 +2200,7 @@ export function AdminCoachingClient() {
             <button
               type="button"
               onClick={() => void generateUnitMock()}
-              disabled={unitStudents.length === 0 || unitLoading || replacingUnitQuestionIds.length > 0 || unitHasBlankCount}
+              disabled={(!homeworkMode && unitStudents.length === 0) || unitLoading || replacingUnitQuestionIds.length > 0 || unitHasBlankCount}
               className="mt-5 rounded-md bg-brand-600 px-5 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:bg-slate-300"
             >
               {unitLoading ? "문제 뽑는 중..." : `단원별 모고 만들기 (${unitTotalCount}문항)`}
@@ -2205,7 +2212,7 @@ export function AdminCoachingClient() {
                   <div>
                     <h3 className="text-sm font-black text-ink">단원별 모고 구성 결과</h3>
                     <p className="mt-1 text-xs font-bold text-slate-500">
-                      {formatStudentNameValues(sheet.recipientStudentNames ?? [])} 기준 · {sheet.questions.length}문항 · 사용됨 {unitUsageSummary.used}문항 · 미사용 {unitUsageSummary.unused}문항 · 선택 {unitSelectedQuestionIds.length}문항
+                      {homeworkMode ? `${sheet.questions.length}문항 · 선택 ${unitSelectedQuestionIds.length}문항` : `${formatStudentNameValues(sheet.recipientStudentNames ?? [])} 기준 · ${sheet.questions.length}문항 · 사용됨 ${unitUsageSummary.used}문항 · 미사용 ${unitUsageSummary.unused}문항 · 선택 ${unitSelectedQuestionIds.length}문항`}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -2219,6 +2226,7 @@ export function AdminCoachingClient() {
                     </button>
                     <button
                       type="button"
+                      hidden={homeworkMode}
                       disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.used === 0}
                       onClick={() => selectUnitQuestionsByUsage(true)}
                       className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-amber-500 hover:text-amber-700 disabled:cursor-not-allowed disabled:opacity-40"
@@ -2227,6 +2235,7 @@ export function AdminCoachingClient() {
                     </button>
                     <button
                       type="button"
+                      hidden={homeworkMode}
                       disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.unused === 0}
                       onClick={() => selectUnitQuestionsByUsage(false)}
                       className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 transition hover:border-emerald-500 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-40"
@@ -2249,6 +2258,7 @@ export function AdminCoachingClient() {
                       type="button"
                       disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitUsageSummary.used === 0}
                       onClick={() => void replaceUsedUnitQuestions()}
+                      hidden={homeworkMode}
                       className="rounded-md bg-amber-600 px-3 py-2 text-xs font-black text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-slate-300"
                     >
                       사용된 문제 전부 교체
@@ -2284,6 +2294,7 @@ export function AdminCoachingClient() {
                                   {index + 1}. {question.concept || question.unit}
                                 </p>
                                 <span
+                                  hidden={homeworkMode}
                                   title={lastUsed ? `마지막 사용: ${lastUsed}` : undefined}
                                   className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
                                     useCount > 0
@@ -2421,6 +2432,7 @@ export function AdminCoachingClient() {
 
       </section>
 
+      {sheet?.sourceLabel === "unit-mock" && <HomeworkSheetActions sheet={sheet} pageHeaders={questionPageHeaders} getWorkspace={() => workspaceRef.current} disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving} onBusyChange={setHomeworkSaving} onSaved={onHomeworkSaved} />}
       {sheet ? (
         <>
           <PrintableSheet
@@ -2434,13 +2446,14 @@ export function AdminCoachingClient() {
             actionsDisabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
             statusMessage={unitMsg}
           />
-          <PrintableAnswerSheet sheet={sheet} />
+          {!homeworkMode && <PrintableAnswerSheet sheet={sheet} />}
         </>
       ) : (
         <section className="admin-screen-only mt-6 rounded-lg border border-dashed border-line bg-white/70 p-8 text-center text-sm text-slate-500">
           문제지를 만들면 이곳에 인쇄 미리보기가 표시됩니다.
         </section>
       )}
+      </fieldset>
     </main>
   );
 }
@@ -2549,7 +2562,7 @@ function PrintableSheet({
   const canEditQuestions = Boolean(onReplaceQuestion || onRemoveQuestion);
   const replacingSet = new Set(replacingQuestionIds ?? []);
   return (
-    <section className="coaching-print-area coaching-question-print-area mt-6">
+    <section data-homework-question-count={sheet.questions.length} className="coaching-print-area coaching-question-print-area mt-6">
       {canEditQuestions && statusMessage ? (
         <p className="admin-screen-only mb-3 rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
           {statusMessage}
@@ -2585,7 +2598,7 @@ function PrintableSheet({
                   {columnQuestions.map((question, index) => {
                     const questionNumber = pageIndex * QUESTIONS_PER_PRINT_PAGE + columnIndex * 3 + index + 1;
                     return (
-                      <div key={question.id} className="coaching-print-question px-3 py-2">
+                      <div key={question.id} data-homework-question-number={questionNumber} className="coaching-print-question px-3 py-2">
                         <div className="coaching-print-question-body flex items-start gap-2">
                           <span className="coaching-print-question-number shrink-0 font-black text-ink">
                             {questionNumber}.

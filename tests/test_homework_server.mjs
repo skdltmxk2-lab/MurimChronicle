@@ -21,6 +21,7 @@ const server = loadTs("src/lib/homework/server.ts", {
   "@/types/homework": types,
   "@/lib/homework/core.mjs": core,
   "@/lib/homework/pdf-server": { inspectHomeworkPdf: async (_bytes, pages) => pages },
+  "@/lib/homework/generated": {},
   "next/server": { NextResponse: { json: (body, options = {}) => ({ body, status: options.status ?? 200 }) } },
 });
 const actor = "11111111-1111-4111-8111-111111111111";
