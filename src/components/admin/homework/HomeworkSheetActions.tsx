@@ -8,10 +8,11 @@ import type { HomeworkMaterial } from "@/types/homework";
 import { buttonClass, errorMessage, Field, homeworkApi, inputClass, Notice, panelClass, secondaryClass } from "./HomeworkShared";
 
 type Sheet = { title: string; subtitle: string; questions: QuestionRecord[] };
-export function HomeworkSheetActions({ sheet, pageHeaders, getWorkspace, disabled, onBusyChange, onSaved }: {
+export function HomeworkSheetActions({ sheet, pageHeaders, getWorkspace, disabled, onBusyChange, onSaved, invalidatedMaterialId }: {
   sheet: Sheet; pageHeaders: string[]; getWorkspace: () => HTMLElement | null; disabled: boolean;
   onBusyChange: (busy: boolean) => void;
   onSaved?: (material: HomeworkMaterial, distribute: boolean) => Promise<void>;
+  invalidatedMaterialId?: string;
 }) {
   const router = useRouter();
   const [title, setTitle] = useState(sheet.title);
@@ -24,6 +25,7 @@ export function HomeworkSheetActions({ sheet, pageHeaders, getWorkspace, disable
   const signature = JSON.stringify([sheet.title, sheet.questions.map((q) => [q.id, q.updatedAt]), pageHeaders]);
   useEffect(() => { setSaved(null); setError(""); }, [signature, title, kind, description]);
   useEffect(() => { setTitle(sheet.title); }, [sheet.title]);
+  useEffect(() => { if (saved?.id === invalidatedMaterialId) setSaved(null); }, [saved, invalidatedMaterialId]);
 
   async function save(distribute: boolean) {
     if (busyRef.current || disabled || !title.trim() || !sheet.questions.length) return;

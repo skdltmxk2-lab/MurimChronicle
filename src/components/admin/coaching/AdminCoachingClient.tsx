@@ -320,7 +320,7 @@ async function ensureOk<T>(res: Response): Promise<T> {
   return json as T;
 }
 
-export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved }: { homeworkMode?: boolean; onHomeworkSaved?: (material: HomeworkMaterial, distribute: boolean) => Promise<void> }) {
+export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, invalidatedHomeworkMaterialId }: { homeworkMode?: boolean; onHomeworkSaved?: (material: HomeworkMaterial, distribute: boolean) => Promise<void>; invalidatedHomeworkMaterialId?: string }) {
   const workspaceRef = useRef<HTMLElement>(null);
   const [homeworkSaving, setHomeworkSaving] = useState(false);
   const relatedFileRef = useRef<HTMLInputElement>(null);
@@ -1004,7 +1004,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved }: {
         })
       );
       const availableText =
-        typeof json.unusedAvailable === "number"
+        !homeworkMode && typeof json.unusedAvailable === "number"
           ? `DB ${json.available}문항(미사용 ${json.unusedAvailable}문항)`
           : `DB ${json.available}문항`;
       const candidateText =
@@ -1038,7 +1038,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved }: {
         (json.fallbackSelectedCount ?? 0) > 0
           ? ` · 하위 난이도 보충 ${json.fallbackSelectedCount}문항`
           : "";
-      const studentLabel = formatStudentNames(unitStudents);
+      const studentLabel = formatStudentNames(unitStudents) || "자료함 공통 자료";
       if (excludeCurrent && json.questions.length < json.requestedCount) {
         setUnitMsg(
           `${studentLabel} 기준 · 아직 구성에 사용하지 않은 문제는 ${json.questions.length}문항뿐이라 전체 구성을 변경하지 않았습니다.`
@@ -2432,7 +2432,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved }: {
 
       </section>
 
-      {sheet?.sourceLabel === "unit-mock" && <HomeworkSheetActions sheet={sheet} pageHeaders={questionPageHeaders} getWorkspace={() => workspaceRef.current} disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving} onBusyChange={setHomeworkSaving} onSaved={onHomeworkSaved} />}
+      {sheet?.sourceLabel === "unit-mock" && <HomeworkSheetActions sheet={sheet} pageHeaders={questionPageHeaders} getWorkspace={() => workspaceRef.current} disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving} onBusyChange={setHomeworkSaving} onSaved={onHomeworkSaved} invalidatedMaterialId={invalidatedHomeworkMaterialId} />}
       {sheet ? (
         <>
           <PrintableSheet

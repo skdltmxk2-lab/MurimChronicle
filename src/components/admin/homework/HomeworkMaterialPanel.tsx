@@ -42,7 +42,7 @@ export function HomeworkMaterialPanel({ active, materials, aiAvailable, aiEnable
     <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-xl font-black text-ink">{building ? "단원별 모고로 자료 만들기" : "자료함"}</h2><p className="mt-1 text-sm text-slate-500">코칭 스튜디오에서 문항을 구성하고, 저장하거나 학생에게 바로 배부하세요.</p></div><button type="button" onClick={() => setBuilding(!building)} className={building ? secondaryClass : buttonClass}>{building ? "← 자료함 보기" : "+ 단원별 모고로 새 자료 만들기"}</button></div>
     {error && <Notice error>{error}</Notice>}{message && <Notice>{message}</Notice>}
     {deleted && <Notice>‘{deleted.title}’을 자료함에서 삭제했습니다. 이미 배부한 숙제와 제출물은 유지됩니다. <button type="button" disabled={Boolean(busyId)} onClick={() => void restore()} className="ml-2 font-black underline">삭제 되돌리기</button></Notice>}
-    <div hidden={!building}><AdminCoachingClient homeworkMode onHomeworkSaved={saved} /></div>
+    <div hidden={!building}><AdminCoachingClient homeworkMode onHomeworkSaved={saved} invalidatedHomeworkMaterialId={deleted?.id} /></div>
     <div hidden={building} className="space-y-6">
       <section className={panelClass}>
         <div className="flex items-center justify-between"><h3 className="font-black text-ink">저장한 자료</h3><span className="text-xs text-slate-500">{materials.length}개 자료</span></div>
