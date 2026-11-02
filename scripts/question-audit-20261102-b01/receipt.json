@@ -1,0 +1,697 @@
+{
+  "completedAt": "2026-11-02T06:50:38.856Z",
+  "manifestDigest": "7dd02681e026a15b7fb9a4ee59ba327eb383e9b37b68ffe2a877dde735ebc26c",
+  "questionCount": 56,
+  "examCount": 13,
+  "removedSnapshots": 6,
+  "dailyMetadataUnchanged": 961,
+  "studentAttemptsWrites": 0,
+  "verified": true,
+  "questions": [
+    {
+      "id": "q-2017-cau-05",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "454a5aeac56422df5b224e78911f3936b37ae66556c0d140ae6162027d658f85",
+          "afterHash": "192ed78673cab059ecf3fbf60236df2446914b659f69bee13907a148494dd17b"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-cau-06",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "ac72ffb6deb9931c59c6a1e7bdd066281ae2ba79195556a1805609450a6f0190"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-cau-08",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "ac72ffb6deb9931c59c6a1e7bdd066281ae2ba79195556a1805609450a6f0190"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-cau-13",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "a06cc82bdc3dbea364f5ad34453c3aaa27c7ceafda28718240a2715b9de432a7",
+          "afterHash": "59feccc4d4772fb90861944e1d0f47127a41fcf613137206e2a330daa7fc43c2"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-cau-16",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "ac72ffb6deb9931c59c6a1e7bdd066281ae2ba79195556a1805609450a6f0190"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-cau-25",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "ac72ffb6deb9931c59c6a1e7bdd066281ae2ba79195556a1805609450a6f0190"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-06",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "429052c55f1c67ee0132794c7bff1bbad0727586acbf6ebae86daca83cea24da",
+          "afterHash": "d835d7e9cd552c95312348d53f35d6afff8ac4c22b0215cbb4341b2707ebab35"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-11",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "0eca354c6de9167befe9921baf00768768f37162fb8cbd3a1abc67c798058c2d",
+          "afterHash": "f96dff791e7a8ca73d28903256f846152ee62f7ca1a20fc08018f5baa8764f81"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-12",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "fec1ea027c6df06e9f020b6fdc83a4b342ea19446d6c40f12f1f9ebf6f71e919",
+          "afterHash": "ce50e63704cb234bf221ee1430e50eafc21cd68a89d378d37632a60d63a23572"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-18",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "abfc23cbc21153a11cba3be6597614bc14de464d18e957c353bef612aa12ede1",
+          "afterHash": "7c6f5d67c9cbec1d44dd7591d1858b1908f75d3e952bcc7dd217329bb4614d0c"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-20",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "920c6e80d9dfba768117b4e262e16febb76951ff2a91d4a350f68173c814bc2a"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-21",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "4e7aa0576db6e00d99df241cedd2f3e2fdaa4bd9e47867943545290a7f15a3b6"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-hanyang-26",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "920c6e80d9dfba768117b4e262e16febb76951ff2a91d4a350f68173c814bc2a"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-01",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "d7559df242c4e14b79b8c421285d33e8a1394353aa312c536f04484ca7b8399b",
+          "afterHash": "8eccb2ae014f4547dd712e472c37cdc8624e7894dbe7fcb971cf011f7e33687c"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-09",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "1978db7770fe21c4cca7c83ab443ebf5ddc0cdc09676dbc0c02cde8a442b02d7",
+          "afterHash": "95e998dc5780b853a1cdc08b7a3483b8e21e2dec227c8fb5fcf704fcc0d3a0b1"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-10",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "961080fc35b20a96e790bb1028ddd26655f24380fc9d55e5d9949f6e35fe18fc",
+          "afterHash": "78f98795bd9988609906cd3fcc38563b326c17ac04c0c01471f262f49bb52a4e"
+        },
+        {
+          "field": "question",
+          "beforeHash": "5d827a417e5af0cf22d8b87e5ed49a8b2ec766697186096ea5a53b4da592c796",
+          "afterHash": "7655754f638caf5a73ab6605d55518ba2280cb162e10fb3475fe5a4908d703e4"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-11",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "608c00a505dc65d129191c00a5d01633a2091d1237c76145ad7c3959d3a9d017",
+          "afterHash": "71faeed268c31f20a9bf604c8e8775c3a488f587ead6bfb5c787f1c46eb60826"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-19",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "f315aef0ef0a4d0e3cd7ec8b74aab25884b06dde1cd8306322897ee68c8037c1",
+          "afterHash": "af54a2ab48afc524ea40482319e33c67fecc4858de4929a7d17bcf932992f281"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-kwangwoon-30",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "aa80a0f79a46827c765ee914653039a2824b51acc48bd96c26ee22c92a4310e1",
+          "afterHash": "9b6c4aba6636c33d64c70d98a8266dfb6a1c8be770760bd424f37a3a6fd4d419"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-skku-04",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "74083a86f2e7f9793445afc41dcbbf7e60f035aaedca85e3bfa7bf09ebb3ac50",
+          "afterHash": "6b0a53a8f2dee49f2b6ca8c9eddea7095a6da18e5ae880a73320ab0b39f175c0"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-skku-17",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "4e7aa0576db6e00d99df241cedd2f3e2fdaa4bd9e47867943545290a7f15a3b6"
+        }
+      ]
+    },
+    {
+      "id": "q-2017-sogang-18",
+      "fields": [
+        {
+          "field": "options",
+          "beforeHash": "dbcf31b27f9618d8d61257f4ad2bc65c2b76a5fcd8bdb9e4af718e7d67bbfd86",
+          "afterHash": "a3f6e5c22698719cdf36b21b17bb937f3699b797d9f2bb5b2d9e784247ef8271"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "6048ac15ac0393b76eb9301bc59c39cda765616f587e81ee3ba0f8d6fb50d6af",
+          "afterHash": "3c82094bf0eb947564fc7ab977e8ae18f89b0e118f7b83399d7be53ae521c542"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-11",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "268225ff563eba7f1414bb1e1b2e2a69253d7a13dc3f6e366c936c1685235fea",
+          "afterHash": "d8582b43459f26cefb42804b121704663c9ba1531a3ddf7c890276b03f67514e"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-13",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "6426e3ffd7e2f519e16f1ea8eef9a060d1e649edeb4b32f5df1d97a7180a6bf5",
+          "afterHash": "18d131defffc1161a027c5bcfcc8c2e0433e1ac7fa945b58b53197f951df3dc3"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "6594c172dea456046ed50e3c55fa57779186c6d18371ae2d5b82cbc70502e777",
+          "afterHash": "9c73541600e547dd1da69c72e9693f63f7ad377aa746ee8703d30064f5179f8b"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-20",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "2b7c281be246e733d18e63b2efff158f7f3d2b0a3d7e431c5b3d5a5b5cba9fcc",
+          "afterHash": "5fa5090ada88e62ca1bcb69b8810859a079ea874d41ee777215a1c3803930320"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "3eb0a982e84f1a3adda713557154ba9be6a68deba7e56bc5210c294e6158f611",
+          "afterHash": "0f900d08d6d10867bc7444b7371f713cee5e8f3de05e9c649c2566839b382c97"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-22",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "74b9b9e3dceef05c96b255fbb22f95bb9994fb897a041a3e31c1ee9d41bfd20e",
+          "afterHash": "f6453289970f39e9a7e97c9f3ab53dd14100f066a7204241dd97e5c605e81c09"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-27",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "008ceb5d3820dbc733e2f895b69ac100f69cdc9d46a7e946beb3a71e482174ee",
+          "afterHash": "636b38619ac6dafee8762bdd0c7fa7e83ecdbb914c38fa499b69ac7d0b100a3b"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-cau-29",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "1684e178dd629683e837ed0f1c6410d1d1e28876fb8df08ac2427724ef50a897",
+          "afterHash": "693b8ea5b730f3abe430a1cb248b9b63fddfad4b00a5bb327fbb066d86b0ef66"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-hanyang-04",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "5a54a92d4feba75f131cd2a1decf8b618ecfa3de85611f16f65756f4564f6945",
+          "afterHash": "5e9cd7c3aa18c0a55810c02c8f229c9f737ae27dd01e1fe2873eee6556caf27f"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-hanyang-08",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "826f7dd5208a219c38155810e0133d3f32cf0a25da3f3f1f80776c9726761d28",
+          "afterHash": "99e33f4187e3e8e0dbe9d9b9f558020b10cf7bb18952ea458106be5f8f85eff7"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-hanyang-17",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "920c6e80d9dfba768117b4e262e16febb76951ff2a91d4a350f68173c814bc2a"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-hanyang-21",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "6040a2ba71729c052b80a3d00661f028165f1b8ee24a3291692790ef5a1bd4f1",
+          "afterHash": "94102bccc468fbef7622bc2d558db1cdccc43df7dbab72623e66497b79c9e768"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-konkuk-39",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "4849dad2df1f2800dff5262e008953f35f5e88c447a65afd6da0bce05c47385f",
+          "afterHash": "9a4e21a374a2f14e4252be5982dfb98d08407cb3c49649bdf20e5f7fb065553d"
+        },
+        {
+          "field": "question_image",
+          "beforeHash": "5c0cddb1c97c55dbb81a98ff680e5a0bbadf2682ccbcca12cfdaa89fd0b89ec7",
+          "afterHash": "de967b995f400909e192eef11e9c1aa76d6bc165b3b6f279b13a0c46b5b0e57c"
+        },
+        {
+          "field": "content_type",
+          "beforeHash": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7",
+          "afterHash": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-kwangwoon-04",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "201ed1a191f01c3c4825f31e0c490fba04177b7ee687454cb58e87f8d066c27d",
+          "afterHash": "314d9756c93d8af9f42592aa06c4c163a516bfe13311fa87c8128dd412cec4bd"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-skku-07",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "de49c37b43a4eceaf1dda46195ccef60a633032aef974c6dd5db46573dda87ae",
+          "afterHash": "dcecf300a4fb45d833350107201b85efde1ec5b0394a09a8356654297bab4831"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-skku-13",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "62f1dc6c59d2077d88d47ddd9ee73084e0b481d3bd7d8cf5b3d312b1a3c93faa",
+          "afterHash": "91f692f59ef7dbf6500dd1227f4754969baf6ab74ebc40950bc144929b564c82"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-skku-16",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "cf062d831b7c1dbff11fa361eadf794aa19c28d67832fd3a9c897dd95ab2b37b",
+          "afterHash": "419995fbaa8b01fdf8f9c85590cea234651487145b9b46c62b668f552c82304a"
+        }
+      ]
+    },
+    {
+      "id": "q-2018-sogang-04",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "90c706e1123846778baa40e357d677360191ce2e34e6beb4f9039009ce441ef1",
+          "afterHash": "86e538e25cdbcc2a2946d02eeaf3db2ced98cde257ae7ce47ac8c2408ed369e6"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-ajou-44",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "37e2d6ffb878d3b98bdf9f9373b726cebc9a1b87af3279fcb959954bc1478443",
+          "afterHash": "af802fbcfebc758de8e6364804021f154d167aaf90069b3f51812da15d853b2a"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "5574cab920a5739e5cc902c9ceb014051f93954e31bcc414a959456b2c4dda96",
+          "afterHash": "716bde00d82f584859548c97524da17373005cfcb59cd0e7bf6c67d200b041b1"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-dankook-34",
+      "fields": [
+        {
+          "field": "options",
+          "beforeHash": "a3712fb05614389688826d4b3301e486700d9c7b68e95fb4a0acf8895685896f",
+          "afterHash": "dcc55716ea92a712250841b696d45e74f380e5c91092997cb6eadbd8891dedde"
+        },
+        {
+          "field": "correct_option_id",
+          "beforeHash": "2bf175f9655e7bb7357b9f0a7c6051465a5ae701104ffe741b98e852c0e4d460",
+          "afterHash": "391552c099c101b131feaf24c5795a6a15bc8ec82015424e0d2b4274a369a0bf"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "fd053eeafecd7ef2681b170df216401b0dd3d04c2eca316cd199251e71140616",
+          "afterHash": "5f6f5af6277e9d1441df6968d4ea33bbc556d0959e47e13f6c35d6b049c8f876"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-ewha-03",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "e06e51d155815a256adf8eead02da7a3fe072668c35c4511425d40da664a8f31",
+          "afterHash": "87fd9661da7a33be0e2be8641a6894b26d48c83450406a31e26304c7bb71821b"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-ewha-11",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "c23fec7c6c73e1daa98e8b20f64bfd0050283eb82d9d325a5b9ad253f7c06eec",
+          "afterHash": "756b3d4f179f5f61a038664a87437e5fb8b4239ad5f1871e930a4757fd7c3f7c"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-ewha-23",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "c3c7c7fa6631f0dd9fe13d2140e8d8302f92ffe06d564359f4f171f82a3c8b5e",
+          "afterHash": "63afacc1e9acd5d8e801bce4c823a118b6b1400869af3daba13e78f9a65d5284"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-gachon-04",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "110c26131e252f1ab0e6c37722c2ca2350ef87e27a50e0792f900a8f3096517e",
+          "afterHash": "9cf34a326e818b6ba05973dc8e730903687feda72d373ea358be37e4165fb04e"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-gachon-12",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "080b7b96175b6f643b3c5db4d85297ae73e021e26402a4ef8b64361b34acd7f9",
+          "afterHash": "65c955211948eb7c6638c17975d10f4570358652b6a3138201390cb3f7c96ff2"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-gachon-22",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "4e7aa0576db6e00d99df241cedd2f3e2fdaa4bd9e47867943545290a7f15a3b6"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hanyang-14",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "ae77f961cde14322af7467c121e2e6493afacf9d3b01b7192dbc07be617ae4e2",
+          "afterHash": "7c1892f2965bf08b0c4601883015fb79c028110a06f1fcb0d612ca3301205691"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hanyang-15",
+      "fields": [
+        {
+          "field": "quality_status",
+          "beforeHash": "70ab47ec8fbd75027e36d5fae28639b51de6e7265220723cc99156dca295fcc5",
+          "afterHash": "0e30efff09dcb023b26ab5f9968146eb08cec2e337cb3390c2b38089f60468f9"
+        },
+        {
+          "field": "quality_reasons",
+          "beforeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "afterHash": "920c6e80d9dfba768117b4e262e16febb76951ff2a91d4a350f68173c814bc2a"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hanyang-erica-09",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "f2fee8c1d3ffd691de8953983406f9c0ef39962447b888ca53afbafc0df2b5b0",
+          "afterHash": "f93517e2ba2dc47b05eaf1619498068189ef3b17f31cf7756c90f4d9227a3df9"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hanyang-erica-11",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "6a9bf0ac9f6ec5b1f843a695c8ffbf253b5dab249c8778ca257de6a64f496aed",
+          "afterHash": "e4db1fba1ddb020a851d7a019f5585e6fb3ff07b67f9e773a257723ffb9a8fa2"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hanyang-erica-16",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "6e7e4a6e1243416c2ee90b8c7453a94d8f8b72d25124e6662a698ea080881269",
+          "afterHash": "2847a51d1bc911875a8ac54c24b1c8517765fd5d13bdaba204573bd1ab78d187"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hongik-01",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "18d00ce6460b1f3ad00165be5b746976af0a70c5ceeb7fc6dd76971146d2d350",
+          "afterHash": "746e864fb5ed193bf97b43b671a0cde4cd58355570dfc70f254e887ba3a53cc1"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "8fd0c629369a3554cc45a3efe1fe38a2b95453e03877c90448f2fc6d00f2ea89",
+          "afterHash": "815c6bca51a4668fc9a10e2c7dcaad378745de19bbf68a4ec2b1f96a3b224ebb"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-hongik-15",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "4a4a7d7757992b78666e970fb907b98422aed44aa82faff372c3878fc079ac90",
+          "afterHash": "295a8a1f796353de7dc0278a300202ff0c57dc8dadbd74ff4c2b642a5d0ef61e"
+        },
+        {
+          "field": "question_image",
+          "beforeHash": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+          "afterHash": "242fa8e17dbb452bae31edb4127b6231993bcac7928b440989adeacdf7f5c288"
+        },
+        {
+          "field": "content_type",
+          "beforeHash": "a43c1966b7bb13f1bf6dab228fbbecf89cb332bbd34a104fe98149c372e58ecb",
+          "afterHash": "0aa52ffaa672c5a43dd1b5cf6239a3c3de78a77b37f6dca3f8ea10b9153c84c7"
+        },
+        {
+          "field": "options",
+          "beforeHash": "df1682c423a359dc9108a413ef913c84b08f9c845ca896465a010bd0932abf55",
+          "afterHash": "1cc9327f65de34e46a3e984d57dc123041bf1fce34bf43790a02a7492bee5f3e"
+        },
+        {
+          "field": "explanation",
+          "beforeHash": "8386f8a38ec57588ded5e1a0acf3cea36cdd4a520657c64a5e7869c0b2df4b22",
+          "afterHash": "96610c9d56ea1ff6cd455a0aedb585b6992e178c10a897fe854ad028e8d9b00b"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-inha-23",
+      "fields": [
+        {
+          "field": "question",
+          "beforeHash": "25628fa928b97c861c06ed0c4d00a4b552ff77756fe983dfd9ec7e0e13a3120d",
+          "afterHash": "88125aaf4debc21e129d2a326376c4475531eba57e3fb83e61cd5852e6fc3fea"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-inha-26",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "bd5538adda89c61b393e2747e88043ff884ee2ade1d98e3c9c8243e976d2540a",
+          "afterHash": "9ef4a2f7baf1b14c50709e398f933181af068c01c683ea3ff988effa258fc424"
+        }
+      ]
+    },
+    {
+      "id": "q-2019-konkuk-27",
+      "fields": [
+        {
+          "field": "explanation",
+          "beforeHash": "a540a8fb46a9ff11d36bb2e36459559183e09b88cf063a364bca8e050777e1b9",
+          "afterHash": "0340141c74321e6c541686b0f257ecd831f7039254da627f3592fb49b211cbb2"
+        }
+      ]
+    }
+  ]
+}

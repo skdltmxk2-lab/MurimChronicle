@@ -13,6 +13,7 @@
     "test:standalone": "node scripts/test_standalone_questions.mjs",
     "test:unit-mock": "node scripts/test_unit_mock_selection.mjs",
     "test:render": "node scripts/test_render_pipeline.mjs",
+    "test:content-review": "node scripts/test_reviewed_batch_apply.mjs",
     "questions:render-audit": "node scripts/audit_render_breakage_readonly.mjs",
     "typecheck": "tsc --noEmit"
   },
