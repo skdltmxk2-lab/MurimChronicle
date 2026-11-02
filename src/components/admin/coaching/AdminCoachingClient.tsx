@@ -8,6 +8,7 @@ import { HomeworkSheetActions } from "@/components/admin/homework/HomeworkSheetA
 import type { HomeworkMaterial } from "@/types/homework";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
+import { breakStatementLists, splitRenderBlocks } from "@/lib/math/viewBlocks.mjs";
 import {
   blobToBase64,
   dataUrlToBlob,
@@ -194,58 +195,6 @@ function normalizePrintableText(value: string): string {
     .replace(/\r\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-}
-
-type ViewBlockItem = {
-  label: string;
-  displayLabel: string;
-  text: string;
-};
-
-type ParsedViewBlock = {
-  prompt: string;
-  items: ViewBlockItem[];
-  tail: string;
-};
-
-function parseViewBlock(value: string): ParsedViewBlock | null {
-  const text = normalizePrintableText(value);
-  const markerPattern = /(?:\(([ㄱㄴㄷㄹㅁ가나다라마a-eA-E])\)|\b([a-eA-E])\.|(^|[\s\n])([가나다라마ㄱㄴㄷㄹㅁ])\.)\s*/gm;
-  const markers = [...text.matchAll(markerPattern)];
-  if (markers.length < 2) return null;
-
-  const labels = markers.map((marker) => marker[1] ?? marker[2] ?? marker[4] ?? "");
-  const koreanLetterLabels = ["가", "나", "다", "라", "마", "ㄱ", "ㄴ", "ㄷ", "ㄹ", "ㅁ"];
-  const latinLabels = ["a", "b", "c", "d", "e"];
-  const hasOrderedPair = labels.some((label, index) => {
-    if (index === 0) return false;
-    const prev = labels[index - 1].toLowerCase();
-    const current = label.toLowerCase();
-    return (
-      koreanLetterLabels.indexOf(prev) >= 0 &&
-      koreanLetterLabels.indexOf(current) === koreanLetterLabels.indexOf(prev) + 1
-    ) || (
-      latinLabels.indexOf(prev) >= 0 &&
-      latinLabels.indexOf(current) === latinLabels.indexOf(prev) + 1
-    );
-  });
-  if (!hasOrderedPair) return null;
-
-  const firstIndex = markers[0].index ?? 0;
-  const prompt = text.slice(0, firstIndex).trim();
-  const items = markers.map((marker, index) => {
-    const start = (marker.index ?? 0) + marker[0].length;
-    const end = index + 1 < markers.length ? markers[index + 1].index ?? text.length : text.length;
-    const label = marker[1] ?? marker[2] ?? marker[4] ?? "";
-    return {
-      label,
-      displayLabel: marker[1] ? `(${label})` : `${label}.`,
-      text: text.slice(start, end).trim(),
-    };
-  }).filter((item) => item.text.length > 0);
-
-  if (items.length < 2) return null;
-  return { prompt, items, tail: "" };
 }
 
 function parseOptionalNumberInput(value: string): OptionalNumber {
@@ -2478,7 +2427,7 @@ function QuestionPreview({ question, showAnswer }: { question: QuestionRecord; s
           {question.options.map((option) => (
             <li key={option.id} className="flex gap-2 rounded-md bg-slate-50 px-3 py-2 text-sm">
               <span className="font-black text-slate-500">{option.label}</span>
-              <ContentRenderer contentType={option.contentType} text={option.text} image={option.image} />
+              <ContentRenderer viewBoxes={false} contentType={option.contentType} text={option.text} image={option.image} />
             </li>
           ))}
         </ol>
@@ -2494,7 +2443,7 @@ function QuestionPreview({ question, showAnswer }: { question: QuestionRecord; s
 
 function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
   const text = normalizePrintableText(stripLeadingQuestionNumber(question.question));
-  const viewBlock = parseViewBlock(text);
+  const viewBlocks = splitRenderBlocks(breakStatementLists(text));
   const shouldShowImage = (question.contentType === "image" || question.contentType === "mixed") && question.questionImage;
   const shouldShowText = question.contentType === "latex" || question.contentType === "mixed";
 
@@ -2510,26 +2459,14 @@ function PrintableQuestionContent({ question }: { question: QuestionRecord }) {
       ) : null}
       {shouldShowText && text ? (
         <div className={shouldShowImage ? "mt-3" : undefined}>
-          {viewBlock ? (
-            <>
-              {viewBlock.prompt ? <KaTeXRenderer content={viewBlock.prompt} /> : null}
-              <div className="coaching-print-viewbox">
-                <div className="coaching-print-viewbox-title">{"<보기>"}</div>
-                <div className="coaching-print-viewitems">
-                  {viewBlock.items.map((item) => (
-                    <div key={item.label} className="coaching-print-viewitem">
-                      <span className="coaching-print-viewitem-label">{item.displayLabel}</span>
-                      <div className="coaching-print-viewitem-text">
-                        <KaTeXRenderer content={item.text} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
+          {viewBlocks.map((block, index) => block.type === "view" ? (
+            <div key={index} className="coaching-print-viewbox">
+              {block.showTitle ? <div className="coaching-print-viewbox-title">{"<보기>"}</div> : null}
+              <KaTeXRenderer content={block.text} viewBoxes={false} />
+            </div>
           ) : (
-            <KaTeXRenderer content={text} />
-          )}
+            <KaTeXRenderer key={index} content={block.text} viewBoxes={false} />
+          ))}
         </div>
       ) : null}
     </div>
@@ -2611,6 +2548,7 @@ function PrintableSheet({
                               <li key={option.id} className="coaching-print-option flex gap-2">
                                 <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
                                 <ContentRenderer
+                                  viewBoxes={false}
                                   contentType={option.contentType}
                                   text={option.text}
                                   image={option.image}

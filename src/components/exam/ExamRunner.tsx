@@ -401,6 +401,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                               {option.label}
                             </span>
                             <ContentRenderer
+                              viewBoxes={false}
                               contentType={option.contentType}
                               text={option.text}
                               image={option.image}

@@ -501,7 +501,7 @@ export function AiSearchClient() {
                   {extracted.options.map((option, index) => (
                     <div key={`${option.label}-${index}`} className="flex gap-2">
                       <span className="font-black text-brand-700">{option.label}</span>
-                      <ContentRenderer contentType="latex" text={option.text} />
+                      <ContentRenderer viewBoxes={false} contentType="latex" text={option.text} />
                     </div>
                   ))}
                 </div>
@@ -614,6 +614,7 @@ export function AiSearchClient() {
                                       {opt.label}
                                     </span>
                                     <ContentRenderer
+                                      viewBoxes={false}
                                       contentType={(opt.contentType as "latex" | "image" | "mixed" | null) ?? "latex"}
                                       text={opt.text}
                                       image={opt.image ?? undefined}

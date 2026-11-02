@@ -7,6 +7,12 @@
     "index.html",
     "*.config.mjs"
   ],
+  "overrides": [
+    {
+      "files": ["**/*.mts"],
+      "parser": "@typescript-eslint/parser"
+    }
+  ],
   "rules": {
     "react/no-unescaped-entities": "off"
   }

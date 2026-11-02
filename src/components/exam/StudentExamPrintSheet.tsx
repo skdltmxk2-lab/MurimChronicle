@@ -72,6 +72,7 @@ export function StudentExamPrintSheet({
                             <li key={option.id} className="student-exam-print-option">
                               <span className="student-exam-print-option-label">{option.label}</span>
                               <ContentRenderer
+                                viewBoxes={false}
                                 contentType={option.contentType}
                                 text={option.text}
                                 image={option.image}

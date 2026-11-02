@@ -709,6 +709,7 @@ export function AdminQuestionsClient() {
                       {isAnswer ? <span className="text-xs font-black text-mint-600">정답</span> : null}
                     </div>
                     <ContentRenderer
+                      viewBoxes={false}
                       contentType={opt.contentType}
                       text={opt.text}
                       image={opt.image}

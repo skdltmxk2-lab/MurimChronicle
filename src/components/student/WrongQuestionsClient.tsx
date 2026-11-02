@@ -477,6 +477,7 @@ export function WrongQuestionsClient() {
                               {opt.label}
                             </span>
                             <ContentRenderer
+                              viewBoxes={false}
                               contentType={opt.contentType ?? "latex"}
                               text={opt.text}
                               image={opt.image}

@@ -181,6 +181,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                         )
                       ) : selected ? (
                         <ContentRenderer
+                          viewBoxes={false}
                           contentType={selected.contentType}
                           text={`${selected.label}. ${selected.text}`}
                           image={selected.image}
@@ -195,9 +196,10 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                     <div className="text-xs font-black text-mint-600">정답</div>
                     <div className="mt-2 text-sm font-bold text-ink">
                       {isSubjective ? (
-                        <ContentRenderer contentType="latex" text={correctText ?? "-"} />
+                        <ContentRenderer viewBoxes={false} contentType="latex" text={correctText ?? "-"} />
                       ) : correct ? (
                         <ContentRenderer
+                          viewBoxes={false}
                           contentType={correct.contentType}
                           text={`${correct.label}. ${correct.text}`}
                           image={correct.image}

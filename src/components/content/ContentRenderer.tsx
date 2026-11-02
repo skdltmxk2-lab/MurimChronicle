@@ -9,6 +9,7 @@ type ContentRendererProps = {
   image?: string;
   imageAlt?: string;
   className?: string;
+  viewBoxes?: boolean;
 };
 
 export function ContentRenderer({
@@ -16,7 +17,8 @@ export function ContentRenderer({
   text = "",
   image,
   imageAlt = "문제 이미지",
-  className
+  className,
+  viewBoxes = true
 }: ContentRendererProps) {
   const shouldShowText = contentType === "latex" || contentType === "mixed";
   const shouldShowImage = (contentType === "image" || contentType === "mixed") && image;
@@ -34,7 +36,7 @@ export function ContentRenderer({
       ) : null}
       {shouldShowText && text ? (
         <div className={shouldShowImage ? "mt-3 min-w-0 overflow-visible" : "min-w-0 overflow-visible"}>
-          <KaTeXRenderer content={text} />
+          <KaTeXRenderer content={text} viewBoxes={viewBoxes} />
         </div>
       ) : null}
       {!shouldShowImage && !text ? <span className="text-slate-400">내용 없음</span> : null}

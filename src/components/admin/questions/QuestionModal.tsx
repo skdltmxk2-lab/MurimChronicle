@@ -614,6 +614,7 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                     <div className="text-xs font-black text-brand-700">단답형 정답</div>
                     <div className="mt-1 text-sm font-bold text-ink">
                       <ContentRenderer
+                        viewBoxes={false}
                         contentType="latex"
                         text={draft.answerText || "정답"}
                       />
@@ -626,6 +627,7 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                       className="rounded-md border border-line px-3 py-2 text-sm font-semibold text-slate-700"
                     >
                       <ContentRenderer
+                        viewBoxes={false}
                         contentType={option.contentType}
                         text={`${option.label}. ${option.text || "보기"}`}
                         image={option.image}
