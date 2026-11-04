@@ -1075,12 +1075,11 @@ export async function checkImages(q, fetchFn, options = {}) {
   const timeoutMs = options.timeoutMs ?? 3000;
   const issues = [];
   for (const item of imageUrlsOf(q)) {
-    let url = item.url;
-    if (url.startsWith("/")) {
-      if (!options.origin) continue;
-      url = new URL(url, options.origin).toString();
-    }
+    const relative = item.url.startsWith("/");
+    if (relative && !options.origin) continue;
     try {
+      // "//" 같은 깨진 값은 new URL 이 던진다 — 출제를 막지 않고 확인 실패로만 남긴다
+      const url = relative ? new URL(item.url, options.origin).toString() : item.url;
       const controller = typeof AbortController === "function" ? new AbortController() : null;
       const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
       let response;
@@ -1111,6 +1110,11 @@ export function mergeIssues(result, extraIssues) {
 // ─────────────────────────────────────────────────────────────────────────────
 // 선택 래퍼 (설계 §6.1)
 // ─────────────────────────────────────────────────────────────────────────────
+/** 검사기 오류로 판정하지 못한 문항 — 이슈 없는 결과로 취급한다 */
+function uninspectedResult(q) {
+  return { id: q.id, fingerprint: "", version: QUALITY_GATE_VERSION, issues: [], clearedCount: 0, worstTier: "clean", codes: [] };
+}
+
 /**
  * @param args.candidates 후보 배열 (호출자가 섞은 순서 유지)
  * @param args.count 필요한 문항 수
@@ -1144,14 +1148,25 @@ export async function selectWithGate(args) {
     suspectUsed: [],
     warnings: [],
     fixFailed: [],
+    gateFailed: [],
   };
 
   if (mode === "off") return { selected: select(candidates, count), report };
 
+  // 게이트 자체 오류로 출제가 막히면 안 된다. 오류는 보고만 하고 출제는 계속한다.
+  const guarded = async (q, stage, run, fallback) => {
+    try {
+      return await run();
+    } catch (error) {
+      report.gateFailed.push({ id: q.id, stage, error: String(error?.message ?? error) });
+      return fallback;
+    }
+  };
+
   const results = new Map(); // id → result
   const inspectOnce = async (q) => {
     if (results.has(q.id)) return results.get(q.id);
-    const result = await inspect(q);
+    const result = await guarded(q, "inspect", () => inspect(q), uninspectedResult(q));
     results.set(q.id, result);
     report.inspected += 1;
     return result;
@@ -1185,11 +1200,11 @@ export async function selectWithGate(args) {
       // 격리할 문항은 고치지 않는다 — 미관 수정은 나중에 사람이 고칠 때 함께
       blocked.add(q.id);
       report.quarantined.push({ id: q.id, codes: byTier.block });
-      await onBlocked(q, result);
+      await guarded(q, "quarantine", () => onBlocked(q, result));
       return;
     }
     if (byTier.fix.length) {
-      const fixed = await onFixable(q, result);
+      const fixed = await guarded(q, "autofix", () => onFixable(q, result), null);
       if (fixed) {
         fixedById.set(q.id, fixed);
         report.autoFixed.push({ id: q.id, codes: byTier.fix });
@@ -1199,7 +1214,7 @@ export async function selectWithGate(args) {
     }
     if (residual === "suspect") {
       suspect.add(q.id);
-      await onSuspect(q, result);
+      await guarded(q, "suspect", () => onSuspect(q, result));
     }
     if (byTier.warn.length) report.warnings.push({ id: q.id, codes: byTier.warn });
   };

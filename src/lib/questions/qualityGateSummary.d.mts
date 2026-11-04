@@ -6,8 +6,10 @@ export type GateSummaryInput = {
   suspectSkipped?: unknown[];
   suspectUsed?: unknown[];
   warnings?: unknown[];
+  gateFailed?: unknown[];
   downgradeReason?: string | null;
   writeErrors?: number;
+  labels?: Record<string, string>;
 };
 
 export function summarizeGateReport(report: GateSummaryInput | null | undefined): string;

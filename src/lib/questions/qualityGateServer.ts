@@ -8,6 +8,8 @@
 //  - enforce 인데 로그 테이블(마이그레이션 20261104)이 없으면 shadow 로 내려간다.
 //    원본 백업 로그 없이 문항을 고치거나 격리하지 않는다.
 //  - 자동수정은 DB 행(snake_case)을 다시 읽어 그 행 기준으로 만들고, updated_at CAS 로 저장한다.
+//  - 게이트 자체 오류는 출제를 막지 않는다(selectWithGate). 해당 문항은 gateFailed 로 보고한다.
+//  - 요청마다 결과를 로그 한 줄([quality-gate])로 남긴다. shadow 결과는 DB 에 남지 않기 때문이다.
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { COACHING_QUESTION_SELECT, fromQuestionDb } from "@/lib/admin/coaching";
@@ -23,6 +25,7 @@ import {
   inspectQuestion,
   mergeIssues,
   selectWithGate,
+  type GateFailedItem,
   type GateIssue,
   type GateMode,
   type GateReport,
@@ -46,6 +49,7 @@ export type QualityGateResponse = {
   suspectUsed: GateReportItem[];
   warnings: GateReportItem[];
   fixFailed: GateReportItem[];
+  gateFailed: GateFailedItem[];
   writeErrors: number;
   /** 보고에 등장한 코드의 한국어 설명 */
   labels: Record<string, string>;
@@ -123,11 +127,12 @@ function issueDetails(issues: GateIssue[]) {
   }));
 }
 
-function mergeItems(target: GateReportItem[], source: GateReportItem[]) {
-  const seen = new Set(target.map((item) => item.id));
+function mergeItems<T extends { id: string }>(target: T[], source: T[], keyOf: (item: T) => string = (item) => item.id) {
+  const seen = new Set(target.map((item) => keyOf(item)));
   for (const item of source) {
-    if (seen.has(item.id)) continue;
-    seen.add(item.id);
+    const key = keyOf(item);
+    if (seen.has(key)) continue;
+    seen.add(key);
     target.push(item);
   }
 }
@@ -182,6 +187,7 @@ export async function createQualityGateSession(params: {
     suspectUsed: [],
     warnings: [],
     fixFailed: [],
+    gateFailed: [],
     writeErrors: 0,
   };
 
@@ -298,6 +304,7 @@ export async function createQualityGateSession(params: {
       mergeItems(total.suspectUsed, report.suspectUsed);
       mergeItems(total.warnings, report.warnings);
       mergeItems(total.fixFailed, report.fixFailed);
+      mergeItems(total.gateFailed, report.gateFailed, (item) => `${item.id}|${item.stage}`);
       return selected;
     },
     response: () => {
@@ -308,7 +315,7 @@ export async function createQualityGateSession(params: {
       for (const list of [total.autoFixed, total.quarantined, suspectSkipped, total.suspectUsed, total.warnings]) {
         for (const item of list) for (const code of item.codes) codes.add(code);
       }
-      return {
+      const result: QualityGateResponse = {
         mode,
         requestedMode,
         downgradeReason,
@@ -320,9 +327,12 @@ export async function createQualityGateSession(params: {
         suspectUsed: total.suspectUsed,
         warnings: total.warnings,
         fixFailed: total.fixFailed,
+        gateFailed: total.gateFailed,
         writeErrors,
         labels: Object.fromEntries([...codes].map((code) => [code, GATE_RULES[code]?.[1] ?? code])),
       };
+      if (result.inspected > 0) console.info("[quality-gate]", JSON.stringify({ context, ...result, labels: undefined }));
+      return result;
     },
   };
 }

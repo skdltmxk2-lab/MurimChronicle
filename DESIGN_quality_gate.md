@@ -497,3 +497,125 @@ qualityGate: {
 - 테스트는 렌더러 판본에 관계없이 "렌더러가 박스를 만들면 이슈 없음, 못 만들면 이슈"를 확인하도록 고쳤다.
 - 검증: `tsc --noEmit` 통과, 기존 테스트(standalone·unit-mock·render·electronics)와 게이트 53케이스 통과, 실DB 스냅샷 시뮬레이션 30회 문제 0건.
 - 최신 렌더러 기준 실DB suspect: explanation_backtrack 12 · no_option_matches_explanation 17 · answer_key_mismatch_numeric 6 · view_label_missing 1 · option_label_position_mismatch 1. block 0.
+
+### 14.6 배포 후 독립 검토와 후속 패치 (2026-11-04)
+
+`1efe6a77` 배포 후 읽기 전용 독립 검토를 했다(4개 관점, 중간 등급 지적은 반박 검증). 현재 데이터 기준으로 서비스를 막거나 데이터를 망가뜨릴 문제는 없었다. 아래 게이트 오류는 깨진 값이 들어올 때만 터지는 잠재 결함이었다.
+
+- shadow: 이전·새 라우트를 같은 입력으로 1,640회 비교했다. 응답은 `qualityGate` 외에 같고, DB 쓰기는 0이다.
+- 입력 경로: 승인 문항 5,515건 전부 sweep 경로와 실제 `fromQuestionDb` 경로의 판정이 같다. block 0 · fix 0 · warn 0 · suspect 35.
+- 한계: 가짜 Supabase와 2026-11-04 02:41 스냅샷 기준이다. 실제 DB와 Next 번들은 타지 않았다.
+
+이 패치에서 고친 것:
+
+| 항목 | 내용 |
+|---|---|
+| 게이트 오류 격리 | `selectWithGate`가 검사기·쓰기 콜백의 예외를 잡아 `report.gateFailed`로 보고하고 출제를 계속한다. 판정하지 못한 문항은 이슈 없는 문항으로 취급한다. `checkImages`의 `new URL()`도 try 안으로 옮겼다. 전에는 이미지 값이 `//`처럼 깨진 문항이 뽑히면 요청 전체가 500이었다 |
+| 결과 로그 | 문항을 1개 이상 검사하고 정상 응답한 요청마다 `gate.response()`가 `[quality-gate]` JSON 한 줄을 남긴다. 문항 id, 규칙 코드, 모드·버전·건수, 오류 단계와 오류 메시지가 들어가고 문항 본문은 없다. DB 쓰기는 여전히 0이다 |
+| 경고 문구 | 모든 경고가 `인쇄 잘림 주의`로 나오던 것을 사유별로 표시한다(`해설 없음 n`, `이미지 확인 실패 n`). 게이트 오류는 `검사 오류 n` |
+
+Vercel 런타임 로그는 보관 기간이 짧다(Hobby 1시간, Pro 1일, Observability Plus 30일). 며칠 치 판단 자료로는 `npm run questions:gate-sweep`(뱅크 전체 점검, 읽기 전용)이 더 정확하다.
+
+enforce 전에 알아둘 것 (이 패치에서 고치지 않음):
+
+- `enforce` 값은 마이그레이션 뒤에 넣는다. 마이그레이션이 `ON CONFLICT DO NOTHING`이라 미리 넣은 값을 그대로 두고, 적용 즉시 enforce가 켜진다.
+- 이미지 확인은 설계의 "병렬 6, 요청당 총 8초 상한"과 달리 순차이고, 8초 검사는 문항을 시작할 때만 한다. 현재 데이터(이미지 문항 43건, 문항당 1장) 기준으로 이미지 서버가 응답하지 않으면 요청이 9~11초까지 늘어날 수 있다(평소 +0.1~0.2초). 문항당 이미지가 늘면 더 길어진다.
+- HEAD 403/404/410은 block이고, 오탐 해제 목록은 이미지 이슈에 적용되지 않는다. 방화벽이 HEAD를 403으로 막으면 정상 이미지 문항도 격리된다.
+- 격리 문항을 관리자 화면에서 저장하거나 `scripts/validate_question_quality.mjs --apply --all`을 돌리면 재검사 없이 `approved`로 돌아간다. §6.4의 저장 시 재검사는 아직 구현하지 않았다.
+- shadow 보고는 block 문항의 fix·warn도 함께 센다. 그래서 `자동 수정 대상`이 enforce 때보다 많게 나올 수 있다.
+
+### 14.7 운영 런북 — 마이그레이션 적용 · enforce 전환 · 되돌리기
+
+독립 검토에서 마이그레이션 SQL을 읽고 작성한 초안이다. **실제 DB에서 실행해 본 적 없다.** 코드 블록은 하나씩 따로 실행한다. 여러 블록을 붙여서 실행하면 안 된다. 특히 5번의 블록들은 서로 다른 상황을 위한 선택지다. 함께 실행하면 모드 변경이 취소되거나 격리가 전부 풀릴 수 있다.
+
+설계 §11의 clearances 시드는 스크립트가 없어서 이 절차에 넣지 않았다. 사람이 이미 오탐으로 판단한 결과는 넘어오지 않는다.
+
+#### 1. 사전 확인
+
+기대값은 주석에 있다. 모드가 `enforce`로 나오면 5번의 "쓰기 멈춤" 문장으로 먼저 `shadow`로 바꾼다. 그대로 마이그레이션을 적용하면 적용 즉시 enforce가 켜진다.
+
+```sql
+select table_name, column_name, data_type from information_schema.columns where table_schema='public' and ((table_name='questions' and column_name in ('id','updated_at','options','question','explanation','answer_text','quality_status','quality_reasons','validated_at','validator_version')) or (table_name='app_settings' and column_name in ('key','value','updated_at'))) order by 1,2;
+-- expect questions.id text, updated_at timestamp with time zone, options jsonb, app_settings.value text
+select tgname from pg_trigger where tgrelid='public.questions'::regclass and not tgisinternal;  -- expect 0 rows
+select value from public.app_settings where key='quality_gate_mode';  -- expect 0 rows or shadow
+```
+
+#### 2. 마이그레이션 적용
+
+사용이 적은 시간에 `supabase/migrations/20261104_question_quality_gate.sql`을 SQL 에디터에서 실행한다. `questions` 외래키를 만들 때 짧은 잠금이 걸린다. 그다음 결과를 확인한다.
+
+```sql
+-- if the app shows PGRST202/205: notify pgrst, 'reload schema';
+select to_regclass('public.question_quality_events') is not null as events, to_regclass('public.question_quality_clearances') is not null as clearances, (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'quality\_gate\_%') as rpcs, (select value from public.app_settings where key='quality_gate_mode') as mode;  -- true,true,3,shadow
+select p.proname, has_function_privilege('anon',p.oid,'EXECUTE') anon, has_function_privilege('authenticated',p.oid,'EXECUTE') auth, has_function_privilege('service_role',p.oid,'EXECUTE') svc from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname like 'quality\_gate\_%';  -- f,f,t x3
+select c.relname, c.relrowsecurity rls_on, has_table_privilege('anon',c.oid,'SELECT') anon, has_table_privilege('authenticated',c.oid,'SELECT') auth, has_table_privilege('service_role',c.oid,'SELECT') svc from pg_class c where c.oid in ('public.question_quality_events'::regclass,'public.question_quality_clearances'::regclass);  -- t,f,f,t
+```
+
+스모크 테스트는 따로 실행한다. 값을 보여 주려고 일부러 예외로 끝나며, 변경 내용은 모두 롤백된다.
+
+```sql
+do $$ declare qid text; ts text; body text; s1 boolean; s2 boolean; a1 text; a2 text; q1 boolean; q2 boolean;
+begin
+  select id, updated_at::text, explanation into qid, ts, body from public.questions where quality_status='approved' and explanation is not null order by id limit 1;
+  s1 := public.quality_gate_record_suspect(qid, array['smoke'], '{}'::jsonb, 'smoke-fp', 'smoke', 'manual', null);
+  s2 := public.quality_gate_record_suspect(qid, array['smoke'], '{}'::jsonb, 'smoke-fp', 'smoke', 'manual', null);
+  a1 := public.quality_gate_autofix(qid, ts, jsonb_build_object('explanation', body), '{"codes":["smoke"],"fields":[]}'::jsonb, 'smoke-fp', 'smoke', 'manual', null);
+  a2 := public.quality_gate_autofix(qid, ts, jsonb_build_object('explanation', body), '{"codes":["smoke"],"fields":[]}'::jsonb, 'smoke-fp', 'smoke', 'manual', null);
+  q1 := public.quality_gate_quarantine(qid, array['smoke'], '{}'::jsonb, 'smoke-fp', 'smoke', 'manual', null, 'quarantine');
+  q2 := public.quality_gate_quarantine(qid, array['smoke'], '{}'::jsonb, 'smoke-fp', 'smoke', 'manual', null, 'quarantine');
+  raise exception 'SMOKE (rolled back) suspect=%/% autofix=%/% quarantine=%/%  expect t/f, <timestamp>/<null>, t/f', s1, s2, a1, a2, q1, q2;
+end $$;
+```
+
+아직 shadow인 상태로 문제지를 만들어, 알림이 `품질 검사(검사만)`으로 유지되는지 본다.
+
+#### 3. enforce 전환
+
+값에 따옴표가 들어가면 안 된다. `exact`가 `t`이고 알림에서 `(검사만)`이 사라지면 된다.
+
+```sql
+insert into public.app_settings (key, value) values ('quality_gate_mode','enforce') on conflict (key) do update set value=excluded.value, updated_at=now();
+select value, value='enforce' as exact from public.app_settings where key='quality_gate_mode';  -- exact = t
+```
+
+#### 4. 관찰
+
+알림의 `기록 실패 n`은 RPC 오류다.
+
+```sql
+select event, count(*) n, max(created_at) last_at from public.question_quality_events group by event order by n desc;
+select q.id, q.quality_reasons, e.created_at, e.context, e.details->'issues'->0->>'evidence' as evidence from public.questions q join lateral (select * from public.question_quality_events x where x.question_id=q.id and x.event in ('quarantine','report') order by x.created_at desc limit 1) e on true where q.quality_status='quarantined' and q.validator_version like 'gate-%' order by e.created_at desc;
+select e.created_at, e.question_id, e.codes, jsonb_pretty(e.details->'fields') as changes from public.question_quality_events e where e.event='autofix' order by e.created_at desc limit 50;
+select e.question_id, e.codes, e.details->'issues'->0->>'evidence' as evidence from public.question_quality_events e where e.event='suspect' order by e.created_at desc;
+```
+
+#### 5. 되돌리기
+
+문제가 생기면 **먼저 쓰기를 멈춘다.** 이 문장만 단독으로 실행한다. 모드 변경은 다음 요청부터 적용된다. `shadow` 대신 `off`를 넣으면 게이트를 완전히 끈다.
+
+```sql
+insert into public.app_settings (key, value) values ('quality_gate_mode','shadow') on conflict (key) do update set value=excluded.value, updated_at=now();
+```
+
+그다음 필요한 것만 골라 실행한다. `Q_ID`, `EVENT_ID`는 실제 값으로 바꾼다. 아래 되돌리기는 이벤트 로그에 남지 않는다.
+
+오탐 한 건을 풀고 다시 격리되지 않게 하기. 이미지 이슈에는 해제 목록이 듣지 않는다(§14.6).
+
+```sql
+insert into public.question_quality_clearances (question_id, code, fingerprint, note) select e.question_id, c.code, e.fingerprint, 'false positive' from (select distinct on (question_id) * from public.question_quality_events where event='quarantine' and question_id='Q_ID' order by question_id, created_at desc) e cross join lateral unnest(e.codes) as c(code) on conflict do nothing;
+update public.questions set quality_status='approved', quality_reasons='{}', validated_at=now(), validator_version='manual-release' where id='Q_ID' and quality_status='quarantined';
+```
+
+자동수정 한 건 되돌리기. `option:N` 필드는 `details->'fields'`의 before 값을 손으로 옮긴다. 해제 목록도 넣어야 enforce에서 같은 수정이 다시 적용되지 않는다.
+
+```sql
+update public.questions q set question=coalesce((select f->>'before' from jsonb_array_elements(e.details->'fields') f where f->>'field'='question' limit 1), q.question), explanation=coalesce((select f->>'before' from jsonb_array_elements(e.details->'fields') f where f->>'field'='explanation' limit 1), q.explanation), answer_text=coalesce((select f->>'before' from jsonb_array_elements(e.details->'fields') f where f->>'field'='answer_text' limit 1), q.answer_text), updated_at=now() from public.question_quality_events e where e.id=EVENT_ID and e.event='autofix' and q.id=e.question_id;
+insert into public.question_quality_clearances (question_id, code, fingerprint, note) select e.question_id, c.code, e.fingerprint, 'autofix reverted' from public.question_quality_events e cross join lateral unnest(e.codes) as c(code) where e.id=EVENT_ID and e.event='autofix' on conflict do nothing;
+```
+
+게이트 격리 전부 풀기. 게이트를 포기할 때만 쓴다.
+
+```sql
+update public.questions q set quality_status='approved', quality_reasons='{}', validated_at=now(), validator_version='gate-rollback' where q.quality_status='quarantined' and q.validator_version like 'gate-%' and exists (select 1 from public.question_quality_events e where e.question_id=q.id and e.event in ('quarantine','report'));
+```

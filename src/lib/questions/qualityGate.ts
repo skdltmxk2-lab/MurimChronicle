@@ -24,6 +24,7 @@ export {
 } from "./qualityGateCore.mjs";
 export type {
   GateAppliedFix,
+  GateFailedItem,
   GateFixOutcome,
   GateIssue,
   GateMode,

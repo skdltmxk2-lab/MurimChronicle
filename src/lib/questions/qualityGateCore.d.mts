@@ -33,6 +33,9 @@ export type GateFixOutcome<T> = {
 
 export type GateReportItem = { id: string; codes: string[] };
 
+/** 게이트 자체 오류로 판정이나 기록을 못 한 문항. 출제는 막지 않는다 */
+export type GateFailedItem = { id: string; stage: "inspect" | "quarantine" | "autofix" | "suspect"; error: string };
+
 export type GateReport = {
   mode: GateMode;
   inspected: number;
@@ -42,6 +45,7 @@ export type GateReport = {
   suspectUsed: GateReportItem[];
   warnings: GateReportItem[];
   fixFailed: GateReportItem[];
+  gateFailed: GateFailedItem[];
 };
 
 export type GateQuestionLike = { id: string } & Record<string, unknown>;

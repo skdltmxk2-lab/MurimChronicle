@@ -467,6 +467,40 @@ await testAsync("off: plain select, nothing inspected", async () => {
   assert.deepEqual(selected.map((q) => q.id), ["b1"]);
   assert.equal(report.inspected, 0);
 });
+await testAsync("shadow: a question that crashes the inspector stays selected and is reported", async () => {
+  const poison = make({ id: "p1", question: { toString: "x" } }); // String(value) 가 던지는 JSON 값
+  assert.throws(() => inspectQuestion(poison));
+  const { selected, report } = await selectWithGate({
+    candidates: [poison, good("g1")],
+    count: 2,
+    select: firstN,
+    inspect: gateInspect,
+    mode: "shadow",
+  });
+  assert.deepEqual(selected.map((q) => q.id), ["p1", "g1"]);
+  assert.equal(report.inspected, 2);
+  assert.deepEqual(report.gateFailed.map((x) => [x.id, x.stage]), [["p1", "inspect"]]);
+  assert.ok(report.gateFailed[0].error.length > 0);
+});
+await testAsync("enforce: inspector and write crashes never stop the selection", async () => {
+  const fail = async () => { throw new Error("rpc down"); };
+  const { selected, report } = await selectWithGate({
+    candidates: [good("g1"), bad("b1"), sus("s1"), fixable("f1"), good("g2"), good("g3")],
+    count: 3,
+    select: firstN,
+    inspect: async (q) => {
+      if (q.id === "g1") throw new Error("boom");
+      return inspectQuestion(q);
+    },
+    onBlocked: fail,
+    onSuspect: fail,
+    onFixable: fail,
+  });
+  assert.deepEqual(selected.map((q) => q.id), ["g1", "f1", "g2"]);
+  assert.deepEqual(report.quarantined.map((x) => x.id), ["b1"]);
+  assert.deepEqual(report.fixFailed.map((x) => x.id), ["f1"]);
+  assert.deepEqual(report.gateFailed.map((x) => [x.id, x.stage]), [["g1", "inspect"], ["b1", "quarantine"], ["s1", "suspect"], ["f1", "autofix"]]);
+});
 
 // ── 11. 이미지 확인 ──────────────────────────────────────────────────────────
 await testAsync("image 404 → block, network error → warn, relative path needs origin", async () => {
@@ -480,6 +514,13 @@ await testAsync("image 404 → block, network error → warn, relative path need
   assert.deepEqual(await checkImages(relative, async () => ({ status: 404 })), []);
   assert.equal((await checkImages(relative, async () => ({ status: 404 }), { origin: "https://routrans.com" }))[0].code, "image_unreachable");
 });
+await testAsync("malformed relative image → check failed, never throws", async () => {
+  for (const url of ["//", "//[", "//a b/c.png", "/\\"]) {
+    const q = make({ questionImage: url, contentType: "mixed" });
+    const issues = await checkImages(q, async () => ({ status: 200 }), { origin: "https://routrans.com" });
+    assert.deepEqual(issues.map((i) => i.code), ["image_check_failed"], url);
+  }
+});
 
 test("summary line for notices", () => {
   assert.equal(summarizeGateReport(null), "");
@@ -491,6 +532,16 @@ test("summary line for notices", () => {
   assert.equal(
     summarizeGateReport({ mode: "shadow", inspected: 3, quarantined: [{ id: "b", codes: [] }], suspectSkipped: [], downgradeReason: "migration_missing" }),
     "품질 검사(검사만) 3문항 · 실제 모드였다면 교체 1 · DB 준비 전이라 검사만 실행"
+  );
+  assert.equal(
+    summarizeGateReport({
+      mode: "shadow",
+      inspected: 4,
+      warnings: [{ id: "a", codes: ["missing_explanation"] }, { id: "b", codes: ["image_check_failed"] }, { id: "c", codes: ["missing_explanation"] }, { id: "d", codes: ["new_rule"] }],
+      gateFailed: [{ id: "e", stage: "inspect", error: "x" }],
+      labels: { new_rule: "새 규칙" },
+    }),
+    "품질 검사(검사만) 4문항 · 해설 없음 2 · 이미지 확인 실패 1 · 새 규칙 1 · 검사 오류 1"
   );
 });
 
