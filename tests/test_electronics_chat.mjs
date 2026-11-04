@@ -18,6 +18,7 @@ function load(relative, dependencies = {}, extras = {}) {
 }
 const schema = load("src/lib/electronics/schema.ts");
 const aiErrors = load("src/lib/electronics/ai-errors.ts");
+const aiModel = load("src/lib/electronics/ai-model.ts", { "@google/genai": { ThinkingLevel: { LOW: "LOW", MEDIUM: "MEDIUM" } } });
 const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const workflow = readFileSync(path.join(root, "docs/electronics-agent-workflow.md"), "utf8");
@@ -45,7 +46,7 @@ function harness(options = {}) {
     } };
   } };
   const chat = load("src/lib/electronics/chat.ts", {
-    "@google/genai": sdk, "./schema": schema, "./engine": engine, "./power": load("src/lib/electronics/power.ts"), "./ai-errors": aiErrors, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" },
+    "@google/genai": sdk, "./schema": schema, "./engine": engine, "./power": load("src/lib/electronics/power.ts"), "./ai-errors": aiErrors, "./ai-model": aiModel,
   }, { process: { env: { GEMINI_API_KEY: options.apiKey ?? (options.noKey ? "" : "synthetic-key") } }, console: { warn: value => warnings.push(value) }, ...(options.timeout ? { setTimeout: callback => setTimeout(callback, 1) } : {}) });
   const parse = value => chat.validateChatInput(value, definitions);
   return { chat, calls, warnings, clientKeys, parse, answer: (value = input(), signal) => chat.answerElectronicsChat(parse(value), definitions, signal) };
@@ -92,12 +93,18 @@ test("chat request limits also apply without Content-Length and reject malformed
   await assert.rejects(h.chat.readChatRequest(new Request("https://example.test/chat", { method: "POST", body: "x" }), definitions), error => error.status === 415);
   assert.equal((await h.chat.readChatRequest(request(JSON.stringify(input())), definitions)).circuit.title, input().circuit.title);
 });
-test("chat sends user/model history and the newest validated snapshot with the primary model", async () => {
+test("chat sends the newest validated snapshot with its own stable model and supported reasoning config", async () => {
   const h = harness(); const value = input();
   value.messages = [{ role: "user", content: "어떤 회로야?" }, { role: "assistant", content: "RC 회로입니다." }, { role: "user", content: "R1 위치는?" }];
   const result = await h.answer(value);
-  assert.equal(result.model, "existing-primary-test-model");
+  assert.equal(result.model, "gemini-3.8-flash");
   assert.equal(h.calls.length, 1);
+  assert.equal(h.calls[0].model, "gemini-3.8-flash");
+  assert.equal(h.calls[0].config.thinkingConfig.thinkingLevel, "LOW");
+  assert.equal(Object.hasOwn(h.calls[0].config.thinkingConfig, "thinkingBudget"), false);
+  for (const unsupported of ["temperature", "topP", "topK", "candidateCount"]) assert.equal(Object.hasOwn(h.calls[0].config, unsupported), false);
+  assert.equal(h.calls[0].contents.at(-1).role, "user");
+  assert.equal(h.calls[0].config.maxOutputTokens, 3072);
   assert.equal(h.calls[0].contents[1].role, "model");
   assert.ok(h.calls[0].contents[2].parts[0].text.includes('"hole":"B1:'));
   assert.ok(h.calls[0].contents[2].parts[0].text.includes("R1 위치는?"));

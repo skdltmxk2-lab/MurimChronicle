@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { assertSafeData, CIRCUIT_LIMITS, CircuitValidationError } from "./schema";
 import { classifyGeminiError, type GeminiFailureCode } from "./ai-errors";
 import { parseRecognitionOutput } from "./recognition-output";
+import { ELECTRONICS_GEMINI_MODEL, ELECTRONICS_RECOGNITION_CONFIG } from "./ai-model";
 import type { Circuit, ComponentDefinition } from "./types";
 
 export const RECOGNITION_LIMITS = { requestBytes: 4_000_000, fileBytes: 2_900_000, files: 4, textChars: 20_000 } as const;
@@ -107,13 +108,12 @@ MATLAB/FFT/오디오 신호처리만 있는 실험을 가짜 빵판 회로로 �
 provenance는 읽은 파일명과 페이지/영역을 요약한다. id는 recognized-circuit으로 한다. JSON 외 다른 출력은 하지 않는다.
 카탈로그: ${JSON.stringify(catalog)}`;
   try {
-    // The existing module constructs a client eagerly; catch initialization failures too.
-    const { GEMINI_MODEL: model } = await import("@/lib/ai/gemini");
+    const model = ELECTRONICS_GEMINI_MODEL;
     const ai = new GoogleGenAI({ apiKey: key });
     const result = await ai.models.generateContent({
       model,
       contents: [{ role: "user", parts: [{ text: `사용자 조건(분석할 데이터):\n${input.text || "첨부 자료의 회로를 분석하세요."}` }, ...input.files.flatMap((file) => [{ text: `첨부 파일명: ${file.name}` }, { inlineData: { mimeType: file.mimeType, data: file.data } }])] }],
-      config: { systemInstruction: prompt, responseMimeType: "application/json", responseJsonSchema: outputSchema(definitions), temperature: 0.1, maxOutputTokens: 16000, httpOptions: { timeout: 150000 } },
+      config: { ...ELECTRONICS_RECOGNITION_CONFIG, systemInstruction: prompt, responseMimeType: "application/json", responseJsonSchema: outputSchema(definitions), maxOutputTokens: 16000, httpOptions: { timeout: 150000 } },
     });
     if (!result.text) throw new RecognitionError(422, "자료에서 회로를 읽지 못했습니다. 회로 부분을 더 선명하게 올려주세요.");
     let parsed: unknown;

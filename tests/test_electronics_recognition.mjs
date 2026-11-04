@@ -18,6 +18,7 @@ function load(relative, dependencies = {}, extras = {}) {
 }
 const schema = load("src/lib/electronics/schema.ts");
 const aiErrors = load("src/lib/electronics/ai-errors.ts");
+const aiModel = load("src/lib/electronics/ai-model.ts", { "@google/genai": { ThinkingLevel: { LOW: "LOW", MEDIUM: "MEDIUM" } } });
 const recognitionOutput = load("src/lib/electronics/recognition-output.ts", { "./schema": schema });
 const definitions = [{ id: "r", name: "저항", pins: [{ id: "1", label: "1" }, { id: "2", label: "2" }], kind: "resistor", mounting: "direct", pinoutStatus: "generic", package: "axial", category: "수동", description: "" }];
 const circuit = () => ({ id: "test-circuit", title: "분압", description: "", components: [{ id: "R1", definitionId: "r", value: "1k", pinNets: { "1": "VCC", "2": "GND" } }], netNames: { VCC: "전원", GND: "접지" }, instruments: [], notes: [], reviewItems: [], provenance: "synthetic fixture" });
@@ -28,13 +29,12 @@ function harness(options = {}) {
   const calls = [];
   const warnings = [];
   const clientKeys = [];
-  const sdk = { GoogleGenAI: class { constructor({ apiKey }) { clientKeys.push(apiKey); } models = { generateContent: async (request) => {
+  const sdk = { GoogleGenAI: class { constructor({ apiKey }) { if (options.initError) throw options.initError; clientKeys.push(apiKey); } models = { generateContent: async (request) => {
     calls.push(request);
     if (options.error) throw options.error;
     return { text: JSON.stringify(options.providerOutput ?? providerDto(options.output ?? circuit())) };
   } }; } };
-  const dependencies = { "@google/genai": sdk, "./schema": schema, "./ai-errors": aiErrors, "./recognition-output": recognitionOutput, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" } };
-  if (options.importError) Object.defineProperty(dependencies, "@/lib/ai/gemini", { get() { throw options.importError; } });
+  const dependencies = { "@google/genai": sdk, "./schema": schema, "./ai-errors": aiErrors, "./recognition-output": recognitionOutput, "./ai-model": aiModel };
   const recognition = load("src/lib/electronics/recognition.ts", dependencies, { process: { env: { GEMINI_API_KEY: options.apiKey ?? (options.noKey ? "" : "synthetic-key") } }, console: { warn: value => warnings.push(value) } });
   return { recognition, calls, warnings, clientKeys };
 }
@@ -84,12 +84,19 @@ test("body size limit also applies when Content-Length is absent", async () => {
   const malformed = new Request("https://example.test/analyze", { method: "POST", headers: { "Content-Type": "application/json" }, body: "{" });
   await assert.rejects(r.readRecognitionRequest(malformed), /JSON/);
 });
-test("uses only configured primary model and forces unresolved source review", async () => {
+test("recognition uses its own stable model and supported reasoning config while retaining source review", async () => {
   const output = circuit(); output.reviewItems.push({ id: "verify", message: "핀 확인", resolved: true });
   const { recognition: r, calls } = harness({ output });
   const result = await r.recognizeCircuit({ text: "원본을 확인", files: [] }, definitions);
   assert.equal(calls.length, 1);
-  assert.equal(calls[0].model, "existing-primary-test-model");
+  assert.equal(calls[0].model, "gemini-3.8-flash");
+  assert.equal(result.model, "gemini-3.8-flash");
+  assert.equal(calls[0].config.thinkingConfig.thinkingLevel, "MEDIUM");
+  assert.equal(Object.hasOwn(calls[0].config.thinkingConfig, "thinkingBudget"), false);
+  for (const unsupported of ["temperature", "topP", "topK", "candidateCount"]) assert.equal(Object.hasOwn(calls[0].config, unsupported), false);
+  assert.equal(calls[0].contents.at(-1).role, "user");
+  assert.equal(calls[0].config.maxOutputTokens, 16000);
+  assert.equal(calls[0].config.httpOptions.timeout, 150000);
   assert.equal(calls[0].config.responseMimeType, "application/json");
   assert.equal(result.circuit.reviewItems.every(item => item.resolved === false), true);
   assert.equal(result.circuit.reviewItems.some(item => item.id === "source-review"), true);
@@ -128,8 +135,8 @@ test("recognition trims configured keys and treats whitespace-only configuration
   assert.deepEqual(configured.clientKeys, ["synthetic-key"]);
 });
 
-test("recognition model initialization failures are caught and redact all raw data", async () => {
-  const h = harness({ importError: Error("private-import-secret") });
+test("recognition client initialization failures are caught and redact all raw data", async () => {
+  const h = harness({ initError: Error("private-initialization-secret") });
   await assert.rejects(h.recognition.recognizeCircuit({ text: "private-user-prompt", files: [] }, definitions), error => error.status === 503 && error.code === "GEMINI_UNKNOWN" && !error.message.includes("private"));
   assert.equal(h.calls.length, 0);
   assert.equal(h.warnings.length, 1);
