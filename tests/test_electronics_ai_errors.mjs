@@ -111,3 +111,88 @@ test("JSON-string body and nested cause are understood without serializing unkno
   assert.equal(result.code, "GEMINI_INVALID_KEY");
   assert.equal(result.metadata.providerStatus, 400);
 });
+
+const quotaError = (violations, retryDelay, extras = []) => Object.assign(new Error(JSON.stringify({ error: {
+  code: 429, status: "RESOURCE_EXHAUSTED", message: secret,
+  details: [
+    { "@type": "type.googleapis.com/google.rpc.QuotaFailure", violations },
+    ...(retryDelay === undefined ? [] : [{ "@type": "type.googleapis.com/google.rpc.RetryInfo", retryDelay }]),
+    ...extras,
+  ],
+} })), { status: 429 });
+const quotaViolation = (quotaId, quotaMetric = "generativelanguage.googleapis.com/generate_content_free_tier_requests") => ({
+  quotaId, quotaMetric, quotaDimensions: { model: secret, project: secret, location: secret },
+  subject: `project:${secret}`, description: secret, quotaValue: secret,
+});
+
+test("daily request quota stays non-retryable even when the provider also supplies a short retry delay", () => {
+  const result = classifyGeminiError(quotaError([quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier")], "45s"));
+  assert.equal(result.code, "GEMINI_RATE_LIMITED"); assert.equal(result.status, 429);
+  assert.deepEqual(Array.from(result.metadata.quotaScopes), ["REQUESTS_PER_DAY"]);
+  assert.equal(result.metadata.retryAfterSeconds, 45); assert.equal(result.metadata.retryable, false);
+  assert.match(result.message, /일일/); assert.ok(!result.message.includes("45초"));
+  assert.ok(!JSON.stringify(result).includes(secret));
+  assert.ok(!JSON.stringify(result).includes("GenerateRequests"));
+  assert.ok(!JSON.stringify(result).includes("generativelanguage.googleapis.com"));
+});
+
+test("minute request and token quotas expose only deduplicated enum scopes and rounded-up retry seconds", () => {
+  const requests = quotaViolation("GenerateRequestsPerMinutePerProjectPerModel-FreeTier");
+  const tokens = quotaViolation("GenerateContentInputTokensPerModelPerMinute-FreeTier", "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count");
+  const result = classifyGeminiError(quotaError([requests, tokens, requests], "12.000000001s"));
+  assert.deepEqual(Array.from(result.metadata.quotaScopes), ["REQUESTS_PER_MINUTE", "TOKENS_PER_MINUTE"]);
+  assert.equal(result.metadata.retryAfterSeconds, 13); assert.equal(result.metadata.retryable, true);
+  assert.match(result.message, /분당/); assert.match(result.message, /최소 13초/);
+  assert.ok(!JSON.stringify(result).includes(secret));
+});
+
+test("daily token quota takes precedence over simultaneous minute limits and supports proto field names", () => {
+  const result = classifyGeminiError(quotaError([
+    quotaViolation("GenerateRequestsPerMinutePerProjectPerModel-PaidTier", "generativelanguage.googleapis.com/generate_content_paid_tier_requests"),
+    { quota_id: "GenerateContentInputTokensPerModelPerDay", quota_metric: "generativelanguage.googleapis.com/generate_content_input_token_count", quota_dimensions: { project: secret } },
+  ], "1s"));
+  assert.deepEqual(Array.from(result.metadata.quotaScopes), ["TOKENS_PER_DAY", "REQUESTS_PER_MINUTE"]);
+  assert.equal(result.metadata.retryable, false); assert.match(result.message, /일일/);
+});
+
+test("unknown quota identifiers, metrics without periods, and untyped data remain generic and private", () => {
+  const generic = classifyGeminiError({ status: 429 });
+  for (const violations of [
+    [quotaViolation(secret)],
+    [{ quotaMetric: "generativelanguage.googleapis.com/generate_content_free_tier_requests", description: "requests per day " + secret }],
+    [quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier-" + secret)],
+    [quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier", secret)],
+    [quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier", "generativelanguage.googleapis.com/generate_content_free_tier_input_token_count")],
+  ]) {
+    const result = classifyGeminiError(quotaError(violations, undefined));
+    assert.equal(result.message, generic.message); assert.equal(result.metadata.quotaScopes, undefined);
+    assert.equal(result.metadata.retryable, true); assert.ok(!JSON.stringify(result).includes(secret));
+  }
+  const untyped = classifyGeminiError({ status: 429, details: [{ violations: [quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier")], retryDelay: "10s" }] });
+  assert.equal(untyped.metadata.quotaScopes, undefined); assert.equal(untyped.metadata.retryAfterSeconds, undefined);
+  const fakeType = classifyGeminiError({ status: 429, details: [{ "@type": secret + "/google.rpc.QuotaFailure", violations: [quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier")] }] });
+  assert.equal(fakeType.metadata.quotaScopes, undefined);
+});
+
+test("retry hints accept only bounded ProtoJSON durations without shortening excessive waits", () => {
+  for (const [value, expected] of [["0s", 1], ["0.25s", 1], ["60s", 60], ["86399.1s", 86400], ["86400s", 86400]]) {
+    assert.equal(classifyGeminiError(quotaError([], value)).metadata.retryAfterSeconds, expected);
+  }
+  for (const value of ["-1s", "86400.1s", "999999999s", "1e3s", "1.0000000001s", "45", "1m", secret, 45, { seconds: secret }]) {
+    const result = classifyGeminiError(quotaError([], value));
+    assert.equal(result.metadata.retryAfterSeconds, undefined);
+    assert.ok(!JSON.stringify(result).includes(secret));
+  }
+  const result = classifyGeminiError(quotaError([], "10s", [{ "@type": "type.googleapis.com/google.rpc.RetryInfo", retry_delay: "20s" }]));
+  assert.equal(result.metadata.retryAfterSeconds, 20);
+});
+
+test("quota and retry details do not change higher-priority authentication or cancellation classifications", () => {
+  const error = quotaError([quotaViolation("GenerateRequestsPerDayPerProjectPerModel-FreeTier")], "10s");
+  error.status = 401;
+  const invalidKey = classifyGeminiError(error);
+  assert.equal(invalidKey.code, "GEMINI_INVALID_KEY");
+  assert.equal(invalidKey.metadata.quotaScopes, undefined); assert.equal(invalidKey.metadata.retryAfterSeconds, undefined);
+  const cancelled = classifyGeminiError(error, { aborted: true });
+  assert.equal(cancelled.code, "GEMINI_CANCELLED"); assert.equal(cancelled.metadata.quotaScopes, undefined);
+});

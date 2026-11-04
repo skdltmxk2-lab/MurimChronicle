@@ -14,6 +14,8 @@ const REASONS = [
   "UNAVAILABLE", "INTERNAL", "DEADLINE_EXCEEDED", "CANCELLED",
 ] as const;
 type ProviderReason = typeof REASONS[number];
+const QUOTA_SCOPES = ["REQUESTS_PER_DAY", "TOKENS_PER_DAY", "REQUESTS_PER_MINUTE", "TOKENS_PER_MINUTE"] as const;
+export type GeminiQuotaScope = typeof QUOTA_SCOPES[number];
 
 export type GeminiFailure = {
   /** Status for our endpoint. Provider authentication failures are server configuration failures. */
@@ -26,6 +28,8 @@ export type GeminiFailure = {
     category: GeminiFailureCode;
     providerStatus?: number;
     providerReason?: ProviderReason;
+    quotaScopes?: GeminiQuotaScope[];
+    retryAfterSeconds?: number;
     retryable: boolean;
   };
 };
@@ -46,12 +50,44 @@ function property(value: object, key: string): unknown {
   try { return (value as Record<string, unknown>)[key]; } catch { return undefined; }
 }
 
+// QuotaFailure/RetryInfo are structured google.rpc details, not text patterns.
+// https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
+// https://ai.google.dev/gemini-api/docs/rate-limits
+function quotaScope(value: unknown): GeminiQuotaScope | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const id = property(value, "quotaId") ?? property(value, "quota_id");
+  const metric = property(value, "quotaMetric") ?? property(value, "quota_metric");
+  if (typeof id !== "string" || id.length > 160) return undefined;
+  const request = /^GenerateRequestsPer(Day|Minute)PerProjectPerModel(?:-(?:FreeTier|PaidTier))?$/.exec(id);
+  const token = /^GenerateContentInputTokensPerModelPer(Day|Minute)(?:-(?:FreeTier|PaidTier))?$/.exec(id);
+  if (!request && !token) return undefined;
+  // A metric such as generate_content_free_tier_requests alone has no period.
+  // Never infer minute/day from its description, dimensions, or a retry delay.
+  if (metric !== undefined) {
+    if (typeof metric !== "string" || metric.length > 200) return undefined;
+    const matched = /^generativelanguage\.googleapis\.com\/generate_content_(?:(?:free|paid)_tier_)?(requests|input_token_count)$/.exec(metric);
+    if (!matched || matched[1] !== (request ? "requests" : "input_token_count")) return undefined;
+  }
+  return request ? (request[1] === "Day" ? "REQUESTS_PER_DAY" : "REQUESTS_PER_MINUTE")
+    : token![1] === "Day" ? "TOKENS_PER_DAY" : "TOKENS_PER_MINUTE";
+}
+
+function retrySeconds(value: unknown): number | undefined {
+  // ProtoJSON Duration: seconds plus up to nine fractional digits and an s suffix.
+  // Out-of-range values are omitted, not shortened into an earlier retry advice.
+  if (typeof value !== "string" || !/^(?:0|[1-9]\d{0,5})(?:\.\d{1,9})?s$/.test(value)) return undefined;
+  const seconds = Number(value.slice(0, -1));
+  return seconds >= 0 && seconds <= 86400 ? Math.max(1, Math.ceil(seconds)) : undefined;
+}
+
 /** SDK ApiError.status plus a JSON-encoded message; also tolerates nested HTTP errors. */
 function providerFacts(error: unknown) {
   let status: number | undefined;
   let timeout = false;
   let aborted = false;
   const reasons = new Set<ProviderReason>();
+  const quotaScopes = new Set<GeminiQuotaScope>();
+  let retryAfterSeconds: number | undefined;
   const seen = new Set<object>();
   const queue: { value: unknown; depth: number }[] = [{ value: error, depth: 0 }];
   const knownReasons: ReadonlySet<string> = new Set(REASONS);
@@ -75,6 +111,17 @@ function providerFacts(error: unknown) {
     }
     const name = property(value, "name");
     const code = property(value, "code");
+    const detailType = property(value, "@type");
+    if (detailType === "type.googleapis.com/google.rpc.QuotaFailure") {
+      const violations = property(value, "violations");
+      if (Array.isArray(violations)) for (let i = 0; i < Math.min(violations.length, 16); i++) {
+        const scope = quotaScope(property(violations, String(i)));
+        if (scope) quotaScopes.add(scope);
+      }
+    } else if (detailType === "type.googleapis.com/google.rpc.RetryInfo") {
+      const seconds = retrySeconds(property(value, "retryDelay") ?? property(value, "retry_delay"));
+      if (seconds !== undefined) retryAfterSeconds = Math.max(retryAfterSeconds ?? 0, seconds);
+    }
     timeout ||= name === "TimeoutError" || name === "APIConnectionTimeoutError" || code === "ETIMEDOUT" || code === "ECONNABORTED";
     aborted ||= name === "AbortError" || name === "APIUserAbortError" || code === "ABORT_ERR";
     for (const key of ["status", "statusCode", "code", "reason"] as const) {
@@ -87,7 +134,7 @@ function providerFacts(error: unknown) {
       if (child !== undefined) queue.push({ value: child, depth: depth + 1 });
     }
   }
-  return { status, reasons, timeout, aborted };
+  return { status, reasons, timeout, aborted, quotaScopes, retryAfterSeconds };
 }
 
 export function classifyGeminiError(error: unknown, context: { timedOut?: boolean; aborted?: boolean } = {}): GeminiFailure {
@@ -107,13 +154,21 @@ export function classifyGeminiError(error: unknown, context: { timedOut?: boolea
   else if ((reason = matching("INVALID_ARGUMENT", "FAILED_PRECONDITION")) || facts.status === 400 || facts.status === 422) code = "GEMINI_INVALID_REQUEST";
   else code = "GEMINI_UNKNOWN";
   const result = PUBLIC_ERRORS[code];
+  const quotaScopes = code === "GEMINI_RATE_LIMITED" ? QUOTA_SCOPES.filter(scope => facts.quotaScopes.has(scope)) : [];
+  const dailyQuota = quotaScopes.some(scope => scope === "REQUESTS_PER_DAY" || scope === "TOKENS_PER_DAY");
+  let message = result.message;
+  if (dailyQuota) message = "Gemini API의 일일 사용량 한도에 도달했습니다. 잠깐 기다린 뒤 재시도해도 해결되지 않을 수 있습니다. 프로젝트의 일일 할당량과 초기화 시점을 확인해 주세요.";
+  else if (quotaScopes.length) message = "Gemini API의 분당 요청 또는 토큰 한도에 도달했습니다. " + (facts.retryAfterSeconds !== undefined
+    ? `최소 ${facts.retryAfterSeconds}초 후 다시 시도해 주세요.` : "잠시 기다린 뒤 다시 시도해 주세요.");
   return {
-    status: result.status, code, message: result.message,
+    status: result.status, code, message,
     metadata: {
       provider: "gemini", category: code,
       ...(facts.status !== undefined ? { providerStatus: facts.status } : {}),
       ...(reason ? { providerReason: reason } : {}),
-      retryable: result.retryable,
+      ...(quotaScopes.length ? { quotaScopes } : {}),
+      ...(code === "GEMINI_RATE_LIMITED" && facts.retryAfterSeconds !== undefined ? { retryAfterSeconds: facts.retryAfterSeconds } : {}),
+      retryable: dailyQuota ? false : result.retryable,
     },
   };
 }
