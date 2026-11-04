@@ -44,9 +44,11 @@ const paths = tree => [...walk(tree)].filter(node => node.type === "path" && nod
 // Actual numerical results come from the real simulation engine below.
 function harness(overrides = {}) {
   const frames = new Map(), effects = [], timers = new Map(), workers = [], downloads = [], blobs = new Map();
-  let active, dirty = true, tree, timerId = 0, urlId = 0;
+  let active, dirty = true, tree, timerId = 0, urlId = 0, uiId = 0;
   const same = (a, b) => a && b && a.length === b.length && a.every((value, index) => Object.is(value, b[index]));
   const react = {
+    memo(fn) { return fn; },
+    useId() { const index = active.cursor++; return (active.slots[index] ??= { value: `ui-${++uiId}` }).value; },
     useState(initial) {
       const frame = active, index = frame.cursor++;
       if (!frame.slots[index]) frame.slots[index] = { value: typeof initial === "function" ? initial() : initial };
@@ -69,19 +71,24 @@ function harness(overrides = {}) {
     static revokeObjectURL(url) { blobs.delete(url); }
   }
   const jsx = (type, props, key) => ({ type, props: props || {}, key });
+  function componentModule(filename) {
   const module = { exports: {} };
-  vm.runInNewContext(source("components/electronics/SimulationPanel.tsx"), {
-    module, exports: module.exports, Worker: MockWorker, URL: DownloadURL, Blob,
+  vm.runInNewContext(source(`components/electronics/${filename}.tsx`), {
+    module, exports: module.exports, Worker: MockWorker, URL: DownloadURL, Blob, structuredClone,
     setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; }, clearTimeout(id) { timers.delete(id); },
     document: { body: { appendChild() {} }, createElement() { return { click() { downloads.push({ filename: this.download, blob: blobs.get(this.href) }); }, remove() {} }; } },
     require(name) {
       if (name === "react") return react;
       if (name === "react/jsx-runtime") return { jsx, jsxs: jsx, Fragment: "test-fragment" };
-      if (name === "./simulation.css") return {};
+      if (name.endsWith(".css")) return {};
+      if (name.startsWith("./")) return componentModule(name.slice(2));
       if (name.startsWith("@/lib/electronics/")) return library(name.split("/").at(-1));
       throw Error(`Unexpected module ${name}`);
     },
-  }, { filename: "SimulationPanel.tsx" });
+  }, { filename: `${filename}.tsx` });
+  return module.exports;
+  }
+  const module = { exports: componentModule("SimulationPanel") };
   let props = { circuit, layout, definitions, probes, onPickProbe() {}, onClearProbe() {}, pickingChannel: null, ...overrides };
   function component(fn, props, path) {
     const previous = active;
@@ -139,13 +146,13 @@ test("run posts the current circuit, layout and edited settings; accepted numeri
   assert.equal(worker.terminated, true); assert.equal(h.timers.size, 0);
   assert.equal(paths(h.tree).length, 2);
   assert.ok(paths(h.tree).every(path => !/NaN|Infinity/.test(path.props.d) && /L/.test(path.props.d)));
-  const svg = select(h.tree, node => node.type === "svg");
+  const svg = select(h.tree, node => node.type === "svg" && node.props.className === "el-scope-screen");
   const toReact = (node, path = "svg") => Array.isArray(node) ? node.map((child, index) => toReact(child, `${path}/${index}`)) : node && typeof node === "object" && node.props ? React.createElement(node.type, { ...Object.fromEntries(Object.entries(node.props).filter(([name]) => name !== "children" && name !== "ref" && !name.startsWith("on"))), key: node.key ?? path }, toReact(node.props.children, `${path}/children`)) : node;
   const markup = renderToStaticMarkup(toReact(svg));
-  assert.match(markup, /전압 \(V\)/); assert.match(markup, /2 ms/); assert.match(markup, /<path/);
-  const slider = select(h.tree, node => node.type === "input" && node.props["aria-label"] === "파형 커서 위치");
-  slider.props.onChange({ target: { value: "64" } }); h.flush();
-  const readout = select(h.tree, node => node.props.className === "el-sim-cursor-readout");
+  assert.match(markup, /채널별 V\/div/); assert.match(markup, /2 ms/); assert.match(markup, /<path/);
+  const slider = select(h.tree, node => node.type === "input" && node.props["aria-label"] === "커서 A 위치");
+  slider.props.onChange({ target: { value: String(result.time[64]) } }); h.flush();
+  const readout = select(h.tree, node => node.props.className === "el-scope-cursor-values");
   assert.match(textIn(readout), /CH1/); assert.match(textIn(readout), /CH2/);
   h.click("CSV 저장"); assert.equal(h.downloads.length, 1);
   const csv = await h.downloads[0].blob.text();
@@ -210,7 +217,7 @@ test("an unmodelled probe is explained and omitted rather than drawn as a zero w
   assert.equal(paths(h.tree)[0].props.stroke, "#d49124");
   const missing = select(h.tree, node => node.props.className === "el-sim-missing");
   assert.match(textIn(missing), /CH2.*OUT.*계산 모델에 포함되지 않은/);
-  const stats = select(h.tree, node => node.props.className === "el-sim-stats");
+  const stats = select(h.tree, node => node.props.className === "el-scope-measurements");
   assert.ok(!textIn(stats).includes("CH2"));
   h.click("주파수 응답"); assert.equal(paths(h.tree).length, 1);
   h.click("위상"); assert.ok(!/NaN|Infinity/.test(paths(h.tree)[0].props.d));
@@ -302,4 +309,19 @@ test("dynamic opamp settings reach the worker and an unavailable AC result canno
   assert.equal(paths(h.tree).length, 0); assert.equal(h.button("CSV 저장").props.disabled, true);
   h.button("CSV 저장").props.onClick(); assert.equal(h.downloads.length, 0);
   h.click("주파수 성분"); assert.equal(h.button("CSV 저장").props.disabled, false); assert.ok(paths(h.tree).length > 0);
+});
+
+test("the multimeter tab can perform an unpowered test before a capture and blocks powered readings after edits", () => {
+  const h = harness(); h.click("멀티미터");
+  assert.match(textIn(h.tree), /시뮬레이션을 실행하면 회로 응답을 측정/);
+  select(h.tree, node => node.type === "button" && textIn(node).endsWith("저항")).props.onClick(); h.flush();
+  assert.match(textIn(h.tree), /무전원 시험/); assert.match(textIn(h.tree), /OL/);
+  assert.equal(h.workers.length, 0);
+  select(h.tree, node => node.type === "button" && textIn(node).endsWith("AC 전압")).props.onClick(); h.flush();
+  h.complete(h.run());
+  assert.match(textIn(h.tree), /TRUE RMS/); assert.equal(h.button("CSV 저장").props.disabled, true);
+  const readout = () => select(h.tree, node => node.props["aria-label"] === "멀티미터 측정값");
+  assert.ok(!textIn(readout()).includes("—"));
+  h.numeric("진폭", 0.25); assert.match(textIn(readout()), /—/);
+  assert.match(textIn(h.tree), /다시 실행한 후 측정/);
 });

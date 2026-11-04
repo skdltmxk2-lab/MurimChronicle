@@ -4,11 +4,11 @@ const exp = (id: string, number: string, title: string, mode: Experiment["mode"]
 
 /** Course instructions are separate from the submitted reports' answers and measurements. */
 export const EXPERIMENTS: Experiment[] = [
-  exp("lab-0", "0", "NI myDAQ 및 계측기 기초", "mixed", "전압·전류·저항 측정, FGEN/OSC 설정, RC 응답과 Bode 계측을 구분합니다.",
+  exp("lab-0", "0", "NI myDAQ 및 계측기 기초", "mixed", "가상 DMM·함수발생기·오실로스코프로 RC 응답을 측정합니다. 실제 myDAQ 제어와 전류계 직렬 삽입은 별도입니다.",
     ["DMM", "FGEN", "OSC", "RC", "Bode"],
     [["RC", "R=62 kΩ, C=1 nF"], ["입력", "1 Vpp · 1 kHz 정현파 / duty 50% 구형파"], ["RC 주파수", "0.1 / 1 / 2 / 3 / 4 / 5 / 10 kHz"], ["Bode", "10 Hz~20 kHz, 10 steps/decade"], ["루프백", "AO0→AI0+, AGND→AI0−"]],
     ["전원 +15 V/−15 V/+5 V와 200 Ω/1 kΩ/10 kΩ 저항을 측정합니다.", "전압계는 병렬, 전류계는 직렬로 연결하는 단계를 각각 확인합니다.", "FGEN 신호를 루프백으로 관찰하고 trigger·timebase·수직 범위를 조정합니다.", "RC를 조립하고 커패시터 양단과 저항 양단의 측정 위치를 구분합니다.", "Bode 입력/출력 및 공통 기준을 연결해 주파수 응답을 기록합니다."], ["rc-lowpass", "divider"],
-    ["myDAQ 직접 제어", "측정 파일 가져오기 및 Bode 그래프", "장비별 전류 제한·정격 자동 검증"]),
+    ["myDAQ 직접 제어·실제 전류계 직렬 연결 단계", "측정 파일 가져오기·장비별 Bode 설정 재현", "장비별 전류 제한·정격 자동 검증"]),
   exp("lab-1", "1", "소신호 증폭기", "circuit", "CE와 CE+CC 증폭기, 바이패스 제거·부하 변경·주파수 응답을 비교합니다.",
     ["BC549C", "공통 이미터", "이미터 팔로워", "부하", "마이크"],
     [["전원", "+9 V"], ["기본 입력", "10 mV peak · 1 kHz"], ["CE 부하", "100 kΩ / 10 kΩ / 1 kΩ"], ["CE+CC 부하", "100 kΩ / 10 kΩ / 1 kΩ / 100 Ω"], ["진폭 비교", "25 / 50 / 100 mV peak"]],
@@ -68,7 +68,7 @@ export const EXPERIMENTS: Experiment[] = [
     ["BC547B/BC558B/BC556B", "6 BJT", "비교기", "적분기"], [["전원", "±15 V"], ["자료 상태", "학생 보고서, 해당 연도 공식 공지 미확인"]],
     ["6 BJT 하위 회로의 부품·연결을 원본과 대조합니다.", "비교기와 비반전 증폭기 동작을 확인합니다.", "적분기 피드백을 구성하고 구형파 응답을 측정합니다.", "저장 데이터의 이동평균·피크·골짜기를 분석합니다."], [],
     ["다단 BJT 하위 회로", "복합 블록과 펼친 부품 동기화", "원회로 핀맵·배선 검수", "적분기·측정 데이터 분석"]),
-  exp("project-2023", "P23", "2023 변형 — 믹서 설계", "mixed", "2023 공식 공지 1쪽의 원본 수식에서 RF 1 kHz와 LO 7 kHz를 확인했습니다. 현재 학기 조건과 분리합니다.", ["믹서", "연도별 조건"], [["주파수", "RF 1 kHz / LO 7 kHz / IF 6 kHz"], ["목표", "전압이득 >19.5"], ["입력 진폭", "8 / 10 / 12 mV 비교"], ["변조 입력", "0.01(1+0.2cos(2π·300t))cos(2π·1000t)"]], ["트랜스 대신 두 커패시터로 LO를 인가하고 B1−B2 진폭을 확인합니다.", "해당 연도 목표에 맞춰 부품값과 측정 조건을 설정합니다."], [], ["2023 원회로·목표 이득 검증", "6 kHz 디지털 필터"]),
+  exp("project-2023", "P23", "2023 변형 — 믹서 설계", "mixed", "공식 공지의 RF 1 kHz·LO 7 kHz 조건과 AM 입력 수식을 확인했습니다. 함수발생기의 AM 입력은 수치 검증했으며 2023 전용 원회로와 목표 이득은 별도입니다.", ["믹서", "AM 발생기", "연도별 조건"], [["주파수", "RF 1 kHz / LO 7 kHz / IF 6 kHz"], ["목표", "전압이득 >19.5"], ["입력 진폭", "8 / 10 / 12 mV 비교"], ["변조 입력", "0.01(1+0.2cos(2π·300t))cos(2π·1000t)"], ["AM 설정", "반송파 1 kHz · 10 mV peak · 위상 90° · 변조 300 Hz · 깊이 0.2"]], ["트랜스 대신 두 커패시터로 LO를 인가하고 B1−B2 진폭을 확인합니다.", "해당 연도 목표에 맞춰 부품값과 측정 조건을 설정합니다.", "AM 설정으로 원문 입력 수식을 만들고 반송파와 양쪽 측파대를 확인합니다. 입력 검증과 믹서 출력 성능 검증을 구분합니다."], [], ["2023 전용 원회로·목표 이득 검증", "6 kHz 디지털 필터"]),
   exp("project-2022", "P22", "2022 변형 — 믹서 설계", "mixed", "RF/LO/IF와 목표 이득이 다른 과거 설계 변형입니다.", ["믹서", "진폭 sweep"], [["주파수", "RF 1 kHz / LO 5 kHz / IF 4 kHz"], ["목표", "전압이득 >17.5"], ["입력 진폭", "8 / 10 / 12 mV 비교"]], ["2022 공식 공지의 회로와 신호를 검수합니다.", "진폭별 특성과 변조 신호·필터 조건을 비교합니다."], [], ["2022 원회로 검수", "이득·진폭 비교", "변조 신호·디지털 필터"]),
 ];
 
@@ -84,19 +84,19 @@ export type CourseSupportScope = {
 };
 
 export const COURSE_SUPPORT_SCOPE: CourseSupportScope[] = [
-  { id: "lab-0", status: "partial", available: ["62 kΩ·1 nF RC 배치 예제", "RC 시간파형·주파수 응답", "계측 조건 안내"], remaining: ["DMM 전류 측정 단계", "myDAQ 포트별 연결 변형", "실제 장비 부하·전류 제한"] },
-  { id: "lab-1", status: "partial", available: ["원문 주요 값과 연결을 대조한 CE·CE+CC 예제", "CE Ce 유무·100 kΩ/10 kΩ/1 kΩ 부하와 CC 100 Ω까지 수치 검증", "1 kHz·25/50/100 mV의 포화·이득 압축 검증"], remaining: ["입력·부하 미연결 DC 단계·주파수 전범위", "마이크 바이어스·음성 입력", "제조사 고주파 모델·실물 성능 검증"] },
-  { id: "lab-2", status: "partial", available: ["단일전원 741·푸시풀 일반 예제의 시간파형·AC 실행", "NPN·PNP·다이오드와 741 교육용 동적 모델", "+9 V·1 kHz·100 mV 입력의 출력 범위 검증"], remaining: ["수업 BC109C 원부품 배치·피드백 변형", "실제 741 출력전류·부하별 포화·전력·효율", "출력 DC 3 V·이득 6 설계 검증"] },
+  { id: "lab-0", status: "partial", available: ["62 kΩ·1 nF RC 배치·시간파형·주파수 응답", "가상 DMM 전압·가지 전류·무전원 저항/도통/분리 다이오드", "스코프 트리거·V/div·시간축·커서와 7종 함수발생기"], remaining: ["실제 전류계 직렬 삽입·장비 부하 모델", "myDAQ 포트별 연결 변형·실제 제어", "원문 전체 계측 조건·장비 전류 제한 검증"] },
+  { id: "lab-1", status: "partial", available: ["원문 주요 값과 연결을 대조한 CE·CE+CC 예제", "CE Ce 유무·100 kΩ/10 kΩ/1 kΩ 부하와 CC 100 Ω까지 수치 검증", "1 kHz·25/50/100 mV의 포화·이득 압축 검증", "가상 스코프·B/C/E 단자 전류·구간 평균/AC RMS 측정"], remaining: ["입력·부하 미연결 DC 단계·주파수 전범위", "마이크 바이어스·음성 입력", "제조사 고주파 모델·실물 성능 검증"] },
+  { id: "lab-2", status: "partial", available: ["단일전원 741·푸시풀 일반 예제의 시간파형·AC 실행", "NPN·PNP·다이오드와 741 교육용 동적 모델", "+9 V·1 kHz·100 mV 입력의 출력 범위 검증", "부하 전압·지원 소자 단자 전류의 구간 평균/AC RMS"], remaining: ["수업 BC109C 원부품 배치·피드백 변형", "실제 741 출력전류·부하별 포화·전력·효율", "출력 DC 3 V·이득 6 설계 검증"] },
   { id: "lab-3", status: "partial", available: ["2N7000 미러·차동쌍 일반 예제와 장비 조건 분리", "교육 모델 RREF 50~450 Ω·VX 0~6 V 스윕 수치 검증", "공통모드 8개 대표 조건의 대칭·전류 보존 검증"], remaining: ["RREF·VX·공통모드 자동 스윕 UI", "RL1 원문 연결 충돌 확인", "실제 MOS 편차·목표 전류 검증"] },
-  { id: "lab-4", status: "partial", available: ["Wien·RC 발진의 명시적 시동·주파수 관계 검증", "반전 슈미트의 삼각파 히스테리시스·비반전 예제 실행", "741 교육용 유한이득·대역폭·슬루율·전원 제한"], remaining: ["원문 전체 저항·C 조합과 ±9 V DC 스윕", "실제 741 진폭 안정화·측정점·감쇠기 검증", "10 kHz 자동 설계·실측 검증"] },
-  { id: "lab-5", status: "partial", available: ["트랜스 없는 BJT 믹서 일반 예제", "다중 신호원·출력 차·주파수 성분 분석"], remaining: ["BC109C·센터탭 트랜스 실물 모델", "수업 세 원회로의 배선 검수", "곱 항 계수 b의 1.2배 설계"] },
+  { id: "lab-4", status: "partial", available: ["Wien·RC 발진의 명시적 시동·주파수 관계 검증", "반전 슈미트의 삼각파 히스테리시스·비반전 예제 실행", "741 교육용 유한이득·대역폭·슬루율·전원 제한", "스코프 상승/하강 트리거·커서·신뢰 가능한 반복 주파수 측정"], remaining: ["원문 전체 저항·C 조합과 ±9 V DC 스윕", "실제 741 진폭 안정화·측정점·감쇠기 검증", "10 kHz 자동 설계·실측 검증"] },
+  { id: "lab-5", status: "partial", available: ["트랜스 없는 BJT 믹서 일반 예제", "다중 신호원·출력 차·주파수 성분 분석", "채널별 발생기 위상·진폭과 가상 전압/가지 전류 측정"], remaining: ["BC109C·센터탭 트랜스 실물 모델", "수업 세 원회로의 배선 검수", "곱 항 계수 b의 1.2배 설계"] },
   { id: "lab-6", status: "guide", available: ["음성·음계·음색 실험 조건", "myDAQ DSA 연결과 설정 안내"], remaining: ["WAV 녹음·재생·음계 합성", "오디오 FFT·PSD·스펙트로그램", "실제 myDAQ 입출력"] },
   { id: "lab-7", status: "guide", available: ["샘플링·aliasing 조건", "AWG sample rate·update rate 구분"], remaining: ["오디오 리샘플링·하모닉 합성", "WDT·표본 파일 입출력", "AWG 파형 비교 실행"] },
   { id: "lab-8", status: "guide", available: ["FIR·다섯 대역·재합성 조건", "AWG2·측정 데이터 LPF 절차"], remaining: ["FIR 설계·계수·필터링 실행", "음원 대역 분리·재합성", "측정 파일 파싱·스펙트로그램"] },
   { id: "lab-9", status: "guide", available: ["DSB·SSB·Hilbert 과제 안내", "분반별 반송파 조건"], remaining: ["Hilbert·USB/LSB 연산", "좌우 오디오 변조·합성", "샘플링률·측대역 분석"] },
   { id: "lab-10", status: "guide", available: ["복조·배음·음악 합성 절차", "실험 8·9 입력 의존성 안내"], remaining: ["오디오 복조·배음 분석", "piano·flute 음색 합성", "원본 음원·WAV 입출력"] },
-  { id: "project-2025", status: "partial", available: ["공식 RF 1 kHz·LO 4 kHz·IF 3 kHz 조건", "일반 BJT 믹서·차동 출력·주파수 성분 분석"], remaining: ["BC109C 원부품·실제 LO 구동 검수", "키트 제약에서 IF 이득 >15 자동 설계", "변조 입력·측정 데이터·디지털 필터"] },
+  { id: "project-2025", status: "partial", available: ["공식 RF 1 kHz·LO 4 kHz·IF 3 kHz 조건", "일반 BJT 믹서·차동 출력·주파수 성분 분석", "독립 발생기·스코프·DMM 및 배선 검증 후 측정 API"], remaining: ["BC109C 원부품·실제 LO 구동 검수", "키트 제약에서 IF 이득 >15 자동 설계", "억압반송파 곱 입력·측정 파일·디지털 필터"] },
   { id: "project-2024", status: "guide", available: ["6 BJT OPAMP·비교기·증폭기·적분기 유형 안내", "학생 사례와 공식 조건 구분"], remaining: ["6 BJT 원회로·핀맵·소자값 검수", "다단 회로와 포화·적분 동작 검증", "측정 데이터 분석"] },
-  { id: "project-2023", status: "guide", available: ["공식 RF 1 kHz·LO 7 kHz·IF 6 kHz 확인", "입력 진폭·변조 수식 안내"], remaining: ["연도별 BC109C 원회로 검수", "IF 이득 >19.5 설계", "6 kHz 디지털 필터"] },
+  { id: "project-2023", status: "partial", available: ["공식 RF 1 kHz·LO 7 kHz·IF 6 kHz 확인", "AM 발생기 10 mV peak·1 kHz·위상 90°·변조 300 Hz·깊이 0.2", "원문 입력 수식·700/1000/1300 Hz 성분 진폭 수치 검증"], remaining: ["2023 전용 원회로·BC109C 실물 검수", "실제 차동 LO 진폭·IF 이득 >19.5 설계", "6 kHz 디지털 필터"] },
   { id: "project-2022", status: "guide", available: ["공식 RF 1 kHz·LO 5 kHz·IF 4 kHz 확인", "입력 진폭·변조 조건 안내"], remaining: ["연도별 BC109C 원회로 검수", "IF 이득 >17.5 설계", "4 kHz 디지털 필터"] },
 ];

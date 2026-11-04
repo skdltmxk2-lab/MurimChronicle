@@ -4,6 +4,8 @@ import { getPowerNetRole } from "./power";
 import { buildNonlinearDevices } from "./simulation-models";
 import { createNewtonSolver, NewtonConvergenceError } from "./simulation-newton";
 import { createEducationalOpamp, EDUCATIONAL_OPAMP } from "./simulation-opamp";
+import { sourceVoltage, sourceSamplingLimits, SOURCE_DEFAULTS } from "./simulation-source";
+export { sourceVoltage, sourceSamplingLimits } from "./simulation-source";
 
 const TAU = 2 * Math.PI;
 const MAX_WORK = 180_000_000;
@@ -34,12 +36,16 @@ function netName(value: unknown, label: string): string {
 export function parseSimulationConfig(value: unknown): SimulationConfig {
   const item = object(value, ["groundNetId", "source", "supplies", "durationSeconds", "sampleCount", "acStartHz", "acStopHz", "acPoints"], "시뮬레이션 설정", ["extraSources", "opampModel", "startupPerturbationVolts"]);
   const parseSource = (value: unknown): SimulationSource => {
-    const source = object(value, ["netId", "waveform", "frequencyHz", "amplitudePeak", "offset"], "입력 신호", ["phaseDegrees"]);
-    if (!["sine", "square", "triangle", "dc"].includes(source.waveform as string)) fail("지원하지 않는 입력 파형입니다.");
-    const result = { netId: netName(source.netId, "입력 노드"), waveform: source.waveform as SimulationWaveform,
+    const source = object(value, ["netId", "waveform", "frequencyHz", "amplitudePeak", "offset"], "입력 신호", ["phaseDegrees", "dutyCyclePercent", "modulationFrequencyHz", "modulationDepth"]);
+    if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am"].includes(source.waveform as string)) fail("지원하지 않는 입력 파형입니다.");
+    const result: SimulationSource = { netId: netName(source.netId, "입력 노드"), waveform: source.waveform as SimulationWaveform,
       frequencyHz: finite(source.frequencyHz, 0.001, 1e7, "입력 주파수"), amplitudePeak: finite(source.amplitudePeak, 0, 1e4, "입력 피크 진폭"), offset: finite(source.offset, -1e4, 1e4, "입력 DC 오프셋"),
       phaseDegrees: source.phaseDegrees === undefined ? 0 : finite(source.phaseDegrees, -360, 360, "입력 위상") };
-    if (Math.abs(result.offset) + result.amplitudePeak > 1e4) fail("입력 오프셋과 진폭의 합이 계산 전압 범위(10 kV)를 넘습니다.");
+    if (source.dutyCyclePercent !== undefined || result.waveform === "pulse") result.dutyCyclePercent = source.dutyCyclePercent === undefined ? SOURCE_DEFAULTS.dutyCyclePercent : finite(source.dutyCyclePercent, 1, 99, "펄스 듀티 비율");
+    if (source.modulationFrequencyHz !== undefined || result.waveform === "am") result.modulationFrequencyHz = source.modulationFrequencyHz === undefined ? SOURCE_DEFAULTS.modulationFrequencyHz : finite(source.modulationFrequencyHz, 0.001, 1e7, "AM 변조 주파수");
+    if (source.modulationDepth !== undefined || result.waveform === "am") result.modulationDepth = source.modulationDepth === undefined ? SOURCE_DEFAULTS.modulationDepth : finite(source.modulationDepth, 0, 1, "AM 변조 깊이");
+    const envelopePeak = result.amplitudePeak * (result.waveform === "am" ? 1 + result.modulationDepth! : 1);
+    if (Math.abs(result.offset) + envelopePeak > 1e4) fail("입력 오프셋과 최대 진폭(AM 포락선 포함)의 합이 계산 전압 범위(10 kV)를 넘습니다.");
     return result;
   };
   if (!Array.isArray(item.supplies) || item.supplies.length > 8) fail("독립 DC 전원은 최대 8개입니다.");
@@ -273,13 +279,6 @@ function factor(real: Matrix, imaginary?: Matrix) {
   };
 }
 
-function wave(source: SimulationSource, time: number): number {
-  if (source.waveform === "dc") return source.offset;
-  const cycle = ((time * source.frequencyHz + (source.phaseDegrees ?? 0) / 360) % 1 + 1) % 1;
-  const normalized = source.waveform === "sine" ? Math.sin(TAU * cycle) : source.waveform === "square" ? (cycle < 0.5 ? 1 : -1) : 2 / Math.PI * Math.asin(Math.sin(TAU * cycle));
-  return source.offset + source.amplitudePeak * normalized;
-}
-
 /** Pure numerical analysis. Physical breadboard/probe validation belongs to the caller. */
 export function runSimulation(circuit: Circuit, definitions: ComponentDefinition[], input: SimulationConfig): SimulationResult {
   const config = parseSimulationConfig(input), model = prepare(circuit, definitions, config);
@@ -288,8 +287,10 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   if (!opamps.length && config.startupPerturbationVolts) fail("시동 외란을 적용할 연산증폭기가 회로에 없습니다.");
   const outputStep = config.durationSeconds / (config.sampleCount - 1);
   const dynamicSignals = signals.filter(source => source.waveform !== "dc" && source.amplitudePeak > 0);
-  const dynamic = dynamicSignals.length > 0, maximumFrequency = Math.max(0, ...dynamicSignals.map(source => source.frequencyHz));
-  if (dynamic && outputStep * maximumFrequency > 1 / 32) fail("파형 표본이 부족합니다. 가장 빠른 입력 한 주기당 최소 32개 표본이 필요하므로 시간 범위를 줄이거나 표본 수를 늘리세요.");
+  const dynamic = dynamicSignals.length > 0, samplingLimits = dynamicSignals.map(sourceSamplingLimits);
+  samplingLimits.forEach((limit, index) => {
+    if (outputStep > limit.maximumOutputStepSeconds * (1 + 1e-12)) fail(`${dynamicSignals[index].netId}: 파형 표본이 부족합니다. 가장 빠른 주파수(AM은 반송파+변조 주파수) 한 주기당 32개, 펄스의 짧은 high/low 구간당 4개 표본이 필요합니다. 현재 시간 범위에는 최소 ${Math.ceil(config.durationSeconds / limit.maximumOutputStepSeconds) + 1}개가 필요합니다(최대 4,096개). 시간 범위를 줄이거나 표본 수를 늘리세요.`);
+  });
   let minTau = Infinity;
   const prescribed = new Set([config.groundNetId, ...drives.map(drive => drive.net)]);
   for (const cap of passives.filter(part => part.kind === "capacitor")) {
@@ -299,9 +300,9 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
     if (conductance) minTau = Math.min(minTau, cap.value / conductance);
   }
   const opampStep = dynamicOpamps && opamps.length ? positiveFeedback ? 0.5 / (TAU * EDUCATIONAL_OPAMP.gainBandwidthHz) : 1e-6 : Infinity;
-  const maximumStep = Math.min(dynamic ? Math.min(1 / maximumFrequency / 128, minTau / 100) : outputStep, opampStep, dynamicOpamps && opamps.length ? minTau / 100 : Infinity);
+  const maximumStep = Math.min(dynamic ? Math.min(...samplingLimits.map(limit => limit.maximumInternalStepSeconds), minTau / 100) : outputStep, opampStep, dynamicOpamps && opamps.length ? minTau / 100 : Infinity);
   const subdivisions = Math.max(1, Math.ceil(outputStep / maximumStep)), totalSteps = subdivisions * (config.sampleCount - 1);
-  if (subdivisions > 128 || totalSteps > 65536) fail("빠른 RC 응답을 계산하기에 시간 범위가 너무 큽니다. 시간 범위를 줄이세요(내부 시간 단계 최대 65,536개).");
+  if (subdivisions > 128 || totalSteps > 65536) fail("입력 파형·빠른 RC 응답을 계산하기에 시간 범위가 너무 큽니다. 시간 범위를 줄이세요(출력 구간당 내부 최대 128단계, 전체 최대 65,536단계).");
   const work = 2 * size ** 3 + 2 * totalSteps * size ** 2 + config.acPoints * 4 * size ** 3 / 3;
   if (work > MAX_WORK) fail("회로 크기와 시간·AC 표본의 조합이 계산량 한도를 넘습니다. 표본 수·AC 점 수·시간 범위를 줄이거나 회로를 나누세요.");
   let workUsed = work;
@@ -370,7 +371,7 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
       transientMatrices.set(interval, matrix);
     }
     const next = rhs.slice();
-    signals.forEach((source, i) => { next[names.length + i] = wave(source, start + interval); });
+    signals.forEach((source, i) => { next[names.length + i] = sourceVoltage(source, start + interval); });
     for (const cap of capacitors) inject(next, cap.aIndex, cap.bIndex, cap.value / interval * (valueAt(previous, cap.a) - valueAt(previous, cap.b)));
     dynamicModels.forEach(model => model.transient(valueAt(previous, model.out), interval));
     let result: Float64Array;
@@ -390,7 +391,7 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   for (let sample = 1; sample < config.sampleCount; sample++) {
     for (let sub = 1; sub <= subdivisions; sub++) {
       const next = rhs.slice();
-      signals.forEach((source, i) => { next[names.length + i] = wave(source, (sample - 1) * outputStep + sub * step); });
+      signals.forEach((source, i) => { next[names.length + i] = sourceVoltage(source, (sample - 1) * outputStep + sub * step); });
       for (const cap of capacitors) inject(next, cap.aIndex, cap.bIndex, cap.conductance * (valueAt(state, cap.a) - valueAt(state, cap.b)));
       state = !evolving ? dcState : newton ? advanceNonlinear(state, (sample - 1) * outputStep + (sub - 1) * step, step) : transientSolve!(next).real;
     }
@@ -417,6 +418,8 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   if (circuit.id === "mos-current-mirror") warnings.push("전류 미러의 DRAIN 전원 기본값 3 V는 자료의 0~6 V sweep 중간값으로 선택한 시작 설정입니다. 실제 목표·계측 조건에 맞게 바꾸세요.");
   if (circuit.id === "bjt-mixer") warnings.push("LO 기본값은 각 5 mV peak, 0°/180°의 대칭 구동입니다. 자료의 B1−B2 차동 입력은 실제 연결과 부하에서 다시 확인하세요.");
   if (config.source.waveform === "dc" && config.source.amplitudePeak) warnings.push("DC 파형에서는 피크 진폭을 사용하지 않고 오프셋 전압만 인가합니다.");
+  if (dynamicSignals.some(source => ["square", "pulse", "sawtooth"].includes(source.waveform))) warnings.push("구형파·펄스·톱니파는 상승·하강 시간이 0인 이상적 발생기입니다. 주기당 출력 32표본/내부 128단계, 펄스의 짧은 high/low 구간당 출력 4표본/내부 16단계 이상을 요구하지만 무한 고조파·실제 발생기의 대역폭과 에지는 재현하지 않습니다.");
+  if (dynamicSignals.some(source => source.waveform === "am")) warnings.push("AM 진폭은 반송파의 V peak이며 포락선 최대값은 진폭×(1+변조 깊이)입니다. 변조 위상은 cos 기준 0°, 입력 위상은 반송파에 적용합니다. AC 해석은 AM 측파대 변환 이득이 아닙니다.");
   if (opamps.length) warnings.push(dynamicModels.length ? "UA741 교육용 동적 모델: A0=200,000, GBW=1 MHz의 단일 극, slew rate=0.5 V/µs. 출력은 상태 방정식 안에서 각 전원으로부터 1.5 V의 가정된 headroom으로 제한합니다. 실제 부하별 swing·출력전류·추가 극·포화 회복·입력 공통모드 동작을 재현하지 않습니다." : OPAMP_WARNING);
   if (opamps.length) warnings.push("op-amp 출력 부하 전류를 VCC/VEE 전원 전류로 반영하지 않으므로 소비전력·효율을 계산할 수 없습니다. 피드백 연결 경로 검사와 AC 결과는 일반 회로의 안정성 증명이 아닙니다.");
   if (dynamicModels.length && config.startupPerturbationVolts) warnings.push(`시동 초기조건으로 op-amp 출력에 ${config.startupPerturbationVolts} V의 결정적 외란을 적용했습니다. 잡음·실물 부품 편차를 모델링한 발진 시동이 아닙니다.`);

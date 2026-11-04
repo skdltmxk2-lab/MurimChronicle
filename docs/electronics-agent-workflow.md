@@ -143,7 +143,7 @@ RC 예제의 `config`:
 
 BC549C·BC556B·BC109C는 수업 `Transistors.lib`의 Is/Bf/Br을 사용한 축소 Ebers–Moll이고, 2N7000은 같은 파일의 Zetex VTO/KP/LAMBDA와 바디 다이오드 값 일부를 사용한다. 제조사 핀맵 확인과 이 교육 파라미터의 출처는 다를 수 있다. 나머지는 명시적으로 선택한 교육값이다. 어느 것도 제조사 전체 SPICE 모델을 가져와 동일하게 재현했다는 뜻이 아니다. 모델은 300 K 고정이며 BJT Early 효과·고주입·접합 전하, MOS/다이오드 기생 용량·직렬 저항, 항복·열을 생략한다. Newton 반복용 지수 접선 연장 구간의 최종값은 정상 파형으로 사용하지 않는다.
 
-CE, CE+CC, 푸시풀, MOS 전류 미러·차동쌍, 커패시터 LO BJT 믹서의 기본 템플릿 계산을 회귀 검증했다. 수업 BC109C를 일반 예제의 BC549C로 바꾸어 원본 재현을 완료했다고 표시하지 않는다. CS195 센터탭 변압기 핀/권선비, 마이크·음성원, 미등록 반도체/다른 IC, 변조·임의파형, DSP/MATLAB과 실장비 제어는 남은 범위다. UA741은 `opampModel: "educational-dynamic"`으로 유한이득·GBW·슬루율·출력 제한 교육 모델을 선택할 수 있다. 생략 시 기존 `ideal` 모델을 유지한다. `startupPerturbationVolts`는 0~0.01 V이며 기본 0 V다. 자율 발진 예제 기본값은 0.001 V의 결정적 초기조건이며 잡음을 재현하지 않는다. 양의 피드백 회로에는 `acUnavailableReason`과 빈 AC 배열을 반환한다. 이때 시간 파형·FFT를 사용하며 빈 AC를 0 이득으로 해석하지 않는다. 실제 출력전류·공통모드·열·포화 회복은 재현하지 않는다. 미지원 소자를 생략해 계산하지 않는다. 모든 수업 원회로의 판독·성능 검증이 완료된 상태는 아니다.
+CE, CE+CC, 푸시풀, MOS 전류 미러·차동쌍, 커패시터 LO BJT 믹서의 기본 템플릿 계산을 회귀 검증했다. 수업 BC109C를 일반 예제의 BC549C로 바꾸어 원본 재현을 완료했다고 표시하지 않는다. CS195 센터탭 변압기 핀/권선비, 마이크·음성원, 미등록 반도체/다른 IC, FM 등 추가 변조·임의파형, DSP/MATLAB과 실장비 제어는 남은 범위다. UA741은 `opampModel: "educational-dynamic"`으로 유한이득·GBW·슬루율·출력 제한 교육 모델을 선택할 수 있다. 생략 시 기존 `ideal` 모델을 유지한다. `startupPerturbationVolts`는 0~0.01 V이며 기본 0 V다. 자율 발진 예제 기본값은 0.001 V의 결정적 초기조건이며 잡음을 재현하지 않는다. 양의 피드백 회로에는 `acUnavailableReason`과 빈 AC 배열을 반환한다. 이때 시간 파형·FFT를 사용하며 빈 AC를 0 이득으로 해석하지 않는다. 실제 출력전류·공통모드·열·포화 회복은 재현하지 않는다. 미지원 소자를 생략해 계산하지 않는다. 모든 수업 원회로의 판독·성능 검증이 완료된 상태는 아니다.
 
 ## 저장 API
 
@@ -167,3 +167,28 @@ CE, CE+CC, 푸시풀, MOS 전류 미러·차동쌍, 커패시터 LO BJT 믹서�
 회로 연결 검증, 원문 확인, 부품 핀맵 확인, 실제 성능 검증은 별개 상태다. 채팅이나 API에서 작성한 설계에도 동일하게 적용한다.
 
 UA741 모델의 출력 부하 전류는 VCC/VEE 공급 전류로 반영하지 않으므로 소비전력·효율을 산출할 수 없다. 피드백 연결 경로 검사와 AC 결과는 일반 회로의 안정성 증명이 아니다.
+
+## 함수발생기와 가상 계측기 API
+
+`source.waveform`은 `sine`, `square`, `triangle`, `dc`, `pulse`, `sawtooth`, `am`을 지원한다. `pulse`의 `dutyCyclePercent`는 1~99(기본 50), `am`의 `modulationFrequencyHz`는 0.001~10000000 Hz(기본100), `modulationDepth`는 0~1(기본0.2)이다. AM은 `offset + A*(1+m*cos(2π*fm*t))*sin(2π*fc*t+phase)`다. 수업 2023 조건의 cos 반송파는 phaseDegrees=90으로 지정한다. 펄스는 짧은 high/low마다 출력 4표본·내부16단계, AM은 fc+fm 기준 주기당32표본이 필요하다. 부족한 표본을 조용히 보간해 계산하지 않는다.
+
+멀티미터는 관리자 인증 후 `POST /api/admin/electronics/measure`에 `{ circuit, boardOptions, layout, settings, config? }`를 보낸다. 현재 배치는 설계/프로젝트 API에서 확인한 실제 배치다. 파형이나 이미 계산된 숫자는 입력으로 받지 않는다.
+
+```json
+{
+  "mode": "ac-voltage",
+  "power": "on",
+  "redNetId": "OUT",
+  "blackNetId": "GND",
+  "startTimeSeconds": 0.0025,
+  "endTimeSeconds": 0.005
+}
+```
+
+위 객체는 `settings` 예시다. 전압/전류에는 같은 요청의 `config`가 필요하고 서버가 현재 배선을 검증한 뒤 직접 계산한다. 전류 모드 `dc-current`/`ac-current`는 프로브 노드 대신 `branch: { componentId: "Q1", terminal: "C" }`처럼 정의된 단자 이름 또는 핀 번호를 사용한다. 단자 유입이 양수이며 직렬 삽입 전류계가 아닌 가상 가지 전류 프로브다.
+
+`resistance`, `continuity`, `diode`는 `power: "off"`와 두 프로브 노드를 지정한다. 이는 전원/신호원을 제거한 독립 시험 해석이다. 수동 저항망의 등가 저항·도통 또는 분리된 지원 다이오드만 계산하며 능동 회로를 임의의 저항으로 치환하지 않는다. `continuityThresholdOhms`는 0~1000 Ω(기본50)이다.
+
+응답은 `{ ok, reading, validation }`이며 reading은 mode/status/value/unit/message/warnings, 필요하면 statistics/waveform/continuity를 포함한다. status는 ok/open/unsupported/invalid다. `open`의 `value:null`은 OL이며 0으로 바꾸지 않는다. 설정 형식 오류는400, 미지원·계산/배선 오류는422, 권한은401/403, 서버 오류는일반503이다. GET으로 모드·요청 규약을 읽을 수 있다.
+
+오실로스코프의 s/div·V/div·커플링·트리거·커서는 `/simulate`에서 반환된 실제 time/nodeVoltages에 적용한다. 확대는 새 표본을 만들지 않으며 Auto는 현재 캡처를, Normal은 실제 교차점을 사용한다. CSV는 전체 캡처 원본 값이다. AC커플링은 평균제거 근사이고 주파수는 최소3주기와 주기당16표본·반복성을 확인한 추정값이다. 기준을 통과하지 못하면 `—`로 표시한다.

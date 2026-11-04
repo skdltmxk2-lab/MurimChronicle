@@ -76,7 +76,9 @@ export async function GET(request: Request) {
       analyses: ["dc", "transient", "ac"], models: ["linear-ideal", "nonlinear-educational"], transientMethod: "backward-euler",
       supported: ["2핀 저항", "2핀 커패시터·전해커패시터", "검증된 UA741 핀맵의 이상적/교육용 동적 연산증폭기", "등록된 NPN/PNP Ebers–Moll", "등록된 N/P MOS Level-1", "1N4148 Shockley"],
       nonlinearModels: NONLINEAR_MODEL_REGISTRY,
-      configExtensions: { extraSources: "선택 · 기본 source와 같은 형식 · 최대 3개", phaseDegrees: "각 source에 선택 · -360~360° · 기본 0°", opampModel: ["ideal", "educational-dynamic"], startupPerturbationVolts: "동적 모델의 시동 조건 · 0~0.01 V · 기본 0 V" },
+      waveforms: ["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am"],
+      measurementEndpoint: "/api/admin/electronics/measure",
+      configExtensions: { dutyCyclePercent: "pulse · 1~99% · 기본 50%", modulationFrequencyHz: "AM · 0.001~10000000 Hz · 기본 100 Hz", modulationDepth: "AM · 0~1 · 기본 0.2", extraSources: "선택 · 기본 source와 같은 형식 · 최대 3개", phaseDegrees: "각 source에 선택 · -360~360° · 기본 0°", opampModel: ["ideal", "educational-dynamic"], startupPerturbationVolts: "동적 모델의 시동 조건 · 0~0.01 V · 기본 0 V" },
       notes: ["동적 UA741은 유한 대역폭·슬루율·출력 제한을 포함한 교육용 근사입니다. 양의 피드백 회로는 AC 대신 acUnavailableReason과 빈 AC 배열을 반환합니다.", "현재 빵판의 소자 핀·점퍼·장비 연결이 목표 회로와 일치해야 계산합니다.", "미지원 소자, 부유 노드, 잘못된 값, 수렴 실패는 결과 대신 오류를 반환합니다.", "프로브는 실제 내부 연결 줄과 점퍼 양 끝을 따라 해석합니다. 점퍼의 표시 이름이나 저장된 검사 결과를 신뢰하지 않습니다.", "AC는 DC 동작점 주변의 기본 입력 1 V 소신호 응답이며 추가 입력은 AC 0 V입니다. 믹서 변환 이득은 시간 파형의 스펙트럼을 사용하세요.", "반도체 모델은 교육용 축소 모델입니다. 실제 소자 정격·고주파 기생성분·열·파형의 실측 검증은 별도이며 physicalPlacement가 external-only인 BC109C는 현재 빵판 배치에서 보류합니다."],
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return errorResponse(error); }

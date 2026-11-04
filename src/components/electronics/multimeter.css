@@ -1,0 +1,25 @@
+.el-meter { margin: 22px 0; border: 1px solid var(--el-line); border-radius: 12px; padding: 20px; background: var(--el-surface); }
+.el-meter > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.el-meter h3 { font-size: 19px; font-weight: 700; }
+.el-meter-modes { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+.el-meter-modes button { display: flex; flex-direction: column; gap: 4px; align-items: center; padding: 10px 4px; border: 1px solid var(--el-line); border-radius: 7px; color: var(--el-muted); background: var(--el-bg); }
+.el-meter-modes button[aria-pressed=true] { color: var(--el-primary-text); background: var(--el-primary); border-color: var(--el-primary); }
+.el-meter-modes b { font-size: 18px; font-family: ui-monospace, monospace; }
+.el-meter-modes span { font-size: 10px; }
+.el-meter-display { padding: 18px 22px; border: 1px solid var(--el-line-strong); border-radius: 8px; background: var(--el-bg); font-variant-numeric: tabular-nums; }
+.el-meter-display > div { display: flex; justify-content: space-between; gap: 8px; color: var(--el-muted); font-size: 11px; }
+.el-meter-display p { display: flex; gap: 16px; align-items: baseline; justify-content: flex-end; padding: 10px 0; }
+.el-meter-display strong { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: clamp(30px, 5vw, 52px); font-weight: 500; letter-spacing: -.06em; }
+.el-meter-display p > span { min-width: 42px; font-size: 22px; color: var(--el-muted); }
+.el-meter-display small { font-size: 10px; color: var(--el-muted); }
+.el-meter-display.over-range strong { color: #bc684b; }
+.el-meter-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 18px; }
+.el-meter-actions { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+.el-meter-actions p, .el-meter-note, .el-meter-notes { font-size: 11px; color: var(--el-muted); line-height: 1.7; }
+.el-meter-actions button[aria-pressed=true] { background: var(--el-soft); border-color: var(--el-line-strong); }
+.el-meter-message { margin-top: 12px !important; font-size: 12px; overflow-wrap: anywhere; }
+.el-meter-note { margin-top: 10px !important; }
+.el-meter-notes { border-top: 1px solid var(--el-line); margin-top: 14px; padding-top: 10px; }
+.el-meter-notes summary { cursor: pointer; }
+.el-meter-notes ul { padding-left: 18px; margin-top: 8px; }
+@media (max-width:550px) { .el-meter { padding: 13px; } .el-meter-modes { grid-template-columns: repeat(4,minmax(0,1fr)); } .el-meter-display { padding: 14px; } .el-meter-actions { align-items: flex-start; } }
