@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run test:standalone && npm run test:unit-mock && npm run test:render",
+    "prebuild": "npm run test:standalone && npm run test:unit-mock && npm run test:render && npm run test:electronics",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,6 +13,7 @@
     "test:standalone": "node scripts/test_standalone_questions.mjs",
     "test:unit-mock": "node scripts/test_unit_mock_selection.mjs",
     "test:render": "node scripts/test_render_pipeline.mjs",
+    "test:electronics": "node tests/test_electronics_engine.mjs && node tests/test_electronics_recognition.mjs && node tests/test_electronics_projects.mjs && node tests/test_electronics_design.mjs",
     "test:content-review": "node scripts/test_reviewed_batch_apply.mjs",
     "questions:render-audit": "node scripts/audit_render_breakage_readonly.mjs",
     "typecheck": "tsc --noEmit"

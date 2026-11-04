@@ -65,6 +65,12 @@ export function AdminHomeClient() {
 
   const cards: Card[] = [
     {
+      href: "/admin/electronics",
+      title: "전자공학 실험실",
+      desc: "실험 PDF·사진 분석, 빵판 자동 배치와 조립 안내",
+      emoji: "🔌",
+    },
+    {
       href: "/admin/inquiries",
       title: "문의함",
       desc: stats ? (stats.inquiriesPending > 0 ? `처리해야 할 문의 ${stats.inquiriesPending}건` : "처리할 문의 없음") : "회원의 문의·건의·버그신고",
