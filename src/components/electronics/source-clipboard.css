@@ -1,0 +1,9 @@
+.el-clipboard-zone { margin: 12px 0; padding: 14px; border: 1px dashed var(--el-line-strong); border-radius: 10px; background: var(--el-soft); display: flex; flex-direction: column; gap: 8px; font-size: 12px; }
+.el-clipboard-zone:focus-visible { outline: 2px solid var(--el-focus); outline-offset: 3px; }
+.el-clipboard-zone > span { color: var(--el-muted); }
+.el-clipboard-zone kbd { padding: 2px 5px; border: 1px solid var(--el-line); border-radius: 4px; background: var(--el-surface); color: var(--el-text); }
+.el-clipboard-zone .el-button { align-self: flex-start; }
+.el-source-thumbnail { width: 56px; height: 44px; object-fit: contain; border: 1px solid var(--el-line); border-radius: 5px; background: var(--el-surface); flex-shrink: 0; margin-right: 8px; }
+.el-source-panel .el-file > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.el-view-tabs { overflow-x: auto; scrollbar-width: thin; }
+.el-view-tabs > button { flex-shrink: 0; }

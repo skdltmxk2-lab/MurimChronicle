@@ -222,3 +222,41 @@ test("hover and drag reuse all contact elements, while selection and occupancy c
   assert.match(h.hole("B1:B10").props["aria-label"], /빈 구멍/);
   assert.match(h.hole("B1:B11").props["aria-label"], /사용 중/);
 });
+
+test("probe picking selects a component contact without moving the lead or selecting its body", () => {
+  const h = harness(), picked = [];
+  h.update({ onHolePick: holeId => picked.push(holeId), holePickLabel: "CH1 측정 위치 선택" });
+  h.start(h.pin()); h.move("B1:C11"); h.up("B1:C11");
+  const click = h.click(h.pin());
+  assert.equal(click.stopped, true);
+  assert.deepEqual(picked, ["B1:B10"]);
+  assert.equal(h.calls.pin.length, 0); assert.equal(h.calls.component.length, 0);
+  assert.equal(h.calls.selection.length, 0); assert.equal(h.captures.size, 0);
+  const key = h.event("B1:B14", { key: "Enter" });
+  h.pin("R1.2").props.onKeyDown(key);
+  assert.equal(key.stopped, true); assert.equal(key.prevented, true);
+  assert.deepEqual(picked, ["B1:B10", "B1:B14"]);
+});
+
+test("external instrument contacts can be probed by mouse or keyboard without dragging the terminal", () => {
+  const h = harness(), picked = [], moved = [];
+  h.update({ circuit: { ...circuit, instruments: [{ id: "probe", instrument: "scope", port: "CH1", netId: "OUT" }] },
+    layout: { ...h.props.layout, terminals: [{ connectionId: "probe", netId: "OUT", holeId: "B1:A14" }] },
+    onHolePick: holeId => picked.push(holeId), onMoveTerminal: (...args) => moved.push(args) });
+  const terminal = () => select(h.tree, node => node.props["data-board-layer"] === "instrument");
+  terminal().props.onPointerDown(h.event("B1:A14"));
+  h.move("B1:A20"); h.up("B1:A20"); h.click(terminal());
+  terminal().props.onKeyDown({ key: "Enter" });
+  assert.deepEqual(picked, ["B1:A14", "B1:A14"]);
+  assert.equal(moved.length, 0); assert.equal(h.calls.selection.length, 0);
+});
+
+test("channel markers follow their physical holes without blocking contact clicks", () => {
+  const h = harness();
+  h.update({ probeMarkers: [{ holeId: "B1:B10", label: "CH1", color: "#d49124" }, { holeId: "B1:B14", label: "CH2", color: "#3c8ed4" }] });
+  const marker = select(h.tree, node => node.props["data-probe-marker"] === "CH2");
+  const hole = h.props.layout.board.holes.find(hole => hole.id === "B1:B14");
+  assert.equal(marker.props.pointerEvents, "none");
+  const ring = select(marker, node => node.type === "circle");
+  assert.equal(ring.props.cx, hole.x); assert.equal(ring.props.cy, hole.y);
+});

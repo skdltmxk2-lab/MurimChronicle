@@ -6,6 +6,8 @@ import { ALL_BOARD_LAYERS, componentLayer, isBoardSelectionVisible, layerForAsse
 import { getPowerNetRole, getRailUsage } from "@/lib/electronics/power";
 
 export type BoardSelection = { type: "component" | "jumper" | "terminal" | "hole"; id: string } | null;
+export type ProbeMarker = { holeId: string; label: string; color: string };
+const NO_PROBES: readonly ProbeMarker[] = [];
 type BoardDrag = {
   type: "component" | "pin" | "terminal";
   id: string;
@@ -30,7 +32,7 @@ function resistanceColors(value: string) {
   return [palette[Number(digits[0])], palette[Number(digits[1])], multiplier, "#b59b52"];
 }
 
-export function Breadboard({ circuit, definitions, layout, selection: requestedSelection, onSelect, activeStep: requestedActiveStep, wiresVisible = true, visibleLayers = ALL_BOARD_LAYERS, labelsVisible, onHolePick, onMoveComponent, onMovePin, onMoveTerminal, zoom, onZoom }: {
+export function Breadboard({ circuit, definitions, layout, selection: requestedSelection, onSelect, activeStep: requestedActiveStep, wiresVisible = true, visibleLayers = ALL_BOARD_LAYERS, labelsVisible, onHolePick, holePickLabel, probeMarkers = NO_PROBES, onMoveComponent, onMovePin, onMoveTerminal, zoom, onZoom }: {
   circuit: Circuit;
   definitions: ComponentDefinition[];
   layout: CircuitLayout;
@@ -41,6 +43,8 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
   visibleLayers?: readonly BoardLayer[];
   labelsVisible: boolean;
   onHolePick?: (holeId: string) => void;
+  holePickLabel?: string;
+  probeMarkers?: readonly ProbeMarker[];
   onMoveComponent?: (componentId: string, targetHoleId: string, anchorPinId: string) => void;
   onMovePin?: (componentId: string, targetHoleId: string, pinId: string) => void;
   onMoveTerminal?: (connectionId: string, targetHoleId: string) => void;
@@ -99,14 +103,14 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
   const viewRect = useMemo(() => {
     const full = { x: 0, y: 0, width: layout.board.width, height: layout.board.height };
     if (!fitOccupied) return full;
-    const points = [...occupied].map(id => holes.get(id)).filter((hole): hole is BoardHole => Boolean(hole));
+    const points = [...occupied, ...probeMarkers.map(probe => probe.holeId)].map(id => holes.get(id)).filter((hole): hole is BoardHole => Boolean(hole));
     if (!points.length) return full;
     // Include lead bodies, wire bends and coordinate labels without moving physical holes.
     const x = Math.max(0, Math.min(...points.map(h => h.x)) - 54);
     const y = Math.max(0, Math.min(...points.map(h => h.y)) - 84);
     return { x, y, width: Math.min(layout.board.width - x, Math.max(320, Math.max(...points.map(h => h.x)) + 90 - x)),
       height: Math.min(layout.board.height - y, Math.max(220, Math.max(...points.map(h => h.y)) + 66 - y)) };
-  }, [fitOccupied, occupied, holes, layout.board.width, layout.board.height]);
+  }, [fitOccupied, occupied, holes, layout.board.width, layout.board.height, probeMarkers]);
   const selectedComponent = selection?.type === "component" ? components.get(selection.id) : null;
   const selectedJumper = selection?.type === "jumper" ? jumpers.get(selection.id) : null;
   const selectedTerminal = selection?.type === "terminal" ? terminals.get(selection.id) : null;
@@ -148,7 +152,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
     const connectedComponent = componentId && selection?.type !== "component" && Object.values(components.get(componentId)?.pinNets ?? {}).some(net => selectedNets.has(net));
     return (selection?.type === "component" && selection.id === componentId) || (selection?.type === "jumper" && selection.id === jumperId) || (netId && selectedNets.has(netId)) || connectedComponent ? 1 : 0.2;
   };
-  const pinDot = (h: BoardHole, label: string, key: string, componentId?: string) => <g key={key} data-component-pin={componentId ? `${componentId}.${key}` : undefined} aria-label={componentId ? label : undefined} style={componentId && onMovePin && !onHolePick ? { cursor: "grab", touchAction: "none" } : undefined} onPointerDown={componentId && onMovePin ? event => beginDrag(event, "pin", componentId, h, key) : undefined} onMouseMove={e => { e.stopPropagation(); titleFor(label, e); }} onMouseLeave={clearTip}>
+  const pinDot = (h: BoardHole, label: string, key: string, componentId?: string) => <g key={key} data-component-pin={componentId ? `${componentId}.${key}` : undefined} aria-label={componentId ? label : undefined} role={onHolePick ? "button" : undefined} tabIndex={onHolePick ? 0 : undefined} style={componentId && onMovePin && !onHolePick ? { cursor: "grab", touchAction: "none" } : onHolePick ? { cursor: "crosshair" } : undefined} onClick={onHolePick ? event => { event.stopPropagation(); onHolePick(h.id); } : undefined} onKeyDown={onHolePick ? event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); onHolePick(h.id); } } : undefined} onPointerDown={componentId && onMovePin ? event => beginDrag(event, "pin", componentId, h, key) : undefined} onMouseMove={e => { e.stopPropagation(); titleFor(label, e); }} onMouseLeave={clearTip}>
     {componentId && onMovePin && <circle cx={h.x} cy={h.y} r={7} fill="transparent" />}
     <circle cx={h.x} cy={h.y} r={4} fill="#c9cdd1" stroke="#515a65" strokeWidth={1.3} />
     <circle cx={h.x} cy={h.y} r={1.4} fill="#27333c" />
@@ -251,7 +255,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
 
   return <div className={`el-board-stage ${onHolePick ? "el-picking" : ""}`}>
     <div className="el-board-toolbar">
-      <span><i className="el-live-dot" /> {onHolePick ? "선택한 핀을 꽂을 구멍을 클릭하세요" : onMoveComponent ? "몸통은 전체 이동 · 다리는 한쪽만 이동 · 클릭하여 상세 확인" : "소자에 마우스를 올리거나 클릭해 보세요"}</span>
+      <span><i className="el-live-dot" /> {onHolePick ? holePickLabel || "선택한 핀을 꽂을 구멍을 클릭하세요" : onMoveComponent ? "몸통은 전체 이동 · 다리는 한쪽만 이동 · 클릭하여 상세 확인" : "소자에 마우스를 올리거나 클릭해 보세요"}</span>
       <div><button aria-label="축소" onClick={() => onZoom(Math.max(0.6, zoom - 0.2))}>−</button><button onClick={() => onZoom(1)}>{Math.round(zoom * 100)}%</button><button aria-label="확대" onClick={() => onZoom(Math.min(3, zoom + 0.2))}>+</button><button aria-pressed={fitOccupied} onClick={() => { setFitOccupied(value => !value); if (scroller.current) scroller.current.scrollTo({ left: 0, top: 0 }); }}>{fitOccupied ? "전체 빵판" : "사용 영역"}</button></div>
     </div>
     <div className="el-board-scroll" ref={scroller} onMouseLeave={() => { clearTip(); setPan(null); }} onMouseUp={() => setPan(null)} onMouseMove={e => {
@@ -363,11 +367,23 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const terminalColor = powerRole === "ground" ? "#356457" : powerRole === "positive" ? "#c74343" : powerRole === "negative" ? "#326db2" : "#da8a3b";
           const active = selection?.type === "terminal" && selection.id === t.connectionId || activeStep?.connectionId === t.connectionId;
           const moving = drag?.type === "terminal" && drag.id === t.connectionId && drag.moved ? drag : null;
-          return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={`${label}${onMoveTerminal ? " · 끌어서 위치 이동" : ""}`} transform={moving ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onMoveTerminal && !onHolePick ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveTerminal && !onHolePick ? "none" : undefined }} onPointerDown={event => beginDrag(event, "terminal", t.connectionId, h)} onClick={() => onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "terminal", id: t.connectionId }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip} opacity={moving ? 0.58 : selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
+          return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={`${label}${onMoveTerminal ? " · 끌어서 위치 이동" : ""}`} transform={moving ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onHolePick ? "crosshair" : onMoveTerminal ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveTerminal && !onHolePick ? "none" : undefined }} onPointerDown={event => beginDrag(event, "terminal", t.connectionId, h)} onClick={() => onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter") onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip} opacity={moving ? 0.58 : selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
             <circle cx={h.x} cy={h.y} r={active ? 7 : 5} fill={terminalColor} stroke="#fff" strokeWidth={1.5} />
             {(labelsVisible || active) && <text x={h.x} y={h.y + 13} textAnchor="middle" fontSize={8} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{reference}</text>}
             {active && <text x={h.x + 11} y={h.y - 13} fontSize={9} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={3} paintOrder="stroke">{c.instrument} · {c.port}{powerRole === "ground" ? " · GND" : powerRole === "positive" ? " · +전원" : powerRole === "negative" ? " · −전원" : ""}</text>}
             <title>{label}</title>
+          </g>;
+        })}
+        {probeMarkers.map((probe, index) => {
+          const hole = holes.get(probe.holeId);
+          if (!hole) return null;
+          const offset = index % 2 === 0 ? -27 : 27;
+          return <g key={probe.label} data-probe-marker={probe.label} pointerEvents="none">
+            <circle cx={hole.x} cy={hole.y} r={9 + index * 2} fill="none" stroke={probe.color} strokeWidth={2} />
+            <path d={`M${hole.x},${hole.y + (offset < 0 ? -9 : 9)}v${offset < 0 ? -8 : 8}`} stroke={probe.color} strokeWidth={2} />
+            <rect x={hole.x - 20} y={hole.y + offset - 7} width={40} height={14} rx={4} fill={probe.color} stroke="#fff" />
+            <text x={hole.x} y={hole.y + offset + 3} textAnchor="middle" fontSize={9} fontWeight={800} fill="#fff">{probe.label}</text>
+            <title>{`${probe.label} · ${hole.id} 측정`}</title>
           </g>;
         })}
         {drag?.moved && <g pointerEvents="none" aria-hidden="true">

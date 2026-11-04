@@ -1,0 +1,123 @@
+.el-simulation { max-width: 1220px; margin: 0 auto; padding: 14px 0 30px; color: var(--el-text); }
+.el-sim-header { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 15px; }
+.el-sim-header h2 { font-size: 26px; font-weight: 750; letter-spacing: -.8px; }
+.el-sim-header p { color: var(--el-muted); font-size: 13px; margin-top: 5px; }
+.el-sim-status { padding: 5px 10px; border: 1px solid var(--el-line); border-radius: 6px; color: var(--el-muted); font-size: 11px; white-space: nowrap; }
+.el-sim-status.stale { color: #a77832; }
+.el-sim-model-note { padding: 10px 13px; border: 1px solid var(--el-line); background: var(--el-soft); border-radius: 8px; font-size: 12px; color: var(--el-muted); line-height: 1.7; }
+.el-sim-probes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+.el-sim-probe { display: flex; align-items: center; min-width: 0; border: 1px solid var(--el-line); border-left: 3px solid var(--channel-color); background: var(--el-surface); border-radius: 8px; overflow: hidden; }
+.el-sim-probe.picking { outline: 2px solid var(--channel-color); outline-offset: 2px; }
+.el-sim-probe > button:first-child { flex: 1; min-width: 0; border: 0; background: none; color: var(--el-text); display: flex; align-items: center; gap: 12px; text-align: left; padding: 13px; }
+.el-sim-probe > button:first-child:hover { background: var(--el-soft); }
+.el-sim-probe > button:first-child > b { color: var(--channel-color); font-family: monospace; font-size: 13px; }
+.el-sim-probe > button:first-child > span:first-of-type { flex: 1; min-width: 0; }
+.el-sim-probe strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.el-sim-probe small { display: block; font-size: 11px; color: var(--el-muted); margin-top: 2px; overflow-wrap: anywhere; }
+.el-sim-probe-clear { border: 0; background: none; color: var(--el-muted); font-size: 20px !important; padding: 10px; }
+.el-sim-controls { border: 1px solid var(--el-line); border-radius: 10px; padding: 18px; background: var(--el-surface); }
+.el-sim-control-heading { display: flex; justify-content: space-between; gap: 10px; align-items: center; margin-bottom: 15px; }
+.el-sim-control-heading h3, .el-sim-dc-grid h3 { font-size: 13px; font-weight: 700; }
+.el-sim-control-heading > span, .el-sim-control-note { font-size: 11px; color: var(--el-muted); }
+.el-sim-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.el-sim-field { display: flex; min-width: 0; flex-direction: column; gap: 6px; font-size: 12px; color: var(--el-muted); }
+.el-sim-field > span { display: flex; justify-content: space-between; gap: 6px; }
+.el-sim-field small { font-size: 11px; color: var(--el-muted); }
+.el-sim-field input, .el-sim-field select { width: 100%; min-width: 0; font-size: 13px !important; height: 39px; }
+.el-sim-field input:disabled { opacity: .45; }
+.el-sim-control-note { margin-top: 11px !important; line-height: 1.7; }
+.el-sim-advanced { border-top: 1px solid var(--el-line); margin-top: 15px; padding-top: 2px; }
+.el-sim-advanced > summary { cursor: pointer; padding: 12px 0; font-size: 12px; font-weight: 650; }
+.el-sim-advanced > summary > span { margin-left: 12px; color: var(--el-muted); font-weight: 400; font-size: 11px; }
+.el-sim-advanced > summary:focus-visible, .el-sim-warnings > summary:focus-visible { outline: 2px solid var(--el-focus); outline-offset: 2px; border-radius: 4px; }
+.el-sim-supplies { border-top: 1px solid var(--el-line); padding-top: 15px; margin-top: 17px; }
+.el-sim-supplies h4 { font-size: 12px; font-weight: 650; margin: 0 0 12px; }
+.el-sim-supplies > p { font-size: 11px; color: var(--el-muted); margin-top: 9px; }
+.el-sim-supply { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; align-items: end; gap: 10px; max-width: 520px; margin-bottom: 12px; }
+.el-sim-supply > button { align-self: end; min-height: 39px; }
+.el-sim-runbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 15px 0; }
+.el-sim-runbar > span { font-size: 11px; color: var(--el-muted); }
+.el-sim-runbar .el-primary { min-height: 39px; }
+.el-sim-message { padding: 13px 15px; border-radius: 8px; font-size: 12px; margin: 13px 0; border: 1px solid var(--el-line); background: var(--el-soft); }
+.el-sim-message p { margin: 4px 0; overflow-wrap: anywhere; }
+.el-sim-message small { display: block; margin-top: 7px; color: var(--el-muted); font-size: 11px; }
+.el-sim-message.error { border-color: #bb6f503d; background: #bb6f500b; }
+.el-sim-message.error b { color: #bc684b; }
+.el-sim-message.stale { border-color: #b38b453d; background: #b38b450b; }
+.el-sim-message.stale b { color: #a77832; }
+.el-sim-notice { color: var(--el-muted); font-size: 11px; margin: 10px 2px !important; }
+.el-sim-results { min-width: 0; border: 1px solid var(--el-line); background: var(--el-surface); border-radius: 11px; overflow: hidden; }
+.el-sim-results.is-stale .el-sim-plot-wrap, .el-sim-results.is-stale .el-sim-stats, .el-sim-results.is-stale .el-sim-dc-grid { opacity: .6; }
+.el-sim-result-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 0 15px; border-bottom: 1px solid var(--el-line); min-height: 52px; }
+.el-sim-tabs { display: flex; align-self: stretch; gap: 18px; min-width: 0; }
+.el-sim-tabs button { border: 0; border-bottom: 2px solid transparent; color: var(--el-muted); background: none; padding: 12px 0; white-space: nowrap; font-size: 12px; }
+.el-sim-tabs button.active { color: var(--el-text); border-bottom-color: var(--el-text); font-weight: 650; }
+.el-sim-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 290px; padding: 30px; text-align: center; }
+.el-sim-empty > span { color: var(--el-muted); font-size: 50px; line-height: 1.1; font-weight: 300; }
+.el-sim-empty h3 { font-size: 15px; font-weight: 650; }
+.el-sim-empty p { color: var(--el-muted); font-size: 12px; }
+.el-sim-result-context { display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 15px 17px 5px; color: var(--el-muted); font-size: 11px; }
+.el-sim-result-context > span { overflow-wrap: anywhere; }
+.el-sim-result-context b { margin-right: 4px; }
+.el-sim-missing { margin: 12px 17px !important; padding: 10px; border: 1px solid var(--el-line); border-radius: 6px; font-size: 12px; color: var(--el-muted); }
+.el-sim-plot-wrap { padding: 15px 12px 10px; }
+.el-sim-plot { display: block; width: 100%; height: auto; touch-action: pan-y; overflow: visible; }
+.el-sim-gridline { stroke: var(--el-line); stroke-width: 1; }
+.el-sim-zero { stroke: var(--el-line-strong); stroke-width: 1; }
+.el-sim-axis { fill: var(--el-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+.el-sim-axis-title { fill: var(--el-muted); font-size: 11px; }
+.el-sim-cursor > line { stroke: var(--el-muted); stroke-width: 1; stroke-dasharray: 4 3; }
+.el-sim-cursor > circle { stroke: var(--el-surface); stroke-width: 1.5; }
+.el-sim-cursor-readout { display: flex; flex-wrap: wrap; align-items: center; gap: 7px 18px; margin: 3px 12px 0; min-height: 28px; font-size: 11px; font-variant-numeric: tabular-nums; }
+.el-sim-cursor-readout > span { color: var(--el-muted); margin-right: auto; }
+.el-sim-cursor-readout b { font-weight: 500; }
+.el-sim-cursor-readout b > span { font-weight: 700; margin-left: 6px; }
+.el-sim-cursor-control { display: flex; gap: 12px; align-items: center; margin: 5px 12px 0; color: var(--el-muted); font-size: 10px; }
+.el-sim-cursor-control input { flex: 1; min-width: 0; accent-color: var(--el-accent); padding: 0 !important; border: 0 !important; height: 20px; }
+.el-sim-ac-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin: 12px 17px 0; }
+.el-sim-ac-toolbar > p { color: var(--el-muted); font-size: 11px; }
+.el-sim-ac-toolbar > div { display: flex; gap: 3px; padding: 3px; border: 1px solid var(--el-line); border-radius: 6px; background: var(--el-bg); }
+.el-sim-ac-toolbar button { background: none; border: 0; color: var(--el-muted); border-radius: 4px; padding: 4px 11px; font-size: 11px; }
+.el-sim-ac-toolbar button.active { background: var(--el-surface); color: var(--el-text); box-shadow: 0 1px 3px #00000012; }
+.el-sim-no-traces { min-height: 200px; display: grid; place-items: center; padding: 24px; color: var(--el-muted); font-size: 12px; }
+.el-sim-stats { padding: 0 18px 16px; }
+.el-sim-stats > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 10px 0; border-top: 1px solid var(--el-line); font-size: 11px; }
+.el-sim-stats > div > span { display: flex; gap: 7px; color: var(--el-muted); }
+.el-sim-stats strong { color: var(--el-text); font-weight: 550; font-variant-numeric: tabular-nums; }
+.el-sim-stats > p { margin-top: 5px; font-size: 10px; color: var(--el-muted); }
+.el-sim-dc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px; padding: 20px; }
+.el-sim-dc-grid h3 { margin-bottom: 12px; }
+.el-sim-dc-grid table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.el-sim-dc-grid td, .el-sim-dc-grid th { border-bottom: 1px solid var(--el-line); text-align: left; padding: 9px 5px; overflow-wrap: anywhere; }
+.el-sim-dc-grid th { font-size: 11px; color: var(--el-muted); font-weight: 500; }
+.el-sim-dc-grid td:last-child, .el-sim-dc-grid th:last-child { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.el-sim-dc-grid p { font-size: 11px; color: var(--el-muted); margin-top: 13px; line-height: 1.7; }
+.el-sim-warnings { padding: 12px 18px; border-top: 1px solid var(--el-line); background: var(--el-bg); font-size: 12px; }
+.el-sim-warnings summary { cursor: pointer; font-weight: 600; }
+.el-sim-warnings summary > span { margin-left: 6px; color: var(--el-muted); font-size: 11px; }
+.el-sim-warnings ul { padding-left: 18px; margin: 9px 0 0; color: var(--el-muted); line-height: 1.8; font-size: 11px; }
+@media (max-width: 1050px) { .el-sim-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .el-sim-result-toolbar { padding: 0 12px; } .el-sim-tabs { gap: 13px; } }
+@media (max-width: 550px) {
+  .el-simulation { padding-top: 8px; }
+  .el-sim-header h2 { font-size: 23px; }
+  .el-sim-header p { font-size: 12px; }
+  .el-sim-probes { gap: 8px; }
+  .el-sim-probe > button:first-child { gap: 7px; padding: 10px 8px; flex-wrap: wrap; }
+  .el-sim-probe > button:first-child > b { width: 100%; }
+  .el-sim-probe strong { font-size: 12px; }
+  .el-sim-probe-clear { padding: 6px; }
+  .el-sim-controls { padding: 13px; }
+  .el-sim-control-heading { align-items: flex-start; }
+  .el-sim-control-heading > span { font-size: 10px; }
+  .el-sim-fields { gap: 10px; }
+  .el-sim-advanced > summary > span { display: block; margin-left: 15px; margin-top: 3px; }
+  .el-sim-runbar { flex-wrap: wrap; }
+  .el-sim-runbar > span { width: 100%; }
+  .el-sim-runbar > button { margin-left: auto; }
+  .el-sim-result-toolbar { flex-wrap: wrap; gap: 8px; padding-bottom: 9px; }
+  .el-sim-tabs { width: 100%; justify-content: space-between; gap: 8px; }
+  .el-sim-result-toolbar > button { margin-left: auto; }
+  .el-sim-plot-wrap { padding: 12px 2px 8px; }
+  .el-sim-dc-grid { grid-template-columns: 1fr; padding: 15px; }
+  .el-sim-empty { min-height: 240px; padding: 24px 16px; }
+}
