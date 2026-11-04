@@ -43,7 +43,7 @@ export type SimulationResult = {
     componentCurrents: Record<string, number>;
     /** Positive current flows from the driven net into its ideal voltage source. */
     sourceCurrents: Record<string, number>;
-    /** Nonlinear pin currents, positive into each device terminal. */
+    /** Modeled device terminal currents (nonlinear parts/ideal transformer), positive into each terminal. */
     deviceCurrents?: Record<string, Record<string, number>>;
   };
   ac: {

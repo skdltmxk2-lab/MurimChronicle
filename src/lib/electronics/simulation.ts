@@ -5,6 +5,7 @@ import { buildNonlinearDevices } from "./simulation-models";
 import { createNewtonSolver, NewtonConvergenceError } from "./simulation-newton";
 import { createEducationalOpamp, EDUCATIONAL_OPAMP } from "./simulation-opamp";
 import { sourceVoltage, sourceSamplingLimits, SOURCE_DEFAULTS } from "./simulation-source";
+import { buildIdealCenterTap, IDEAL_CENTER_TAP_ID, IDEAL_TRANSFORMER_WARNING, type IdealCenterTap } from "./simulation-transformer";
 export { sourceVoltage, sourceSamplingLimits } from "./simulation-source";
 
 const TAU = 2 * Math.PI;
@@ -120,7 +121,7 @@ type Drive = { net: string; voltage: number };
 function prepare(circuit: Circuit, definitions: ComponentDefinition[], config: SimulationConfig) {
   if (!Array.isArray(circuit.components) || !circuit.components.length || circuit.components.length > 80) fail("수치 시뮬레이션은 1~80개 소자를 지원합니다.");
   const defs = new Map(definitions.map(definition => [definition.id, definition]));
-  const passives: Passive[] = [], opamps: Opamp[] = [], nets = new Set<string>(), ids = new Set<string>();
+  const passives: Passive[] = [], opamps: Opamp[] = [], transformers: IdealCenterTap[] = [], nets = new Set<string>(), ids = new Set<string>();
   let nonlinear: ReturnType<typeof buildNonlinearDevices>;
   try { nonlinear = buildNonlinearDevices(circuit, definitions); }
   catch (error) { fail(error instanceof Error ? error.message : "비선형 소자 모델을 만들 수 없습니다."); }
@@ -134,12 +135,18 @@ function prepare(circuit: Circuit, definitions: ComponentDefinition[], config: S
     if (ids.has(component.id)) fail(`${component.id}: 소자 식별자가 중복되었습니다.`); ids.add(component.id);
     const definition = defs.get(component.definitionId);
     if (!definition) fail(`${component.id}: 소자 정의를 찾을 수 없습니다.`);
-    if (definition.mounting !== "direct") fail(`${component.id}: 어댑터·외부 소자는 현재 수치 모델에 없습니다.`);
+    const nonlinearDevice = nonlinearById.get(component.id);
+    // Numerical availability does not grant a physical footprint. The caller's
+    // breadboard validator still rejects external devices without verified leads.
+    if (definition.mounting !== "direct" && !nonlinearDevice && definition.id !== IDEAL_CENTER_TAP_ID) fail(`${component.id}: 어댑터·외부 소자는 현재 수치 모델에 없습니다.`);
     const pin = (id: string) => { const net = netName(component.pinNets[id], `${component.id}.${id}`); nets.add(net); return net; };
     if (Object.keys(component.pinNets).some(id => !definition.pins.some(pin => pin.id === id))) fail(`${component.id}: 정의에 없는 핀 연결입니다.`);
-    const nonlinearDevice = nonlinearById.get(component.id);
     if (nonlinearDevice) {
       for (const net of nonlinearDevice.pins) nets.add(netName(net, component.id));
+    } else if (definition.kind === "transformer") {
+      for (const id of ["1", "2", "3", "4", "5"]) pin(id);
+      try { transformers.push(buildIdealCenterTap(component, definition)); }
+      catch (error) { fail(error instanceof Error ? error.message : "변압기 모델을 만들 수 없습니다."); }
     } else if (["resistor", "capacitor", "electrolytic"].includes(definition.kind)) {
       if (definition.pins.length !== 2 || !definition.pins.some(pin => pin.id === "1") || !definition.pins.some(pin => pin.id === "2")) fail(`${component.id}: 지원하지 않는 2핀 소자 핀맵입니다.`);
       const kind = definition.kind === "resistor" ? "resistor" : "capacitor";
@@ -163,6 +170,10 @@ function prepare(circuit: Circuit, definitions: ComponentDefinition[], config: S
   if (nets.size > 128) fail("수치 모델의 연결 노드는 최대 128개입니다. 회로를 나누세요.");
   const adjacency = new Map<string, Set<string>>();
   for (const part of passives) { if (!adjacency.has(part.a)) adjacency.set(part.a, new Set()); if (!adjacency.has(part.b)) adjacency.set(part.b, new Set()); adjacency.get(part.a)!.add(part.b); adjacency.get(part.b)!.add(part.a); }
+  // A winding is conductive; primary and secondary remain galvanically isolated.
+  for (const transformer of transformers) for (const winding of [[transformer.primaryPlus, transformer.primaryMinus], [transformer.secondaryPlus, transformer.centerTap, transformer.secondaryMinus]]) for (const from of winding) for (const to of winding) if (from !== to) {
+    if (!adjacency.has(from)) adjacency.set(from, new Set()); adjacency.get(from)!.add(to);
+  }
   const passiveAdjacency = new Map([...adjacency].map(([net, connected]) => [net, new Set(connected)]));
   for (const device of nonlinear.devices) for (const from of device.pins) for (const to of device.pins) if (from !== to) {
     if (!adjacency.has(from)) adjacency.set(from, new Set()); adjacency.get(from)!.add(to);
@@ -207,9 +218,9 @@ function prepare(circuit: Circuit, definitions: ComponentDefinition[], config: S
   };
   for (const op of opamps) visit(op.id);
   const names = [...nets].filter(net => net !== config.groundNetId), index = new Map(names.map((net, i) => [net, i]));
-  const size = names.length + drives.length + opamps.length;
+  const size = names.length + drives.length + opamps.length + 2 * transformers.length;
   if (size > 128) fail("MNA 연립방정식은 최대 128개 미지수를 지원합니다. 회로를 나누세요.");
-  return { passives, opamps, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed };
+  return { passives, opamps, transformers, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed };
 }
 
 type Matrix = Float64Array[];
@@ -282,7 +293,7 @@ function factor(real: Matrix, imaginary?: Matrix) {
 /** Pure numerical analysis. Physical breadboard/probe validation belongs to the caller. */
 export function runSimulation(circuit: Circuit, definitions: ComponentDefinition[], input: SimulationConfig): SimulationResult {
   const config = parseSimulationConfig(input), model = prepare(circuit, definitions, config);
-  const { passives, opamps, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed } = model;
+  const { passives, opamps, transformers, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed } = model;
   if (!dynamicOpamps && config.startupPerturbationVolts) fail("시동 외란은 교육용 동적 op-amp 모델에서만 사용할 수 있습니다.");
   if (!opamps.length && config.startupPerturbationVolts) fail("시동 외란을 적용할 연산증폭기가 회로에 없습니다.");
   const outputStep = config.durationSeconds / (config.sampleCount - 1);
@@ -322,6 +333,21 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
       if (minus !== undefined) base[row][minus] -= 1;
     }
   });
+  const transformerRow = (i: number) => names.length + drives.length + opamps.length + 2 * i;
+  transformers.forEach((part, i) => {
+    // Branch currents iU: S+ -> CT, iL: CT -> S-. The constraints
+    // VsU = h*Vp and VsL = h*Vp share h=Ns/(2*Np). Symmetric stamps
+    // reflect Ip=-h*(iU+iL), so every instantaneous port power sums to zero.
+    const h = 1 / (2 * part.turnsRatio);
+    const windings = [[part.secondaryPlus, part.centerTap], [part.centerTap, part.secondaryMinus]];
+    windings.forEach(([a, b], winding) => {
+      const row = transformerRow(i) + winding;
+      for (const [net, coefficient] of [[a, 1], [b, -1], [part.primaryPlus, -h], [part.primaryMinus, h]] as [string, number][]) {
+        const node = index.get(net);
+        if (node !== undefined) { base[node][row] += coefficient; base[row][node] += coefficient; }
+      }
+    });
+  });
   const rhs = new Float64Array(size);
   drives.forEach((drive, i) => { rhs[names.length + i] = drive.voltage; });
   const newtonIndex = new Map(index);
@@ -336,17 +362,23 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   const dcState = newton ? nonlinearCall(() => newton.operatingPoint(base, rhs), "DC 동작점") : factor(base)(rhs).real;
   validateFinal(dcState);
   const valueAt = (state: Float64Array, net: string) => { const i = index.get(net); return i === undefined ? 0 : state[i]; };
+  for (const part of transformers) if (Math.abs(valueAt(dcState, part.primaryPlus) - valueAt(dcState, part.primaryMinus)) > 1e-9) fail(`${part.id}: 이상 변압기에 DC 전압차를 인가할 수 없습니다. 1차 양단의 DC 동작점을 같게 설정하세요. 자화·포화를 생략한 모델로 DC 변압 파형을 만들지 않습니다.`);
   const dc: SimulationResult["dc"] = { nodeVoltages: record<number>(), componentCurrents: record<number>(), sourceCurrents: record<number>() };
   dc.nodeVoltages[config.groundNetId] = 0;
   names.forEach((net, i) => { dc.nodeVoltages[net] = dcState[i]; });
   drives.forEach((drive, i) => { dc.sourceCurrents[drive.net] = dcState[names.length + i]; });
   for (const part of passives) dc.componentCurrents[part.id] = part.kind === "resistor" ? (valueAt(dcState, part.a) - valueAt(dcState, part.b)) / part.value : 0;
-  if (nonlinear.devices.length) {
+  if (nonlinear.devices.length || transformers.length) {
     dc.deviceCurrents = record<Record<string, number>>();
     for (const device of nonlinear.devices) {
       const currents = device.evaluate(device.pins.map(net => valueAt(dcState, net))).currents;
       dc.deviceCurrents[device.id] = Object.fromEntries(device.pinLabels.map((pin, i) => [pin, currents[i]]));
     }
+    transformers.forEach((part, i) => {
+      const upper = dcState[transformerRow(i)], lower = dcState[transformerRow(i) + 1];
+      const primary = -(upper + lower) / (2 * part.turnsRatio);
+      dc.deviceCurrents![part.id] = { "P+": primary, "P−": -primary, "S+": upper, CT: lower - upper, "S−": -lower };
+    });
   }
   let initialState = dcState;
   if (dynamicModels.length && config.startupPerturbationVolts) {
@@ -414,6 +446,7 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
     names.forEach((net, i) => { const real = solution.real[i], imag = solution.imaginary![i]; nodeGainMagnitude[net].push(Math.hypot(real, imag)); nodePhaseDegrees[net].push(real === 0 && imag === 0 ? 0 : Math.atan2(imag, real) * 180 / Math.PI); });
   }
   const warnings = [allDevices.length ? "R/C는 이상 소자이며 능동 소자는 명시된 교육용 근사 모델입니다. 실제 공차·누설·온도·정격·계측기 부하와 제조사 SPICE 모델을 재현하지 않습니다." : LIMIT_WARNING, ...nonlinear.warnings, "시간 응답은 모든 입력 DC 오프셋의 동작점에서 시작하며 backward Euler 내부 시간 적분을 사용합니다. AC는 이 동작점에서 주 입력만 단위 소신호로 선형화한 결과이며 추가 입력의 AC 성분은 0입니다."];
+  if (transformers.length) warnings.push(IDEAL_TRANSFORMER_WARNING);
   if (nonlinear.devices.length) warnings.push("BJT·MOSFET·다이오드는 교육용 비선형 모델입니다. 제조사 SPICE의 기생 커패시턴스·온도·항복·정격 모델이 아니며 Newton 잔차와 전압 변화가 모두 수렴한 결과만 표시합니다.");
   if (circuit.id === "mos-current-mirror") warnings.push("전류 미러의 DRAIN 전원 기본값 3 V는 자료의 0~6 V sweep 중간값으로 선택한 시작 설정입니다. 실제 목표·계측 조건에 맞게 바꾸세요.");
   if (circuit.id === "bjt-mixer") warnings.push("LO 기본값은 각 5 mV peak, 0°/180°의 대칭 구동입니다. 자료의 B1−B2 차동 입력은 실제 연결과 부하에서 다시 확인하세요.");

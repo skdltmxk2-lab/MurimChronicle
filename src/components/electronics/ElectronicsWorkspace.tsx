@@ -432,7 +432,7 @@ export function ElectronicsWorkspace() {
   return <main className="electronics-app" onPaste={pasteSource}>
     <header className="el-app-header">
       <div className="el-brand"><span className="el-brand-mark"><Icon name="chip" size={25} /></span><div><p>ROUTE · ENGINEERING</p><h1>전자공학 실험실 <span>Beta</span></h1></div></div>
-      <div className="el-header-actions"><span className="el-autosave"><i /> 브라우저 자동 저장</span><button className="el-button" onClick={() => { setJsonText(JSON.stringify(circuit, null, 2)); setJsonOpen(true); setDrawer(null); }}>회로 JSON</button><button className="el-button el-primary" disabled={saving} onClick={saveCloud}><Icon name="save" />{saving ? "저장 중…" : "클라우드 저장"}</button></div>
+      <div className="el-header-actions"><Link className="el-button" href="/admin/electronics/lab5">Lab 5 비교</Link><span className="el-autosave"><i /> 브라우저 자동 저장</span><button className="el-button" onClick={() => { setJsonText(JSON.stringify(circuit, null, 2)); setJsonOpen(true); setDrawer(null); }}>회로 JSON</button><button className="el-button el-primary" disabled={saving} onClick={saveCloud}><Icon name="save" />{saving ? "저장 중…" : "클라우드 저장"}</button></div>
     </header>
     <div className="el-workspace-tools">
       <button className="el-experiment-picker" onClick={() => setDrawer("experiments")} aria-haspopup="dialog"><Icon name="book" /><span><small>실험 선택</small><b>{experiment.title}</b></span><span aria-hidden="true">⌄</span></button>
