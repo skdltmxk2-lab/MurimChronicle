@@ -4,13 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { isAdminUser } from "@/lib/auth/mockAuth";
-import { adminFetch } from "@/lib/api/adminFetch";
+import { electronicsAdminFetch } from "@/lib/electronics/api";
 import { COMPONENT_CATALOG } from "@/lib/electronics/catalog";
 import { EXPERIMENTS } from "@/lib/electronics/experiments";
 import { CIRCUIT_TEMPLATES } from "@/lib/electronics/templates";
 import { createBoard, createLayout, validateLayout, createAssemblySteps } from "@/lib/electronics/engine";
 import { parseCircuit } from "@/lib/electronics/schema";
-import { downloadText, readLocalProjects, saveLocalProject } from "@/lib/electronics/storage";
+import { downloadText, isSavedProjectMetadata, readLocalProjects, saveLocalProject } from "@/lib/electronics/storage";
 import type { BoardOptions, Circuit, CircuitLayout, SavedProject } from "@/lib/electronics/types";
 import { Breadboard, type BoardSelection } from "./Breadboard";
 import "./electronics.css";
@@ -89,12 +89,16 @@ export function ElectronicsWorkspace() {
   }, [boardOptions]);
 
   useEffect(() => {
-    if (!projectUser || !isAdminUser(user) || readyUser.current === projectUser) return;
-    readyUser.current = projectUser;
+    const authorized = !!projectUser && isAdminUser(user);
+    if (authorized && readyUser.current === projectUser) return;
+    if (!authorized && readyUser.current === null) return;
+    readyUser.current = authorized ? projectUser : null;
     analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null;
-    setBusy(false); setFiles([]); setSourceText(""); setCloudLoaded(false); setMessage(""); setError("");
+    setBusy(false); setSaving(false); setFiles([]); setSourceText(""); setCloudLoaded(false); setMessage(""); setError("");
+    setJsonOpen(false); setJsonText(""); setView("board"); setLeftTab("experiments"); setExperimentId("lab-0");
     setBoardOptions(defaultBoard); setCircuit(cloneCircuit(initial)); setLayout(createLayout(initial, COMPONENT_CATALOG, defaultBoard));
     setSelection(null); setStepIndex(null); setCompletedSteps([]); setUndoStack([]); setPickingPin(null);
+    if (!authorized) { setProjects([]); setProjectId(""); setWorkspaceOwner(null); return; }
     const stored = readLocalProjects(projectUser); setProjects(stored);
     setProjectId(crypto.randomUUID());
     setWorkspaceOwner(projectUser);
@@ -123,14 +127,15 @@ export function ElectronicsWorkspace() {
     setError("");
     const incoming = Array.from(list);
     const actingUser = projectUser;
+    const version = analysisVersion.current;
     if (files.length + incoming.length > 4 || files.reduce((s, f) => s + f.size, 0) + incoming.reduce((s, f) => s + f.size, 0) > 2_900_000) { setError("첨부는 최대 4개, 합계 2.8MB까지 가능합니다. PDF는 필요한 페이지만 분리해 주세요."); return; }
     try {
       const added = await Promise.all(incoming.map(file => new Promise<SourceFile>((resolve, reject) => {
         if (!["application/pdf", "image/png", "image/jpeg", "image/webp"].includes(file.type)) { reject(new Error("PDF, PNG, JPG, WebP 파일을 선택하세요.")); return; }
         const reader = new FileReader(); reader.onload = () => resolve({ name: file.name, mimeType: file.type, data: String(reader.result).split(",")[1], size: file.size }); reader.onerror = () => reject(new Error("파일을 읽지 못했습니다.")); reader.readAsDataURL(file);
       })));
-      if (readyUser.current === actingUser) { setFiles(f => [...f, ...added]); setLeftTab("sources"); }
-    } catch (e) { setError(e instanceof Error ? e.message : "파일을 읽지 못했습니다."); }
+      if (readyUser.current === actingUser && analysisVersion.current === version) { setFiles(f => [...f, ...added]); setLeftTab("sources"); }
+    } catch (e) { if (readyUser.current === actingUser && analysisVersion.current === version) setError(e instanceof Error ? e.message : "파일을 읽지 못했습니다."); }
   }
 
   async function analyze() {
@@ -139,7 +144,7 @@ export function ElectronicsWorkspace() {
     const controller = new AbortController(); cancelAnalyze.current = controller;
     const version = ++analysisVersion.current; const actingUser = projectUser;
     try {
-      const res = await adminFetch("/api/admin/electronics/analyze", { method: "POST", body: JSON.stringify({ text: sourceText, files: files.map(({ name, mimeType, data }) => ({ name, mimeType, data })) }), signal: controller.signal });
+      const res = await electronicsAdminFetch(actingUser, "/api/admin/electronics/analyze", { method: "POST", body: JSON.stringify({ text: sourceText, files: files.map(({ name, mimeType, data }) => ({ name, mimeType, data })) }), signal: controller.signal });
       const data = await res.json();
       if (readyUser.current !== actingUser || analysisVersion.current !== version) return;
       if (!res.ok || !data.ok) throw new Error(data.message || data.error || "자료를 분석하지 못했습니다.");
@@ -151,21 +156,22 @@ export function ElectronicsWorkspace() {
   async function saveCloud() {
     setSaving(true); setError("");
     const actingUser = projectUser;
+    const version = analysisVersion.current;
     try {
       const project: SavedProject = { version: 1, id: projectId || crypto.randomUUID(), title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId };
-      const res = await adminFetch("/api/admin/electronics/projects", { method: "POST", body: JSON.stringify(project) }); const data = await res.json();
-      if (readyUser.current !== actingUser) return;
+      const res = await electronicsAdminFetch(actingUser, "/api/admin/electronics/projects", { method: "POST", body: JSON.stringify(project) }); const data = await res.json();
+      if (readyUser.current !== actingUser || analysisVersion.current !== version) return;
       if (!res.ok || !data.ok) throw new Error(data.message || "클라우드에 저장하지 못했습니다.");
       setProjectId(project.id); setMessage("내 관리자 계정의 비공개 프로젝트에 저장했습니다."); setProjects(saveLocalProject(projectUser, project));
-    } catch (e) { setError(e instanceof Error ? e.message : "저장하지 못했습니다."); }
-    finally { setSaving(false); }
+    } catch (e) { if (readyUser.current === actingUser) setError(e instanceof Error ? e.message : "저장하지 못했습니다."); }
+    finally { if (readyUser.current === actingUser) setSaving(false); }
   }
 
   async function loadCloud() {
     setSaving(true); setError("");
     const actingUser = projectUser;
     try {
-      const res = await adminFetch("/api/admin/electronics/projects"); const data = await res.json();
+      const res = await electronicsAdminFetch(actingUser, "/api/admin/electronics/projects"); const data = await res.json();
       if (readyUser.current !== actingUser) return;
       if (!res.ok || !data.ok) throw new Error(data.message || "프로젝트를 불러오지 못했습니다.");
       const items: SavedProject[] = data.projects;
@@ -174,12 +180,13 @@ export function ElectronicsWorkspace() {
       for (const p of items) { const existing = combined.get(p.id); if (!existing || p.updatedAt > existing.updatedAt) combined.set(p.id, p); }
       const sorted = [...combined.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 30);
       setProjects(sorted); setCloudLoaded(true); setMessage(`내 프로젝트 ${items.length}개를 불러왔습니다.${data.skipped ? ` 형식을 확인할 수 없는 ${data.skipped}개는 제외했습니다.` : ""}`);
-    } catch (e) { setError(e instanceof Error ? e.message : "프로젝트를 불러오지 못했습니다."); }
-    finally { setSaving(false); }
+    } catch (e) { if (readyUser.current === actingUser) setError(e instanceof Error ? e.message : "프로젝트를 불러오지 못했습니다."); }
+    finally { if (readyUser.current === actingUser) setSaving(false); }
   }
 
   function openProject(p: SavedProject) {
     try {
+      if (!isSavedProjectMetadata(p)) throw new Error("프로젝트 메타데이터 형식이 올바르지 않습니다.");
       const next = parseCircuit(p.circuit, COMPONENT_CATALOG);
       const options: BoardOptions = { boards: p.boardOptions.boards === 2 ? 2 : 1, railMode: p.boardOptions.railMode === "continuous" ? "continuous" : "split" };
       setBoardOptions(options); applyCircuit(next, options);
@@ -191,7 +198,8 @@ export function ElectronicsWorkspace() {
         }
       }
       setCompletedSteps(p.completedSteps || []); setProjectId(p.id); if (p.experimentId) setExperimentId(p.experimentId); setView("board"); setMessage("프로젝트를 불러오고 배선을 다시 검사했습니다.");
-    } catch { setError("이 프로젝트 형식을 읽지 못했습니다. 회로 JSON을 확인해 주세요."); }
+      return true;
+    } catch { setError("이 프로젝트 형식을 읽지 못했습니다. 회로 JSON을 확인해 주세요."); return false; }
   }
 
   function exportAssembly() {
@@ -271,6 +279,6 @@ export function ElectronicsWorkspace() {
         <div className="el-inspector-instruments"><div className="el-section-label">계측기 연결 <span>{circuit.instruments.length}</span></div>{circuit.instruments.map((connection, index) => <button key={connection.id} onClick={() => { setSelection({ type: "terminal", id: connection.id }); setStepIndex(null); }}><b>T{index + 1}</b><span>{connection.port}<small>{connection.instrument} · {layout.terminals.find(t => t.connectionId === connection.id)?.holeId || "미배치"}</small></span></button>)}</div><div className="el-inspector-components"><div className="el-section-label">사용 소자 <span>{circuit.components.length}</span></div>{circuit.components.map(c => <button key={c.id} className={selectedComponent?.id === c.id ? "active" : ""} onClick={() => { setSelection({ type: "component", id: c.id }); setStepIndex(null); }}><b>{c.id}</b><span>{c.value}<small>{COMPONENT_CATALOG.find(d => d.id === c.definitionId)?.name || c.definitionId}</small></span></button>)}</div>{undoStack.length > 0 && <button className="el-button el-full" onClick={() => { const last = undoStack[undoStack.length - 1]; setLayout(last); setUndoStack(s => s.slice(0, -1)); }}>위치 변경 실행 취소</button>}
       </aside>}
     </div>
-    {jsonOpen && <div className="el-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setJsonOpen(false); }}><section className="el-modal" role="dialog" aria-modal="true" aria-labelledby="el-json-title"><div className="el-card-title"><h2 id="el-json-title">ChatGPT 설계 가져오기 · 회로 편집</h2><button className="el-button" onClick={() => setJsonOpen(false)}>닫기</button></div><p>이 채팅에서 만든 설계 파일을 불러오면 같은 배치 엔진으로 생성하고 검사합니다. 회로 또는 프로젝트 JSON을 붙여 넣거나 선택하세요.</p><label className="el-json-import">JSON 파일 불러오기<input type="file" accept="application/json,.json" onChange={async e => { const file = e.target.files?.[0]; if (file && file.size < 3_000_000) setJsonText(await file.text()); else if (file) setError("JSON 파일은 3MB 미만으로 선택하세요."); }} /></label><textarea aria-label="회로 JSON" value={jsonText} onChange={e => setJsonText(e.target.value)} spellCheck={false} /><div className="el-modal-actions"><button className="el-button el-primary" onClick={() => { try { const value = JSON.parse(jsonText); if (value.version === 1 && value.circuit) openProject(value); else { applyCircuit(parseCircuit(value, COMPONENT_CATALOG)); setProjectId(crypto.randomUUID()); } setJsonOpen(false); setView("board"); } catch (e) { setError(e instanceof Error ? e.message : "JSON 형식을 확인해 주세요."); } }}>적용 · 전체 재배치</button></div></section></div>}
+    {jsonOpen && <div className="el-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setJsonOpen(false); }}><section className="el-modal" role="dialog" aria-modal="true" aria-labelledby="el-json-title"><div className="el-card-title"><h2 id="el-json-title">ChatGPT 설계 가져오기 · 회로 편집</h2><button className="el-button" onClick={() => setJsonOpen(false)}>닫기</button></div><p>이 채팅에서 만든 설계 파일을 불러오면 같은 배치 엔진으로 생성하고 검사합니다. 회로 또는 프로젝트 JSON을 붙여 넣거나 선택하세요.</p><label className="el-json-import">JSON 파일 불러오기<input type="file" accept="application/json,.json" onChange={async e => { const file = e.target.files?.[0]; if (file && file.size < 3_000_000) { const owner = projectUser; const version = analysisVersion.current; const json = await file.text(); if (readyUser.current === owner && analysisVersion.current === version) setJsonText(json); } else if (file) setError("JSON 파일은 3MB 미만으로 선택하세요."); }} /></label><textarea aria-label="회로 JSON" value={jsonText} onChange={e => setJsonText(e.target.value)} spellCheck={false} />{error && <div className="el-notice error" role="alert">{error}</div>}<div className="el-modal-actions"><button className="el-button el-primary" onClick={() => { try { const value = JSON.parse(jsonText); if (value.version === 1 && value.circuit) { if (!openProject(value)) return; } else { applyCircuit(parseCircuit(value, COMPONENT_CATALOG)); setProjectId(crypto.randomUUID()); } setJsonOpen(false); setView("board"); } catch (e) { setError(e instanceof Error ? e.message : "JSON 형식을 확인해 주세요."); } }}>적용 · 전체 재배치</button></div></section></div>}
   </main>;
 }

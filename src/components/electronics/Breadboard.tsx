@@ -89,7 +89,7 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
     <div className="el-board-scroll" ref={scroller} onMouseLeave={() => { setTip(null); setPan(null); }} onMouseUp={() => setPan(null)} onMouseMove={e => {
       if (pan && scroller.current) { scroller.current.scrollLeft = pan.left - (e.clientX - pan.x); scroller.current.scrollTop = pan.top - (e.clientY - pan.y); }
     }}>
-      <svg id="electronics-breadboard" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={`${circuit.title} 가상 빵판 배치도${fitOccupied ? " · 사용 영역" : " · 전체 빵판"}`} viewBox={`${viewRect.x} ${viewRect.y} ${viewRect.width} ${viewRect.height}`} style={{ width: `${zoom * 100}%`, minWidth: (fitOccupied ? Math.min(950, viewRect.width) : 950) * zoom, height: "auto", display: "block" }} onMouseDown={e => {
+      <svg fontFamily="Arial, Malgun Gothic, sans-serif" id="electronics-breadboard" xmlns="http://www.w3.org/2000/svg" role="img" aria-label={`${circuit.title} 가상 빵판 배치도${fitOccupied ? " · 사용 영역" : " · 전체 빵판"}`} viewBox={`${viewRect.x} ${viewRect.y} ${viewRect.width} ${viewRect.height}`} style={{ width: `${zoom * 100}%`, minWidth: (fitOccupied ? Math.min(950, viewRect.width) : 950) * zoom, height: "auto", display: "block" }} onMouseDown={e => {
         if (e.target === e.currentTarget && scroller.current) setPan({ x: e.clientX, y: e.clientY, left: scroller.current.scrollLeft, top: scroller.current.scrollTop });
       }}>
         <defs>
