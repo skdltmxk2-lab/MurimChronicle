@@ -19,6 +19,7 @@ import {
 } from "@/lib/admin/unitMockSelection";
 import { DIFFICULTY_KEYS, isKnownSubject, unitsForSubject } from "@/lib/taxonomy";
 import { isPublishableQuestion } from "@/lib/questions/standalone";
+import { createQualityGateSession } from "@/lib/questions/qualityGateServer";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Difficulty } from "@/types/exam";
 import type { QuestionPool, QuestionRecord } from "@/types/question";
@@ -359,6 +360,14 @@ export async function POST(request: Request) {
   }
 
   const selectedIds = new Set(excludeIds);
+  // 출제 시점 품질 게이트 (DESIGN_quality_gate.md). 모드는 app_settings.quality_gate_mode —
+  // 기본 shadow(검사·보고만). enforce 면 깨진 문항을 격리하고 같은 조건의 다른 문항으로 바꾼다.
+  const gate = await createQualityGateSession({
+    supabase: auth.supabase,
+    actorId: auth.userId,
+    context: "unit-mock",
+    origin: new URL(request.url).origin,
+  });
   const selectedQuestions: QuestionRecord[] = [];
   const selectedDifficultyCounts: Partial<Record<Difficulty, number>> = {};
   const sectionSelections: UnitMockSectionSelection[] = [];
@@ -414,13 +423,20 @@ export async function POST(request: Request) {
       )
     );
     const units = unitsForSubject(section.subject);
-    const selection = selectUnitMockCandidates(candidates, {
-      subject: section.subject,
-      unit: section.unit,
-      units,
-      count: section.count,
-      difficulty: section.difficulty,
-    });
+    const selection = {
+      selected: await gate.select({
+        candidates,
+        count: section.count,
+        select: (pool, count) =>
+          selectUnitMockCandidates(pool, {
+            subject: section.subject,
+            unit: section.unit,
+            units,
+            count,
+            difficulty: section.difficulty,
+          }).selected,
+      }),
+    };
 
     const sectionFallbackSelectedCount =
       section.difficulty === "all"
@@ -500,6 +516,7 @@ export async function POST(request: Request) {
     sectionSelections,
     difficultyOrder: difficultyFallbackOrder(difficulty),
     usageTrackingAvailable: true,
+    qualityGate: gate.response(),
     students: ownedStudents.students,
     student: ownedStudents.students[0],
   });

@@ -8,6 +8,7 @@ import { HomeworkSheetActions } from "@/components/admin/homework/HomeworkSheetA
 import type { HomeworkMaterial } from "@/types/homework";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { KaTeXRenderer } from "@/components/math/KaTeXRenderer";
+import { summarizeGateReport, type GateSummaryInput } from "@/lib/questions/qualityGateSummary.mjs";
 import { breakStatementLists, splitRenderBlocks } from "@/lib/math/viewBlocks.mjs";
 import {
   blobToBase64,
@@ -938,6 +939,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
         usageTrackingAvailable?: boolean;
         selectedDifficultyCounts?: Partial<Record<Difficulty, number>>;
         fallbackSelectedCount?: number;
+        qualityGate?: GateSummaryInput;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
@@ -999,7 +1001,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           selectedDifficultyText ? ` · ${selectedDifficultyText}${fallbackText}` : ""
         }${
           breakdownText ? ` (${breakdownText})` : ""
-        }`
+        }${gateSummaryText(json.qualityGate)}`
       );
       setSheet(unitSheetFromQuestions(json.questions, resolvedSections, unitStudents));
       const generatedQuestionIds = json.questions.map((question) => question.id);
@@ -1055,6 +1057,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           questionIds: string[];
           fallbackSelectedCount: number;
         }>;
+        qualityGate?: GateSummaryInput;
       }>(
         await adminFetch("/api/admin/coaching/unit-mock", {
           method: "POST",
@@ -1123,7 +1126,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           fallbackReplacementCount > 0 ? ` 하위 난이도 교체 ${fallbackReplacementCount}개.` : ""
         }${
           missingCount > 0 ? ` 후보 부족 ${missingCount}개` : ""
-        }${trackingText}`
+        }${trackingText}${gateSummaryText(json.qualityGate)}`
       );
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "문항 교체에 실패했습니다.");
@@ -2632,4 +2635,10 @@ function PrintableAnswerSheet({ sheet }: { sheet: PrintSheet }) {
       </div>
     </section>
   );
+}
+
+/** 출제 시점 품질 게이트 요약을 알림 끝에 붙인다. 표시할 게 없으면 빈 문자열. */
+function gateSummaryText(report: GateSummaryInput | undefined) {
+  const text = summarizeGateReport(report);
+  return text ? ` · ${text}` : "";
 }
