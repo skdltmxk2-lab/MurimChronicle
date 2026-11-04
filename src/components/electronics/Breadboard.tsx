@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AssemblyStep, BoardHole, Circuit, CircuitLayout, ComponentDefinition } from "@/lib/electronics/types";
+import { ALL_BOARD_LAYERS, componentLayer, isBoardSelectionVisible, layerForAssemblyStep, type BoardLayer } from "@/lib/electronics/visibility";
 
 export type BoardSelection = { type: "component" | "jumper" | "terminal" | "hole"; id: string } | null;
 
@@ -16,14 +17,15 @@ function resistanceColors(value: string) {
   return [palette[Number(digits[0])], palette[Number(digits[1])], multiplier, "#b59b52"];
 }
 
-export function Breadboard({ circuit, definitions, layout, selection, onSelect, activeStep, wiresVisible, labelsVisible, onHolePick, zoom, onZoom }: {
+export function Breadboard({ circuit, definitions, layout, selection: requestedSelection, onSelect, activeStep: requestedActiveStep, wiresVisible = true, visibleLayers = ALL_BOARD_LAYERS, labelsVisible, onHolePick, zoom, onZoom }: {
   circuit: Circuit;
   definitions: ComponentDefinition[];
   layout: CircuitLayout;
   selection: BoardSelection;
   onSelect: (selection: BoardSelection) => void;
   activeStep?: AssemblyStep;
-  wiresVisible: boolean;
+  wiresVisible?: boolean;
+  visibleLayers?: readonly BoardLayer[];
   labelsVisible: boolean;
   onHolePick?: (holeId: string) => void;
   zoom: number;
@@ -35,6 +37,13 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
   const [fitOccupied, setFitOccupied] = useState(true);
   const scroller = useRef<HTMLDivElement>(null);
   const [pan, setPan] = useState<{ x: number; y: number; left: number; top: number } | null>(null);
+  const displayedLayers = wiresVisible ? visibleLayers : visibleLayers.filter(layer => layer !== "jumper");
+  const layerKey = displayedLayers.join(",");
+  useEffect(() => { setTip(null); }, [layerKey, circuit, layout]);
+  const selection = isBoardSelectionVisible(requestedSelection, circuit, definitions, displayedLayers) ? requestedSelection : null;
+  const stepLayer = layerForAssemblyStep(requestedActiveStep, circuit, definitions);
+  const activeStep = stepLayer && displayedLayers.includes(stepLayer) ? requestedActiveStep : undefined;
+  // Keep framing and occupied-hole information stable while layers are hidden.
   const occupied = useMemo(() => new Set([...layout.placements.flatMap(p => Object.values(p.pins)), ...layout.jumpers.flatMap(j => [j.from, j.to]), ...layout.terminals.map(t => t.holeId)]), [layout]);
   const viewRect = useMemo(() => {
     const full = { x: 0, y: 0, width: layout.board.width, height: layout.board.height };
@@ -132,15 +141,14 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
             })}
           </g>;
         })}
-        {layout.jumpers.map((j, i) => {
+        {displayedLayers.includes("jumper") && layout.jumpers.map((j, i) => {
           const a = holes.get(j.from), b = holes.get(j.to); if (!a || !b) return null;
           const sameRow = Math.abs(a.y - b.y) < 3;
           const bendY = Math.min(a.y, b.y) - 18 - i % 5 * 9;
           const path = sameRow ? `M${a.x},${a.y} L${a.x},${bendY} L${b.x},${bendY} L${b.x},${b.y}` : `M${a.x},${a.y} L${a.x + 6 + i % 3 * 5},${a.y} L${a.x + 6 + i % 3 * 5},${b.y} L${b.x},${b.y}`;
           const label = `${j.id} · ${circuit.netNames[j.netId] || j.netId} · ${j.from} ↔ ${j.to}`;
           const opacity = opacityFor(undefined, j.netId, j.id);
-          const visible = wiresVisible || activeStep?.jumperId === j.id;
-          return <g key={j.id} opacity={visible ? opacity : 0} style={{ pointerEvents: visible ? "auto" : "none", cursor: "pointer" }} role="button" tabIndex={visible ? 0 : -1} aria-label={label} onClick={() => onSelect({ type: "jumper", id: j.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "jumper", id: j.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)}>
+          return <g key={j.id} data-board-layer="jumper" opacity={opacity} style={{ cursor: "pointer" }} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "jumper", id: j.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "jumper", id: j.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)}>
             <path d={path} fill="none" stroke="#eef0e8" strokeWidth={6.8} strokeLinejoin="round" />
             <path d={path} fill="none" stroke={j.color} strokeWidth={3.5} strokeLinejoin="round" />
             <path d={path} fill="none" stroke="transparent" strokeWidth={12} />
@@ -152,6 +160,7 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
         {layout.placements.map(p => {
           const c = circuit.components.find(c => c.id === p.componentId); if (!c) return null;
           const d = defs.get(c.definitionId); if (!d) return null;
+          if (!displayedLayers.includes(componentLayer(d.kind))) return null;
           const entries = d.pins.map(pin => ({ pin, hole: holes.get(p.pins[pin.id]) })).filter((e): e is { pin: typeof d.pins[number]; hole: BoardHole } => Boolean(e.hole));
           if (!entries.length) return null;
           const xs = entries.map(e => e.hole.x), ys = entries.map(e => e.hole.y);
@@ -164,7 +173,7 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
           const label = `${c.id} · ${d.name} · ${c.value}`;
           const selected = selection?.type === "component" && selection.id === c.id || activeStep?.componentId === c.id;
           const opacity = opacityFor(c.id);
-          return <g key={c.id} opacity={opacity} style={{ cursor: "pointer" }} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "component", id: c.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "component", id: c.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)}>
+          return <g key={c.id} data-board-layer={componentLayer(d.kind)} opacity={opacity} style={{ cursor: "pointer" }} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "component", id: c.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "component", id: c.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)}>
             {selected && <rect x={Math.min(...xs) - 12} y={Math.min(...ys) - 24} width={Math.max(...xs) - Math.min(...xs) + 24} height={Math.max(...ys) - Math.min(...ys) + 42} rx={7} fill="#00a998" fillOpacity={0.08} stroke="#07978b" strokeWidth={1.5} strokeDasharray="4 3" />}
             {entries.map(({ pin, hole }, index) => {
               const radial = !dip && !["resistor", "diode", "inductor"].includes(d.kind);
@@ -190,12 +199,12 @@ export function Breadboard({ circuit, definitions, layout, selection, onSelect, 
             <title>{`${label}\n${entries.map(e => `${e.pin.id} ${e.pin.label}: ${e.hole.id}`).join("\n")}`}</title>
           </g>;
         })}
-        {layout.terminals.map(t => {
+        {displayedLayers.includes("instrument") && layout.terminals.map(t => {
           const h = holes.get(t.holeId), c = circuit.instruments.find(i => i.id === t.connectionId); if (!h || !c) return null;
           const reference = `T${circuit.instruments.findIndex(connection => connection.id === t.connectionId) + 1}`;
           const label = `${reference} · ${c.instrument} ${c.port} · ${h.id} · ${c.setting || ""}`;
           const active = selection?.type === "terminal" && selection.id === t.connectionId || activeStep?.connectionId === t.connectionId;
-          return <g key={t.connectionId} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "terminal", id: t.connectionId }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)} opacity={selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
+          return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "terminal", id: t.connectionId }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={() => setTip(null)} opacity={selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
             <circle cx={h.x} cy={h.y} r={active ? 7 : 5} fill={/gnd|ground|−|^-$/i.test(c.port) ? "#475569" : "#da8a3b"} stroke="#fff" strokeWidth={1.5} />
             {(labelsVisible || active) && <text x={h.x} y={h.y + 13} textAnchor="middle" fontSize={8} fontWeight={800} fill="#925622" stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{reference}</text>}
             {active && <text x={h.x + 11} y={h.y - 13} fontSize={9} fontWeight={800} fill="#925622" stroke="#fff" strokeWidth={3} paintOrder="stroke">{c.instrument} · {c.port}</text>}

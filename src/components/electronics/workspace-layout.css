@@ -1,0 +1,174 @@
+/* Board-first workspace. Libraries open on demand; Gemini stays beside the canvas. */
+.electronics-app .el-app-header { min-height: 78px; padding: 14px 28px; }
+.el-workspace-tools { display: flex; align-items: center; gap: 10px; padding: 12px 28px; border-bottom: 1px solid var(--el-line); background: var(--el-surface); }
+.el-experiment-picker { display: flex; align-items: center; gap: 12px; background: transparent; color: var(--el-text); border: 0; padding: 0 20px 0 0; margin-right: 6px; text-align: left; max-width: 390px; }
+.el-experiment-picker > span:first-of-type { min-width: 0; }
+.el-experiment-picker small { display: block; color: var(--el-muted); font-size: 10px; }
+.el-experiment-picker b { display: block; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+.el-experiment-picker > svg { flex-shrink: 0; color: var(--el-accent); }
+.el-chat-toggle { margin-left: auto; }
+.el-chat-toggle.active { color: var(--el-accent); background: var(--el-soft); border-color: var(--el-accent); }
+.electronics-app .el-app-grid.with-chat { display: grid; grid-template-columns: minmax(0, 1fr) 350px; max-width: 1920px; gap: 0; }
+.electronics-app .el-app-grid.without-chat { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1920px; }
+.electronics-app .el-main { padding: 0 28px 28px; }
+.electronics-app .el-view-tabs { height: 54px; margin-bottom: 18px; gap: 28px; }
+.electronics-app .el-circuit-heading { margin: 18px 0 14px; }
+.electronics-app .el-circuit-heading input { font-size: 24px !important; }
+.electronics-app .el-circuit-heading > div > p:last-child { font-size: 12px; }
+.el-board-settings { margin: 0 0 16px; font-size: 11px; }
+.el-board-settings > summary, .el-selection-panel > summary, .el-checks-panel > summary { cursor: pointer; color: var(--el-text); font-weight: 650; padding: 11px 0; }
+.el-board-settings > summary span, .el-selection-panel > summary span, .el-checks-panel > summary span { margin-left: 12px; color: var(--el-muted); font-size: 11px; font-weight: 400; }
+.electronics-app .el-board-options { padding: 8px 0; }
+.electronics-app .el-board-options, .electronics-app .el-board-options select { font-size: 11px !important; }
+.el-layer-panel { padding: 14px 16px; background: var(--el-surface); border: 1px solid var(--el-line); border-radius: 12px 12px 0 0; border-bottom: 0; }
+.el-layer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.el-layer-top > b { font-size: 12px; }
+.el-layer-top label { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--el-muted); }
+.el-layer-top select { font-size: 11px !important; padding: 4px 8px !important; }
+.el-layer-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.el-layer-chips button { display: inline-flex; align-items: center; gap: 7px; padding: 6px 10px; border: 1px solid var(--el-line); border-radius: 6px; font-size: 11px; color: var(--el-muted); background: var(--el-bg); }
+.el-layer-chips button.active { background: var(--el-soft); color: var(--el-text); border-color: color-mix(in srgb, var(--el-accent) 40%, var(--el-line)); }
+.el-layer-chips button:first-child.active { color: var(--el-accent); font-weight: 700; }
+.el-layer-chips small { font-size: 10px; color: var(--el-muted); }
+.el-layer-dot { width: 7px; height: 7px; border-radius: 2px; background: #91a2a3; opacity: .35; }
+.active > .el-layer-dot { opacity: 1; }
+.el-layer-dot.resistor { background: #b18a54; }
+.el-layer-dot.capacitor { background: #5988bb; }
+.el-layer-dot.opamp { background: #77739e; }
+.el-layer-dot.semiconductor { background: #9f725c; }
+.el-layer-dot.ic { background: #637680; }
+.el-layer-dot.jumper { background: #299e87; }
+.el-layer-dot.instrument { background: #ce9548; }
+.el-filter-notice { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; color: var(--el-muted); font-size: 10px; margin-top: 9px !important; }
+.electronics-app .el-board-stage { border-radius: 0 0 12px 12px; }
+.electronics-app .el-board-toolbar { height: 43px; font-size: 11px; }
+.electronics-app .el-board-toolbar button { font-size: 11px; height: 27px; min-width: 28px; }
+.electronics-app .el-board-scroll { min-height: 340px; padding: 32px 18px; }
+.electronics-app .el-board-caption { font-size: 10px; }
+.electronics-app .el-design-stats { margin-bottom: 4px; padding: 12px 4px; }
+.electronics-app .el-design-stats b { font-size: 17px; }
+.electronics-app .el-design-stats span { font-size: 11px; }
+.el-selection-panel, .el-checks-panel { border-bottom: 1px solid var(--el-line); font-size: 12px; }
+.el-selection-panel > summary, .el-checks-panel > summary { padding: 14px 2px; }
+.electronics-app .el-inspector { display: block; padding: 18px; min-height: 0; height: auto; border: 1px solid var(--el-line); border-radius: 10px; margin: 0 0 16px; }
+.electronics-app .el-inspector-title { padding-bottom: 10px; margin-bottom: 14px; }
+.electronics-app .el-inspector > .el-field-label { max-width: 320px; }
+.electronics-app .el-pin-table { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
+.electronics-app .el-pin-table > div { border-right: 1px solid var(--el-line); padding: 10px; }
+.electronics-app .el-pin-table select { font-size: 10px !important; }
+.electronics-app .el-inspector-components, .electronics-app .el-inspector-instruments { display: flex; flex-wrap: wrap; gap: 5px 12px; margin-top: 18px; }
+.el-inspector-components .el-section-label, .el-inspector-instruments .el-section-label { width: 100%; }
+.electronics-app .el-inspector-components > button, .electronics-app .el-inspector-instruments > button { width: auto; min-width: 150px; padding: 8px; border: 1px solid var(--el-line); }
+.electronics-app .el-empty-inspector { display: block; padding: 10px 0; text-align: left; }
+.electronics-app .el-empty-inspector > span, .electronics-app .el-empty-inspector > div { display: none; }
+.electronics-app .el-assembly-start p, .electronics-app .el-step-copy p { font-size: 12px; }
+.electronics-app .el-step-copy > b { font-size: 13px; }
+.el-checks-panel .el-bottom-grid { margin-top: 0; }
+
+/* Native dialog isolates long experiment/source/project lists from the canvas. */
+.el-workspace-drawer { padding: 0; margin: auto; width: 640px; max-width: calc(100vw - 32px); max-height: min(82vh, 850px); background: var(--el-surface); color: var(--el-text); border: 1px solid var(--el-line); border-radius: 16px; box-shadow: 0 24px 90px #00151c44; }
+.el-workspace-drawer::backdrop { background: #10232b70; backdrop-filter: blur(3px); }
+.el-drawer-content { padding: 24px; }
+.el-drawer-content > header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.el-drawer-content h2 { font-size: 20px; font-weight: 750; }
+.electronics-app .el-workspace-drawer .el-sidebar { border: 0; padding: 0; height: auto; min-height: 0; background: transparent; }
+.electronics-app .el-workspace-drawer .el-sidebar-tabs { margin: 22px 0 16px; max-width: none; }
+.el-workspace-drawer .el-sidebar-tabs button { font-size: 12px; padding: 9px; }
+.electronics-app .el-workspace-drawer .el-experiment-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow: visible; }
+.electronics-app .el-workspace-drawer .el-experiment-list button { padding: 12px 8px; min-width: 0; }
+.electronics-app .el-workspace-drawer .el-experiment-list b { font-size: 12px; max-width: none; }
+.electronics-app .el-workspace-drawer .el-experiment-list small { font-size: 10px; }
+.el-workspace-drawer .el-sidebar-note { display: none; }
+.electronics-app .el-workspace-drawer .el-sidebar > .el-section-label { display: flex; }
+.el-workspace-drawer .el-source-panel > p, .el-workspace-drawer .el-source-panel textarea, .el-workspace-drawer .el-file { font-size: 12px; }
+.el-workspace-drawer .el-source-panel { max-width: none; padding: 0; }
+.el-workspace-drawer .el-saved-panel { max-height: none; }
+
+/* Gemini conversation pane shares the exact circuit and current physical placement. */
+.el-chat-rail { min-width: 0; position: sticky; top: 12px; align-self: start; height: calc(100dvh - 26px); max-height: 960px; border-left: 1px solid var(--el-line); background: var(--el-surface); }
+.el-chat-rail[hidden] { display: none !important; }
+.el-chat { display: flex; flex-direction: column; height: 100%; min-height: 510px; }
+.el-chat-header { display: flex; align-items: center; gap: 10px; padding: 20px 17px 14px; }
+.el-chat-mark { display: grid; place-items: center; width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; color: #7c78c7; background: #7c78c713; font-size: 22px; }
+.el-chat-heading { flex: 1; min-width: 0; }
+.el-chat-heading h2 { font-size: 15px; font-weight: 750; }
+.el-chat-heading p { font-size: 10px; color: var(--el-muted); }
+.el-chat-actions { display: flex; align-items: center; gap: 8px; }
+.el-chat-actions button { white-space: nowrap; }
+.el-chat-context { display: flex; flex-direction: column; gap: 3px; margin: 0 16px 12px; padding: 10px 12px; background: var(--el-soft); border: 1px solid var(--el-line); border-radius: 8px; font-size: 11px; }
+.el-chat-context b { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.el-chat-context span { color: var(--el-muted); font-size: 10px; }
+.el-chat-messages { flex: 1; min-height: 120px; overflow-y: auto; overscroll-behavior: contain; padding: 8px 17px 20px; scrollbar-width: thin; }
+.el-chat-empty { padding: 28px 0 20px; }
+.el-chat-empty h3 { font-size: 18px; line-height: 1.6; letter-spacing: -.5px; font-weight: 750; }
+.el-chat-empty > p { font-size: 12px; line-height: 1.8; margin: 10px 0 22px; color: var(--el-muted); }
+.el-chat-suggestions { display: flex; flex-direction: column; gap: 8px; }
+.el-chat-suggestions button { display: flex; align-items: center; gap: 9px; text-align: left; white-space: normal; justify-content: space-between; padding: 11px 13px; font-size: 12px !important; line-height: 1.6; border: 1px solid var(--el-line); border-radius: 8px; background: var(--el-surface); color: var(--el-text); }
+.el-chat-suggestions button:hover { background: var(--el-soft); border-color: var(--el-accent); }
+.el-chat-empty > span { display: block; margin-bottom: 14px; color: #8b87cc; font-size: 30px; }
+.el-chat-answer-label small { color: var(--el-muted); font-size: 9px; margin-left: 8px; font-weight: 400; }
+.el-chat-context small, .el-chat-notice { color: var(--el-muted); font-size: 10px; }
+.el-chat-notice { margin-top: 12px !important; }
+.el-chat-turn { margin: 10px 0 24px; }
+.el-chat-question { margin-left: 24px; padding: 11px 13px; border-radius: 12px 12px 2px 12px; background: var(--el-soft); color: var(--el-text); font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.el-chat-answer { margin-top: 18px; }
+.el-chat-answer-label { color: #8b87cc; font-size: 10px; font-weight: 750; margin-bottom: 8px; }
+.el-chat-answer-text { font-size: 13px; line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+.el-chat-pending { font-size: 12px; color: var(--el-muted); margin-top: 16px; }
+.el-chat-error { font-size: 12px; padding: 12px; background: #bf745612; border: 1px solid #bf745644; border-radius: 8px; color: var(--el-text); margin-top: 12px; }
+.el-chat-error p { margin-bottom: 7px; }
+.el-chat-composer { padding: 13px 16px 6px; border-top: 1px solid var(--el-line); }
+.electronics-app .el-chat-input { display: block; width: 100%; min-height: 88px; max-height: 170px; resize: vertical; font-size: 12px; line-height: 1.7; padding: 12px; border-radius: 10px; background: var(--el-bg); }
+.el-chat-compose-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 9px 0 5px; }
+.el-chat-compose-actions small { font-size: 9px; color: var(--el-muted); }
+.el-chat-footnote { padding: 0 16px 13px; color: var(--el-muted); font-size: 9px; line-height: 1.6; }
+
+@media (min-width: 1700px) {
+  .electronics-app .el-app-grid.with-chat { grid-template-columns: minmax(0, 1fr) 390px; }
+  .electronics-app .el-main { padding-left: 36px; padding-right: 36px; }
+}
+@media (max-width: 1100px) {
+  .electronics-app .el-app-grid.with-chat { grid-template-columns: minmax(0, 1fr) 310px; }
+  .electronics-app .el-main { padding-left: 18px; padding-right: 18px; }
+  .el-workspace-tools { padding: 12px 18px; }
+  .electronics-app .el-view-tabs { gap: 18px; }
+  .electronics-app .el-view-tabs .el-new-source { display: none; }
+  .el-board-toolbar > span { max-width: 50%; font-size: 10px; }
+  .el-design-stats .el-stats-note { display: none; }
+  .el-layer-chips { gap: 5px; }
+  .el-layer-chips button { padding: 5px 8px; }
+}
+@media (max-width: 850px) {
+  .electronics-app .el-app-grid.with-chat, .electronics-app .el-app-grid.without-chat { display: block; }
+  .el-chat-rail { position: static; height: 630px; max-height: none; border-left: 0; border-top: 1px solid var(--el-line); }
+  .el-chat { min-height: 0; }
+  .electronics-app .el-app-header { padding: 14px 16px; flex-wrap: wrap; }
+  .el-workspace-tools { flex-wrap: wrap; gap: 8px; padding: 12px 16px; }
+  .el-experiment-picker { flex: 1 1 100%; max-width: 100%; margin-bottom: 4px; }
+  .el-experiment-picker > span:first-of-type { flex: 1; }
+  .el-chat-toggle { margin-left: auto; }
+  .electronics-app .el-main { padding: 0 16px 24px; }
+  .electronics-app .el-circuit-heading input { font-size: 22px !important; }
+  .el-workspace-tools .el-button { font-size: 11px !important; }
+  .el-board-settings > summary span, .el-selection-panel > summary span, .el-checks-panel > summary span { font-size: 10px; margin-left: 6px; }
+  .electronics-app .el-board-caption { font-size: 9px; }
+  .el-drawer-content { padding: 18px; }
+  .electronics-app .el-workspace-drawer .el-experiment-list { grid-template-columns: 1fr; }
+  .el-chat-suggestions { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .el-chat-empty { padding-top: 12px; }
+}
+@media (max-width: 500px) {
+  .el-header-actions { width: 100%; justify-content: flex-end; }
+  .electronics-app .el-view-tabs { gap: 18px; }
+  .electronics-app .el-circuit-heading { align-items: flex-start; flex-direction: column; gap: 9px; }
+  .el-layer-panel { padding: 12px 10px; }
+  .el-layer-top label { font-size: 0; }
+  .el-layer-chips button { font-size: 10px; }
+  .el-layer-chips small { font-size: 9px; }
+  .electronics-app .el-board-scroll { min-height: 270px; padding: 24px 10px; }
+  .electronics-app .el-board-toolbar { padding: 0 8px; }
+  .electronics-app .el-board-toolbar > span { font-size: 9px; }
+  .el-selection-panel > summary span { display: block; margin: 3px 0 0 15px; }
+  .electronics-app .el-assembly-start { flex-direction: column; align-items: flex-start; }
+  .electronics-app .el-inspector { padding: 12px; }
+}
