@@ -161,9 +161,9 @@ test("feed-forward amplifier cascades work but a loop through locally stable amp
   reject(() => runSimulation(input, definitions, config), /순환 피드백/);
 });
 
-test("unsupported nonlinear devices, forged pin maps, positive feedback and open-loop amplifiers return errors", () => {
-  for (const name of ["led-series", "ce-amplifier", "schmitt-inverting", "schmitt-noninverting", "wien-bridge"]) {
-    const input = template(name); reject(() => runSimulation(input, definitions, configFor(input)));
+test("unsupported devices, forged pin maps, positive feedback and open-loop amplifiers return errors", () => {
+  for (const name of ["led-series", "schmitt-inverting", "schmitt-noninverting", "wien-bridge"]) {
+    const input = template(name); reject(() => runSimulation(input, definitions, { ...configFor(input), opampModel: "ideal", startupPerturbationVolts: 0 }));
   }
   const input = template("ua741-inverting"), config = configFor(input);
   const changed = structuredClone(definitions); changed.find(definition => definition.id === "opamp-ua741cn-st-dip8").pins[1].label = "IN+";

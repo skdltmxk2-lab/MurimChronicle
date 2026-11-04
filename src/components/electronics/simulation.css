@@ -96,6 +96,17 @@
 .el-sim-warnings summary { cursor: pointer; font-weight: 600; }
 .el-sim-warnings summary > span { margin-left: 6px; color: var(--el-muted); font-size: 11px; }
 .el-sim-warnings ul { padding-left: 18px; margin: 9px 0 0; color: var(--el-muted); line-height: 1.8; font-size: 11px; }
+.el-sim-extra-source { padding: 15px 0; border-bottom: 1px solid var(--el-line); margin-bottom: 12px; }
+.el-sim-math { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 17px; font-size: 12px; color: var(--el-muted); }
+.el-sim-math label { display: flex; align-items: center; gap: 8px; }
+.el-sim-math input { width: auto; accent-color: #a67bd5; }
+.el-sim-spectrum-note { margin: 10px 17px; color: var(--el-muted); font-size: 11px; line-height: 1.7; }
+.el-sim-tabs { overflow-x: auto; min-width: 0; }
+.el-sim-device-models { border: 1px solid var(--el-line); border-radius: 8px; margin-top: 10px; padding: 12px 14px; font-size: 12px; }
+.el-sim-device-models summary { cursor: pointer; color: var(--el-muted); }
+.el-sim-device-models > div { border-top: 1px solid var(--el-line); padding-top: 12px; margin-top: 12px; }
+.el-sim-device-models p, .el-sim-device-models small { display: block; margin-top: 6px; color: var(--el-muted); line-height: 1.7; overflow-wrap: anywhere; }
+.el-sim-device-models a { display: inline-block; margin-top: 6px; text-decoration: underline; }
 @media (max-width: 1050px) { .el-sim-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .el-sim-result-toolbar { padding: 0 12px; } .el-sim-tabs { gap: 13px; } }
 @media (max-width: 550px) {
   .el-simulation { padding-top: 8px; }

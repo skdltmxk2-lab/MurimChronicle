@@ -42,7 +42,7 @@ const paths = tree => [...walk(tree)].filter(node => node.type === "path" && nod
 // Execute the real TSX handlers and child components. The harness replaces only
 // React scheduling, browser worker transport, timers and the download boundary.
 // Actual numerical results come from the real simulation engine below.
-function harness() {
+function harness(overrides = {}) {
   const frames = new Map(), effects = [], timers = new Map(), workers = [], downloads = [], blobs = new Map();
   let active, dirty = true, tree, timerId = 0, urlId = 0;
   const same = (a, b) => a && b && a.length === b.length && a.every((value, index) => Object.is(value, b[index]));
@@ -82,7 +82,7 @@ function harness() {
       throw Error(`Unexpected module ${name}`);
     },
   }, { filename: "SimulationPanel.tsx" });
-  let props = { circuit, layout, definitions, probes, onPickProbe() {}, onClearProbe() {}, pickingChannel: null };
+  let props = { circuit, layout, definitions, probes, onPickProbe() {}, onClearProbe() {}, pickingChannel: null, ...overrides };
   function component(fn, props, path) {
     const previous = active;
     active = frames.get(path) || { slots: [], cursor: 0 }; active.cursor = 0; frames.set(path, active);
@@ -239,4 +239,67 @@ test("AC and DC exports retain computed values and distinguish component and sou
   const dcCsv = await h.downloads.at(-1).blob.text();
   assert.match(dcCsv, /component_current_pin1_to_pin2/); assert.match(dcCsv, /source_current_node_to_source/);
   assert.match(textIn(h.tree), /1번 핀 → 2번 핀/);
+});
+
+test("Math subtracts the two measured waveforms and exports differential time and complex AC data", async () => {
+  const h = harness(), result = h.complete(h.run());
+  const checkbox = select(h.tree, node => node.type === "input" && node.props.type === "checkbox");
+  checkbox.props.onChange({ target: { checked: true } }); h.flush();
+  assert.equal(paths(h.tree).length, 3); assert.match(textIn(h.tree), /MATH/);
+  h.click("CSV 저장"); const timeCsv = await h.downloads.at(-1).blob.text();
+  assert.match(timeCsv, /CH1−CH2/);
+  const sample=70;
+  assert.equal(Number(timeCsv.split("\r\n")[sample+1].split(",")[3]), result.nodeVoltages.IN[sample]-result.nodeVoltages.OUT[sample]);
+  h.click("주파수 응답"); h.click("CSV 저장");
+  const acRow=(await h.downloads.at(-1).blob.text()).split("\r\n")[21].split(",");
+  const mag=result.ac.nodeGainMagnitude.OUT[20], phase=result.ac.nodePhaseDegrees.OUT[20]*Math.PI/180;
+  assert.ok(Math.abs(Number(acRow[5])-Math.hypot(1-mag*Math.cos(phase),-mag*Math.sin(phase)))<1e-12);
+});
+
+test("spectrum renders actual sampled data, exports amplitude units and blocks stale exports", async () => {
+  const h=harness(), result=h.complete(h.run());
+  h.click("주파수 성분"); assert.equal(paths(h.tree).length,2);
+  assert.match(textIn(h.tree),/Hann 창.*평균 DC 제거/); assert.match(textIn(h.tree),/관측 분해능/);
+  h.click("CSV 저장"); const csv=await h.downloads.at(-1).blob.text();
+  assert.match(csv,/Vpeak_Hann_DC_removed/); assert.equal(csv.trim().split("\r\n").length,2**Math.ceil(Math.log2(result.time.length))/2+2);
+  h.numeric("기본 입력 위상",90); assert.equal(h.button("CSV 저장").props.disabled,true);
+  assert.match(textIn(h.tree),/이전 조건의 결과/);
+});
+
+test("extra sources retain phase, frequency and offsets in worker requests and are removable", () => {
+  const h=harness(); h.click("+ 신호 발생기");
+  h.numeric("추가 입력 1 위상",180); h.numeric("추가 입력 1 주파수",4000); h.numeric("추가 입력 1 진폭",0.005); h.numeric("추가 입력 1 오프셋",2);
+  const worker=h.run(), config=worker.messages[0].input.config;
+  assert.equal(config.extraSources.length,1); assert.equal(config.extraSources[0].phaseDegrees,180); assert.equal(config.extraSources[0].frequencyHz,4000); assert.equal(config.extraSources[0].amplitudePeak,0.005); assert.equal(config.extraSources[0].offset,2);
+  const remove=select(h.tree,node=>node.props["aria-label"]==="추가 입력 1 제거"); remove.props.onClick(); h.flush();
+  assert.ok(worker.terminated); assert.match(textIn(h.tree),/변경되어 계산을 중단/);
+  const next=h.run(); assert.equal(next.messages[0].input.config.extraSources.length,0);
+});
+
+test("semiconductor terminal currents keep their own direction labels in UI and CSV", async () => {
+  const h=harness(), worker=h.run(), result=runSimulation(circuit,definitions,worker.messages[0].input.config);
+  result.dc.deviceCurrents={Q1:{C:0.001,B:0.00001,E:-0.00101}};
+  h.complete(worker,result); h.click("DC 동작점");
+  assert.match(textIn(h.tree),/반도체 단자 전류/); assert.match(textIn(h.tree),/각 단자로 들어가는 방향이 양수/);
+  h.click("CSV 저장"); const csv=await h.downloads.at(-1).blob.text();
+  assert.match(csv,/device_current_into_terminal.*Q1.C/); assert.match(csv,/Q1.E.*-0.00101/);
+});
+
+test("dynamic opamp settings reach the worker and an unavailable AC result cannot render or export a false response", () => {
+  const oscillator = CIRCUIT_TEMPLATES.find(item => item.id === "wien-bridge");
+  const oscillatorLayout = createLayout(oscillator, definitions, { boards: 2, railMode: "split" });
+  const output = oscillatorLayout.placements.find(item => item.componentId === "U1");
+  const h = harness({ circuit: oscillator, layout: oscillatorLayout, probes: [{ holeId: output.pins[6], netId: "OUT" }, { holeId: null, netId: null }] });
+  assert.match(textIn(h.tree), /UA741 계산 모델/);
+  h.numeric("시동 초기 변화", 2);
+  const worker = h.run();
+  assert.equal(worker.messages[0].input.config.opampModel, "educational-dynamic");
+  assert.equal(worker.messages[0].input.config.startupPerturbationVolts, 0.002);
+  const result = h.complete(worker);
+  assert.ok(result.acUnavailableReason); assert.ok(paths(h.tree).length > 0);
+  h.click("주파수 응답");
+  assert.match(textIn(h.tree), /이 회로의 AC 응답은 제공하지 않습니다/);
+  assert.equal(paths(h.tree).length, 0); assert.equal(h.button("CSV 저장").props.disabled, true);
+  h.button("CSV 저장").props.onClick(); assert.equal(h.downloads.length, 0);
+  h.click("주파수 성분"); assert.equal(h.button("CSV 저장").props.disabled, false); assert.ok(paths(h.tree).length > 0);
 });

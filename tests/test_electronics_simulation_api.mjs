@@ -68,6 +68,32 @@ test("a real RC request returns numerical results and actual breadboard probe no
   assert.equal(h.runs(), 1);
 });
 
+test("BJT, MOS and multitone mixer requests use the same nonlinear engine after real board validation", async () => {
+  for (const id of ["ce-amplifier", "mos-current-mirror", "mos-differential", "bjt-mixer"]) {
+    const circuit=structuredClone(templates.find(item=>item.id===id));
+    const boardOptions={boards:2,railMode:"split"};
+    const value={circuit,boardOptions,layout:engine.createLayout(circuit,definitions,boardOptions),config:{...simulation.defaultSimulationConfig(circuit),acPoints:8}};
+    const response=await harness().post(value); assert.equal(response.status,200,`${id}: ${await response.clone().text()}`);
+    const data=await response.json();
+    assert.equal(data.result.model,"nonlinear-educational"); assert.equal(data.validation.valid,true);
+    assert.ok(Object.values(data.result.nodeVoltages).flat().every(Number.isFinite));
+    assert.ok(Object.keys(data.result.dc.deviceCurrents).length>0);
+    for (const pins of Object.values(data.result.dc.deviceCurrents)) assert.ok(Math.abs(Object.values(pins).reduce((sum,value)=>sum+value,0))<1e-10);
+    if(id==="bjt-mixer") assert.equal(value.config.extraSources.length,2);
+  }
+});
+
+test("dynamic opamp API keeps time-domain switching and explicitly omits unstable AC analysis", async () => {
+  const circuit = structuredClone(templates.find(item => item.id === "schmitt-inverting"));
+  const boardOptions = { boards: 2, railMode: "split" };
+  const response = await harness().post({ circuit, boardOptions, layout: engine.createLayout(circuit, definitions, boardOptions), config: simulation.defaultSimulationConfig(circuit) });
+  assert.equal(response.status, 200, await response.clone().text());
+  const { result, validation } = await response.json();
+  assert.equal(validation.valid, true); assert.equal(result.model, "nonlinear-educational");
+  assert.ok(result.acUnavailableReason); assert.deepEqual(result.ac.frequenciesHz, []);
+  assert.ok(Math.max(...result.nodeVoltages.OUT) > 7); assert.ok(Math.min(...result.nodeVoltages.OUT) < -7);
+});
+
 test("a manually moved pin with old wires blocks computation even if stored issues claim success", async () => {
   const h = harness(), value = input();
   value.layout.placements.find(p => p.componentId === "R1").pins["1"] = "B1:B2";
@@ -101,7 +127,7 @@ test("config bounds, unsupported models and floating circuits return errors with
   const bounds = await bounded.post(invalidConfig); assert.equal(bounds.status, 422); assert.equal(bounded.runs(), 0);
 
   const unsupported = input();
-  const diode = definitions.find(d => d.kind === "diode" && d.mounting === "direct" && d.pinoutStatus !== "unverified" && d.pins.length === 2);
+  const diode = definitions.find(d => d.kind === "led" && d.mounting === "direct" && d.pinoutStatus !== "unverified" && d.pins.length === 2);
   const prior = unsupported.circuit.components[0];
   unsupported.circuit.components[0] = { ...prior, definitionId: diode.id, value: diode.name, pinNets: Object.fromEntries(diode.pins.map((pin, i) => [pin.id, i ? "OUT" : "IN"])) };
   unsupported.layout = engine.createLayout(unsupported.circuit, definitions, unsupported.boardOptions);
@@ -133,6 +159,9 @@ test("capabilities are authenticated and unexpected server failures never disclo
   assert.equal(response.status, 200); assert.ok(data.required.includes("layout"));
   assert.deepEqual(data.analyses, ["dc", "transient", "ac"]);
   assert.equal(data.limits.probes, 16);
+  assert.equal(data.limits.signalSources, 4); assert.ok(data.models.includes("nonlinear-educational"));
+  assert.deepEqual(data.configExtensions.opampModel, ["ideal", "educational-dynamic"]);
+  assert.ok(data.nonlinearModels.some(model => model.definitionId === "bjt-bc549c-onsemi-to92" && model.educational));
   const failed = await harness({ authError: true }).post(input()); assert.equal(failed.status, 503);
   assert.ok(!(await failed.text()).includes("secret-service-token"));
 });
