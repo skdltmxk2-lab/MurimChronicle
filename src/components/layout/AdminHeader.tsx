@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authRepo } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
 export function AdminHeader() {
   const router = useRouter();
@@ -21,33 +22,39 @@ export function AdminHeader() {
   }
 
   return (
-    <header className="border-b border-line bg-white/90 backdrop-blur">
-      <div className="mx-auto flex min-h-16 max-w-7xl flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <Link href="/admin" className="flex items-center gap-3">
-          <span className="grid size-9 place-items-center rounded-lg bg-ink text-sm font-black text-white">
-            AD
+    <header className="tz-admin-header">
+      <div className="tz-admin-header__inner">
+        <Link href="/admin" className="tz-admin-header__brand">
+          <span className="tz-admin-header__mark" aria-hidden="true">
+            <svg viewBox="0 0 100 100" width="34" height="34" fill="currentColor">
+              <ellipse cx="50" cy="50" rx="48" ry="6" />
+              <ellipse cx="50" cy="50" rx="6" ry="48" />
+              <ellipse cx="50" cy="50" rx="5" ry="32" transform="rotate(45 50 50)" />
+              <ellipse cx="50" cy="50" rx="5" ry="32" transform="rotate(-45 50 50)" />
+            </svg>
           </span>
-          <span>
-            <span className="block text-sm font-black text-ink">관리자 콘솔</span>
-            <span className="block text-xs text-slate-500">루트편입</span>
+          <span className="tz-admin-header__wordmark">
+            <span>루트편입</span>
+            <span>관리자 콘솔</span>
           </span>
         </Link>
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div className="tz-admin-header__actions">
+          <ThemeToggle />
           <Link
             href="/student/exams"
-            className="rounded-md border border-line bg-white px-3 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700"
+            className="tz-admin-header__student"
           >
-            학생 화면 →
+            학생 화면
           </Link>
           {user ? (
             <>
-              <span className="rounded-md bg-slate-100 px-3 py-2 text-xs font-black text-slate-700">
+              <span className="tz-admin-header__user" title={`${user.name}님`}>
                 {user.name}님
               </span>
               <button
                 type="button"
                 onClick={logout}
-                className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
+                className="tz-admin-header__logout"
               >
                 로그아웃
               </button>

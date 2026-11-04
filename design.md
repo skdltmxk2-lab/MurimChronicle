@@ -42,4 +42,5 @@ Hallmark의 여러 화면이 공유하는 시스템이다. 새로운 화면도 �
 ## Exports
 - 값: `app/tokens.css`; 자체 호스팅 글꼴: `app/fonts.css`, `public/fonts/`.
 - 기본 규칙·연결: `app/base.css`, `app/globals.css`; 화면: `app/terrazzo-{shell,landing,study,exam}.css`.
+- 관리자 공통 UI·도구 목록: `app/terrazzo-admin.css`, `app/terrazzo-admin-home.css`. 전자공학 작업 영역과 코칭 인쇄지는 별도 렌더링을 유지한다.
 - 실제 제품 캡처: `public/hallmark/study-{light,dark}.png`. 인쇄·수식의 legacy 토큰은 별도로 보존한다.

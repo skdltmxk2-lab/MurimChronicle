@@ -8,6 +8,8 @@
 @import "./terrazzo-study.css";
 @import "./terrazzo-landing.css";
 @import "./terrazzo-exam.css";
+@import "./terrazzo-admin.css";
+@import "./terrazzo-admin-home.css";
 @import "katex/dist/katex.min.css";
 
 @tailwind base;

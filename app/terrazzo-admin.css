@@ -1,0 +1,60 @@
+/* Hallmark · theme: Terrazzo (locked system) · scope: app screen · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: keep the console's dense controls; align its chrome and states with the same paper and ink as the study screen. */
+@media screen {
+  .tz-admin { min-width: 0; color: var(--color-ink); background: var(--color-paper); }
+  .tz-admin-header { border-bottom: var(--rule-bar) solid var(--color-rule-strong); background: var(--color-paper); color: var(--color-ink); }
+  .tz-admin-header__inner { width: 100%; max-width: var(--container); min-height: 80px; margin-inline: auto; padding: var(--space-sm) var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); }
+  .tz-admin-header__brand { display: inline-flex; align-items: center; gap: var(--space-sm); min-width: 0; color: var(--color-ink); text-decoration: none; }
+  .tz-admin-header__mark { flex: none; }
+  .tz-admin-header__wordmark { display: grid; gap: var(--space-2xs); }
+  .tz-admin-header__wordmark > span:first-child { font-size: 1.125rem; font-weight: 700; line-height: 1.2; }
+  .tz-admin-header__wordmark > span:last-child { color: var(--color-muted); font-size: .75rem; line-height: 1.25; }
+  .tz-admin-header__actions { display: flex; align-items: center; justify-content: flex-end; gap: var(--space-sm); min-width: 0; font-size: .8125rem; }
+  .tz-admin-header__student, .tz-admin-header__logout { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: var(--space-xs) var(--space-md); border: var(--rule-hair) solid var(--color-rule-strong); border-radius: 0; background: transparent; color: var(--color-ink); font-weight: 500; white-space: nowrap; text-decoration: none; }
+  .tz-admin-header__student { background: var(--color-primary); color: var(--color-on-primary); }
+  .tz-admin-header__student:hover { background: var(--color-ink-2); }
+  .tz-admin-header__logout:hover { background: var(--color-paper-2); }
+  .tz-admin-header__student:active, .tz-admin-header__logout:active { transform: translateY(1px); }
+  .tz-admin-header__user { max-width: 16ch; overflow: clip; text-overflow: ellipsis; white-space: nowrap; color: var(--color-muted); }
+
+  /* Adapt CBT admin utilities only. Circuit workspaces and paper previews retain their own rendering. */
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) { width: 100%; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter); }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) [class*="rounded-"]:not(:where(.coaching-print-page, .coaching-print-page *)) { border-radius: 0; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.shadow-soft, .shadow-sm, .shadow-md, .shadow-lg):not(:where(.coaching-print-page, .coaching-print-page *)) { box-shadow: none; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.border:not(:where(.coaching-print-page, .coaching-print-page *)) { border-width: var(--rule-hair); border-color: var(--color-rule-strong) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.text-slate-400, .text-slate-500, .text-slate-600, .text-slate-700):not(:where(.coaching-print-page, .coaching-print-page *)) { color: var(--color-muted) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.text-brand-500, .text-brand-600, .text-brand-700, .text-brand-800):not(:where(.coaching-print-page, .coaching-print-page *)) { color: var(--color-ink) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.bg-brand-50, .bg-brand-100):not(:where(.coaching-print-page, .coaching-print-page *)) { background: var(--color-paper-2) !important; color: var(--color-ink); }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.bg-brand-600, .bg-brand-700, .bg-ink):not(:where(.coaching-print-page, .coaching-print-page *)) { background: var(--color-primary) !important; color: var(--color-on-primary) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.border-brand-200, .border-brand-300, .border-brand-600):not(:where(.coaching-print-page, .coaching-print-page *)) { border-color: var(--color-rule-strong) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.bg-coral-50, .bg-coral-100, .bg-amber-50, .bg-orange-50):not(:where(.coaching-print-page, .coaching-print-page *)) { background: var(--color-accent-soft) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.text-coral-600, .text-coral-700, .text-amber-600, .text-amber-700, .text-orange-600, .text-orange-700):not(:where(.coaching-print-page, .coaching-print-page *)) { color: var(--color-accent) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.bg-coral-600, .bg-amber-500):not(:where(.coaching-print-page, .coaching-print-page *)) { background: var(--color-accent) !important; color: var(--color-accent-ink) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.bg-mint-50, .bg-green-50):not(:where(.coaching-print-page, .coaching-print-page *)) { background: var(--color-positive-soft) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.text-mint-600, .text-mint-700, .text-green-600, .text-green-700):not(:where(.coaching-print-page, .coaching-print-page *)) { color: var(--color-positive) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(.uppercase, [class*="tracking-"]):not(:where(.coaching-print-page, .coaching-print-page *)) { text-transform: none; letter-spacing: normal; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, input:not([type="checkbox"]):not([type="radio"]), select):not(:where(.coaching-print-page, .coaching-print-page *)) { min-height: 40px; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):not(:where(.coaching-print-page, .coaching-print-page *)) { border-color: var(--color-control-line) !important; background: var(--color-plate); color: var(--color-ink); }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, a)[class*="hover:bg-"]:not(:where(.coaching-print-page, .coaching-print-page *)):hover { background: var(--color-paper-2) !important; color: var(--color-ink) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, a)[class*="bg-brand-6"]:not(:where(.coaching-print-page, .coaching-print-page *)):hover { background: var(--color-ink-2) !important; color: var(--color-on-primary) !important; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) button:not(:where(.coaching-print-page, .coaching-print-page *)):disabled { opacity: .45; cursor: not-allowed; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) table button:not(:where(.coaching-print-page, .coaching-print-page *)) { flex-shrink: 0; white-space: nowrap; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button { min-width: 0; word-break: keep-all; }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) .overflow-x-auto:has(> table) { position: relative; }
+}
+@media screen and (max-width: 60rem) {
+  .tz-admin { --gutter: 24px; }
+}
+@media screen and (max-width: 40rem) {
+  .tz-admin { --gutter: 16px; }
+  .tz-admin-header__inner { align-items: stretch; flex-direction: column; gap: var(--space-md); padding-block: var(--space-md); }
+  .tz-admin-header__mark svg { width: 28px; height: 28px; }
+  .tz-admin-header__wordmark { display: flex; align-items: baseline; gap: var(--space-xs); }
+  .tz-admin-header__actions { width: 100%; justify-content: flex-start; gap: var(--space-xs); }
+  .tz-admin-header__user { flex: 1; min-width: 0; text-align: right; }
+  .tz-admin-header__student, .tz-admin-header__logout { padding-inline: var(--space-sm); }
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button { padding-inline: var(--space-xs); font-size: .75rem; }
+}
+@media screen and (pointer: coarse) {
+  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, select):not(:where(.coaching-print-page, .coaching-print-page *)) { min-height: 44px; }
+}
