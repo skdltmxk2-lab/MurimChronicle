@@ -240,62 +240,57 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
   return (
     <>
-    <main className="student-screen-only student-print-root mx-auto max-w-6xl px-5 pt-6 pb-28 lg:pb-6">
-      <section className="student-print-card sticky top-0 z-30 mb-5 rounded-lg border border-line bg-white/95 p-5 shadow-soft backdrop-blur">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">시험 진행</p>
-            <h1 className="mt-1 text-2xl font-black text-ink">{exam.title}</h1>
-            <p className="mt-2 text-sm text-slate-600">{exam.description}</p>
+    <main className="student-screen-only student-print-root tz-exam" aria-busy={!loaded}>
+      <section className="student-print-card tz-exam-toolbar">
+        <div className="tz-exam-toolbar-top">
+          <div className="tz-exam-title">
+            <h1>{exam.title}</h1>
+            <p>시험 진행. {exam.description}</p>
           </div>
-          <div className="student-print-hide grid shrink-0 grid-cols-2 gap-3 text-center sm:grid-cols-3 lg:grid-cols-6">
-            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
-              <div className="whitespace-nowrap text-xs font-bold text-slate-500">남은 시간</div>
-              <div className="mt-1 whitespace-nowrap text-lg font-black text-brand-700">{formatDuration(remainingSec)}</div>
+          <div className="student-print-hide tz-exam-actions">
+            <div className="tz-exam-metric">
+              <div>남은 시간</div>
+              <div>{formatDuration(remainingSec)}</div>
             </div>
-            <div className="min-w-[90px] rounded-md border border-line px-4 py-3">
-              <div className="whitespace-nowrap text-xs font-bold text-slate-500">진행</div>
-              <div className="mt-1 whitespace-nowrap text-lg font-black text-ink">
+            <div className="tz-exam-metric">
+              <div>진행</div>
+              <div>
                 {answeredCount}/{exam.problems.length}
               </div>
             </div>
             <button
               type="button"
               onClick={() => printStudentPdf()}
-              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-brand-600 hover:text-brand-700"
+              className="tz-exam-action"
             >
               PDF 저장
             </button>
             <button
               type="button"
               onClick={toggleInkMode}
-              className={`min-w-[90px] whitespace-nowrap rounded-md px-4 py-3 text-sm font-black transition ${
-                inkMode
-                  ? "bg-brand-600 text-white hover:bg-brand-700"
-                  : "border border-line bg-white text-slate-700 hover:border-brand-600 hover:text-brand-700"
-              }`}
+              className="tz-exam-action" aria-pressed={inkMode}
             >
               필기 모드
             </button>
             <button
               type="button"
               onClick={exitWithoutSubmit}
-              className="min-w-[90px] whitespace-nowrap rounded-md border border-line bg-white px-4 py-3 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50"
+              className="tz-exam-action"
             >
               나가기
             </button>
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="min-w-[90px] whitespace-nowrap rounded-md bg-ink px-4 py-3 text-sm font-black text-white transition hover:bg-slate-700"
+              className="tz-exam-action tz-exam-action-primary"
             >
               제출
             </button>
           </div>
         </div>
 
-        <div className="student-print-hide mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="inline-flex w-full rounded-md border border-line bg-slate-50 p-1 sm:w-auto">
+        <div className="student-print-hide tz-exam-filters">
+          <div className="tz-exam-tabs">
             {([
               ["all", "전체", exam.problems.length],
               ["unanswered", "미응답", exam.problems.length - answeredCount],
@@ -305,11 +300,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                 key={value}
                 type="button"
                 onClick={() => setQuestionFilter(value)}
-                className={`flex-1 whitespace-nowrap rounded px-3 py-2 text-xs font-black transition sm:flex-none ${
-                  questionFilter === value
-                    ? "bg-white text-brand-700 shadow-sm"
-                    : "text-slate-600 hover:text-ink"
-                }`}
+                className="tz-exam-tab" aria-pressed={questionFilter === value}
               >
                 {label} {count}
               </button>
@@ -321,10 +312,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
         </div>
       </section>
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_240px]">
-        <section className="space-y-4">
+      <div className="tz-exam-grid">
+        <section className="tz-exam-paper">
           {visibleProblemEntries.length === 0 ? (
-            <div className="rounded-lg border border-line bg-white p-8 text-center shadow-soft">
+            <div className="tz-exam-empty">
               <h2 className="text-lg font-black text-ink">현재 필터에 해당하는 문제가 없습니다</h2>
               <p className="mt-2 text-sm text-slate-600">상단에서 전체 또는 다른 필터를 선택하세요.</p>
             </div>
@@ -335,25 +326,25 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               <article
                 key={problem.id}
                 id={problem.id}
-                className="student-print-card scroll-mt-40 rounded-lg border border-line bg-white shadow-soft"
+                className="student-print-card tz-exam-question"
               >
-                <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
-                  <span className="rounded-md bg-brand-600 px-3 py-1.5 text-sm font-black text-white">
+                <div className="tz-exam-question-head">
+                  <span className="tz-exam-number">
                     {index + 1}
                   </span>
-                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-black text-brand-700">
+                  <span className="tz-exam-subject">
                     {problem.subject}
                   </span>
                   {/* 단원·개념 태그는 응시 중엔 숨김 (정답 힌트 방지). 결과/해설 화면에선 노출. */}
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
-                <div className="px-5 py-5">
+                <div className="tz-exam-question-body">
                   <ContentRenderer
                     contentType={problem.contentType}
                     text={problem.question}
                     image={problem.questionImage}
                     imageAlt={`${index + 1}번 문제`}
-                    className="text-base font-semibold leading-8 text-ink"
+                    className="text-base font-medium leading-8 text-ink"
                   />
                   {inkMode ? (
                     <ScratchPad
@@ -361,14 +352,15 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                       className="mt-5"
                     />
                   ) : null}
-                  <div className="mt-5 space-y-2">
+                  <div className="tz-exam-options">
                     {(problem.questionType === "subjective"
                       || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
-                      <div className="rounded-md border border-line bg-slate-50/40 p-3">
-                        <label className="block text-xs font-black uppercase tracking-[0.18em] text-brand-600">
+                      <div className="tz-exam-answer-input">
+                        <label htmlFor={`answer-${problem.id}`} className="tz-exam-answer-label">
                           단답형 정답 입력
                         </label>
                         <input
+                          id={`answer-${problem.id}`}
                           type="text"
                           inputMode="text"
                           autoComplete="off"
@@ -387,16 +379,10 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                             key={option.id}
                             type="button"
                             onClick={() => pickAnswer(problem.id, option.id)}
-                            className={`flex w-full items-start gap-3 rounded-md border px-4 py-3 text-left transition ${
-                              isSelected
-                                ? "border-brand-600 bg-brand-50 ring-2 ring-brand-600/10"
-                                : "border-line bg-white hover:border-brand-500 hover:bg-brand-50"
-                            }`}
+                            className="tz-exam-option" aria-pressed={isSelected}
                           >
                             <span
-                              className={`grid size-7 shrink-0 place-items-center rounded-md text-sm font-black ${
-                                isSelected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600"
-                              }`}
+                              className="tz-exam-option-label"
                             >
                               {option.label}
                             </span>
@@ -406,7 +392,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                               text={option.text}
                               image={option.image}
                               imageAlt={`${index + 1}번 ${option.label}번 보기`}
-                              className="min-w-0 pt-0.5 text-sm font-semibold leading-6 text-ink"
+                              className="min-w-0 pt-0.5 text-sm font-medium leading-6 text-ink"
                             />
                           </button>
                         );
@@ -417,48 +403,43 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               </article>
             );
           })}
-          <div className="student-print-hide flex flex-col gap-2 sm:flex-row">
+          <div className="student-print-hide tz-exam-end">
             <button
               type="button"
               onClick={exitWithoutSubmit}
-              className="w-full rounded-md border border-line bg-white px-4 py-4 text-sm font-black text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 sm:w-1/3"
+              className="tz-exam-action"
             >
               학습 종료
             </button>
             <button
               type="button"
               onClick={() => void submitExam(false)}
-              className="w-full rounded-md bg-ink px-4 py-4 text-sm font-black text-white transition hover:bg-slate-700 sm:flex-1"
+              className="tz-exam-action tz-exam-action-primary"
             >
               제출하고 채점하기
             </button>
           </div>
         </section>
 
-        <aside className="student-print-hide h-fit rounded-lg border border-line bg-white p-4 shadow-soft lg:sticky lg:top-5">
-          <div className="mb-3 text-sm font-black text-ink">문항 이동</div>
-          <div className="grid grid-cols-5 gap-2">
+        <aside className="student-print-hide tz-exam-navigator">
+          <h2>문항 이동</h2>
+          <div className="tz-exam-numbers">
             {exam.problems.map((problem, index) => {
               const answered = hasStoredAnswer(answers, problem.id);
               return (
                 <a
                   key={problem.id}
                   href={`#${problem.id}`}
-                  className={`grid size-9 place-items-center rounded-md border text-sm font-black ${
-                    answered
-                      ? "border-brand-600 bg-brand-600 text-white"
-                      : "border-line bg-white text-slate-600 hover:border-brand-500"
-                  }`}
+                  className="tz-exam-jump" data-answered={answered} aria-label={`${index + 1}번 문제, ${answered ? "응답 완료" : "미응답"}`}
                 >
                   {index + 1}
                 </a>
               );
             })}
           </div>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+          <div className="tz-exam-progress" role="progressbar" aria-label="응답 진행률" aria-valuenow={answeredCount} aria-valuemin={0} aria-valuemax={exam.problems.length}>
             <div
-              className="h-full rounded-full bg-brand-600 transition-all"
-              style={{ width: `${Math.round((answeredCount / exam.problems.length) * 100)}%` }}
+              style={{ transform: `scaleX(${exam.problems.length ? answeredCount / exam.problems.length : 0})` }}
             />
           </div>
           <p className="mt-3 text-xs leading-5 text-slate-500">
@@ -467,25 +448,21 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
         </aside>
       </div>
 
-      <nav className="student-print-hide fixed inset-x-3 bottom-3 z-40 rounded-xl border border-line bg-white/95 p-3 shadow-lg backdrop-blur lg:hidden">
+      <nav className="student-print-hide tz-exam-mobile-nav">
         <div className="flex items-center justify-between gap-3">
           <div className="text-sm font-black text-ink">문항 이동</div>
           <div className="text-xs font-bold text-slate-500">
             {answeredCount}/{exam.problems.length}
           </div>
         </div>
-        <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+        <div className="tz-exam-mobile-numbers">
           {exam.problems.map((problem, index) => {
             const answered = hasStoredAnswer(answers, problem.id);
             return (
               <a
                 key={problem.id}
                 href={`#${problem.id}`}
-                className={`grid size-9 shrink-0 place-items-center rounded-md border text-sm font-black ${
-                  answered
-                    ? "border-brand-600 bg-brand-600 text-white"
-                    : "border-line bg-white text-slate-600 hover:border-brand-500"
-                }`}
+                className="tz-exam-jump" data-answered={answered} aria-label={`${index + 1}번 문제, ${answered ? "응답 완료" : "미응답"}`}
               >
                 {index + 1}
               </a>

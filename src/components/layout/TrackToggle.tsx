@@ -18,22 +18,20 @@ export function TrackToggle() {
   }
 
   return (
-    <div className="inline-flex rounded-full border border-line bg-slate-100 p-0.5 text-xs font-black">
+    <div className="tz-track" role="group" aria-label="학습 과목">
       <button
         type="button"
         onClick={() => go("math")}
-        className={`rounded-full px-3 py-1.5 transition ${
-          current === "math" ? "bg-brand-600 text-white shadow" : "text-slate-500 hover:text-slate-700"
-        }`}
+        className="tz-track__button"
+        aria-pressed={current === "math"}
       >
         편입수학
       </button>
       <button
         type="button"
         onClick={() => go("english")}
-        className={`rounded-full px-3 py-1.5 transition ${
-          current === "english" ? "bg-brand-600 text-white shadow" : "text-slate-500 hover:text-slate-700"
-        }`}
+        className="tz-track__button"
+        aria-pressed={current === "english"}
       >
         편입영어
       </button>

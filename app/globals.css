@@ -1,3 +1,13 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: Terrazzo (deal 1/3) · redesign: full
+ * terrazzo: off-white + black · modes: light+dark · nav: compact study shell · signature: study specimens and the question paper · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V5 · weakest: S, using the real study workspace as the product material instead of a decorative catalogue */
+@import "./fonts.css";
+@import "./tokens.css";
+@import "./base.css" layer(base);
+@import "./terrazzo-shell.css";
+@import "./terrazzo-study.css";
+@import "./terrazzo-landing.css";
+@import "./terrazzo-exam.css";
 @import "katex/dist/katex.min.css";
 
 @tailwind base;
@@ -6,7 +16,7 @@
 
 :root {
   color-scheme: light;
-  background: #f5f7fb;
+  background: var(--legacy-paint-1);
 }
 
 * {
@@ -20,9 +30,9 @@ html {
 body {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(238, 246, 255, 0.86), rgba(245, 247, 251, 0) 360px),
-    #f5f7fb;
-  color: #172033;
+    linear-gradient(180deg, var(--legacy-paint-2), var(--legacy-paint-3) 360px),
+    var(--legacy-paint-1);
+  color: var(--legacy-body-ink);
 }
 
 button,
@@ -35,19 +45,19 @@ textarea {
 input:not([type="checkbox"]):not([type="radio"]),
 select,
 textarea {
-  background-color: #ffffff;
-  color: #172033;
+  background-color: var(--legacy-surface);
+  color: var(--legacy-body-ink);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #64748b;
+  color: var(--legacy-muted-ink);
   opacity: 1;
 }
 
 select option {
-  background-color: #ffffff;
-  color: #172033;
+  background-color: var(--legacy-surface);
+  color: var(--legacy-body-ink);
 }
 
 .katex {
@@ -65,22 +75,22 @@ select option {
 }
 
 .scratch-pad-canvas {
-  border-color: #cbd5e1;
+  border-color: var(--legacy-paint-7);
 }
 
 .dark .scratch-pad-canvas {
-  border-color: #64748b !important;
-  box-shadow: 0 0 0 1px rgba(203, 213, 225, 0.18), 0 14px 32px rgba(0, 0, 0, 0.24) !important;
+  border-color: var(--legacy-muted-ink) !important;
+  box-shadow: 0 0 0 1px var(--legacy-paint-8), 0 14px 32px var(--legacy-paint-9) !important;
 }
 
 /* 라이트 모드에서 보조 텍스트가 너무 연해지는 조합 보정 */
 :not(.dark) .text-slate-300,
 :not(.dark) .text-slate-400 {
-  color: #64748b !important;
+  color: var(--legacy-muted-ink) !important;
 }
 
 :not(.dark) .text-brand-500 {
-  color: #1857db !important;
+  color: var(--legacy-paint-10) !important;
 }
 
 /* ─────────────── 다크 모드 ───────────────
@@ -88,92 +98,92 @@ select option {
    광범위하게 사용하므로, 다크에서는 그 유틸리티를 전역 치환해 한 번에 적용한다. */
 .dark {
   color-scheme: dark;
-  background: #0b0f17;
+  background: var(--legacy-dark-canvas);
 }
 
 .dark body {
   background:
-    linear-gradient(180deg, rgba(36, 107, 254, 0.12), rgba(11, 15, 23, 0) 360px),
-    #0b0f17;
-  color: #e8ebf2;
+    linear-gradient(180deg, var(--legacy-paint-12), var(--legacy-paint-13) 360px),
+    var(--legacy-dark-canvas);
+  color: var(--legacy-dark-ink);
 }
 
 .dark input:not([type="checkbox"]):not([type="radio"]),
 .dark select,
 .dark textarea {
-  background-color: #151b29;
-  color: #e8ebf2;
-  border-color: #28324a;
+  background-color: var(--legacy-dark-surface);
+  color: var(--legacy-dark-ink);
+  border-color: var(--legacy-dark-line);
 }
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: #98a2b6;
+  color: var(--legacy-paint-17);
 }
 
 .dark select option {
-  background-color: #151b29;
-  color: #e8ebf2;
+  background-color: var(--legacy-dark-surface);
+  color: var(--legacy-dark-ink);
 }
 
 /* 표면 */
-.dark .bg-white { background-color: #151b29 !important; }
-.dark .bg-white\/95 { background-color: rgba(21, 27, 41, 0.95) !important; }
-.dark .bg-white\/90 { background-color: rgba(21, 27, 41, 0.9) !important; }
-.dark .bg-white\/85 { background-color: rgba(16, 21, 33, 0.85) !important; }
-.dark .bg-white\/80 { background-color: rgba(21, 27, 41, 0.8) !important; }
-.dark .bg-white\/70 { background-color: rgba(21, 27, 41, 0.55) !important; }
-.dark .bg-white\/60 { background-color: rgba(16, 21, 33, 0.5) !important; }
+.dark .bg-white { background-color: var(--legacy-dark-surface) !important; }
+.dark .bg-white\/95 { background-color: var(--legacy-paint-18) !important; }
+.dark .bg-white\/90 { background-color: var(--legacy-paint-19) !important; }
+.dark .bg-white\/85 { background-color: var(--legacy-paint-20) !important; }
+.dark .bg-white\/80 { background-color: var(--legacy-paint-21) !important; }
+.dark .bg-white\/70 { background-color: var(--legacy-paint-22) !important; }
+.dark .bg-white\/60 { background-color: var(--legacy-paint-23) !important; }
 
-.dark .bg-slate-50 { background-color: #161c2b !important; }
-.dark .bg-slate-100 { background-color: #1c2335 !important; }
-.dark .bg-slate-200 { background-color: #232c42 !important; }
+.dark .bg-slate-50 { background-color: var(--legacy-paint-24) !important; }
+.dark .bg-slate-100 { background-color: var(--legacy-paint-25) !important; }
+.dark .bg-slate-200 { background-color: var(--legacy-paint-26) !important; }
 
-.dark .hover\:bg-slate-100:hover { background-color: #1c2335 !important; }
-.dark .hover\:bg-slate-50:hover { background-color: #161c2b !important; }
+.dark .hover\:bg-slate-100:hover { background-color: var(--legacy-paint-25) !important; }
+.dark .hover\:bg-slate-50:hover { background-color: var(--legacy-paint-24) !important; }
 
 /* 테두리 */
-.dark .border-line { border-color: #28324a !important; }
+.dark .border-line { border-color: var(--legacy-dark-line) !important; }
 
 /* 글자 */
-.dark .text-ink { color: #e8ebf2 !important; }
-.dark .text-slate-700 { color: #ccd4e1 !important; }
-.dark .text-slate-600 { color: #b6bfd0 !important; }
-.dark .text-slate-500 { color: #98a2b6 !important; }
-.dark .text-slate-400 { color: #9aa7bb !important; }
-.dark .text-slate-300 { color: #c6d0de !important; }
+.dark .text-ink { color: var(--legacy-dark-ink) !important; }
+.dark .text-slate-700 { color: var(--legacy-paint-27) !important; }
+.dark .text-slate-600 { color: var(--legacy-paint-28) !important; }
+.dark .text-slate-500 { color: var(--legacy-paint-17) !important; }
+.dark .text-slate-400 { color: var(--legacy-paint-29) !important; }
+.dark .text-slate-300 { color: var(--legacy-paint-30) !important; }
 
 /* 브랜드 톤 (다크에서 가독성 위해 밝게) */
 .dark .text-brand-700,
-.dark .text-brand-600 { color: #8fb6ff !important; }
-.dark .bg-brand-50 { background-color: rgba(36, 107, 254, 0.16) !important; }
-.dark .hover\:bg-brand-50:hover { background-color: rgba(36, 107, 254, 0.24) !important; }
-.dark .border-brand-200 { border-color: rgba(36, 107, 254, 0.42) !important; }
+.dark .text-brand-600 { color: var(--legacy-paint-31) !important; }
+.dark .bg-brand-50 { background-color: var(--legacy-paint-32) !important; }
+.dark .hover\:bg-brand-50:hover { background-color: var(--legacy-paint-33) !important; }
+.dark .border-brand-200 { border-color: var(--legacy-paint-34) !important; }
 
 .dark .text-mint-700,
-.dark .text-mint-600 { color: #4cd3a3 !important; }
-.dark .bg-mint-50 { background-color: rgba(16, 163, 118, 0.15) !important; }
-.dark .hover\:bg-mint-50:hover { background-color: rgba(16, 163, 118, 0.22) !important; }
+.dark .text-mint-600 { color: var(--legacy-paint-35) !important; }
+.dark .bg-mint-50 { background-color: var(--legacy-paint-36) !important; }
+.dark .hover\:bg-mint-50:hover { background-color: var(--legacy-paint-37) !important; }
 
-.dark .bg-coral-50 { background-color: rgba(213, 74, 49, 0.14) !important; }
+.dark .bg-coral-50 { background-color: var(--legacy-paint-38) !important; }
 
 /* 색 칩(주황/앰버/하늘) — 다크에서 옅은 패치 대신 톤다운 + 밝은 글자 */
-.dark .bg-orange-50 { background-color: rgba(249, 115, 22, 0.14) !important; }
-.dark .hover\:bg-orange-50:hover { background-color: rgba(249, 115, 22, 0.22) !important; }
+.dark .bg-orange-50 { background-color: var(--legacy-paint-39) !important; }
+.dark .hover\:bg-orange-50:hover { background-color: var(--legacy-paint-40) !important; }
 .dark .text-orange-700,
-.dark .text-orange-600 { color: #fdba74 !important; }
+.dark .text-orange-600 { color: var(--legacy-paint-41) !important; }
 
-.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.14) !important; }
+.dark .bg-amber-50 { background-color: var(--legacy-paint-42) !important; }
 .dark .text-amber-700,
-.dark .text-amber-600 { color: #fcd34d !important; }
+.dark .text-amber-600 { color: var(--legacy-paint-43) !important; }
 
-.dark .bg-sky-50 { background-color: rgba(14, 165, 233, 0.14) !important; }
+.dark .bg-sky-50 { background-color: var(--legacy-paint-44) !important; }
 .dark .text-sky-700,
-.dark .text-sky-600 { color: #7dd3fc !important; }
+.dark .text-sky-600 { color: var(--legacy-paint-45) !important; }
 
 /* 그림자 */
-.dark .shadow-soft { box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5) !important; }
-.dark .hover\:shadow-lg:hover { box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55) !important; }
+.dark .shadow-soft { box-shadow: 0 18px 50px var(--legacy-paint-46) !important; }
+.dark .hover\:shadow-lg:hover { box-shadow: 0 20px 45px var(--legacy-paint-47) !important; }
 
 /* ─────────────── 편입영어 환영 인트로 이펙트 ─────────────── */
 @keyframes intro-backdrop {
@@ -239,11 +249,11 @@ select option {
   body {
     width: auto !important;
     min-height: 0 !important;
-    background: #fff !important;
+    background: var(--legacy-white-short) !important;
   }
 
   body {
-    color: #172033 !important;
+    color: var(--legacy-body-ink) !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -251,8 +261,8 @@ select option {
   .dark,
   .dark body {
     color-scheme: light !important;
-    background: #fff !important;
-    color: #172033 !important;
+    background: var(--legacy-white-short) !important;
+    color: var(--legacy-body-ink) !important;
   }
 
   .dark .bg-white,
@@ -262,44 +272,44 @@ select option {
   .dark .bg-white\/80,
   .dark .bg-white\/70,
   .dark .bg-white\/60 {
-    background-color: #fff !important;
+    background-color: var(--legacy-white-short) !important;
   }
 
   .dark .bg-slate-50,
   .dark .bg-slate-100,
   .dark .bg-slate-200 {
-    background-color: #f8fafc !important;
+    background-color: var(--legacy-paint-49) !important;
   }
 
   .dark .bg-brand-50 {
-    background-color: #eff6ff !important;
+    background-color: var(--legacy-paint-50) !important;
   }
 
   .dark .bg-mint-50 {
-    background-color: #ecfdf5 !important;
+    background-color: var(--legacy-paint-51) !important;
   }
 
   .dark .bg-coral-50 {
-    background-color: #fff1f2 !important;
+    background-color: var(--legacy-paint-52) !important;
   }
 
   .dark .border-line {
-    border-color: #d7deeb !important;
+    border-color: var(--legacy-paint-53) !important;
   }
 
   .dark .text-ink {
-    color: #172033 !important;
+    color: var(--legacy-body-ink) !important;
   }
 
   .dark .text-slate-700,
   .dark .text-slate-600 {
-    color: #475569 !important;
+    color: var(--legacy-paint-54) !important;
   }
 
   .dark .text-slate-500,
   .dark .text-slate-400,
   .dark .text-slate-300 {
-    color: #64748b !important;
+    color: var(--legacy-muted-ink) !important;
   }
 
   main {
@@ -343,8 +353,8 @@ select option {
   }
 
   .student-pdf-printing .student-exam-print-area {
-    background: #ffffff !important;
-    color: #111111 !important;
+    background: var(--legacy-surface) !important;
+    color: var(--legacy-paint-55) !important;
     display: block !important;
     margin: 0 auto !important;
     page: student-pdf;
@@ -352,12 +362,12 @@ select option {
   }
 
   .student-pdf-printing .student-exam-print-area * {
-    color: #111111 !important;
+    color: var(--legacy-paint-55) !important;
     box-shadow: none !important;
   }
 
   .student-pdf-printing .student-exam-print-page {
-    background: #ffffff !important;
+    background: var(--legacy-surface) !important;
     box-sizing: border-box;
     break-after: page;
     display: flex !important;
@@ -377,7 +387,7 @@ select option {
 
   .student-pdf-printing .student-exam-print-header {
     align-items: flex-end;
-    border-bottom: 0.35mm solid #111111;
+    border-bottom: 0.35mm solid var(--legacy-paint-55);
     display: flex;
     justify-content: space-between;
     gap: 6mm;
@@ -393,7 +403,7 @@ select option {
   }
 
   .student-pdf-printing .student-exam-print-header p {
-    color: #475569 !important;
+    color: var(--legacy-paint-54) !important;
     font-size: 7.5pt;
     font-weight: 700;
     line-height: 1.35;
@@ -428,7 +438,7 @@ select option {
   }
 
   .student-pdf-printing .student-exam-print-column-right {
-    border-left: 0.35mm solid #111111;
+    border-left: 0.35mm solid var(--legacy-paint-55);
     padding-left: 6mm;
   }
 
@@ -491,7 +501,7 @@ select option {
   }
 
   .student-pdf-printing .student-exam-print-answer-line {
-    border-top: 0.25mm dashed #94a3b8;
+    border-top: 0.25mm dashed var(--legacy-paint-56);
     font-size: 8pt;
     font-weight: 900;
     margin: 5mm 0 0 6.2mm;
@@ -515,8 +525,8 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-area {
-    background: #ffffff !important;
-    color: #111111 !important;
+    background: var(--legacy-surface) !important;
+    color: var(--legacy-paint-55) !important;
     display: block !important;
     margin: 0 auto !important;
     page: student-pdf;
@@ -524,12 +534,12 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-area * {
-    color: #111111 !important;
+    color: var(--legacy-paint-55) !important;
     box-shadow: none !important;
   }
 
   .student-pdf-printing .student-wrong-print-page {
-    background: #ffffff !important;
+    background: var(--legacy-surface) !important;
     box-sizing: border-box;
     break-after: page;
     display: flex !important;
@@ -549,7 +559,7 @@ select option {
 
   .student-pdf-printing .student-wrong-print-header {
     align-items: flex-end;
-    border-bottom: 0.35mm solid #111111;
+    border-bottom: 0.35mm solid var(--legacy-paint-55);
     display: flex;
     gap: 6mm;
     justify-content: space-between;
@@ -565,7 +575,7 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-header p {
-    color: #475569 !important;
+    color: var(--legacy-paint-54) !important;
     font-size: 7.5pt;
     font-weight: 700;
     line-height: 1.35;
@@ -596,7 +606,7 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-column-right {
-    border-left: 0.35mm solid #111111;
+    border-left: 0.35mm solid var(--legacy-paint-55);
     padding-left: 6mm;
   }
 
@@ -619,18 +629,18 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-meta span {
-    border: 0.25mm solid #cbd5e1;
+    border: 0.25mm solid var(--legacy-paint-7);
     border-radius: 1.2mm;
-    color: #475569 !important;
+    color: var(--legacy-paint-54) !important;
     font-size: 6.8pt;
     font-weight: 800;
     padding: 0.8mm 1.5mm;
   }
 
   .student-pdf-printing .student-wrong-print-meta .student-wrong-print-number {
-    background: #111111 !important;
-    border-color: #111111;
-    color: #ffffff !important;
+    background: var(--legacy-paint-55) !important;
+    border-color: var(--legacy-paint-55);
+    color: var(--legacy-surface) !important;
     min-width: 5.5mm;
     text-align: center;
   }
@@ -661,7 +671,7 @@ select option {
 
   .student-pdf-printing .student-wrong-print-option {
     align-items: flex-start;
-    border: 0.25mm solid #d7deeb;
+    border: 0.25mm solid var(--legacy-paint-53);
     border-radius: 1.6mm;
     display: flex;
     gap: 2mm;
@@ -669,15 +679,15 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-option.is-correct {
-    border-color: #059669;
+    border-color: var(--legacy-paint-57);
   }
 
   .student-pdf-printing .student-wrong-print-option.is-selected {
-    border-color: #f43f5e;
+    border-color: var(--legacy-paint-58);
   }
 
   .student-pdf-printing .student-wrong-print-option-label {
-    background: #f1f5f9 !important;
+    background: var(--legacy-paint-59) !important;
     border-radius: 1.2mm;
     flex: 0 0 5mm;
     font-size: 7.5pt;
@@ -687,7 +697,7 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-answer-row {
-    border: 0.25mm solid #111111;
+    border: 0.25mm solid var(--legacy-paint-55);
     display: grid;
     font-size: 7.4pt;
     font-weight: 900;
@@ -703,25 +713,25 @@ select option {
   }
 
   .student-pdf-printing .student-wrong-print-answer-row span + span {
-    border-left: 0.25mm solid #111111;
+    border-left: 0.25mm solid var(--legacy-paint-55);
   }
 
   .student-pdf-printing .student-wrong-print-solution {
-    background: #f8fafc !important;
-    border: 0.25mm solid #cbd5e1;
+    background: var(--legacy-paint-49) !important;
+    border: 0.25mm solid var(--legacy-paint-7);
     border-radius: 1.6mm;
     padding: 2mm;
   }
 
   .student-pdf-printing .student-wrong-print-solution-title {
-    color: #1d4ed8 !important;
+    color: var(--legacy-paint-60) !important;
     font-size: 7pt;
     font-weight: 900;
     margin-bottom: 1.2mm;
   }
 
   .student-pdf-printing .student-wrong-print-source {
-    color: #64748b !important;
+    color: var(--legacy-muted-ink) !important;
     font-size: 6.6pt;
     font-weight: 700;
     margin-top: 2mm;
@@ -810,4 +820,23 @@ select option {
   .max-h-full {
     max-height: none !important;
   }
+}
+
+@media screen {
+  html, body, .dark, .dark body { background: var(--color-paper); color: var(--color-ink); }
+  html, body { overflow-x: clip; }
+  body { font-family: var(--font-body); }
+  h1, h2, h3 { min-width: 0; overflow-wrap: break-word; }
+  .text-ink, .dark .text-ink { color: var(--color-ink) !important; }
+  .bg-white, .dark .bg-white { background-color: var(--color-plate) !important; }
+  .bg-slate-50, .dark .bg-slate-50 { background-color: var(--color-paper-2) !important; }
+  .bg-slate-100, .dark .bg-slate-100 { background-color: var(--color-paper-3) !important; }
+  .border-line, .dark .border-line { border-color: var(--color-rule) !important; }
+  .dark .text-slate-700, .dark .text-slate-600, .dark .text-slate-500, .dark .text-slate-400 { color: var(--color-muted) !important; }
+  body input:not([type="checkbox"]):not([type="radio"]), body select, body textarea,
+  .dark body input:not([type="checkbox"]):not([type="radio"]), .dark body select, .dark body textarea {
+    border-color: var(--color-control-line) !important; background: var(--color-plate); color: var(--color-ink);
+  }
+  input::placeholder, textarea::placeholder, .dark input::placeholder, .dark textarea::placeholder { color: var(--color-muted); }
+  select option, .dark select option { background: var(--color-plate); color: var(--color-ink); }
 }

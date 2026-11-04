@@ -1,0 +1,127 @@
+/* Hallmark · theme: Terrazzo (deal 1/3) · terrazzo: off-white + black · modes: light+dark · v2.0.0 */
+:root {
+  color-scheme: light;
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.2rem; --text-xl: 1.44rem; --text-2xl: 1.728rem; --text-3xl: 2.074rem;
+  --text-display-s: 1.44rem; --text-display: 1.728rem; --text-section: 1.2rem; --text-title: 1rem; --text-lead: 1rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --color-error: oklch(52% 0.19 27); --color-success: oklch(50% 0.12 150);
+  --container: 1360px; --gutter: 40px; --gap-columns: 32px; --section-gap-s: 120px; --section-gap: 144px; --section-gap-l: 176px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+  --color-paper: oklch(96% 0.009 82); --color-paper-2: oklch(92% 0.012 82); --color-paper-3: oklch(87.5% 0.014 80);
+  --color-plate: oklch(99.5% 0.003 82);
+  --color-ink: oklch(16% 0.006 60); --color-ink-2: oklch(27% 0.006 60); --color-muted: oklch(46% 0.01 60);
+  --color-rule: oklch(81% 0.012 80);
+  --color-accent: oklch(53% 0.15 38); --color-accent-soft: oklch(91% 0.035 45); --color-accent-ink: oklch(99.5% 0.003 82); --color-focus: oklch(50% 0.16 38);
+  --font-display: "Syne", "Pretendard Variable", sans-serif; --font-body: "Onest", "Pretendard Variable", sans-serif;
+  --font-outlier: "JetBrains Mono", ui-monospace, monospace;
+  --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --rule-bar: 2px;
+  --shadow-card: 8px 8px 0 var(--color-paper-3); --shadow-card-hover: 8px 8px 0 var(--color-ink);
+  --tracking-display: -0.025em; --display-weight: 700;
+}
+
+:root {
+  --color-rule-strong: var(--color-ink);
+  --color-control-line: oklch(48% 0.012 60);
+  --color-quiet: oklch(95% 0.012 82);
+  --color-positive: oklch(42% 0.08 150);
+  --color-positive-soft: oklch(94% 0.025 150);
+  --color-negative: oklch(47% 0.16 30);
+  --color-negative-soft: oklch(94% 0.025 30);
+  --color-overlay: oklch(16% 0.006 60 / 58%);
+  --color-primary: var(--color-ink);
+  --color-on-primary: var(--color-paper);
+  --color-surface: var(--color-plate);
+  --color-elevated: var(--color-plate);
+}
+.dark {
+  color-scheme: dark;
+  --color-paper: oklch(14% 0.009 82);
+  --color-paper-2: oklch(18% 0.012 82);
+  --color-paper-3: oklch(26% 0.014 80);
+  --color-plate: oklch(21% 0.008 82);
+  --color-ink: oklch(95% 0.006 60);
+  --color-ink-2: oklch(85% 0.006 60);
+  --color-muted: oklch(74% 0.01 60);
+  --color-rule: oklch(39% 0.012 80);
+  --color-rule-strong: oklch(63% 0.012 80);
+  --color-control-line: oklch(65% 0.012 60);
+  --color-accent: oklch(75% 0.12 38);
+  --color-accent-soft: oklch(29% 0.045 45);
+  --color-accent-ink: oklch(16% 0.006 60);
+  --color-focus: oklch(78% 0.12 38);
+  --color-quiet: oklch(25% 0.012 82);
+  --color-positive: oklch(77% 0.09 150);
+  --color-positive-soft: oklch(27% 0.04 150);
+  --color-negative: oklch(78% 0.10 30);
+  --color-negative-soft: oklch(27% 0.05 30);
+  --color-overlay: oklch(9% 0.006 60 / 78%);
+  --color-elevated: oklch(26% 0.009 82);
+  --shadow-card: inset 0 0 0 1px var(--color-rule);
+  --shadow-card-hover: inset 0 0 0 1px var(--color-rule-strong);
+}
+
+/* Existing mathematics and print paint remain independent of the theme. */
+:root {
+  --legacy-paint-1: #f5f7fb;
+  --legacy-paint-2: rgba(238, 246, 255, 0.86);
+  --legacy-paint-3: rgba(245, 247, 251, 0);
+  --legacy-body-ink: #172033;
+  --legacy-surface: #ffffff;
+  --legacy-muted-ink: #64748b;
+  --legacy-paint-7: #cbd5e1;
+  --legacy-paint-8: rgba(203, 213, 225, 0.18);
+  --legacy-paint-9: rgba(0, 0, 0, 0.24);
+  --legacy-paint-10: #1857db;
+  --legacy-dark-canvas: #0b0f17;
+  --legacy-paint-12: rgba(36, 107, 254, 0.12);
+  --legacy-paint-13: rgba(11, 15, 23, 0);
+  --legacy-dark-ink: #e8ebf2;
+  --legacy-dark-surface: #151b29;
+  --legacy-dark-line: #28324a;
+  --legacy-paint-17: #98a2b6;
+  --legacy-paint-18: rgba(21, 27, 41, 0.95);
+  --legacy-paint-19: rgba(21, 27, 41, 0.9);
+  --legacy-paint-20: rgba(16, 21, 33, 0.85);
+  --legacy-paint-21: rgba(21, 27, 41, 0.8);
+  --legacy-paint-22: rgba(21, 27, 41, 0.55);
+  --legacy-paint-23: rgba(16, 21, 33, 0.5);
+  --legacy-paint-24: #161c2b;
+  --legacy-paint-25: #1c2335;
+  --legacy-paint-26: #232c42;
+  --legacy-paint-27: #ccd4e1;
+  --legacy-paint-28: #b6bfd0;
+  --legacy-paint-29: #9aa7bb;
+  --legacy-paint-30: #c6d0de;
+  --legacy-paint-31: #8fb6ff;
+  --legacy-paint-32: rgba(36, 107, 254, 0.16);
+  --legacy-paint-33: rgba(36, 107, 254, 0.24);
+  --legacy-paint-34: rgba(36, 107, 254, 0.42);
+  --legacy-paint-35: #4cd3a3;
+  --legacy-paint-36: rgba(16, 163, 118, 0.15);
+  --legacy-paint-37: rgba(16, 163, 118, 0.22);
+  --legacy-paint-38: rgba(213, 74, 49, 0.14);
+  --legacy-paint-39: rgba(249, 115, 22, 0.14);
+  --legacy-paint-40: rgba(249, 115, 22, 0.22);
+  --legacy-paint-41: #fdba74;
+  --legacy-paint-42: rgba(245, 158, 11, 0.14);
+  --legacy-paint-43: #fcd34d;
+  --legacy-paint-44: rgba(14, 165, 233, 0.14);
+  --legacy-paint-45: #7dd3fc;
+  --legacy-paint-46: rgba(0, 0, 0, 0.5);
+  --legacy-paint-47: rgba(0, 0, 0, 0.55);
+  --legacy-white-short: #fff;
+  --legacy-paint-49: #f8fafc;
+  --legacy-paint-50: #eff6ff;
+  --legacy-paint-51: #ecfdf5;
+  --legacy-paint-52: #fff1f2;
+  --legacy-paint-53: #d7deeb;
+  --legacy-paint-54: #475569;
+  --legacy-paint-55: #111111;
+  --legacy-paint-56: #94a3b8;
+  --legacy-paint-57: #059669;
+  --legacy-paint-58: #f43f5e;
+  --legacy-paint-59: #f1f5f9;
+  --legacy-paint-60: #1d4ed8;
+}

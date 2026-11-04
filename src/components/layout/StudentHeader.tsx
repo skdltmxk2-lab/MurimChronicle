@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { authRepo, isAdminUser } from "@/lib/auth/mockAuth";
 import { useAuth } from "@/lib/auth/AuthContext";
@@ -21,7 +21,7 @@ function RouteMathIcon({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      <g fill="#1E3A8A">
+      <g fill="currentColor">
         {/* 카디널 spike — 길쭉한 첨예형 4방향 */}
         <ellipse cx="50" cy="50" rx="48" ry="6" />
         <ellipse cx="50" cy="50" rx="6" ry="48" />
@@ -35,7 +35,8 @@ function RouteMathIcon({ className }: { className?: string }) {
 
 export function StudentHeader() {
   const router = useRouter();
-  const { user, setUser } = useAuth();
+  const pathname = usePathname();
+  const { user, setUser, authChecked } = useAuth();
   const track = useTrack();
   const [studentEmail, setStudentEmail] = useState("");
   const [studentPassword, setStudentPassword] = useState("");
@@ -112,139 +113,62 @@ export function StudentHeader() {
   }
 
   return (
-    <header className="border-b border-line bg-white/85 backdrop-blur">
-      <div className="mx-auto flex min-h-16 max-w-6xl flex-col gap-3 px-5 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <Link href="/student/exams" className="flex items-center gap-3">
-            <RouteMathIcon className="size-9 shrink-0" />
-            <span>
-              <span className="block text-sm font-black text-ink">루트편입</span>
-              <span className="block text-xs text-slate-500">
-                {track === "english" ? "편입영어 맞춤 학습" : "편입수학 맞춤 학습"}
-              </span>
-            </span>
-          </Link>
-        </div>
+    <header className="tz-header" aria-busy={!authChecked}>
+      <div className={`tz-header__inner ${user ? "tz-header__inner--member" : "tz-header__inner--guest"}`}>
+        <Link href="/student/exams" className="tz-header__brand">
+          <RouteMathIcon className="tz-header__mark" />
+          <span className="tz-header__identity">
+            <span className="tz-header__wordmark">루트편입</span>
+            <span className="tz-header__subtitle">{track === "english" ? "편입영어 맞춤 학습" : "편입수학 맞춤 학습"}</span>
+          </span>
+        </Link>
 
-        <nav className="flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-600">
+        <nav className="tz-header__nav" aria-label="학습 메뉴">
           {user ? <TrackToggle /> : null}
-          {user ? (
-            <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/homework">
-              내 숙제
-            </Link>
-          ) : null}
-          {user ? (
-            <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/community">
-              커뮤니티
-            </Link>
-          ) : null}
-          {user && track === "math" ? (
-            <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/search">
-              문제검색
-            </Link>
-          ) : null}
-          <Link className="rounded-md px-3 py-2 hover:bg-slate-100" href="/student/pricing">
-            요금제
-          </Link>
-          {!user ? (
-            <Link
-              href="/student/forgot-password"
-              className="ml-1 rounded-md px-2 py-1 text-xs font-bold text-slate-500 hover:bg-slate-100 hover:text-brand-700"
-            >
-              비밀번호 찾기
-            </Link>
-          ) : null}
-          {isAdminUser(user) ? (
-            <Link
-              className="rounded-md border border-ink bg-ink px-3 py-2 text-xs font-black text-white hover:bg-slate-700"
-              href="/admin"
-            >
-              관리자 모드 →
-            </Link>
-          ) : null}
+          {user ? <Link className="tz-header__nav-link" aria-current={pathname.startsWith("/student/homework") ? "page" : undefined} href="/student/homework">내 숙제</Link> : null}
+          {user ? <Link className="tz-header__nav-link" aria-current={pathname.startsWith("/student/community") ? "page" : undefined} href="/student/community">커뮤니티</Link> : null}
+          {user && track === "math" ? <Link className="tz-header__nav-link" aria-current={pathname.startsWith("/student/search") ? "page" : undefined} href="/student/search">문제검색</Link> : null}
+          <Link className="tz-header__nav-link" aria-current={pathname === "/student/pricing" ? "page" : undefined} href="/student/pricing">요금제</Link>
         </nav>
 
-        <div className="flex flex-1 flex-col gap-2 lg:max-w-3xl lg:items-end">
-          {user ? (
-            <div className="flex flex-wrap items-center justify-start gap-2 lg:justify-end">
-              <span className="rounded-md bg-brand-50 px-3 py-2 text-sm font-black text-brand-700">
-                {user.name}님 안녕하세요!
-              </span>
-              <button
-                type="button"
-                onClick={() => setInquiryOpen(true)}
-                className="rounded-md border border-brand-200 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-50"
-              >
-                문의하기
-              </button>
-              <Link
-                href="/student/profile"
-                className="rounded-md border border-brand-200 px-3 py-2 text-xs font-black text-brand-700 hover:bg-brand-50"
-              >
-                내정보
-              </Link>
-              <button
-                type="button"
-                onClick={logout}
-                className="rounded-md border border-line px-3 py-2 text-xs font-black text-slate-600 hover:bg-slate-50"
-              >
-                로그아웃
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2 xl:flex-row xl:items-center xl:gap-2">
-              <form onSubmit={submitStudent} className="flex min-w-0 flex-wrap gap-2 xl:flex-1">
-                <input
-                  value={studentEmail}
-                  onChange={(event) => setStudentEmail(event.target.value)}
-                  className="min-w-0 flex-1 basis-40 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                  placeholder="이메일"
-                  type="email"
-                />
-                <input
-                  value={studentPassword}
-                  onChange={(event) => setStudentPassword(event.target.value)}
-                  className="min-w-0 flex-1 basis-32 rounded-md border border-line px-3 py-2 text-sm outline-none focus:border-brand-600"
-                  placeholder="비밀번호"
-                  type="password"
-                />
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="shrink-0 rounded-md border border-brand-600 px-3 py-2 text-sm font-black text-brand-700 hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {submitting ? "로그인 중..." : "로그인"}
-                </button>
-              </form>
-              <Link
-                href="/student/register"
-                className="shrink-0 self-end rounded-md bg-brand-600 px-3 py-2 text-sm font-black text-white hover:bg-brand-700 xl:self-auto"
-              >
-                회원가입
-              </Link>
-            </div>
-          )}
-          {error ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xs font-bold text-coral-600">{error}</p>
-              {showResend ? (
-                <button
-                  type="button"
-                  onClick={resendConfirmation}
-                  disabled={resending}
-                  className="rounded-md border border-coral-300 px-2 py-1 text-xs font-black text-coral-700 hover:bg-coral-50 disabled:opacity-50"
-                >
-                  {resending ? "재발송 중..." : "인증 메일 다시 보내기"}
-                </button>
+        <div className="tz-header__tools">
+          <ThemeToggle />
+          <details className="tz-header__access" suppressHydrationWarning key={`${user?.id ?? "guest"}:${pathname}`}>
+            <summary className="tz-header__summary">
+              <span>{user ? `${user.name}님` : "로그인"}</span>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+            </summary>
+            <div className="tz-header__popover">
+              {user ? (
+                <div className="tz-header__member">
+                  <p className="tz-header__greeting">{user.name}님 안녕하세요!</p>
+                  <button type="button" onClick={() => setInquiryOpen(true)} className="tz-header__account-link">문의하기</button>
+                  <Link href="/student/profile" className="tz-header__account-link">내정보</Link>
+                  {isAdminUser(user) ? <Link href="/admin" className="tz-header__account-link">관리자 모드</Link> : null}
+                  <button type="button" onClick={logout} className="tz-header__account-link tz-header__account-link--logout">로그아웃</button>
+                </div>
+              ) : (
+                <div className="tz-header__login">
+                  <form onSubmit={submitStudent} className="tz-header__login-form" aria-label="학생 로그인">
+                    <label className="tz-header__label" htmlFor="student-login-email">이메일</label>
+                    <input id="student-login-email" name="email" autoComplete="email" value={studentEmail} onChange={(event) => setStudentEmail(event.target.value)} className="tz-header__input" placeholder="이메일" type="email" />
+                    <label className="tz-header__label" htmlFor="student-login-password">비밀번호</label>
+                    <input id="student-login-password" name="password" autoComplete="current-password" value={studentPassword} onChange={(event) => setStudentPassword(event.target.value)} className="tz-header__input" placeholder="비밀번호" type="password" />
+                    <button type="submit" disabled={submitting} aria-busy={submitting} className="tz-header__button tz-header__button--primary">{submitting ? "로그인 중..." : "로그인"}</button>
+                  </form>
+                  <Link href="/student/forgot-password" className="tz-header__forgot">비밀번호 찾기</Link>
+                </div>
+              )}
+              {error ? (
+                <div className="tz-header__feedback" role="alert">
+                  <p>{error}</p>
+                  {showResend ? <button type="button" onClick={resendConfirmation} disabled={resending} className="tz-header__resend">{resending ? "재발송 중..." : "인증 메일 다시 보내기"}</button> : null}
+                </div>
               ) : null}
+              {resendDone ? <p className="tz-header__success" role="status">인증 메일을 다시 보냈습니다. 메일함을 확인해 주세요.</p> : null}
             </div>
-          ) : null}
-          {resendDone ? (
-            <p className="text-xs font-bold text-mint-700">
-              인증 메일을 다시 보냈습니다. 메일함을 확인해 주세요.
-            </p>
-          ) : null}
+          </details>
+          {!user ? <Link href="/student/register" className="tz-header__button tz-header__button--primary tz-header__signup">회원가입</Link> : null}
         </div>
       </div>
       {inquiryOpen ? <InquiryModal onClose={() => setInquiryOpen(false)} /> : null}

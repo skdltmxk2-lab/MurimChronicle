@@ -26,19 +26,13 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
     }
   }
 
-  // 아이콘은 '현재 모드'를 나타낸다: 라이트=해, 다크=달.
-  // 서버/클라이언트 초기 렌더 일치를 위해 마운트 전엔 라이트 기준(해).
-  const label = !mounted ? "☀️" : dark ? "🌙" : "☀️";
+  const showDark = mounted && dark;
 
   return (
-    <button
-      type="button"
-      onClick={toggle}
-      aria-label={dark ? "라이트 모드로 전환" : "다크 모드로 전환"}
-      title={dark ? "라이트 모드" : "다크 모드"}
-      className={`grid size-9 shrink-0 place-items-center rounded-full border border-line bg-white text-base shadow-soft transition hover:scale-105 hover:border-brand-400 ${className}`}
-    >
-      <span suppressHydrationWarning>{label}</span>
+    <button type="button" onClick={toggle} aria-pressed={dark} aria-label={dark ? "라이트 모드로 전환" : "다크 모드로 전환"} title={dark ? "라이트 모드" : "다크 모드"} className={`tz-theme ${className}`}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {showDark ? <path d="M20.5 14.3A8.7 8.7 0 0 1 9.7 3.5 8.8 8.8 0 1 0 20.5 14.3Z" /> : <><circle cx="12" cy="12" r="3.5" /><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>}
+      </svg>
     </button>
   );
 }

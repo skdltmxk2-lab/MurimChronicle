@@ -65,38 +65,38 @@ function GeneratedExamOption({
   const color =
     accent === "orange"
       ? {
-          hover: "hover:border-orange-400 hover:bg-orange-50",
-          button: "bg-orange-500 hover:bg-orange-600",
-          text: "text-orange-600",
+          hover: "tz-study-hover-line tz-study-hover-paper",
+          button: "tz-study-ink-fill tz-study-hover-ink",
+          text: "tz-study-accent",
         }
       : {
-          hover: "hover:border-mint-400 hover:bg-mint-50",
-          button: "bg-mint-600 hover:bg-mint-700",
-          text: "text-mint-600",
+          hover: "tz-study-hover-line tz-study-hover-paper",
+          button: "tz-study-ink-fill tz-study-hover-ink",
+          text: "tz-study-accent",
         };
 
   return (
-    <article className={`rounded-xl border border-line px-4 py-3 ${allowed ? color.hover : "bg-slate-50"}`}>
+    <article className={`tz-study-square border tz-study-line px-4 py-3 ${allowed ? color.hover : "tz-study-paper-2"}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h4 className={`text-sm font-black ${allowed ? "text-ink" : "text-slate-400"}`}>
+          <h4 className={`text-sm font-bold ${allowed ? "tz-study-ink" : "tz-study-muted"}`}>
             {exam.title}
           </h4>
-          <p className="mt-1 text-xs font-bold text-slate-500">
-            {exam.problems.length}문항 · {Math.floor(exam.timeLimitSec / 60)}분
+          <p className="mt-1 text-xs font-bold tz-study-muted">
+            {exam.problems.length}문항, {Math.floor(exam.timeLimitSec / 60)}분
           </p>
         </div>
         {allowed ? (
           <button
             type="button"
             onClick={onStart}
-            className={`shrink-0 rounded-md px-3 py-2 text-xs font-black text-white ${color.button}`}
+            className={`shrink-0 tz-study-square px-3 py-2 text-xs font-bold tz-study-on-ink ${color.button}`}
           >
             시작
           </button>
         ) : (
-          <span className="shrink-0 rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-black text-slate-600">
-            🔒 {lockLabel}
+          <span className="shrink-0 tz-study-square tz-study-paper-3 px-2.5 py-1 text-xs font-bold tz-study-muted">
+            {lockLabel}
           </span>
         )}
       </div>
@@ -208,11 +208,11 @@ export default function StudentExamsPage() {
 
   if (!user) {
     return (
-      <main className="mx-auto max-w-6xl px-5 py-16">
-        <section className="mx-auto max-w-lg rounded-2xl border border-line bg-white p-10 text-center shadow-soft">
-          <div className="mb-5 text-5xl">🔒</div>
-          <h1 className="text-2xl font-black text-ink">로그인이 필요합니다</h1>
-          <p className="mt-3 text-sm leading-7 text-slate-600">
+      <main className="tz-study tz-study-guest">
+        <section className="tz-study-login">
+
+          <h1 className="text-2xl font-bold tz-study-ink">로그인이 필요합니다</h1>
+          <p className="mt-3 text-sm leading-7 tz-study-muted">
             모의고사를 응시하려면 로그인해 주세요.
             <br />
             아직 계정이 없으시다면 지금 무료로 가입하세요!
@@ -220,12 +220,12 @@ export default function StudentExamsPage() {
           <div className="mt-6 flex justify-center gap-3">
             <Link
               href="/student/register"
-              className="rounded-md bg-brand-600 px-6 py-3 text-sm font-black text-white hover:bg-brand-700"
+              className="tz-study-square tz-study-ink-fill px-6 py-3 text-sm font-bold tz-study-on-ink tz-study-hover-ink"
             >
               회원가입
             </Link>
           </div>
-          <p className="mt-4 text-xs text-slate-400">
+          <p className="mt-4 text-xs tz-study-muted">
             이미 계정이 있으시면 상단에서 로그인해주세요.
           </p>
         </section>
@@ -234,332 +234,122 @@ export default function StudentExamsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8">
-      {/* 헤더 */}
-      <section className="mb-6 rounded-lg border border-line bg-white p-6 shadow-soft">
-        <p className="text-xs font-black uppercase tracking-[0.18em] text-brand-600">
-          루트편입
-        </p>
-        <div className="mt-2 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <h1 className="text-3xl font-black text-ink">시험 목록</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-              {user.name}님, 오늘도 화이팅이에요! 빈출 유형 및 모의고사를 풀어보세요.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">문항</div>
-              <div className="mt-1 text-xl font-black text-ink">{formatQuestionStat(questionCount)}</div>
-            </div>
-            <div className="rounded-md border border-line px-4 py-3">
-              <div className="text-xs font-bold text-slate-500">시험</div>
-              <div className="mt-1 text-xl font-black text-ink">{formatExamStat(questionCount)}</div>
-            </div>
-          </div>
+    <main className="tz-study">
+      <header className="tz-study-heading">
+        <div>
+          <h1>시험 목록</h1>
+          <p>{user.name}님, 오늘도 화이팅이에요! 빈출 유형 및 모의고사를 풀어보세요.</p>
         </div>
+        <dl className="tz-study-counts">
+          <div><dt>문항</dt><dd>{formatQuestionStat(questionCount)}</dd></div>
+          <div><dt>시험</dt><dd>{formatExamStat(questionCount)}</dd></div>
+        </dl>
+      </header>
 
-        {/* 데일리 테스트 */}
-        <div className="mt-5 flex items-center justify-between rounded-xl border border-brand-200 bg-brand-50 px-5 py-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-500">
-              Daily Test
-            </p>
-            <p className="mt-0.5 text-base font-black text-ink">
-              {getTodayStr()} 오늘의 데일리 테스트
-            </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {dailyCount > 0 ? `${Math.min(5, dailyCount)}문항 · 매일 로테이션` : "준비 중"}
-            </p>
+      <section className="tz-study-today" aria-label="오늘의 학습">
+        <article className="tz-study-daily">
+          <div className="tz-study-daily-main">
+            <h2>오늘의 <br />데일리 테스트</h2>
+            <time>{getTodayStr()}</time>
           </div>
-          {dailyCount === 0 ? (
-            <span className="shrink-0 rounded-lg bg-slate-100 px-5 py-2.5 text-sm font-black text-slate-400">
-              준비 중
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() =>
+          <div className="tz-study-daily-bottom">
+            <div className="tz-study-daily-count">
+              {dailyCount > 0 ? <><strong>{Math.min(5, dailyCount)}</strong><span>문항</span></> : <strong className="tz-study-preparing">준비 중</strong>}
+              <p>{dailyCount > 0 ? "매일 로테이션" : "준비 중"}</p>
+            </div>
+            {dailyCount === 0 ? (
+              <span className="tz-study-disabled">준비 중</span>
+            ) : (
+              <button type="button" onClick={() =>
                 router.push(
                   `/student/exams/unit-test?mode=daily&count=5&date=${getTodayParam()}`
                 )
-              }
-              className="shrink-0 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-black text-white hover:bg-brand-700"
-            >
-              풀기 →
-            </button>
-          )}
-        </div>
-
-        {/* 복습: 최근 틀린 문제 (무료 7일 / PRO 30일) */}
-        <div className="mt-3 flex items-center justify-between rounded-xl border-2 border-mint-600 bg-mint-50 px-5 py-4 shadow-soft dark:bg-mint-500/15">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600 dark:text-mint-200">
-              복습
-            </p>
-            <p className="mt-0.5 text-base font-black text-ink">최근 틀린 문제 다시 보기</p>
-            <p className="mt-0.5 text-xs text-slate-700">
-              {isPro
-                ? "지난 30일 동안 틀린 문제를 모아 복습할 수 있어요."
-                : "무료는 최근 7일 · PRO는 30일치 오답을 모아 복습해요."}
-            </p>
-          </div>
-          <Link
-            href="/student/wrong-questions"
-            className="shrink-0 rounded-lg bg-mint-600 px-5 py-2.5 text-sm font-black text-white hover:bg-mint-700"
-          >
-            열람 →
-          </Link>
-        </div>
-      </section>
-
-      {/* 광고 슬롯 (무료 사용자에게만 노출) */}
-      <AdSlot slot="exams-top" className="mb-5" />
-
-      {/* 취약유형 모의고사 */}
-      <section className="mb-5">
-        <div className="rounded-xl border border-orange-200 bg-gradient-to-br from-orange-500 to-amber-400 p-6 shadow-soft">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-100">
-                AI 맞춤 추천
-              </p>
-              <h2 className="mt-1 text-xl font-black text-white">
-                {user.name}님의 취약유형 모의고사
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-orange-100">
-                {user.name}님이 자주 틀리는 유형을 분석해 만든 25문항 맞춤형 모의고사예요.
-                <br />
-                약점 보강 + 미체험 유형 + 오답 복습 + 강점 심화 4단계로 출제됩니다.
-              </p>
-            </div>
-            <span className="shrink-0 text-5xl">🎯</span>
-          </div>
-          <Link
-            href="/student/exams/weakness/analysis"
-            className="mt-4 flex w-full items-center justify-center rounded-lg bg-white py-3 text-sm font-black text-orange-600 transition hover:brightness-95"
-          >
-            분석 보기 / 응시하기 →
-          </Link>
-        </div>
-      </section>
-
-      {/* 단원별 학습 + 과목별 모의고사 */}
-      <section className="mb-5 grid gap-5 md:grid-cols-2">
-        {/* 단원별 학습 */}
-        <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
-          <div className="flex items-start gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-brand-50 text-2xl">
-              📚
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.15em] text-brand-600">
-                Unit Practice
-              </p>
-              <h2 className="mt-0.5 text-lg font-black text-ink">단원별 학습</h2>
-            </div>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            과목별로 집중 학습하세요. 원하는 단원을 골라 10·15·20문항으로 풀 수 있어요. 한 번 본 문제는 뒤로 밀려요.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {SUBJECTS.map((s) => (
-              <span
-                key={s.name}
-                className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"
-              >
-                {s.name}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
-            <div>
-              <div className="text-xs font-bold text-slate-400">문항</div>
-              <div className="font-black text-ink">10~20문항</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">시간</div>
-              <div className="font-black text-ink">자유</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">방식</div>
-              <div className="font-black text-ink">단원별</div>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={openSubjectModal}
-            className="mt-4 w-full rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700"
-          >
-            과목 선택하기
-          </button>
-        </div>
-
-        {/* 과목별 모의고사 */}
-        <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
-          <div className="flex items-start gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-orange-50 text-2xl">
-              ⏱️
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.15em] text-orange-600">
-                Subject Mock Exam
-              </p>
-              <h2 className="mt-0.5 text-lg font-black text-ink">과목별 모의고사</h2>
-            </div>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            한 과목을 골라 20문항을 50분 안에 푸는 과목별 모의고사예요. 시간 압박 속에서 실력을 점검해 보세요.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {SUBJECTS.map((s) => (
-              <span
-                key={s.name}
-                className="rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-600"
-              >
-                {s.name}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
-            <div>
-              <div className="text-xs font-bold text-slate-400">문항</div>
-              <div className="font-black text-ink">20문항</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">시간</div>
-              <div className="font-black text-ink">50분</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">방식</div>
-              <div className="font-black text-ink">과목별</div>
-            </div>
-          </div>
-          <div className="mt-4 flex gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedMockSubject(null);
-                setSubjectExamOpen(true);
-              }}
-              className="flex-1 rounded-md bg-orange-500 py-3 text-sm font-black text-white hover:bg-orange-600"
-            >
-              모의고사 선택하기
-            </button>
-            <Link
-              href="/student/results?type=subject_mock"
-              className="rounded-md border border-orange-300 bg-white px-4 py-3 text-sm font-black text-orange-600 hover:bg-orange-50"
-            >
-              📊 지난 성적
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* 실전 모의고사 */}
-      <section className="mb-5">
-        <div className="flex flex-col rounded-lg border border-line bg-white p-5 shadow-soft">
-          <div className="flex items-start gap-3">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-mint-50 text-2xl">
-              📝
-            </span>
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.15em] text-mint-600">
-                Real Exam Simulation
-              </p>
-              <h2 className="mt-0.5 text-lg font-black text-ink">실전 모의고사</h2>
-            </div>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            5개 과목에서 각 5문항씩, 총 25문항으로 구성된 실전형 모의고사예요. 편입시험과 동일한 형식으로 풀어보세요.
-          </p>
-          <p className="mt-1.5 text-xs font-bold text-mint-700">
-            📅 매년 9월~1월 업로드됩니다.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {SUBJECTS.map((s) => (
-              <span
-                key={s.name}
-                className="rounded-full bg-mint-50 px-2.5 py-1 text-xs font-bold text-mint-600"
-              >
-                {s.name}
-              </span>
-            ))}
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4 text-center text-sm">
-            <div>
-              <div className="text-xs font-bold text-slate-400">문항</div>
-              <div className="font-black text-ink">25문항</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">시간</div>
-              <div className="font-black text-ink">60분</div>
-            </div>
-            <div>
-              <div className="text-xs font-bold text-slate-400">방식</div>
-              <div className="font-black text-ink">실전형</div>
-            </div>
-          </div>
-          <div className="mt-4 space-y-2">
-            {canRealExam ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedRealType(null);
-                  setRealExamOpen(true);
-                }}
-                className="w-full rounded-md bg-mint-600 py-3 text-sm font-black text-white hover:bg-mint-700"
-              >
-                모의고사 선택하기 →
-              </button>
-            ) : (
-              <Link
-                href="/student/pricing"
-                className="flex w-full items-center justify-center gap-1 rounded-md bg-slate-100 py-3 text-sm font-black text-slate-500 hover:bg-slate-200"
-              >
-                🔒 {tierLockMessage("pro")} · 요금제 보기 →
-              </Link>
+              } className="tz-study-button">데일리 테스트 풀기</button>
             )}
-            <Link
-              href="/student/results?type=real"
-              className="flex w-full items-center justify-center rounded-md border border-mint-300 bg-white px-4 py-3 text-sm font-black text-mint-600 hover:bg-mint-50"
-            >
-              📊 지난 성적 보기
-            </Link>
-            <p className="text-center text-xs leading-5 text-slate-500">
-              기출기반·학교별·파이널 등 4종 모의고사를 응시할 수 있습니다.
-            </p>
           </div>
+        </article>
+        <article className="tz-study-review">
+          <div>
+            <h2>최근 틀린 문제 <br />다시 보기</h2>
+            <p>{isPro ? "지난 30일 동안 틀린 문제를 모아 복습할 수 있어요." : "무료는 최근 7일, PRO는 30일치 오답을 모아 복습해요."}</p>
+          </div>
+          <Link href="/student/wrong-questions" className="tz-study-button tz-study-button-quiet">오답 열람</Link>
+        </article>
+      </section>
+
+      <AdSlot slot="exams-top" className="tz-study-ad" />
+
+      <section className="tz-study-methods" aria-labelledby="tz-study-methods-title">
+        <div className="tz-study-section-heading"><h2 id="tz-study-methods-title">과목과 목적에 맞는 학습</h2><span>단원별, 과목별</span></div>
+        <div className="tz-study-method-grid">
+          <article className="tz-study-method tz-study-method-unit">
+            <div className="tz-study-method-top"><h3>단원별 학습</h3><p className="tz-study-figure">10~20<span>문항</span></p></div>
+            <p className="tz-study-description">과목별로 집중 학습하세요. 원하는 단원을 골라 10, 15, 20문항으로 풀 수 있어요. 한 번 본 문제는 뒤로 밀려요.</p>
+            <div className="tz-study-subjects">{SUBJECTS.map((s) => <span key={s.name}>{s.name}</span>)}</div>
+            <dl className="tz-study-specs"><div><dt>문항</dt><dd>10~20문항</dd></div><div><dt>시간</dt><dd>자유</dd></div><div><dt>방식</dt><dd>단원별</dd></div></dl>
+            <button type="button" onClick={openSubjectModal} className="tz-study-button tz-study-button-wide">과목 선택하기</button>
+          </article>
+          <article className="tz-study-method tz-study-method-subject">
+            <div className="tz-study-method-top"><h3>과목별 모의고사</h3><p className="tz-study-figure">50<span>분</span></p></div>
+            <p className="tz-study-description">한 과목을 골라 20문항을 50분 안에 푸는 과목별 모의고사예요. 시간 압박 속에서 실력을 점검해 보세요.</p>
+            <div className="tz-study-subjects">{SUBJECTS.map((s) => <span key={s.name}>{s.name}</span>)}</div>
+            <dl className="tz-study-specs"><div><dt>문항</dt><dd>20문항</dd></div><div><dt>시간</dt><dd>50분</dd></div><div><dt>방식</dt><dd>과목별</dd></div></dl>
+            <div className="tz-study-method-actions">
+              <button type="button" onClick={() => { setSelectedMockSubject(null); setSubjectExamOpen(true); }} className="tz-study-button">모의고사 선택하기</button>
+              <Link href="/student/results?type=subject_mock" className="tz-study-text-link">지난 성적</Link>
+            </div>
+          </article>
         </div>
+      </section>
+
+      <section className="tz-study-advanced" aria-labelledby="tz-study-real-title">
+        <div className="tz-study-advanced-title"><h2 id="tz-study-real-title">실전 모의고사</h2><p className="tz-study-advanced-figure">25<span>문항</span></p></div>
+        <div className="tz-study-advanced-body">
+          <p>5개 과목에서 각 5문항씩, 총 25문항으로 구성된 실전형 모의고사예요. 편입시험과 동일한 형식으로 풀어보세요.</p>
+          <p className="tz-study-availability">매년 9월~1월 업로드됩니다.</p>
+          <div className="tz-study-subjects">{SUBJECTS.map((s) => <span key={s.name}>{s.name}</span>)}</div>
+          <dl className="tz-study-specs"><div><dt>문항</dt><dd>25문항</dd></div><div><dt>시간</dt><dd>60분</dd></div><div><dt>방식</dt><dd>실전형</dd></div></dl>
+          <div className="tz-study-method-actions">
+            {canRealExam ? (
+              <button type="button" onClick={() => { setSelectedRealType(null); setRealExamOpen(true); }} className="tz-study-button">모의고사 선택하기</button>
+            ) : (
+              <Link href="/student/pricing" className="tz-study-button tz-study-button-quiet">{tierLockMessage("pro")} 요금제 보기</Link>
+            )}
+            <Link href="/student/results?type=real" className="tz-study-text-link">지난 성적 보기</Link>
+          </div>
+          <p className="tz-study-footnote">기출기반, 학교별, 파이널 등 4종 모의고사를 응시할 수 있습니다.</p>
+        </div>
+      </section>
+
+      <section className="tz-study-weakness">
+        <div><h2>{user.name}님의 취약유형 모의고사</h2><p>{user.name}님이 자주 틀리는 유형을 분석해 만든 25문항 맞춤형 모의고사예요.</p><p className="tz-study-footnote">약점 보강 + 미체험 유형 + 오답 복습 + 강점 심화 4단계로 출제됩니다.</p></div>
+        <Link href="/student/exams/weakness/analysis" className="tz-study-button tz-study-button-quiet">분석 보기 / 응시하기</Link>
       </section>
 
       {/* 과목 선택 모달 */}
       {subjectModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          className="tz-study-modal-layer"
           onClick={() => setSubjectModalOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft"
+            className="tz-study-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {pickedSubject ? (
               <>
                 {/* 단원 + 문제 수 선택 */}
                 <div className="mb-4 flex items-center gap-3">
-                  <span className="text-2xl">
-                    {SUBJECTS.find((s) => s.name === pickedSubject)?.emoji}
-                  </span>
                   <div>
-                    <h3 className="text-lg font-black text-ink">{pickedSubject}</h3>
-                    <p className="text-xs text-slate-500">단원을 선택하고 문제 수를 정하세요</p>
+                    <h3 className="text-lg font-bold tz-study-ink">{pickedSubject}</h3>
+                    <p className="text-xs tz-study-muted">단원을 선택하고 문제 수를 정하세요</p>
                   </div>
                 </div>
 
                 {/* 단원 선택 */}
                 <div className="mb-4">
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-black text-slate-600">단원 선택</p>
+                    <p className="text-xs font-bold tz-study-muted">단원 선택</p>
                     <button
                       type="button"
                       onClick={() =>
@@ -569,7 +359,7 @@ export default function StudentExamsPage() {
                             : [...(SUBJECT_UNIT_MAP[pickedSubject] ?? [])]
                         )
                       }
-                      className="text-xs font-bold text-brand-600 hover:underline"
+                      className="text-xs font-bold tz-study-accent hover:underline"
                     >
                       {selectedUnits.length === (SUBJECT_UNIT_MAP[pickedSubject] ?? []).length
                         ? "전체 해제"
@@ -582,10 +372,10 @@ export default function StudentExamsPage() {
                         key={unit}
                         type="button"
                         onClick={() => toggleUnit(unit)}
-                        className={`rounded-full px-3 py-1.5 text-sm font-bold transition ${
+                        className={`tz-study-square px-3 py-1.5 text-sm font-bold transition ${
                           selectedUnits.includes(unit)
-                            ? "bg-brand-600 text-white"
-                            : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                            ? "tz-study-ink-fill tz-study-on-ink"
+                            : "border tz-study-line tz-study-plate tz-study-muted tz-study-hover-line"
                         }`}
                       >
                         {unit}
@@ -596,7 +386,7 @@ export default function StudentExamsPage() {
 
                 {/* 문제 수 선택 */}
                 <div className="mb-5">
-                  <p className="mb-2 text-xs font-black text-slate-600">문제 수</p>
+                  <p className="mb-2 text-xs font-bold tz-study-muted">문제 수</p>
                   <div className="flex gap-2">
                     {COUNT_OPTIONS.map((n) => {
                       const active = unitTestCount === n;
@@ -605,10 +395,10 @@ export default function StudentExamsPage() {
                           key={n}
                           type="button"
                           onClick={() => setUnitTestCount(n)}
-                          className={`flex-1 rounded-lg py-2.5 text-sm font-black transition ${
+                          className={`flex-1 tz-study-square py-2.5 text-sm font-bold transition ${
                             active
-                              ? "bg-brand-600 text-white"
-                              : "border border-line bg-white text-slate-600 hover:border-brand-400"
+                              ? "tz-study-ink-fill tz-study-on-ink"
+                              : "border tz-study-line tz-study-plate tz-study-muted tz-study-hover-line"
                           }`}
                         >
                           {n}문항
@@ -622,25 +412,25 @@ export default function StudentExamsPage() {
                   <button
                     type="button"
                     onClick={() => setPickedSubject(null)}
-                    className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                    className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-ink tz-study-hover-paper"
                   >
-                    ← 다른 과목
+                    다른 과목
                   </button>
                   <button
                     type="button"
                     onClick={startUnitTest}
                     disabled={selectedUnits.length === 0}
-                    className="flex-1 rounded-md bg-brand-600 py-3 text-sm font-black text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex-1 tz-study-square tz-study-ink-fill py-3 text-sm font-bold tz-study-on-ink tz-study-hover-ink disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    시작하기 →
+                    시작하기
                   </button>
                 </div>
               </>
             ) : (
               <>
                 <div className="mb-5">
-                  <h3 className="text-xl font-black text-ink">단원별 학습</h3>
-                  <p className="mt-1 text-sm text-slate-500">학습할 과목을 선택하세요</p>
+                  <h3 className="text-xl font-bold tz-study-ink">단원별 학습</h3>
+                  <p className="mt-1 text-sm tz-study-muted">학습할 과목을 선택하세요</p>
                 </div>
                 <div className="space-y-2">
                   {SUBJECTS.map((subject) => (
@@ -648,12 +438,12 @@ export default function StudentExamsPage() {
                       key={subject.name}
                       type="button"
                       onClick={() => pickSubject(subject.name)}
-                      className="flex w-full items-center gap-4 rounded-xl border border-line px-4 py-3 text-left hover:border-brand-400 hover:bg-brand-50"
+                      className="flex w-full items-center gap-4 tz-study-square border tz-study-line px-4 py-3 text-left tz-study-hover-line tz-study-hover-paper"
                     >
-                      <span className="text-2xl">{subject.emoji}</span>
+
                       <div>
-                        <div className="text-sm font-black text-ink">{subject.name}</div>
-                        <div className="text-xs text-slate-500">{subject.desc}</div>
+                        <div className="text-sm font-bold tz-study-ink">{subject.name}</div>
+                        <div className="text-xs tz-study-muted">{subject.desc}</div>
                       </div>
                     </button>
                   ))}
@@ -661,7 +451,7 @@ export default function StudentExamsPage() {
                 <button
                   type="button"
                   onClick={() => setSubjectModalOpen(false)}
-                  className="mt-4 w-full rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+                  className="mt-4 w-full tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
                 >
                   닫기
                 </button>
@@ -674,21 +464,21 @@ export default function StudentExamsPage() {
       {/* 과목별 모의고사 선택 모달 */}
       {subjectExamOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          className="tz-study-modal-layer"
           onClick={() => setSubjectExamOpen(false)}
         >
           <div
-            className="max-h-[82vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-soft"
+            className="tz-study-modal tz-study-modal-wide"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5">
-              <h3 className="text-xl font-black text-ink">과목별 모의고사</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-xl font-bold tz-study-ink">과목별 모의고사</h3>
+              <p className="mt-1 text-sm tz-study-muted">
                 {selectedMockSubject ? `${selectedMockSubject} 모의고사를 선택하세요` : "응시할 과목을 선택하세요"}
               </p>
             </div>
             {subjectGeneratedExams.length === 0 ? (
-              <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
+              <div className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
                 등록된 과목별 모의고사가 없습니다.
               </div>
             ) : !selectedMockSubject ? (
@@ -700,16 +490,16 @@ export default function StudentExamsPage() {
                       key={subject.name}
                       type="button"
                       onClick={() => setSelectedMockSubject(subject.name)}
-                      className="flex w-full items-center justify-between rounded-xl border border-line px-4 py-3 text-left hover:border-orange-400 hover:bg-orange-50"
+                      className="flex w-full items-center justify-between tz-study-square border tz-study-line px-4 py-3 text-left tz-study-hover-line tz-study-hover-paper"
                     >
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="text-2xl">{subject.emoji}</span>
+
                         <div>
-                          <div className="text-sm font-black text-ink">{subject.name}</div>
-                          <div className="text-xs text-slate-500">{examCount}개 모의고사</div>
+                          <div className="text-sm font-bold tz-study-ink">{subject.name}</div>
+                          <div className="text-xs tz-study-muted">{examCount}개 모의고사</div>
                         </div>
                       </div>
-                      <span className="text-xs font-black text-orange-600">보기 →</span>
+                      <span className="text-xs font-bold tz-study-accent">보기</span>
                     </button>
                   );
                 })}
@@ -717,7 +507,7 @@ export default function StudentExamsPage() {
             ) : (
               <>
                 {selectedSubjectGeneratedExams.length === 0 ? (
-                  <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
+                  <div className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
                     {selectedMockSubject}에 등록된 모의고사가 없습니다.
                   </div>
                 ) : (
@@ -745,9 +535,9 @@ export default function StudentExamsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMockSubject(null)}
-                  className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-ink tz-study-hover-paper"
                 >
-                  ← 과목 선택
+                  과목 선택
                 </button>
               ) : null}
               <button
@@ -756,7 +546,7 @@ export default function StudentExamsPage() {
                   setSubjectExamOpen(false);
                   setSelectedMockSubject(null);
                 }}
-                className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+                className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
               >
                 닫기
               </button>
@@ -768,16 +558,16 @@ export default function StudentExamsPage() {
       {/* 실전 모의고사 선택 모달 */}
       {realExamOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 px-4 pb-6 sm:items-center sm:pb-0"
+          className="tz-study-modal-layer"
           onClick={() => setRealExamOpen(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-soft"
+            className="tz-study-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5">
-              <h3 className="text-xl font-black text-ink">실전 모의고사</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3 className="text-xl font-bold tz-study-ink">실전 모의고사</h3>
+              <p className="mt-1 text-sm tz-study-muted">
                 {selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
               </p>
             </div>
@@ -794,29 +584,29 @@ export default function StudentExamsPage() {
                   return (
                     <div
                       key={item.key}
-                      className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
+                      className={`flex items-center justify-between tz-study-square border px-4 py-3 ${
                         allowed
-                          ? "border-line hover:border-mint-400 hover:bg-mint-50"
-                          : "border-line bg-slate-50"
+                          ? "tz-study-line tz-study-hover-line tz-study-hover-paper"
+                          : "tz-study-line tz-study-paper-2"
                       }`}
                     >
                       <div className="min-w-0 pr-3">
-                        <div className={`text-sm font-black ${allowed ? "text-ink" : "text-slate-400"}`}>
+                        <div className={`text-sm font-bold ${allowed ? "tz-study-ink" : "tz-study-muted"}`}>
                           {item.label}
                         </div>
-                        <div className="text-xs text-slate-500">{item.desc} · {examCount}개</div>
+                        <div className="text-xs tz-study-muted">{item.desc}, {examCount}개</div>
                       </div>
                       {!allowed ? (
-                        <span className="shrink-0 rounded-full bg-slate-200 px-2.5 py-1 text-[10px] font-black text-slate-600">
-                          🔒 {tierLockMessage(item.req)}
+                        <span className="shrink-0 tz-study-square tz-study-paper-3 px-2.5 py-1 text-xs font-bold tz-study-muted">
+                          {tierLockMessage(item.req)}
                         </span>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setSelectedRealType(item.key as "past" | "school" | "finalA" | "finalB")}
-                          className="shrink-0 rounded-md bg-mint-600 px-3 py-1.5 text-xs font-black text-white hover:bg-mint-700"
+                          className="shrink-0 tz-study-square tz-study-ink-fill px-3 py-1.5 text-xs font-bold tz-study-on-ink tz-study-hover-ink"
                         >
-                          보기 →
+                          보기
                         </button>
                       )}
                     </div>
@@ -824,7 +614,7 @@ export default function StudentExamsPage() {
                 })}
               </div>
             ) : selectedRealGeneratedExams.length === 0 ? (
-              <div className="rounded-xl border border-line bg-slate-50 p-5 text-center text-sm font-bold text-slate-500">
+              <div className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
                 등록된 실전 모의고사가 없습니다.
               </div>
             ) : (
@@ -850,9 +640,9 @@ export default function StudentExamsPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedRealType(null)}
-                  className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-ink tz-study-hover-paper"
                 >
-                  ← 종류 선택
+                  종류 선택
                 </button>
               ) : null}
               <button
@@ -861,7 +651,7 @@ export default function StudentExamsPage() {
                   setRealExamOpen(false);
                   setSelectedRealType(null);
                 }}
-                className="flex-1 rounded-md border border-line py-3 text-sm font-black text-slate-600 hover:bg-slate-50"
+                className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
               >
                 닫기
               </button>
