@@ -152,6 +152,21 @@ test("high fanout is routed without reusing holes and excess board demand fails 
   assert.equal(validateLayout(oversized, definitions, layout).valid, false);
 });
 
+test("the 80-part limit routes shared buses on two boards without aliasing cached footprints", () => {
+  const input = circuit(Array.from({ length: 80 }, (_, i) => component(`C${i + 1}`, "c", [i % 2 ? "BUS" : "VCC", i % 3 ? `N${i}` : "GND"])),
+    [terminal("supply", "VCC"), terminal("return", "GND"), terminal("bus", "BUS")]);
+  const settings = { boards: 2, railMode: "split" };
+  const layout = createLayout(input, definitions, settings);
+  const report = expectValid(input, layout);
+  assert.equal(layout.placements.length, 80);
+  assert.equal(report.checkedPins, 160);
+  assert.equal(layout.issues.filter(issue => issue.severity === "error").length, 0);
+  assert.equal(new Set(layout.placements.map(placement => placement.pins)).size, 80, "Every part owns its editable pin map");
+  const snapshot = JSON.stringify(layout);
+  layout.placements[0].pins[1] = "B1:A99";
+  assert.equal(JSON.stringify(createLayout(input, definitions, settings)), snapshot, "Editing one project cannot mutate subsequent plans");
+});
+
 test("missing physical IC pins and unknown target pins cannot pass validation", () => {
   const input = circuit([component("U1", "op", ["A", "B", "C", "GND", "E", "OUT", "VCC", "H"])]);
   const layout = createLayout(input, definitions, options);
