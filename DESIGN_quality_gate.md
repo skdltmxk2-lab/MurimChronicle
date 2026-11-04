@@ -619,3 +619,24 @@ insert into public.question_quality_clearances (question_id, code, fingerprint, 
 ```sql
 update public.questions q set quality_status='approved', quality_reasons='{}', validated_at=now(), validator_version='gate-rollback' where q.quality_status='quarantined' and q.validator_version like 'gate-%' and exists (select 1 from public.question_quality_events e where e.question_id=q.id and e.event in ('quarantine','report'));
 ```
+
+### 14.8 첫 품질 점검 (2026-11-04 19:53)
+
+`questions:gate-sweep --dump --images`를 워크트리 코드로 돌렸다. 승인 문항 5,515건에서 block 0 · fix 0 · warn 0 · suspect 35(이슈 37건)가 나왔다. 02:41 스냅샷과 비교해 바뀐 문항과 새로 잡힌 문항은 없었다.
+
+의심 35건은 정답을 보기 전에 직접 풀어서 정답 키와 대조했다. 고칠 결론이 나온 16건은 다른 풀이자가 앞선 결론을 모른 채 다시 풀었고, 전부 일치했다.
+
+| 결과 | 건수 |
+|---|---|
+| 오탐 (정답·해설 정상) | 14 |
+| 해설에 초안 문구 | 5 |
+| 해설 오류 (정답은 맞음) | 4 |
+| 정답 키 오류 | 3 |
+| 선지 오류 | 3 |
+| 지문 오류 (그대로는 맞는 선지가 없음) | 6 |
+
+오탐 14건 중 3건은 `closedForm`이 지수 중괄호를 버리던 버그(`10^{3/2}` → `10^3/2`)였고 이번에 고쳤다. 전 문항 비교에서 그 3건만 사라지고 새로 잡힌 문항은 없었다. 같은 버그가 `schoolMockCore.mjs`에도 있으니 학교 모고를 포팅할 때 함께 고친다. 나머지 11건은 해설의 마지막 수식이 답이 아닌 경우처럼 문항별 사정이라, 규칙을 고치지 않고 마이그레이션 뒤 `question_quality_clearances`로 해제한다.
+
+지문 오류 6건의 복원안은 정답 키에서 거꾸로 추정한 것이다. 저장소에 시험지 원본이 없어서 대조 전에는 적용하지 않는다.
+
+결과 원본은 `tmp/audit/sweep_20261104_1953/`에 있다(커밋하지 않음). 워크트리에서 sweep을 돌릴 때는 `.env.local`을 임시 하드링크로 연결하고, 끝나면 지운다. 결과 파일은 `tmp/` 아래에 생기므로 커밋 전에 옮긴다.

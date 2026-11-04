@@ -18,6 +18,7 @@ import {
   summarizeGateReport,
   viewLabelsInOption,
 } from "../src/lib/questions/qualityGateCore.mjs";
+import { evalClosedForm } from "../src/lib/questions/closedForm.mjs";
 import { normalizeContent, splitRenderBlocks } from "../scripts/lib/render_pipeline.mjs";
 
 // KaTeX 가 한글 글리프 경고를 찍는다 — 테스트 출력 정리
@@ -309,6 +310,29 @@ test("explanationFinalValue reads marker or last equation", () => {
   assert.equal(explanationFinalValue("$\\therefore a+b=\\dfrac{1}{2}$"), 0.5);
   assert.equal(explanationFinalValue("설명만 있다."), null);
 });
+test("exponent braces stay grouped in the closed-form evaluator", () => {
+  const near = (text, expected) => assert.ok(Math.abs(evalClosedForm(text) - expected) < 1e-9 * Math.max(1, Math.abs(expected)), text);
+  near("10^{3/2}", 10 ** 1.5);
+  near("e^{2\\pi}", Math.exp(2 * Math.PI));
+  near("e^{\\pi/3}", Math.exp(Math.PI / 3));
+  near("e^{\\frac{\\pi}{3}}", Math.exp(Math.PI / 3));
+  near("3^{3/4}5^{7/4}", 3 ** 0.75 * 5 ** 1.75);
+  near("2^{10}", 1024);
+  near("2^{-1}", 0.5);
+  near("2^3/2", 4); // 중괄호 없으면 지수는 한 글자
+  assert.equal(evalClosedForm("x^{2}"), null);
+});
+test("real case q-daily-int-r24-1: a fractional exponent equals the same value written with a root", () => {
+  const result = inspectQuestion(
+    make({
+      options: options5(["$\\dfrac{2}{27}(10\\sqrt{10}-1)$", "$\\dfrac{1}{27}(10\\sqrt{10}-1)$", "$\\dfrac{18}{27}(10\\sqrt{10}+1)$", "$3$", "$\\dfrac{\\pi}{2}$"]),
+      correctOptionId: "1",
+      explanation: "$L=\\dfrac{2}{27}(10^{3/2}-1)$",
+    })
+  );
+  assert.ok(!result.codes.includes("no_option_matches_explanation"), result.codes.join(","));
+});
+
 test("explanation value matches a different option → answer_key_mismatch_numeric", () => {
   const result = inspectQuestion(make({ explanation: "계산하면 $f'(1)=3$" }));
   const issue = result.issues.find((i) => i.code === "answer_key_mismatch_numeric");

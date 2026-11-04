@@ -36,7 +36,8 @@ export function normalizeMathText(text) {
   s = s.replace(/\\pi/g, "pi");
   s = s.replace(/\\infty/g, "inf");
   s = s.replace(/\\cdot|\\times/g, "*");
-  s = s.replace(/\^\s*\{([^{}]*)\}/g, "^$1");
+  // 지수 중괄호는 괄호로 바꿔 묶음을 지킨다 (`10^{3/2}` 가 10^3/2 로, `e^{2\\pi}` 가 e^2·π 로 읽히던 버그 수정)
+  s = s.replace(/\^\s*\{([^{}]*)\}/g, "^($1)");
   s = s.replace(/\\([a-zA-Z]+)/g, "$1");
   s = s.replace(/[\s{}]/g, "");
   s = s.replace(/(\.\d*?)0+(?=$|[^0-9])/g, "$1");
