@@ -14,6 +14,8 @@
   --color-ink: oklch(16% 0.006 60); --color-ink-2: oklch(27% 0.006 60); --color-muted: oklch(46% 0.01 60);
   --color-rule: oklch(81% 0.012 80);
   --color-accent: oklch(53% 0.15 38); --color-accent-soft: oklch(91% 0.035 45); --color-accent-ink: oklch(99.5% 0.003 82); --color-focus: oklch(50% 0.16 38);
+  --color-blue: oklch(43% 0.075 235); --color-blue-soft: oklch(94% 0.018 235);
+  --color-sage: oklch(43% 0.07 155); --color-sage-soft: oklch(94% 0.018 155);
   --font-display: "Syne", "Pretendard Variable", sans-serif; --font-body: "Onest", "Pretendard Variable", sans-serif;
   --font-outlier: "JetBrains Mono", ui-monospace, monospace;
   --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --rule-bar: 2px;
@@ -51,6 +53,8 @@
   --color-accent-soft: oklch(29% 0.045 45);
   --color-accent-ink: oklch(16% 0.006 60);
   --color-focus: oklch(78% 0.12 38);
+  --color-blue: oklch(75% 0.065 235); --color-blue-soft: oklch(24% 0.018 235);
+  --color-sage: oklch(75% 0.065 155); --color-sage-soft: oklch(24% 0.018 155);
   --color-quiet: oklch(25% 0.012 82);
   --color-positive: oklch(77% 0.09 150);
   --color-positive-soft: oklch(27% 0.04 150);

@@ -18,6 +18,7 @@ type Card = {
   title: string;
   desc: string;
   icon: ToolIconName;
+  tone: "blue" | "sage" | "rust";
   badge?: number;
   highlight?: boolean;
 };
@@ -103,12 +104,14 @@ export function AdminHomeClient() {
       title: "전자공학 실험실",
       desc: "실험 PDF·사진 분석, 빵판 자동 배치와 조립 안내",
       icon: "electronics",
+      tone: "blue",
     },
     {
       href: "/admin/inquiries",
       title: "문의함",
       desc: stats ? (stats.inquiriesPending > 0 ? `처리해야 할 문의 ${stats.inquiriesPending}건` : "처리할 문의 없음") : "회원의 문의·건의·버그신고",
       icon: "inquiries",
+      tone: "rust",
       badge: stats?.inquiriesNew,
       highlight: (stats?.inquiriesNew ?? 0) > 0,
     },
@@ -117,54 +120,63 @@ export function AdminHomeClient() {
       title: "문제 관리",
       desc: stats ? `등록된 문제 ${stats.totalQuestions.toLocaleString()}개` : "문제 등록·수정·삭제",
       icon: "questions",
+      tone: "blue",
     },
     {
       href: "/admin/exams",
       title: "모의고사 생성",
       desc: "실전 모의고사 출제·발행",
       icon: "exams",
+      tone: "blue",
     },
     {
       href: "/admin/daily",
       title: "데일리 테스트 생성",
       desc: "오늘의 5문항 풀 관리",
       icon: "daily",
+      tone: "blue",
     },
     {
       href: "/admin/coaching",
       title: "코칭 스튜디오",
       desc: "관련문제 PDF·단원 모고·쌍둥이 문제 자동 구성",
       icon: "coaching",
+      tone: "sage",
     },
     {
       href: "/admin/homework",
       title: "숙제 배부 / 첨삭",
       desc: "PDF 자료 배부·풀이 제출·문항별 AI 피드백 검토",
       icon: "homework",
+      tone: "sage",
     },
     {
       href: "/admin/messages",
       title: "공지 / 메시지",
       desc: "전체 공지 및 1대1 메시지 발송",
       icon: "messages",
+      tone: "rust",
     },
     {
       href: "/admin/users",
       title: "회원 관리",
       desc: stats ? `가입자 ${stats.totalUsers}명` : "등급 변경·관리자 임명·상세 분석",
       icon: "users",
+      tone: "sage",
     },
     {
       href: "/admin/imports",
       title: "대량 업로드",
       desc: "CSV·JSON 일괄 등록",
       icon: "imports",
+      tone: "sage",
     },
     {
       href: "/admin/ai",
       title: "AI 추천 설정",
       desc: "추천 엔진(개념/임베딩) 선택·임베딩 생성",
       icon: "ai",
+      tone: "blue",
     },
   ];
 
@@ -185,6 +197,7 @@ export function AdminHomeClient() {
             key={c.href}
             href={c.href}
             className="tz-admin-home-card"
+            data-tone={c.tone}
             data-attention={c.highlight || undefined}
           >
             <div className="tz-admin-home-card-top">
@@ -209,6 +222,7 @@ export function AdminHomeClient() {
           <Link
             href="/admin/english"
             className="tz-admin-home-card"
+            data-tone="sage"
           >
             <div className="tz-admin-home-card-top"><span className="tz-admin-home-icon"><ToolIcon name="english" /></span></div>
             <h3>영어 단어 DB</h3>

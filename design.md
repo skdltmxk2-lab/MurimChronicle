@@ -44,3 +44,7 @@ Hallmark의 여러 화면이 공유하는 시스템이다. 새로운 화면도 �
 - 기본 규칙·연결: `app/base.css`, `app/globals.css`; 화면: `app/terrazzo-{shell,landing,study,exam}.css`.
 - 관리자 공통 UI·도구 목록: `app/terrazzo-admin.css`, `app/terrazzo-admin-home.css`. 전자공학 작업 영역과 코칭 인쇄지는 별도 렌더링을 유지한다.
 - 실제 제품 캡처: `public/hallmark/study-{light,dark}.png`. 인쇄·수식의 legacy 토큰은 별도로 보존한다.
+
+## Variants
+- 관리자 도구에는 요청에 따라 blue와 sage 보조색을 더한다. 아이콘·상단 선·호버·선택 탭에만 사용하며 본문과 기본 버튼은 기존 paper/ink 역할을 유지한다.
+- Blue: light `oklch(43% 0.075 235)`, dark `oklch(75% 0.065 235)`; Sage: light `oklch(43% 0.07 155)`, dark `oklch(75% 0.065 155)`. 옅은 배경은 각각 `--color-blue-soft`, `--color-sage-soft`를 쓴다.

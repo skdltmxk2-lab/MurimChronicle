@@ -38,6 +38,8 @@
     gap: var(--space-lg);
   }
   .tz-admin-home-card {
+    --tz-admin-home-tone: var(--color-ink-2);
+    --tz-admin-home-tone-soft: var(--color-quiet);
     display: flex;
     position: relative;
     min-width: 0;
@@ -47,14 +49,28 @@
     align-items: flex-start;
     background: var(--color-plate);
     border: var(--rule-hair) solid var(--color-rule);
+    border-top: var(--rule-bar) solid var(--tz-admin-home-tone);
     color: var(--color-ink);
     border-radius: var(--radius-card);
     text-decoration: none;
     transition: border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
   }
+  .tz-admin-home-card[data-tone="blue"] {
+    --tz-admin-home-tone: var(--color-blue);
+    --tz-admin-home-tone-soft: var(--color-blue-soft);
+  }
+  .tz-admin-home-card[data-tone="sage"] {
+    --tz-admin-home-tone: var(--color-sage);
+    --tz-admin-home-tone-soft: var(--color-sage-soft);
+  }
+  .tz-admin-home-card[data-tone="rust"] {
+    --tz-admin-home-tone: var(--color-accent);
+    --tz-admin-home-tone-soft: var(--color-accent-soft);
+  }
   .tz-admin-home-card:hover {
     border-color: var(--color-rule-strong);
-    background: var(--color-quiet);
+    border-top-color: var(--tz-admin-home-tone);
+    background: color-mix(in oklab, var(--color-plate) 78%, var(--tz-admin-home-tone-soft));
     color: var(--color-ink);
     text-decoration: none;
   }
@@ -78,7 +94,7 @@
     gap: var(--space-md);
     margin-bottom: var(--space-md);
   }
-  .tz-admin-home-icon { display: inline-flex; color: var(--color-ink-2); }
+  .tz-admin-home-icon { display: inline-flex; color: var(--tz-admin-home-tone); }
   .tz-admin-home-icon svg { width: 26px; height: 26px; }
   .tz-admin-home-card h2,
   .tz-admin-home-card h3 {
