@@ -1,7 +1,8 @@
 import type {
   AssemblyStep, BoardGeometry, BoardHole, BoardOptions, Circuit, CircuitComponent,
-  CircuitLayout, ComponentDefinition, PlacedComponent, ValidationIssue, ValidationReport,
+  CircuitLayout, ComponentDefinition, PlacedComponent, TerminalPlacement, ValidationIssue, ValidationReport,
 } from "./types";
+import { getPowerNetRole, type PowerNetRole } from "./power";
 
 const PITCH = 18;
 const ROWS = "ABCDEFGHIJ";
@@ -68,6 +69,8 @@ function pinNet(component: CircuitComponent, pinId: string): string {
 
 function sourceIssues(circuit: Circuit, definitions: ComponentDefinition[]): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
+  const railPlan = assignPowerRails(circuit);
+  for (const netId of railPlan.overflow) issues.push({ severity: "warning", code: "POWER_RAIL_CAPACITY", message: `${circuit.netNames[netId] ?? netId}: 독립 전원·접지 레일 4개를 초과하여 일반 점퍼로 연결합니다. 서로 다른 전원이나 접지를 같은 레일에 합치지 마세요.` });
   const seen = new Set<string>();
   for (const component of circuit.components) {
     const componentId = component.id;
@@ -123,6 +126,37 @@ function candidatePlacement(component: CircuitComponent, definition: ComponentDe
   return { componentId: component.id, pins };
 }
 
+function physicalPlacementMatches(component: CircuitComponent, definition: ComponentDefinition, placement: PlacedComponent, holes: Map<string, BoardHole>): boolean {
+  if (footprint(definition) === "unsupported" || placement.componentId !== component.id || Object.keys(placement.pins).length !== definition.pins.length) return false;
+  const points = definition.pins.map(pin => holes.get(placement.pins[pin.id]));
+  if (!points.length || points.some(point => !point)) return false;
+  const existing = points as BoardHole[];
+  if (existing.some(point => point.board !== existing[0].board || !ROWS.includes(point.row) || point.row.length !== 1)) return false;
+  const expected = candidatePlacement(component, definition, existing[0].board, Math.min(...existing.map(point => point.column)), ROWS.indexOf(existing[0].row) >= 5);
+  if (footprint(definition) !== "dip") {
+    for (const pin of definition.pins) expected.pins[pin.id] = expected.pins[pin.id].replace(/:[A-J]/, `:${existing[0].row}`);
+  }
+  return definition.pins.every(pin => expected.pins[pin.id] === placement.pins[pin.id]);
+}
+
+/** Move an entire rigid footprint using one chosen lead as the drag anchor. */
+export function moveComponentPlacement(component: CircuitComponent, definition: ComponentDefinition, current: PlacedComponent, targetAnchorHoleId: string, anchorPinId: string, board: BoardGeometry): PlacedComponent {
+  const canonical = createBoard(board.options);
+  const holes = new Map(canonical.holes.map(hole => [hole.id, hole]));
+  if (!physicalPlacementMatches(component, definition, current, holes)) throw new Error("현재 소자의 물리 핀 배치가 올바르지 않습니다. 전체 자동 배치 후 이동하세요.");
+  const anchor = holes.get(current.pins[anchorPinId]), target = holes.get(targetAnchorHoleId);
+  if (!anchor || !target || target.row.length !== 1 || !ROWS.includes(target.row)) throw new Error("소자의 핀과 일반 연결 구멍을 선택하세요. 소자 몸체는 전원 레일에 놓을 수 없습니다.");
+  const dip = footprint(definition) === "dip";
+  if (dip && target.row !== anchor.row) throw new Error("DIP 소자는 중앙골을 가로질러야 합니다. 선택한 핀을 같은 E/F 행에서 이동하세요.");
+  const delta = target.column - anchor.column;
+  const moved: PlacedComponent = { componentId: component.id, pins: Object.fromEntries(definition.pins.map(pin => {
+    const before = holes.get(current.pins[pin.id])!;
+    return [pin.id, `B${target.board}:${dip ? before.row : target.row}${before.column + delta}`];
+  })) };
+  if (!physicalPlacementMatches(component, definition, moved, holes)) throw new Error("소자의 핀이 빵판 범위를 벗어나거나 핀 간격을 유지할 수 없습니다.");
+  return moved;
+}
+
 function reservedGroups(placement: PlacedComponent, holes: Map<string, BoardHole>): string[] {
   const points = Object.values(placement.pins).map(id => holes.get(id)).filter((hole): hole is BoardHole => Boolean(hole));
   const groups = new Set<string>();
@@ -134,21 +168,59 @@ function reservedGroups(placement: PlacedComponent, holes: Map<string, BoardHole
   return [...groups];
 }
 
-function netColor(netId: string, index: number): string {
-  if (/^(?:gnd|ground|agnd|0)$/i.test(netId)) return "#334155";
-  if (/^(?:vcc|vdd|v\+|\+)/i.test(netId)) return "#dc2626";
-  if (/^(?:vee|vss|v-|\-)/i.test(netId)) return "#2563eb";
+function netColor(circuit: Circuit, netId: string, index: number): string {
+  const role = getPowerNetRole(circuit, netId);
+  if (role === "ground") return "#334155";
+  if (role === "positive") return "#dc2626";
+  if (role === "negative") return "#2563eb";
   return COLORS[index % COLORS.length];
 }
 
+function assignPowerRails(circuit: Circuit, reserved = new Map<string, string>()): { rows: Map<string, string>; overflow: string[] } {
+  const nets = [...new Set([...circuit.components.flatMap(component => Object.values(component.pinNets)), ...circuit.instruments.map(connection => connection.netId)])];
+  const roles: PowerNetRole[] = ["ground", "positive", "negative"];
+  const preferred: Record<PowerNetRole, string[]> = { ground: ["T-", "B-", "B+", "T+"], positive: ["T+", "B+", "T-", "B-"], negative: ["B-", "T-", "B+", "T+"] };
+  const rows = new Map<string, string>(reserved), used = new Set<string>(reserved.values());
+  // Reserve each role's usual row first, then allocate extra domains without merging them.
+  for (const role of roles) {
+    const net = nets.find(net => getPowerNetRole(circuit, net) === role);
+    const row = preferred[role].find(row => !used.has(row));
+    if (net && !rows.has(net) && row) { rows.set(net, row); used.add(row); }
+  }
+  const overflow: string[] = [];
+  for (const net of nets) {
+    const role = getPowerNetRole(circuit, net);
+    if (!role || rows.has(net)) continue;
+    const row = preferred[role].find(row => !used.has(row));
+    if (row) { rows.set(net, row); used.add(row); } else overflow.push(net);
+  }
+  return { rows, overflow };
+}
+
 /** Deterministic conservative placement, followed by a capacity-aware minimum spanning tree. */
-export function createLayout(circuit: Circuit, definitions: ComponentDefinition[], options: BoardOptions): CircuitLayout {
+export type LayoutConstraints = { fixedPlacements?: PlacedComponent[]; fixedTerminals?: TerminalPlacement[] };
+
+export function createLayout(circuit: Circuit, definitions: ComponentDefinition[], options: BoardOptions, constraints: LayoutConstraints = {}): CircuitLayout {
   const board = createBoard(options);
   const layout: CircuitLayout = { board, placements: [], jumpers: [], terminals: [], issues: sourceIssues(circuit, definitions) };
   const holes = new Map(board.holes.map(hole => [hole.id, hole]));
   const groups = new Map<string, BoardHole[]>();
   for (const hole of board.holes) groups.set(hole.group, [...(groups.get(hole.group) ?? []), hole]);
   const occupied = new Set<string>(), blocked = new Set<string>();
+  const fixedTerminals = constraints.fixedTerminals ?? [];
+  const fixedPlacements = constraints.fixedPlacements ?? [];
+  const reservedRails = new Map<string, string>();
+  const fixedConnectionIds = new Set<string>();
+  for (const terminal of fixedTerminals) {
+    const connection = circuit.instruments.find(item => item.id === terminal.connectionId), hole = holes.get(terminal.holeId);
+    if (!connection || !hole || terminal.netId !== connection.netId || fixedConnectionIds.has(terminal.connectionId)) throw new Error("고정할 계측기 단자 또는 구멍 정보가 올바르지 않습니다.");
+    fixedConnectionIds.add(terminal.connectionId);
+    if (hole.group.includes(":rail:")) {
+      if ([...reservedRails].some(([net, row]) => row === hole.row && net !== terminal.netId) || (reservedRails.has(terminal.netId) && reservedRails.get(terminal.netId) !== hole.row)) throw new Error("고정한 단자들이 같은 레일에 서로 다른 연결을 요구하거나 한 전원을 여러 레일에 중복 지정했습니다.");
+      reservedRails.set(terminal.netId, hole.row);
+    }
+  }
+  const railRows = assignPowerRails(circuit, reservedRails).rows;
   const netGroups = new Map<string, Set<string>>();
   const netPoints = new Map<string, BoardHole[]>();
   const addEndpoint = (net: string, hole: BoardHole) => {
@@ -157,11 +229,27 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
     netGroups.get(net)!.add(hole.group);
     netPoints.set(net, [...(netPoints.get(net) ?? []), hole]);
   };
+  for (const terminal of fixedTerminals) {
+    const hole = holes.get(terminal.holeId)!;
+    if (occupied.has(hole.id) || (!hole.group.includes(":rail:") && blocked.has(hole.group))) throw new Error("고정한 계측기 단자의 삽입 위치가 서로 겹칩니다.");
+    if (!hole.group.includes(":rail:")) blocked.add(hole.group);
+    layout.terminals.push({ ...terminal }); addEndpoint(terminal.netId, hole);
+  }
+  const placedIds = new Set<string>();
+  for (const placement of fixedPlacements) {
+    const component = circuit.components.find(item => item.id === placement.componentId);
+    const definition = component && definitions.find(item => item.id === component.definitionId);
+    if (!component || !definition || placedIds.has(placement.componentId) || !physicalPlacementMatches(component, definition, placement, holes)) throw new Error("고정할 소자의 핀 순서·간격·삽입 위치가 올바르지 않습니다.");
+    const reserved = reservedGroups(placement, holes);
+    if (reserved.some(group => blocked.has(group)) || Object.values(placement.pins).some(id => occupied.has(id))) throw new Error("고정한 소자의 장착 영역이 다른 고정 소자나 계측기와 겹칩니다.");
+    const copy = { componentId: placement.componentId, pins: { ...placement.pins } };
+    layout.placements.push(copy); placedIds.add(component.id); reserved.forEach(group => blocked.add(group));
+    for (const [pinId, holeId] of Object.entries(copy.pins)) addEndpoint(pinNet(component, pinId), holes.get(holeId)!);
+  }
   const ordered = [...circuit.components].sort((a, b) => {
     const da = definitions.find(d => d.id === a.definitionId), db = definitions.find(d => d.id === b.definitionId);
     return Number(db && footprint(db) === "dip") - Number(da && footprint(da) === "dip");
   });
-  const placedIds = new Set<string>();
   for (const component of ordered) {
     const definition = definitions.find(item => item.id === component.definitionId);
     if (!definition || footprint(definition) === "unsupported" || placedIds.has(component.id)) continue;
@@ -188,19 +276,21 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
     best.groups.forEach(group => blocked.add(group));
     for (const [pinId, holeId] of Object.entries(best.placement.pins)) addEndpoint(pinNet(component, pinId), holes.get(holeId)!);
   }
-  const seenConnections = new Set<string>();
+  const seenConnections = new Set<string>(fixedConnectionIds);
   for (const connection of circuit.instruments) {
     if (seenConnections.has(connection.id)) continue;
     seenConnections.add(connection.id);
     const prior = netPoints.get(connection.netId) ?? [];
-    const candidates = board.holes.filter(hole => (hole.row === "A" || hole.row === "J") && !blocked.has(hole.group));
+    const railRow = railRows.get(connection.netId);
+    const candidates = board.holes.filter(hole => railRow ? hole.row === railRow && !occupied.has(hole.id) : (hole.row === "A" || hole.row === "J") && !blocked.has(hole.group));
     candidates.sort((a, b) => {
       const distance = (point: BoardHole) => prior.length ? Math.min(...prior.map(p => Math.abs(point.x - p.x) + Math.abs(point.y - p.y))) : point.board * 10000 + point.column;
       return distance(a) - distance(b);
     });
     const selected = candidates[0];
     if (!selected) { layout.issues.push({ severity: "error", code: "TERMINAL_CAPACITY", message: `${connection.instrument} ${connection.port}: 연결할 빈 구역이 없습니다.` }); continue; }
-    blocked.add(selected.group); addEndpoint(connection.netId, selected);
+    if (!railRow) blocked.add(selected.group);
+    addEndpoint(connection.netId, selected);
     layout.terminals.push({ connectionId: connection.id, netId: connection.netId, holeId: selected.id });
   }
   const boxes = layout.placements.map(p => bodyBox(p, holes)).filter((box): box is Box => Boolean(box));
@@ -208,7 +298,33 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
     !boxes.some(box => hole.x > box.x1 && hole.x < box.x2 && hole.y > box.y1 && hole.y < box.y2));
   let colorIndex = 0;
   for (const [netId, groupSet] of netGroups) {
-    const members = [...groupSet];
+    let members = [...groupSet];
+    const row = railRows.get(netId);
+    const connect = (from: BoardHole, to: BoardHole) => {
+      occupied.add(from.id); occupied.add(to.id);
+      layout.jumpers.push({ id: `W${layout.jumpers.length + 1}`, netId, from: from.id, to: to.id, color: netColor(circuit, netId, colorIndex) });
+    };
+    if (row) {
+      const railGroups = new Set(members.filter(group => group.includes(":rail:")));
+      // Feed every occupied component strip from its bus, instead of daisy-chaining supply pins.
+      for (const group of members.filter(group => !group.includes(":rail:"))) {
+        let pair: { from: BoardHole; to: BoardHole; distance: number } | undefined;
+        const railCandidates = board.holes.filter(hole => hole.row === row && !occupied.has(hole.id));
+        const spare = new Map([...new Set(railCandidates.map(hole => hole.group))].map(group => [group, available(group).length]));
+        for (const from of available(group)) {
+          for (const to of railCandidates.filter(hole => hole.board === from.board)) {
+            // Reserve contacts for split-rail and cross-board bridges.
+            if ((spare.get(to.group) ?? 0) <= 2) continue;
+            const distance = Math.abs(from.x - to.x) + Math.abs(from.y - to.y);
+            if (!pair || distance < pair.distance) pair = { from, to, distance };
+          }
+        }
+        if (!pair) { layout.issues.push({ severity: "error", code: "ROUTING_CAPACITY", message: `${circuit.netNames[netId] ?? netId}: 전원 레일로 연결할 빈 홀이 부족합니다.` }); continue; }
+        connect(pair.from, pair.to); railGroups.add(pair.to.group);
+      }
+      // Only segments actually used by a pin or terminal need a physical bridge.
+      members = [...railGroups];
+    }
     if (members.length < 2) continue;
     const edges: { a: string; b: string; distance: number }[] = [];
     for (let a = 0; a < members.length; a++) for (let b = a + 1; b < members.length; b++) {
@@ -226,8 +342,7 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
         if (!pair || distance < pair.distance) pair = { from, to, distance };
       }
       if (!pair) continue;
-      occupied.add(pair.from.id); occupied.add(pair.to.id); tree.union(edge.a, edge.b); count++;
-      layout.jumpers.push({ id: `W${layout.jumpers.length + 1}`, netId, from: pair.from.id, to: pair.to.id, color: netColor(netId, colorIndex) });
+      connect(pair.from, pair.to); tree.union(edge.a, edge.b); count++;
       if (count === members.length - 1) break;
     }
     if (count !== members.length - 1) layout.issues.push({ severity: "error", code: "ROUTING_CAPACITY", message: `${circuit.netNames[netId] ?? netId}: 점퍼를 꽂을 빈 홀이 부족하여 연결을 완성하지 못했습니다.` });
@@ -268,11 +383,7 @@ export function validateLayout(circuit: Circuit, definitions: ComponentDefinitio
     // A directly mounted package must retain its physical pin geometry.
     const placedHoles = Object.values(placement.pins).map(id => holes.get(id));
     if (placedHoles.every(Boolean) && placedHoles.length === definition.pins.length && footprint(definition) !== "unsupported") {
-      const points = placedHoles as BoardHole[];
-      const start = Math.min(...points.map(point => point.column));
-      const bottom = ROWS.indexOf(points[0].row) >= 5;
-      const expected = candidatePlacement(component, definition, points[0].board, start, bottom);
-      if (Object.keys(expected.pins).some(pin => expected.pins[pin] !== placement.pins[pin])) issues.push({ severity: "error", code: "PIN_GEOMETRY", componentId: component.id, message: `${component.id}: 핀 간격·순서 또는 DIP 중앙골 배치가 맞지 않습니다.` });
+      if (!physicalPlacementMatches(component, definition, placement, holes)) issues.push({ severity: "error", code: "PIN_GEOMETRY", componentId: component.id, message: `${component.id}: 핀 간격·순서 또는 DIP 중앙골 배치가 맞지 않습니다.` });
     }
   }
   for (const component of circuit.components) if (!placementIds.has(component.id)) issues.push({ severity: "error", code: "MISSING_PLACEMENT", componentId: component.id, message: `${component.id}: 소자가 빵판에 배치되지 않았습니다.` });
@@ -302,6 +413,11 @@ export function validateLayout(circuit: Circuit, definitions: ComponentDefinitio
   }
   for (const nets of byRoot.values()) if (nets.size > 1) issues.push({ severity: "error", code: "SHORT_CIRCUIT", message: `서로 다른 연결이 이어져 있습니다: ${[...nets].map(net => circuit.netNames[net] ?? net).join(", ")}` });
   for (const [net, roots] of byNet) if (roots.size > 1) issues.push({ severity: "error", code: "OPEN_CIRCUIT", message: `${circuit.netNames[net] ?? net}: ${roots.size}개로 끊어져 있습니다.` });
+  const railRoots = new Set(board.holes.filter(hole => hole.group.includes(":rail:")).map(hole => graph.find(hole.id)));
+  const plannedRails = assignPowerRails(circuit).rows;
+  for (const [net, roots] of byNet) if (plannedRails.has(net) && [...roots].some(root => !railRoots.has(root))) {
+    issues.push({ severity: "warning", code: "POWER_RAIL_UNUSED", message: `${circuit.netNames[net] ?? net}: 전원·접지 연결 중 레일을 사용하지 않는 구역이 있습니다. 전체 자동 배치로 레일 배선을 만들 수 있습니다.` });
+  }
   for (const wire of layout.jumpers) {
     const actual = holes.has(wire.from) ? byRoot.get(graph.find(wire.from)) : undefined;
     if (actual?.size === 1 && !actual.has(wire.netId)) issues.push({ severity: "error", code: "JUMPER_NET_MISMATCH", message: `${wire.id}: 실제 연결과 점퍼의 표시 이름이 다릅니다.` });
@@ -326,13 +442,26 @@ export function createAssemblySteps(circuit: Circuit, definitions: ComponentDefi
       description: `${pins}.${footprint(definition) === "dip" ? " 위에서 보았을 때 홈은 왼쪽, 1번 핀은 중앙골 아래쪽입니다." : " 핀 순서와 극성을 확인하고 꽂으세요."}`,
       holes: Object.values(placement.pins) });
   }
-  for (const wire of layout.jumpers) steps.push({ id: `jumper:${wire.id}`, jumperId: wire.id, title: `${wire.id} · ${circuit.netNames[wire.netId] ?? wire.netId}`,
-    description: `${wire.from}에서 ${wire.to}까지 점퍼를 연결하세요.`, holes: [wire.from, wire.to] });
-  for (const terminal of layout.terminals) {
+  const holes = new Map(layout.board.holes.map(hole => [hole.id, hole]));
+  const railEnds = (wire: CircuitLayout["jumpers"][number]) => [holes.get(wire.from), holes.get(wire.to)].filter(hole => hole?.group.includes(":rail:")).length;
+  const wires = [...layout.jumpers].sort((a, b) => railEnds(b) - railEnds(a));
+  for (const wire of wires) {
+    const role = getPowerNetRole(circuit, wire.netId);
+    const label = role === "ground" ? "GND 기준" : role === "positive" ? "+전원" : role === "negative" ? "−전원 (GND와 별도)" : "";
+    const from = holes.get(wire.from), to = holes.get(wire.to);
+    const railCount = railEnds(wire);
+    const action = railCount === 2 ? from?.board !== to?.board ? "보드 간 레일 연결" : from?.row !== to?.row ? "레일 사이 연결" : "분리 레일 연결" : railCount === 1 ? "레일 연결" : "점퍼 연결";
+    steps.push({ id: `jumper:${wire.id}`, jumperId: wire.id, title: `${wire.id} · ${circuit.netNames[wire.netId] ?? wire.netId} · ${action}`,
+      description: `${wire.from}에서 ${wire.to}까지 점퍼를 연결하세요.${label ? ` ${label} 배선입니다.` : ""}${railCount === 2 ? " 같은 전원·접지의 분리 구간만 이어주세요. 이 점퍼가 없으면 레일은 서로 연결되지 않습니다." : ""}`, holes: [wire.from, wire.to] });
+  }
+  const terminalOrder = (netId: string) => { const role = getPowerNetRole(circuit, netId); return role === "ground" ? 0 : role ? 2 : 1; };
+  for (const terminal of [...layout.terminals].sort((a, b) => terminalOrder(a.netId) - terminalOrder(b.netId))) {
     const connection = circuit.instruments.find(item => item.id === terminal.connectionId);
     if (!connection) continue;
+    const role = getPowerNetRole(circuit, connection.netId);
+    const rail = holes.get(terminal.holeId)?.group.includes(":rail:");
     steps.push({ id: `terminal:${connection.id}`, connectionId: connection.id, title: `${connection.instrument} · ${connection.port}`,
-      description: `${terminal.holeId}에 연결하세요.${connection.setting ? ` 설정: ${connection.setting}.` : ""} 전원·출력을 켜기 전에 전체 연결을 확인하세요.`, holes: [terminal.holeId] });
+      description: `${terminal.holeId}${rail ? ` ${role === "ground" ? "GND 기준" : role === "negative" ? "−전원" : role === "positive" ? "+전원" : circuit.netNames[connection.netId] ?? connection.netId} 레일` : ""}에 연결하세요.${connection.setting ? ` 설정: ${connection.setting}.` : ""}${role === "negative" ? " −전원은 GND(0 V)와 다릅니다." : ""} 전원·신호 출력을 끈 상태로 연결하고, 전체 배선 확인 후 켜세요.`, holes: [terminal.holeId] });
   }
   return steps;
 }

@@ -17,6 +17,7 @@ function load(relative) {
   const mod = { exports: {} };
   vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) {
     if (name.startsWith("@/")) return load(`src/${name.slice(2)}.ts`);
+    if (name === "./power") return load("src/lib/electronics/power.ts");
     return require(name);
   } }, { filename: relative });
   cache.set(relative, mod.exports);

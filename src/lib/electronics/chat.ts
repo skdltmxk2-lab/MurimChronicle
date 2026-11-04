@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { assertSafeData, parseCircuit, CircuitValidationError } from "./schema";
 import { createBoard, createLayout, validateLayout } from "./engine";
+import { getRailUsage } from "./power";
 import type { BoardOptions, Circuit, CircuitLayout, ComponentDefinition } from "./types";
 
 export const CHAT_LIMITS = { requestBytes: 600_000, messages: 21, userChars: 4000, assistantChars: 12000, totalChars: 40000, timeoutMs: 90_000 } as const;
@@ -154,7 +155,7 @@ export function createChatContext(input: ParsedChatInput, definitions: readonly 
         mounting: definition.mounting, pinoutStatus: definition.pinoutStatus, sourceUrl: definition.sourceUrl,
         pins: definition.pins.map((pin) => ({ pin: pin.id, label: pin.label, net: item.pinNets[pin.id], hole: placement?.pins[pin.id] ?? null })) };
     }),
-    netNames: circuit.netNames, jumpers: layout.jumpers,
+    netNames: circuit.netNames, jumpers: layout.jumpers, railUsage: getRailUsage(circuit, layout),
     instruments: circuit.instruments.map((connection) => ({ ...connection, hole: layout.terminals.find((t) => t.connectionId === connection.id)?.holeId ?? null })),
     validation: { valid: validation.valid, issues: validation.issues.slice(0, 100), totalIssues: validation.issues.length },
     notes: circuit.notes, reviewItems: circuit.reviewItems, provenance: circuit.provenance, selection: input.selection,

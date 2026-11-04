@@ -5,9 +5,13 @@ import vm from "node:vm";
 import ts from "typescript";
 
 const source = readFileSync(new URL("../src/lib/electronics/engine.ts", import.meta.url), "utf8");
+const powerSource = readFileSync(new URL("../src/lib/electronics/power.ts", import.meta.url), "utf8");
+const powerOutput = ts.transpileModule(powerSource, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const powerModule = { exports: {} };
+vm.runInNewContext(powerOutput, { module: powerModule, exports: powerModule.exports, require(name) { throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/power.ts" });
 const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const mod = { exports: {} };
-vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) { throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/engine.ts" });
+vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) { if (name === "./power") return powerModule.exports; throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/engine.ts" });
 const { createBoard, createLayout, validateLayout, createAssemblySteps } = mod.exports;
 
 const options = { boards: 1, railMode: "split" };

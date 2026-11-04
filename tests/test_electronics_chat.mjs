@@ -17,7 +17,7 @@ function load(relative, dependencies = {}, extras = {}) {
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
-const engine = load("src/lib/electronics/engine.ts");
+const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const workflow = readFileSync(path.join(root, "docs/electronics-agent-workflow.md"), "utf8");
 const circuitRequest = () => JSON.parse(workflow.match(/```json\r?\n([\s\S]*?)\r?\n```/)[1]);
@@ -41,7 +41,7 @@ function harness(options = {}) {
     } };
   } };
   const chat = load("src/lib/electronics/chat.ts", {
-    "@google/genai": sdk, "./schema": schema, "./engine": engine, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" },
+    "@google/genai": sdk, "./schema": schema, "./engine": engine, "./power": load("src/lib/electronics/power.ts"), "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" },
   }, { process: { env: { GEMINI_API_KEY: options.noKey ? "" : "synthetic-key" } }, ...(options.timeout ? { setTimeout: callback => setTimeout(callback, 1) } : {}) });
   const parse = value => chat.validateChatInput(value, definitions);
   return { chat, calls, parse, answer: (value = input(), signal) => chat.answerElectronicsChat(parse(value), definitions, signal) };

@@ -17,7 +17,7 @@ function load(relative, dependencies = {}) {
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
-const engine = load("src/lib/electronics/engine.ts");
+const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
 const catalog = load("src/lib/electronics/catalog.ts");
 const workflow = readFileSync(path.join(root, "docs/electronics-agent-workflow.md"), "utf8");
 const input = () => JSON.parse(workflow.match(/```json\r?\n([\s\S]*?)\r?\n```/)[1]);

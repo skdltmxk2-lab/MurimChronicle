@@ -8,10 +8,11 @@ import { electronicsAdminFetch } from "@/lib/electronics/api";
 import { COMPONENT_CATALOG } from "@/lib/electronics/catalog";
 import { EXPERIMENTS } from "@/lib/electronics/experiments";
 import { CIRCUIT_TEMPLATES } from "@/lib/electronics/templates";
-import { createBoard, createLayout, validateLayout, createAssemblySteps } from "@/lib/electronics/engine";
+import { createBoard, createLayout, validateLayout, createAssemblySteps, moveComponentPlacement } from "@/lib/electronics/engine";
+import { getPowerNetRole, getRailUsage } from "@/lib/electronics/power";
 import { parseCircuit } from "@/lib/electronics/schema";
 import { downloadText, isSavedProjectMetadata, readLocalProjects, saveLocalProject } from "@/lib/electronics/storage";
-import type { BoardOptions, Circuit, CircuitLayout, SavedProject } from "@/lib/electronics/types";
+import type { BoardOptions, Circuit, CircuitLayout, SavedProject, ValidationReport } from "@/lib/electronics/types";
 import { Breadboard, type BoardSelection } from "./Breadboard";
 import { ALL_BOARD_LAYERS, BOARD_LAYERS, componentLayer, countBoardLayers, isBoardSelectionVisible, layerForAssemblyStep, type BoardLayer } from "@/lib/electronics/visibility";
 import { ElectronicsChat } from "./ElectronicsChat";
@@ -65,6 +66,9 @@ export function ElectronicsWorkspace() {
   const [drawer, setDrawer] = useState<"experiments" | "sources" | "projects" | null>(null);
   const [chatOpen, setChatOpen] = useState(true);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [autoRearrange, setAutoRearrange] = useState(true);
+  const [checksOpen, setChecksOpen] = useState(false);
+  const [manualCheck, setManualCheck] = useState<{ circuit: Circuit; layout: CircuitLayout; report: ValidationReport } | null>(null);
   const [labelsVisible, setLabelsVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [pickingPin, setPickingPin] = useState<{ componentId: string; pinId: string } | null>(null);
@@ -86,13 +90,18 @@ export function ElectronicsWorkspace() {
   const selectedJumper = selection?.type === "jumper" ? layout.jumpers.find(j => j.id === selection.id) : null;
   const selectedTerminal = selection?.type === "terminal" ? circuit.instruments.find(i => i.id === selection.id) : null;
   const layerCounts = useMemo(() => countBoardLayers(circuit, COMPONENT_CATALOG, layout), [circuit, layout]);
+  const railUsage = useMemo(() => getRailUsage(circuit, layout), [circuit, layout]);
+  const powerNets = useMemo(() => [...new Set([...circuit.components.flatMap(component => Object.values(component.pinNets)), ...circuit.instruments.map(connection => connection.netId)])].filter(net => getPowerNetRole(circuit, net)), [circuit]);
+  const missingRailNets = powerNets.filter(net => !railUsage.some(rail => rail.netIds.length === 1 && rail.netIds[0] === net));
+  // A split rail's left/right segments can carry different nets without a short.
+  const railLabels = railUsage;
   const openReviews = circuit.reviewItems.filter(i => !i.resolved);
   const categories = ["전체", ...new Set(COMPONENT_CATALOG.map(d => d.category))];
   const filteredCatalog = COMPONENT_CATALOG.filter(d => (catalogCategory === "전체" || d.category === catalogCategory) && `${d.name} ${d.description} ${d.package} ${d.id}`.toLowerCase().includes(catalogSearch.toLowerCase()));
 
   const applyCircuit = useCallback((next: Circuit, options: BoardOptions = boardOptions) => {
     analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null; setBusy(false);
-    setCircuit(next); setLayout(createLayout(next, COMPONENT_CATALOG, options)); setSelection(null); setStepIndex(null); setCompletedSteps([]); setUndoStack([]); setPickingPin(null); setError("");
+    setManualCheck(null); setChecksOpen(false); setCircuit(next); setLayout(createLayout(next, COMPONENT_CATALOG, options)); setSelection(null); setStepIndex(null); setCompletedSteps([]); setUndoStack([]); setPickingPin(null); setError("");
   }, [boardOptions]);
 
   useEffect(() => {
@@ -102,7 +111,7 @@ export function ElectronicsWorkspace() {
     readyUser.current = authorized ? projectUser : null;
     analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null;
     setBusy(false); setSaving(false); setFiles([]); setSourceText(""); setCloudLoaded(false); setMessage(""); setError("");
-    setJsonOpen(false); setJsonText(""); setView("board"); setDrawer(null); setExperimentId("lab-0"); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false);
+    setJsonOpen(false); setJsonText(""); setView("board"); setDrawer(null); setExperimentId("lab-0"); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setAutoRearrange(true); setChecksOpen(false); setManualCheck(null);
     setBoardOptions(defaultBoard); setCircuit(cloneCircuit(initial)); setLayout(createLayout(initial, COMPONENT_CATALOG, defaultBoard));
     setSelection(null); setStepIndex(null); setCompletedSteps([]); setUndoStack([]); setPickingPin(null);
     if (!authorized) { setProjects([]); setProjectId(""); setWorkspaceOwner(null); return; }
@@ -222,9 +231,8 @@ export function ElectronicsWorkspace() {
 
   function movePin(holeId: string) {
     if (!pickingPin) return;
-    setUndoStack(s => [...s.slice(-19), layout]);
-    setLayout(l => ({ ...l, placements: l.placements.map(p => p.componentId === pickingPin.componentId ? { ...p, pins: { ...p.pins, [pickingPin.pinId]: holeId } } : p) }));
-    setPickingPin(null); setCompletedSteps([]); setMessage("핀 위치를 변경했습니다. 연결 검사 결과를 확인하세요.");
+    dragComponent(pickingPin.componentId, holeId, pickingPin.pinId);
+    setPickingPin(null);
   }
 
   function addComponent(definitionId: string) {
@@ -248,6 +256,48 @@ export function ElectronicsWorkspace() {
   function changeLayers(next: BoardLayer[]) {
     setVisibleLayers(next); setStepIndex(null); setPickingPin(null);
     if (!isBoardSelectionVisible(selection, circuit, COMPONENT_CATALOG, next)) setSelection(null);
+  }
+
+  function applyPositionChange(next: CircuitLayout, selected: BoardSelection) {
+    analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null; setBusy(false);
+    setUndoStack(history => [...history.slice(-19), layout]); setLayout(next);
+    setCompletedSteps([]); setStepIndex(null); setPickingPin(null); setSelection(selected); setError("");
+    setMessage(autoRearrange ? "옮긴 위치를 고정하고 나머지 소자·배선을 다시 정리했습니다. 변경 검증으로 연결을 확인하세요." : "선택한 항목만 옮겼습니다. 기존 점퍼는 그대로이므로 변경 검증으로 연결을 확인하세요.");
+  }
+
+  function dragComponent(componentId: string, targetHoleId: string, anchorPinId: string) {
+    const component = circuit.components.find(item => item.id === componentId);
+    const definition = COMPONENT_CATALOG.find(item => item.id === component?.definitionId);
+    const current = layout.placements.find(item => item.componentId === componentId);
+    if (!component || !definition || !current) return;
+    try {
+      const moved = moveComponentPlacement(component, definition, current, targetHoleId, anchorPinId, layout.board);
+      if (Object.keys(moved.pins).every(pin => moved.pins[pin] === current.pins[pin])) return;
+      const next = autoRearrange ? createLayout(circuit, COMPONENT_CATALOG, boardOptions, { fixedPlacements: [moved] }) : { ...layout, placements: layout.placements.map(item => item.componentId === componentId ? moved : item) };
+      applyPositionChange(next, { type: "component", id: componentId });
+    } catch (e) { setError(e instanceof Error ? e.message : "이 위치로 소자를 옮길 수 없습니다."); }
+  }
+
+  function dragTerminal(connectionId: string, targetHoleId: string) {
+    const current = layout.terminals.find(item => item.connectionId === connectionId);
+    if (!current || current.holeId === targetHoleId || !layout.board.holes.some(hole => hole.id === targetHoleId)) return;
+    try {
+      const moved = { ...current, holeId: targetHoleId };
+      const next = autoRearrange ? createLayout(circuit, COMPONENT_CATALOG, boardOptions, { fixedTerminals: [moved] }) : { ...layout, terminals: layout.terminals.map(item => item.connectionId === connectionId ? moved : item) };
+      applyPositionChange(next, { type: "terminal", id: connectionId });
+    } catch (e) { setError(e instanceof Error ? e.message : "이 위치로 단자를 옮길 수 없습니다."); }
+  }
+
+  function verifyChanges() {
+    const result = validateLayout(circuit, COMPONENT_CATALOG, layout);
+    setManualCheck({ circuit, layout, report: result }); setChecksOpen(true);
+  }
+
+  function undoPositionChange() {
+    const previous = undoStack[undoStack.length - 1]; if (!previous) return;
+    analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null; setBusy(false);
+    setLayout(previous); setUndoStack(history => history.slice(0, -1)); setCompletedSteps([]); setStepIndex(null); setPickingPin(null); setSelection(null);
+    setMessage("이전 배치로 되돌렸습니다."); setError("");
   }
 
   function selectItem(next: BoardSelection) {
@@ -299,15 +349,26 @@ export function ElectronicsWorkspace() {
             <div className="el-layer-chips"><button className={visibleLayers.length === ALL_BOARD_LAYERS.length ? "active" : ""} aria-pressed={visibleLayers.length === ALL_BOARD_LAYERS.length} onClick={() => changeLayers([...ALL_BOARD_LAYERS])}>전체</button>{BOARD_LAYERS.map(layer => <button key={layer.id} className={visibleLayers.includes(layer.id) ? "active" : ""} aria-pressed={visibleLayers.includes(layer.id)} onClick={() => changeLayers(visibleLayers.includes(layer.id) ? visibleLayers.filter(id => id !== layer.id) : [...visibleLayers, layer.id])}><span className={`el-layer-dot ${layer.id}`} />{layer.label}<small>{layerCounts[layer.id]}</small></button>)}</div>
             {visibleLayers.length !== ALL_BOARD_LAYERS.length && <p className="el-filter-notice">선택한 종류만 표시 중 · 전체 회로와 연결 검사는 그대로 유지됩니다.<button className="el-text-button" onClick={() => changeLayers([...ALL_BOARD_LAYERS])}>전체 복원</button></p>}
           </div>
-          <Breadboard circuit={circuit} definitions={COMPONENT_CATALOG} layout={layout} selection={selection} onSelect={selectItem} activeStep={stepIndex !== null ? steps[stepIndex] : undefined} visibleLayers={visibleLayers} labelsVisible={labelsVisible} onHolePick={pickingPin ? movePin : undefined} zoom={zoom} onZoom={setZoom} />
+          {(railLabels.length > 0 || missingRailNets.length > 0) && <div className="el-power-summary" aria-label="전원과 접지 레일">
+            <div className="el-power-rail-list"><b>전원 · 접지</b>{railLabels.map(rail => <span key={rail.group} className={rail.netIds.length > 1 ? "conflict" : getPowerNetRole(circuit, rail.netIds[0]) || "signal"}><small>B{rail.board} {rail.row.startsWith("T") ? "위" : "아래"} {rail.row.endsWith("+") ? "+" : "−"} {rail.group.endsWith(":left") ? "왼쪽" : rail.group.endsWith(":right") ? "오른쪽" : "연속"}</small>{rail.netIds.length > 1 ? `연결 충돌: ${rail.netIds.join(" / ")}` : getPowerNetRole(circuit, rail.netIds[0]) === "ground" ? `${rail.netIds[0]} · 0 V 기준` : rail.netIds[0]}</span>)}</div>
+            {missingRailNets.length > 0 ? <div className="el-power-unrouted"><span>{missingRailNets.join(", ")} 레일 배치가 아직 없습니다.</span><button className="el-button el-small" onClick={() => { applyCircuit(circuit); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setMessage("전원·접지 레일을 사용해 전체 배선을 다시 만들었습니다. 핀·점퍼 위치와 조립 순서를 확인하세요."); }}>레일을 사용해 전체 재배치</button></div> : <p>{powerNets.every(net => getPowerNetRole(circuit, net) === "ground") ? "이 회로는 별도 DC 전원을 사용하지 않아 +전원 레일은 비워둡니다." : "파란 −레일의 GND와 음전원은 별개입니다. 위에 표시된 연결 이름을 따라 꽂으세요."}</p>}
+          </div>}
+          <div className="el-drag-controls">
+            <button type="button" role="switch" aria-checked={autoRearrange} className={`el-rearrange-toggle ${autoRearrange ? "active" : ""}`} onClick={() => setAutoRearrange(value => !value)}><span className="el-toggle-track"><i /></span><span>주변 자동 재배치 <b>{autoRearrange ? "켜짐" : "꺼짐"}</b></span></button>
+            <span className="el-drag-mode-note">{autoRearrange ? "옮긴 항목은 고정 · 나머지 다시 배치" : "옮긴 항목만 변경 · 점퍼는 그대로"}</span>
+            <button className="el-button el-small" disabled={!undoStack.length} onClick={undoPositionChange}>이동 취소 ↶</button>
+            <button className="el-button el-small el-primary" onClick={verifyChanges}><Icon name="check" size={14} />변경 검증</button>
+          </div>
+          {manualCheck && <div className={`el-change-check ${manualCheck.layout !== layout || manualCheck.circuit !== circuit ? "stale" : manualCheck.report.valid ? "ok" : "error"}`} role="status"><b>{manualCheck.layout !== layout || manualCheck.circuit !== circuit ? "검사 이후 설계가 변경됐습니다. 다시 검증하세요." : manualCheck.report.valid ? "연결·배치 검사 통과" : `수정 필요 · ${manualCheck.report.issues.filter(issue => issue.severity === "error").length}개 오류`}</b><span>{manualCheck.layout !== layout || manualCheck.circuit !== circuit ? "이전 결과는 현재 배치에 적용되지 않습니다." : manualCheck.report.valid ? "원래 회로의 연결이 유지됩니다. 실제 이득·파형·정격 동작은 별도 검증이 필요합니다." : "아래 검사 결과에서 끊긴 연결·단락·겹침·핀 배치를 확인하세요."}</span></div>}
+          <Breadboard circuit={circuit} definitions={COMPONENT_CATALOG} layout={layout} selection={selection} onSelect={selectItem} onMoveComponent={dragComponent} onMoveTerminal={dragTerminal} activeStep={stepIndex !== null ? steps[stepIndex] : undefined} visibleLayers={visibleLayers} labelsVisible={labelsVisible} onHolePick={pickingPin ? movePin : undefined} zoom={zoom} onZoom={setZoom} />
           <div className="el-design-stats"><div><b>{circuit.components.length}</b><span>소자</span></div><div><b>{layout.jumpers.length}</b><span>점퍼선</span></div><div><b>{report.checkedNets}</b><span>연결 노드</span></div><div><b>{circuit.instruments.length}</b><span>장비 연결</span></div><div className="el-stats-note">물리 연결 검사 기준<br /><strong>동작·성능 검증 전</strong></div></div>
           <details className="el-selection-panel" open={detailsOpen} onToggle={event => setDetailsOpen(event.currentTarget.open)}><summary>선택 항목 · 핀 위치 <span>{selectedComponent ? `${selectedComponent.id} · ${selectedDefinition?.name}` : selectedJumper ? selectedJumper.id : selectedTerminal ? selectedTerminal.port : "소자를 클릭하면 상세 정보가 열립니다"}</span></summary>
-      <aside className="el-inspector"><div className="el-inspector-title"><h2>선택한 항목</h2>{selection && <button className="el-text-button" onClick={() => { setSelection(null); setPickingPin(null); }}>해제</button>}</div>{selectedComponent && selectedDefinition ? <><span className="el-detail-ref">{selectedComponent.id}</span><h3>{selectedDefinition.name}</h3><p className="el-detail-package">{selectedDefinition.package}</p><label className="el-field-label">부품값<input value={selectedComponent.value} onChange={e => setCircuit(c => ({ ...c, components: c.components.map(v => v.id === selectedComponent.id ? { ...v, value: e.target.value.slice(0, 80) } : v) }))} /></label><p className="el-detail-description">{selectedDefinition.description}</p><div className="el-section-label">핀 · 꽂을 위치</div><div className="el-pin-table">{selectedDefinition.pins.map(pin => <div key={pin.id}><span><b>{pin.id}</b> {pin.label}<select aria-label={`${selectedComponent.id} ${pin.id}번 핀 연결`} value={selectedComponent.pinNets[pin.id]} onChange={e => changePinNet(selectedComponent.id, pin.id, e.target.value)}>{Object.entries(circuit.netNames).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></span><button className={pickingPin?.pinId === pin.id ? "active" : ""} onClick={() => setPickingPin({ componentId: selectedComponent.id, pinId: pin.id })}>{selectedPlacement?.pins[pin.id] || "미배치"}<small>위치 변경 ↗</small></button></div>)}</div>{pickingPin && <div className="el-soft-box">빵판에서 새 구멍을 클릭하세요.<button className="el-text-button" onClick={() => setPickingPin(null)}>취소</button></div>}<p className="el-small-note">핀 하나를 옮기면 기존 점퍼 연결을 다시 확인해야 합니다.</p>{selectedDefinition.sourceUrl && <a className="el-datasheet" href={selectedDefinition.sourceUrl} target="_blank" rel="noreferrer">데이터시트 열기 ↗</a>}</> : selectedJumper ? <><span className="el-detail-ref">{selectedJumper.id}</span><h3>점퍼선</h3><p>{circuit.netNames[selectedJumper.netId] || selectedJumper.netId}</p><div className="el-endpoint"><span>시작</span><b>{selectedJumper.from}</b></div><div className="el-endpoint"><span>끝</span><b>{selectedJumper.to}</b></div><button className="el-button el-full" onClick={() => { const i = steps.findIndex(s => s.jumperId === selectedJumper.id); if (i >= 0) { showStep(i); } }}>이 점퍼의 조립 단계</button></> : selectedTerminal ? <><span className="el-detail-ref">장비 연결</span><h3>{selectedTerminal.instrument}</h3><div className="el-endpoint"><span>단자</span><b>{selectedTerminal.port}</b></div><div className="el-endpoint"><span>구멍</span><b>{layout.terminals.find(t => t.connectionId === selectedTerminal.id)?.holeId}</b></div><p className="el-detail-description">{selectedTerminal.setting}</p></> : selection?.type === "hole" ? <><span className="el-detail-ref">구멍 좌표</span><h3>{selection.id}</h3><p className="el-detail-description">내부 연결 그룹: {layout.board.holes.find(h => h.id === selection.id)?.group}</p><p className="el-small-note">같은 그룹의 구멍은 빵판 내부에서 전기적으로 연결됩니다.</p></> : <div className="el-empty-inspector"><span><Icon name="chip" size={34} /></span><h3>소자를 선택해 보세요</h3><p>이름, 값, 핀 방향과<br />정확한 구멍 위치를 보여줍니다.</p><div><b>HOVER</b> 이름·값 빠르게 보기<br /><b>CLICK</b> 상세 정보 고정<br /><b>STEP</b> 하나씩 따라 꽂기</div></div>}
-        <div className="el-inspector-instruments"><div className="el-section-label">계측기 연결 <span>{circuit.instruments.length}</span></div>{circuit.instruments.map((connection, index) => <button key={connection.id} onClick={() => { selectItem({ type: "terminal", id: connection.id }); }}><b>T{index + 1}</b><span>{connection.port}<small>{connection.instrument} · {layout.terminals.find(t => t.connectionId === connection.id)?.holeId || "미배치"}</small></span></button>)}</div><div className="el-inspector-components"><div className="el-section-label">사용 소자 <span>{circuit.components.length}</span></div>{circuit.components.map(c => <button key={c.id} className={selectedComponent?.id === c.id ? "active" : ""} onClick={() => { selectItem({ type: "component", id: c.id }); }}><b>{c.id}</b><span>{c.value}<small>{COMPONENT_CATALOG.find(d => d.id === c.definitionId)?.name || c.definitionId}</small></span></button>)}</div>{undoStack.length > 0 && <button className="el-button el-full" onClick={() => { const last = undoStack[undoStack.length - 1]; setLayout(last); setUndoStack(s => s.slice(0, -1)); }}>위치 변경 실행 취소</button>}
+      <aside className="el-inspector"><div className="el-inspector-title"><h2>선택한 항목</h2>{selection && <button className="el-text-button" onClick={() => { setSelection(null); setPickingPin(null); }}>해제</button>}</div>{selectedComponent && selectedDefinition ? <><span className="el-detail-ref">{selectedComponent.id}</span><h3>{selectedDefinition.name}</h3><p className="el-detail-package">{selectedDefinition.package}</p><label className="el-field-label">부품값<input value={selectedComponent.value} onChange={e => setCircuit(c => ({ ...c, components: c.components.map(v => v.id === selectedComponent.id ? { ...v, value: e.target.value.slice(0, 80) } : v) }))} /></label><p className="el-detail-description">{selectedDefinition.description}</p><div className="el-section-label">핀 · 꽂을 위치</div><div className="el-pin-table">{selectedDefinition.pins.map(pin => <div key={pin.id}><span><b>{pin.id}</b> {pin.label}<select aria-label={`${selectedComponent.id} ${pin.id}번 핀 연결`} value={selectedComponent.pinNets[pin.id]} onChange={e => changePinNet(selectedComponent.id, pin.id, e.target.value)}>{Object.entries(circuit.netNames).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></span><button className={pickingPin?.pinId === pin.id ? "active" : ""} onClick={() => setPickingPin({ componentId: selectedComponent.id, pinId: pin.id })}>{selectedPlacement?.pins[pin.id] || "미배치"}<small>이 핀 기준 이동 ↗</small></button></div>)}</div>{pickingPin && <div className="el-soft-box">이 핀이 꽂힐 새 구멍을 선택하세요. 소자 전체가 함께 이동합니다.<button className="el-text-button" onClick={() => setPickingPin(null)}>취소</button></div>}<p className="el-small-note">선택한 핀을 기준으로 소자 전체를 이동합니다. 주변 자동 재배치 토글이 같은 방식으로 적용됩니다.</p>{selectedDefinition.sourceUrl && <a className="el-datasheet" href={selectedDefinition.sourceUrl} target="_blank" rel="noreferrer">데이터시트 열기 ↗</a>}</> : selectedJumper ? <><span className="el-detail-ref">{selectedJumper.id}</span><h3>점퍼선</h3><p>{circuit.netNames[selectedJumper.netId] || selectedJumper.netId}</p><div className="el-endpoint"><span>시작</span><b>{selectedJumper.from}</b></div><div className="el-endpoint"><span>끝</span><b>{selectedJumper.to}</b></div><button className="el-button el-full" onClick={() => { const i = steps.findIndex(s => s.jumperId === selectedJumper.id); if (i >= 0) { showStep(i); } }}>이 점퍼의 조립 단계</button></> : selectedTerminal ? <><span className="el-detail-ref">장비 연결</span><h3>{selectedTerminal.instrument}</h3><div className="el-endpoint"><span>단자</span><b>{selectedTerminal.port}</b></div><div className="el-endpoint"><span>구멍</span><b>{layout.terminals.find(t => t.connectionId === selectedTerminal.id)?.holeId}</b></div><p className="el-detail-description">{selectedTerminal.setting}</p></> : selection?.type === "hole" ? <><span className="el-detail-ref">구멍 좌표</span><h3>{selection.id}</h3><p className="el-detail-description">내부 연결 그룹: {layout.board.holes.find(h => h.id === selection.id)?.group}</p><p className="el-small-note">같은 그룹의 구멍은 빵판 내부에서 전기적으로 연결됩니다.</p></> : <div className="el-empty-inspector"><span><Icon name="chip" size={34} /></span><h3>소자를 선택해 보세요</h3><p>이름, 값, 핀 방향과<br />정확한 구멍 위치를 보여줍니다.</p><div><b>HOVER</b> 이름·값 빠르게 보기<br /><b>CLICK</b> 상세 정보 고정<br /><b>STEP</b> 하나씩 따라 꽂기</div></div>}
+        <div className="el-inspector-instruments"><div className="el-section-label">계측기 연결 <span>{circuit.instruments.length}</span></div>{circuit.instruments.map((connection, index) => <button key={connection.id} onClick={() => { selectItem({ type: "terminal", id: connection.id }); }}><b>T{index + 1}</b><span>{connection.port}<small>{connection.instrument} · {layout.terminals.find(t => t.connectionId === connection.id)?.holeId || "미배치"}</small></span></button>)}</div><div className="el-inspector-components"><div className="el-section-label">사용 소자 <span>{circuit.components.length}</span></div>{circuit.components.map(c => <button key={c.id} className={selectedComponent?.id === c.id ? "active" : ""} onClick={() => { selectItem({ type: "component", id: c.id }); }}><b>{c.id}</b><span>{c.value}<small>{COMPONENT_CATALOG.find(d => d.id === c.definitionId)?.name || c.definitionId}</small></span></button>)}</div>{undoStack.length > 0 && <button className="el-button el-full" onClick={undoPositionChange}>위치 변경 실행 취소</button>}
       </aside>
           </details>
           <section className="el-assembly"><div className="el-assembly-title"><div><span className="el-mini-tag">BUILD GUIDE</span><h2>화면 그대로, 하나씩 꽂기</h2></div><span>{completedSteps.length} / {steps.length} 완료</span></div>{stepIndex === null ? <div className="el-assembly-start"><p>소자 방향과 구멍 좌표, 점퍼의 양 끝을 단계마다 확인합니다.</p><button className="el-button el-primary" disabled={!steps.length} onClick={() => showStep(0)}>조립 안내 시작 <Icon name="arrow" /></button></div> : steps[stepIndex] && <div className="el-step"><div className="el-step-number">{stepIndex + 1}</div><div className="el-step-copy"><b>{steps[stepIndex].title}</b><p>{steps[stepIndex].description}</p><div className="el-hole-chips">{steps[stepIndex].holes.map(h => <span key={h}>{h}</span>)}</div></div><div className="el-step-actions"><label><input type="checkbox" checked={completedSteps.includes(steps[stepIndex].id)} onChange={e => setCompletedSteps(s => e.target.checked ? [...new Set([...s, steps[stepIndex].id])] : s.filter(id => id !== steps[stepIndex].id))} /> 완료</label><button className="el-button el-small" disabled={stepIndex === 0} onClick={() => showStep((stepIndex || 0) - 1)}>이전</button><button className="el-button el-small el-primary" disabled={stepIndex >= steps.length - 1} onClick={() => showStep((stepIndex || 0) + 1)}>다음</button><button className="el-text-button" onClick={() => setStepIndex(null)}>안내 닫기</button></div></div>}</section>
-          <details className="el-checks-panel"><summary>연결 검사 · 원문 확인 <span>{report.issues.filter(i => i.severity === "error").length}개 오류 / {openReviews.length}개 미확인</span></summary><div className="el-bottom-grid"><section className="el-card"><div className="el-card-title"><h2>연결 검사</h2><span className="el-mini-tag">{report.checkedPins} pins</span></div>{report.issues.length ? <ul className="el-issues">{report.issues.map((i, index) => <li key={`${i.code}-${index}`} className={i.severity}><span>{i.severity === "error" ? "!" : "i"}</span>{i.message}</li>)}</ul> : <p className="el-success-text"><Icon name="check" />목표 회로와 빵판의 연결이 일치합니다.</p>}<p className="el-small-note">실제 소자의 정격, 핀 방향과 계측기 내부 접지는 별도로 확인하세요. 사진만으로 전원 레일 내부 연결을 확정할 수 없습니다.</p></section><section className="el-card"><div className="el-card-title"><h2>원문·조건 확인</h2><span className="el-mini-tag">{openReviews.length}개 미확인</span></div>{circuit.reviewItems.map(item => <label className="el-review" key={item.id}><input type="checkbox" checked={item.resolved} onChange={e => setCircuit(c => ({ ...c, reviewItems: c.reviewItems.map(i => i.id === item.id ? { ...i, resolved: e.target.checked } : i) }))} /><span>{item.message}</span></label>)}{circuit.notes.map((n, i) => <p className="el-note" key={i}>{n}</p>)}{circuit.provenance && <p className="el-small-note">출처: {circuit.provenance}</p>}</section></div></details>
+          <details className="el-checks-panel" open={checksOpen} onToggle={event => setChecksOpen(event.currentTarget.open)}><summary>연결 검사 · 원문 확인 <span>{report.issues.filter(i => i.severity === "error").length}개 오류 / {openReviews.length}개 미확인</span></summary><div className="el-bottom-grid"><section className="el-card"><div className="el-card-title"><h2>연결 검사</h2><span className="el-mini-tag">{report.checkedPins} pins</span></div>{report.issues.length ? <ul className="el-issues">{report.issues.map((i, index) => <li key={`${i.code}-${index}`} className={i.severity}><span>{i.severity === "error" ? "!" : "i"}</span>{i.message}</li>)}</ul> : <p className="el-success-text"><Icon name="check" />목표 회로와 빵판의 연결이 일치합니다.</p>}<p className="el-small-note">실제 소자의 정격, 핀 방향과 계측기 내부 접지는 별도로 확인하세요. 사진만으로 전원 레일 내부 연결을 확정할 수 없습니다.</p></section><section className="el-card"><div className="el-card-title"><h2>원문·조건 확인</h2><span className="el-mini-tag">{openReviews.length}개 미확인</span></div>{circuit.reviewItems.map(item => <label className="el-review" key={item.id}><input type="checkbox" checked={item.resolved} onChange={e => setCircuit(c => ({ ...c, reviewItems: c.reviewItems.map(i => i.id === item.id ? { ...i, resolved: e.target.checked } : i) }))} /><span>{item.message}</span></label>)}{circuit.notes.map((n, i) => <p className="el-note" key={i}>{n}</p>)}{circuit.provenance && <p className="el-small-note">출처: {circuit.provenance}</p>}</section></div></details>
           <div className="el-export"><span>설계와 조립 좌표를 내보내기</span><button className="el-button el-small" onClick={exportSvg}><Icon name="download" size={14} />현재 보기 SVG</button><button className="el-button el-small" onClick={exportAssembly}>조립 안내 TXT</button><button className="el-button el-small" onClick={() => downloadText(`${circuit.title}.json`, JSON.stringify({ version: 1, id: projectId, title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId }, null, 2))}>프로젝트 JSON</button></div>
         </>}
 
