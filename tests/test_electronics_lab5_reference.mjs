@@ -113,6 +113,7 @@ function uiHarness(initialUser = { id: "admin-1", admin: true }) {
     if (name === "react") return react;
     if (name === "react/jsx-runtime") return { jsx, jsxs: jsx, Fragment: "fragment" };
     if (name === "next/link") return { default: "a" };
+    if (name === "next/image") return { default: "img" };
     if (name === "@/lib/auth/AuthContext") return { useAuth: () => ({ user, authChecked: true }) };
     if (name === "@/lib/auth/mockAuth") return { isAdminUser: value => Boolean(value?.admin) };
     if (name === "@/lib/electronics/storage") return { downloadText: (...args) => downloads.push(args) };

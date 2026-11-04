@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { isAdminUser } from "@/lib/auth/mockAuth";
 import { COMPONENT_CATALOG } from "@/lib/electronics/catalog";
@@ -19,6 +20,7 @@ export function Lab5ReferencePanel() {
   const { user, authChecked } = useAuth();
   const authorized = isAdminUser(user);
   const [caseId, setCaseId] = useState<Lab5CaseId>("c1-drive"), [ratio, setRatio] = useState<Lab5Ratio>("1:1");
+  const [diagramExpanded, setDiagramExpanded] = useState(false);
   const [result, setResult] = useState<SimulationResult | null>(null), [busy, setBusy] = useState(false), [error, setError] = useState("");
   const worker = useRef<Worker | null>(null), timer = useRef<ReturnType<typeof setTimeout> | null>(null), requestId = useRef(0);
   const selected = useMemo(() => buildLab5ReferenceCase(caseId, ratio), [caseId, ratio]);
@@ -66,6 +68,11 @@ export function Lab5ReferencePanel() {
     </section>
     <div className="lab5-condition"><b>{selected.definition.condition}</b><span>{selected.definition.sourcePages}</span><span>BC109C ×3 · 300 K · 0–{selected.config.durationSeconds * 1000} ms / {selected.config.sampleCount.toLocaleString()} 표본</span></div>
     <aside className="lab5-note"><b>비교 기준</b><p>현재 사이트는 축약 BJT 모델과 이상 변압기를 사용합니다. PDF의 전체 SPICE 모델·실물 부품을 동일하게 재현한 결과가 아닙니다. 수치가 다르면 차이를 그대로 표시합니다. 권선비는 PDF에 없어서 두 가정을 선택할 수 있습니다.</p><p>회로 2는 B1의 분압기를 유지하고, 회로 3은 이를 제거합니다. B1·B2와 센터탭은 별도 연결입니다. myDAQ DSA 화면은 재현하지 않습니다.</p></aside>
+    <section className="lab5-card lab5-diagram" aria-label={`회로 ${selected.definition.circuitNumber} 재구성 회로도`}>
+      <div className="lab5-section-heading"><h2>회로 {selected.definition.circuitNumber} · 재구성 회로도</h2><button aria-pressed={diagramExpanded} onClick={() => setDiagramExpanded(value => !value)}>{diagramExpanded ? "기본 크기" : "원본 크기 확대"}</button></div>
+      <div className={`lab5-diagram-scroll${diagramExpanded ? " is-zoomed" : ""}`} tabIndex={0} role="region" aria-label="회로도 · 확대 시 가로로 스크롤할 수 있습니다"><Image className="lab5-diagram-image" src={`/electronics/lab5/circuit-${selected.definition.circuitNumber}.svg`} alt={`Lab 5 회로 ${selected.definition.circuitNumber}: ${selected.circuit.description}. BC109C 세 개와 원문의 저항·커패시터 연결. 같은 노드명은 서로 연결됩니다.`} width={1400} height={820} unoptimized /></div>
+      <p className="lab5-muted">현재 조건: {selected.definition.condition}{selected.definition.circuitNumber > 1 ? ` · 권선비 ${ratio} 가정` : ""}. 도면의 신호 표기는 신호 인가 조건이며, DC 동작점 조건에서는 입력 신호를 0 V로 둡니다. 실제 빵판 삽입 위치는 아닙니다.</p>
+    </section>
     {error && <p className="lab5-error" role="alert">{error}</p>}
     <div aria-live="polite" className="lab5-run-status">{busy ? "회로의 동작점과 시간 파형을 계산하고 있습니다…" : result ? "계산 완료 · 아래 수치는 현재 선택한 조건의 결과입니다." : "조건을 선택하고 계산을 실행하세요."}</div>
     {result && metrics && <>
@@ -91,6 +98,6 @@ export function Lab5ReferencePanel() {
       <details className="lab5-card"><summary>계산 모델과 한계</summary><ul>{result.warnings.map((warning, i) => <li key={i}>{warning}</li>)}</ul></details>
     </>}
     <details className="lab5-card" open><summary>{selected.circuit.title} · 소자와 연결</summary><p className="lab5-muted">{selected.circuit.description}. 아래는 회로도 단자 연결표이며 실제 빵판 구멍 위치가 아닙니다.</p><div className="lab5-table-scroll"><table><thead><tr><th>소자</th><th>값 / 품번</th><th>단자 연결</th></tr></thead><tbody>{selected.circuit.components.map(part => { const definition = COMPONENT_CATALOG.find(item => item.id === part.definitionId); return <tr key={part.id}><th>{part.id}</th><td>{part.value}</td><td>{Object.entries(part.pinNets).map(([pin, net]) => `${definition?.pins.find(item => item.id === pin)?.label ?? pin} → ${net}`).join(" · ")}</td></tr>; })}</tbody></table></div></details>
-    <aside className="lab5-note"><b>자료에서 확인된 차이</b><p>회로 1은 본문·파형·표의 20 mV 조건을 적용했습니다. 회로 그림의 10 mV 표기와 충돌합니다. 회로 3의 “1 Vac”는 AC 분석값으로, 시간 파형에는 본문의 10 mV를 사용합니다.</p><p>두 PDF 모두 계수 b를 1.2배로 만드는 저항 설계는 “수행하지 않음”으로 기록했습니다. 비교할 완성 회로가 없는 항목입니다.</p></aside>
+    <aside className="lab5-note"><b>자료에서 확인된 차이</b><p>회로 1은 본문·파형·표의 20 mV 조건을 적용했습니다. 회로 그림의 10 mV 표기와 충돌합니다. 회로 3은 캡처의 “1 Vac” 표기만으로 시간영역 입력을 확정할 수 없어 본문의 10 mV peak·10 kHz 조건을 적용했습니다.</p><p>두 PDF 모두 계수 b를 1.2배로 만드는 저항 설계는 “수행하지 않음”으로 기록했습니다. 비교할 완성 회로가 없는 항목입니다.</p></aside>
   </main>;
 }

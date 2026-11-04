@@ -160,3 +160,44 @@ test("recognition provider errors preserve safe codes through real calls and the
     assert.ok(!JSON.stringify(h.warnings).includes("synthetic-key"));
   }
 });
+
+test("provider grammar size stays independent of the full catalog while application validation retains the allowlist", async () => {
+  const fullCatalog = load("src/lib/electronics/catalog.ts").COMPONENT_CATALOG;
+  const output = circuit(); output.components[0].definitionId = "resistor-axial";
+  const large = harness({ output });
+  const recognized = await large.recognition.recognizeCircuit({ text: "test", files: [] }, fullCatalog);
+  const small = harness(); await small.recognition.recognizeCircuit({ text: "test", files: [] }, definitions);
+  const fullSchema = large.calls[0].config.responseJsonSchema;
+  assert.deepEqual(JSON.parse(JSON.stringify(fullSchema)), JSON.parse(JSON.stringify(small.calls[0].config.responseJsonSchema)));
+  assert.equal(fullSchema.additionalProperties, false);
+  assert.equal(fullSchema.properties.components.items.properties.pinNets.additionalProperties.type, "string");
+  assert.equal(fullSchema.properties.netNames.additionalProperties.type, "string");
+  assert.ok(!JSON.stringify(fullSchema).includes('"enum"')); assert.ok(!JSON.stringify(fullSchema).includes('"maxItems"'));
+  assert.match(large.calls[0].config.systemInstruction, /components 최대 80개.*netNames 최대 256개.*instruments 최대 32개.*reviewItems 최대 79개/);
+  assert.equal(recognized.circuit.components[0].definitionId, "resistor-axial");
+});
+
+test("simpler provider schema never accepts unknown parts, duplicate identities, excess counts or unsafe keys", async () => {
+  const changes = [
+    output => { output.components[0].definitionId = "invented-part"; },
+    output => { output.components.push(structuredClone(output.components[0])); },
+    output => { output.components = Array.from({ length: 81 }, (_, i) => ({ ...output.components[0], id: `R${i}` })); },
+    output => { output.components[0].pinNets["2"] = "undefined-net"; },
+    output => { output.netNames.constructor = "unsafe"; },
+    output => { output.reviewItems = Array.from({ length: 80 }, (_, i) => ({ id: `review-${i}`, message: "check", resolved: false })); },
+    output => { output.instruments = Array.from({ length: 33 }, (_, i) => ({ id: `port-${i}`, instrument: "scope", port: "input", netId: "GND", setting: "" })); },
+    output => { output.notes = Array(41).fill("too many notes"); },
+  ];
+  for (const change of changes) {
+    const output = circuit(); change(output); const h = harness({ output });
+    await assert.rejects(h.recognition.recognizeCircuit({ text: "test", files: [] }, definitions), error => error.status === 422);
+    assert.equal(h.calls.length, 1, "No unvalidated-output fallback or provider retry");
+  }
+});
+
+test("mandatory source review stays within the strict review limit", async () => {
+  const output = circuit(); output.reviewItems = Array.from({ length: 79 }, (_, i) => ({ id: `review-${i}`, message: "check", resolved: true }));
+  const h = harness({ output }); const result = await h.recognition.recognizeCircuit({ text: "test", files: [] }, definitions);
+  assert.equal(result.circuit.reviewItems.length, 80); assert.ok(result.circuit.reviewItems.every(item => item.resolved === false));
+  assert.doesNotThrow(() => schema.parseCircuit(result.circuit, definitions));
+});
