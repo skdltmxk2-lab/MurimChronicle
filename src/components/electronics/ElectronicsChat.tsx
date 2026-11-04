@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { electronicsAdminFetch } from "@/lib/electronics/api";
 import type { BoardOptions, Circuit, CircuitLayout } from "@/lib/electronics/types";
 import type { BoardSelection } from "./Breadboard";
+import { parseSimulationAction, type SimulationAssistantAction, type SimulationContext } from "@/lib/electronics/simulation-controls";
 
 type ChatTurn = {
   id: number;
@@ -12,6 +13,7 @@ type ChatTurn = {
   context: string;
   status: "pending" | "done" | "error" | "cancelled";
   error?: string;
+  controlResult?: string;
 };
 type HistoryMessage = { role: "user" | "assistant"; content: string };
 
@@ -30,12 +32,14 @@ function requestHistory(turns: ChatTurn[], context: string, question: string): H
   return result;
 }
 
-export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, selection, onClose }: {
+export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, selection, simulation, onSimulationAction, onClose }: {
   ownerId: string;
   circuit: Circuit;
   boardOptions: BoardOptions;
   layout: CircuitLayout;
   selection: BoardSelection;
+  simulation?: SimulationContext;
+  onSimulationAction?: (action: SimulationAssistantAction) => Promise<string>;
   onClose?: () => void;
 }) {
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -49,6 +53,10 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
   const previousOwner = useRef(ownerId);
   const input = useRef<HTMLTextAreaElement>(null);
   const messages = useRef<HTMLDivElement>(null);
+  const mounted = useRef(true);
+  const simulationSettings = JSON.stringify(simulation ? { config: simulation.config, probeNetIds: simulation.probeNetIds } : null);
+  const currentSimulationSettings = useRef(simulationSettings);
+  currentSimulationSettings.current = simulationSettings;
   const context = useMemo(() => JSON.stringify({ circuit, boardOptions, placements: layout.placements, jumpers: layout.jumpers, terminals: layout.terminals }), [circuit, boardOptions, layout]);
   const currentContext = useRef(context);
   const previousContext = useRef(context);
@@ -75,7 +83,7 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
     setNotice(turns.length ? "다음 질문부터 변경된 회로를 참고합니다." : "");
   }, [context, turns.length]);
 
-  useEffect(() => () => { version.current += 1; request.current?.abort(); }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; version.current += 1; request.current?.abort(); }; }, []);
   useEffect(() => {
     const container = messages.current;
     if (container) container.scrollTop = container.scrollHeight;
@@ -103,6 +111,7 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
     const activeVersion = ++version.current;
     const actingOwner = ownerId;
     const actingContext = context;
+    const actingSimulationSettings = simulationSettings;
     // Retry the latest turn in place. An older failed question is asked again at
     // the end, so later answers never become the past of an earlier transcript row.
     const replaceLatest = retryId !== undefined && turns[turns.length - 1]?.id === retryId;
@@ -123,14 +132,29 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
           boardOptions,
           layout: { placements: layout.placements, jumpers: layout.jumpers, terminals: layout.terminals },
           ...(selection && selection.type !== "hole" ? { selection } : {}),
+          ...(simulation ? { simulation } : {}),
         }),
       });
-      let data: { ok?: boolean; answer?: string; message?: string };
+      let data: { ok?: boolean; answer?: string; message?: string; action?: unknown };
       try { data = await response.json(); }
       catch { throw new Error("답변을 불러오지 못했습니다. 잠시 후 다시 질문해 주세요."); }
       if (!isCurrent()) return;
       if (!response.ok || !data.ok || typeof data.answer !== "string" || !data.answer.trim()) throw new Error(data.message || "Gemini 답변을 받지 못했습니다. 잠시 후 다시 질문해 주세요.");
       setTurns(items => items.map(turn => turn.id === id ? { ...turn, status: "done", answer: data.answer!.trim(), error: undefined } : turn));
+      if (data.action != null) {
+        let receipt: string;
+        try {
+          if (currentSimulationSettings.current !== actingSimulationSettings) throw new Error("답변을 기다리는 동안 파형 설정이 바뀌어 자동 조작을 적용하지 않았습니다. 현재 설정으로 다시 요청해 주세요.");
+          const action = parseSimulationAction(data.action, circuit);
+          if (!onSimulationAction) throw new Error("이 화면에서는 파형 조작을 사용할 수 없습니다.");
+          receipt = await onSimulationAction(action);
+        } catch (failure) { receipt = failure instanceof Error ? failure.message : "파형 조작을 적용하지 못했습니다."; }
+        // A control can legitimately change settings. Still reject receipts from
+        // a different owner/project or a conversation cleared while it ran.
+        if (mounted.current && currentOwner.current === actingOwner && currentContext.current === actingContext && version.current === activeVersion) {
+          setTurns(items => items.map(turn => turn.id === id ? { ...turn, controlResult: receipt } : turn));
+        }
+      }
     } catch (error) {
       if (!isCurrent()) return;
       const cancelled = error instanceof Error && error.name === "AbortError";
@@ -143,6 +167,8 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
   const busy = pendingId !== null;
   const selectedLabel = selection?.type === "component" ? `${selection.id} 소자` : selection?.type === "jumper" ? `${selection.id} 점퍼선` : selection?.type === "terminal" ? "선택한 계측기 단자" : null;
   const suggestions = [
+    "VIN과 VOUT을 자동 설정하고 파형을 실행해 줘.",
+    "입력을 1 kHz, 10 mV peak로 바꾸고 실행해 줘.",
     "이 회로가 어떻게 동작하는지 설명해 줘.",
     selectedLabel ? `${selectedLabel}의 연결과 꽂을 위치를 설명해 줘.` : "소자를 꽂을 순서와 방향을 알려 줘.",
     "전원을 켜기 전에 확인할 연결을 알려 줘.",
@@ -164,6 +190,7 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
         <div className="el-chat-question"><span className="sr-only">내 질문: </span>{turn.question}</div>
         <div className="el-chat-answer"><div className="el-chat-answer-label"><span aria-hidden="true">✦</span> Gemini{turn.context !== context && <small>이전 회로 기준</small>}</div>
           {turn.status === "done" ? <div className="el-chat-answer-text">{turn.answer}</div> : turn.status === "pending" ? <div className="el-chat-pending"><span aria-hidden="true">···</span> 회로를 살펴보고 있어요</div> : <div className="el-chat-error" role={turn.status === "error" ? "alert" : undefined}><p>{turn.error}</p><button type="button" className="el-text-button" disabled={busy} onClick={() => void send(turn.question, turn.id)}>{turn.context === context ? "다시 질문" : "현재 회로로 다시 질문"}</button></div>}
+          {turn.controlResult && <p className="el-chat-notice" role="status"><b>파형 조작 결과</b><br />{turn.controlResult}</p>}
         </div>
       </div>)}
       {notice && <p className="el-chat-notice" role="status">{notice}</p>}
@@ -175,6 +202,6 @@ export function ElectronicsChat({ ownerId, circuit, boardOptions, layout, select
       }} />
       <div className="el-chat-compose-actions"><small>Enter 전송 · Shift+Enter 줄바꿈</small>{busy ? <button type="button" className="el-button el-small" onClick={cancel}>답변 중단</button> : <button type="submit" className="el-button el-primary el-small" disabled={!draft.trim() || !ownerId}>질문 보내기 <span aria-hidden="true">↑</span></button>}</div>
     </form>
-    <p className="el-chat-footnote">답변은 현재 설계를 참고한 설명입니다. 부품·핀 방향은 실제 자료와 함께 확인하세요.</p>
+    <p className="el-chat-footnote">설정·실행을 요청하면 파형 도구에 적용합니다. 실제 적용 결과를 확인하고, 파형 도구에서 되돌릴 수 있습니다. 실물 장비는 조작하지 않습니다.</p>
   </section>;
 }

@@ -15,17 +15,21 @@ import { getPowerNetRole, getRailUsage } from "@/lib/electronics/power";
 import { parseCircuit } from "@/lib/electronics/schema";
 import { downloadText, readLocalProjects, saveLocalProject } from "@/lib/electronics/storage";
 import { parseProjectForWorkspace } from "@/lib/electronics/project-input";
-import type { BoardOptions, Circuit, CircuitLayout, SavedProject, ValidationReport } from "@/lib/electronics/types";
+import { getSourceLabel, parseProjectSource } from "@/lib/electronics/project-source";
+import type { BoardOptions, Circuit, CircuitLayout, ProjectSource, SavedProject, ValidationReport } from "@/lib/electronics/types";
 import { Breadboard, type BoardSelection } from "./Breadboard";
 import { ALL_BOARD_LAYERS, BOARD_LAYERS, componentLayer, countBoardLayers, isBoardSelectionVisible, layerForAssemblyStep, type BoardLayer } from "@/lib/electronics/visibility";
 import { ElectronicsChat } from "./ElectronicsChat";
 import { WorkspaceDrawer } from "./WorkspaceDrawer";
+import { AssistantDesignImport, ProjectSourceSummary } from "./AssistantDesignImport";
+import { useSimulationControls } from "./useSimulationControls";
 import { defaultProbeHoles, resolveSimulationProbes, type ProbeHoles } from "@/lib/electronics/simulation-probes";
 import { resolveProbeNet } from "@/lib/electronics/simulation-layout";
 import { checkSourceAttachments, clipboardFiles, readSourceClipboard, SOURCE_TEXT_LIMIT } from "@/lib/electronics/clipboard";
 import "./electronics.css";
 import "./workspace-layout.css";
 import "./source-clipboard.css";
+import "./source-channels.css";
 
 type SourceFile = { name: string; mimeType: string; data: string; size: number };
 const defaultBoard: BoardOptions = { boards: 1, railMode: "split" };
@@ -64,6 +68,9 @@ export function ElectronicsWorkspace() {
   const [stepIndex, setStepIndex] = useState<number | null>(null);
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   const [projectId, setProjectId] = useState("");
+  const [projectSource, setProjectSource] = useState<ProjectSource>();
+  const [sourceChannel, setSourceChannel] = useState<"gemini" | "assistant">("gemini");
+  const [projectFilter, setProjectFilter] = useState<"all" | "gemini" | "assistant" | "legacy">("all");
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -98,8 +105,11 @@ export function ElectronicsWorkspace() {
   const cancelAnalyze = useRef<AbortController | null>(null);
   const analysisVersion = useRef(0);
   const projectUser = user?.id || "";
-  const currentProjectState = useRef({ projectId, circuit, layout, boardOptions, completedSteps, experimentId });
-  currentProjectState.current = { projectId, circuit, layout, boardOptions, completedSteps, experimentId };
+  const openSimulation = useCallback(() => { setSimulationOpened(true); setView("simulation"); setPickingProbe(null); }, []);
+  const simulationControls = useSimulationControls(projectUser, projectId, circuit, layout, openSimulation);
+  const currentProjectState = useRef({ projectId, circuit, layout, boardOptions, completedSteps, experimentId, source: projectSource });
+  currentProjectState.current = { projectId, circuit, layout, boardOptions, completedSteps, experimentId, source: projectSource };
+  const filteredProjects = projects.filter(project => projectFilter === "all" || (projectFilter === "legacy" ? !project.source : project.source?.channel === projectFilter));
   const experiment = EXPERIMENTS.find(e => e.id === experimentId) || EXPERIMENTS[0];
   const courseSupport = COURSE_SUPPORT_SCOPE.find(item => item.id === experiment.id);
   const report = useMemo(() => validateLayout(circuit, COMPONENT_CATALOG, layout), [circuit, layout]);
@@ -149,6 +159,7 @@ export function ElectronicsWorkspace() {
     readyUser.current = authorized ? projectUser : null;
     analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null;
     setBusy(false); setSaving(false); setPasting(false); setFiles([]); setSourceText(""); setCloudLoaded(false); setMessage(""); setError("");
+    setProjectSource(undefined); setSourceChannel("gemini"); setProjectFilter("all");
     setJsonOpen(false); setJsonText(""); setView("board"); setDrawer(null); setExperimentId("lab-0"); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setAutoRearrange(true); setChecksOpen(false); setManualCheck(null);
     setBoardOptions(defaultBoard); setCircuit(cloneCircuit(initial)); setLayout(createLayout(initial, COMPONENT_CATALOG, defaultBoard));
     setSelection(null); setStepIndex(null); setCompletedSteps([]); setUndoStack([]); setPickingPin(null);
@@ -162,18 +173,18 @@ export function ElectronicsWorkspace() {
     if (!projectUser || !projectId || workspaceOwner !== projectUser || readyUser.current !== projectUser || !isAdminUser(user)) return;
     const timer = setTimeout(() => {
       try {
-        const project: SavedProject = { version: 1, id: projectId, title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId };
+        const project: SavedProject = { version: 1, id: projectId, title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId, ...(projectSource ? { source: projectSource } : {}) };
         setProjects(saveLocalProject(projectUser, project));
       } catch { setMessage("브라우저 저장 공간이 부족합니다. JSON으로 내보내거나 클라우드에 저장하세요."); }
     }, 700);
     return () => clearTimeout(timer);
-  }, [projectUser, projectId, circuit, layout, boardOptions, completedSteps, experimentId, user, workspaceOwner]);
+  }, [projectUser, projectId, circuit, layout, boardOptions, completedSteps, experimentId, projectSource, user, workspaceOwner]);
 
   useEffect(() => () => cancelAnalyze.current?.abort(), []);
 
   function openTemplate(id: string) {
     const template = CIRCUIT_TEMPLATES.find(c => c.id === id); if (!template) return;
-    applyCircuit(cloneCircuit(template)); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setProjectId(crypto.randomUUID()); setView("board"); setMessage("회로 예제를 열었습니다. 원문과 실제 부품을 확인한 뒤 사용하세요.");
+    applyCircuit(cloneCircuit(template)); setProjectSource(undefined); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setProjectId(crypto.randomUUID()); setView("board"); setMessage("회로 예제를 열었습니다. 원문과 실제 부품을 확인한 뒤 사용하세요.");
   }
 
   async function addFiles(list: FileList | File[] | null) {
@@ -192,7 +203,7 @@ export function ElectronicsWorkspace() {
         if (!["application/pdf", "image/png", "image/jpeg", "image/webp"].includes(file.type)) { reject(new Error("PDF, PNG, JPG, WebP 파일을 선택하세요.")); return; }
         const reader = new FileReader(); reader.onload = () => resolve({ name: file.name, mimeType: file.type, data: String(reader.result).split(",")[1], size: file.size }); reader.onerror = () => reject(new Error("파일을 읽지 못했습니다.")); reader.readAsDataURL(file);
       })));
-      if (readyUser.current === actingUser && analysisVersion.current === version) { filesRef.current = [...filesRef.current, ...added]; setFiles(filesRef.current); setDrawer("sources"); setMessage(`${added.length}개 자료를 추가했습니다. 내용을 확인한 뒤 분석하세요.`); return true; }
+      if (readyUser.current === actingUser && analysisVersion.current === version) { filesRef.current = [...filesRef.current, ...added]; setFiles(filesRef.current); setSourceChannel("gemini"); setDrawer("sources"); setMessage(`${added.length}개 자료를 추가했습니다. 내용을 확인한 뒤 분석하세요.`); return true; }
       return false;
     } catch (e) { if (readyUser.current === actingUser && analysisVersion.current === version) setError(e instanceof Error ? e.message : "파일을 읽지 못했습니다."); return false; }
     finally { pendingAttachments.current.count -= incoming.length; pendingAttachments.current.bytes -= bytes; }
@@ -203,10 +214,11 @@ export function ElectronicsWorkspace() {
     const current = sourceTextRef.current;
     const next = current ? `${current}\n${text}` : text;
     if (next.length > SOURCE_TEXT_LIMIT) { setError("실험 조건은 20,000자 이하로 붙여넣어 주세요."); return; }
-    sourceTextRef.current = next; setSourceText(next); setDrawer("sources"); setError(""); setMessage("클립보드의 텍스트를 추가 조건에 넣었습니다.");
+    sourceTextRef.current = next; setSourceText(next); setSourceChannel("gemini"); setDrawer("sources"); setError(""); setMessage("클립보드의 텍스트를 추가 조건에 넣었습니다.");
   }
 
   function pasteSource(event: React.ClipboardEvent<HTMLElement>) {
+    if (drawer === "sources" && sourceChannel === "assistant") return;
     const attached = clipboardFiles(event.clipboardData);
     if (attached.length) { event.preventDefault(); void addFiles(attached); return; }
     const target = event.target as HTMLElement;
@@ -241,7 +253,7 @@ export function ElectronicsWorkspace() {
       const data = await res.json();
       if (readyUser.current !== actingUser || analysisVersion.current !== version) return;
       if (!res.ok || !data.ok) throw new Error(data.message || data.error || "자료를 분석하지 못했습니다.");
-      const next = parseCircuit(data.circuit, COMPONENT_CATALOG); applyCircuit(next); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setProjectId(crypto.randomUUID()); setView("board"); setDrawer(null); setMessage("분석과 전체 배치를 생성했습니다. 원문 확인 항목과 연결 검사 결과를 검토하세요.");
+      const next = parseCircuit(data.circuit, COMPONENT_CATALOG); applyCircuit(next); setProjectSource({ channel: "gemini", provider: "gemini" }); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setProjectId(crypto.randomUUID()); setView("board"); setDrawer(null); setMessage("Gemini 분석과 전체 배치를 생성했습니다. 원문 확인 항목과 연결 검사 결과를 검토하세요.");
     } catch (e) { if (readyUser.current === actingUser && analysisVersion.current === version) { if (e instanceof Error && e.name === "AbortError") setMessage("분석을 취소했습니다."); else setError(e instanceof Error ? e.message : "분석 중 오류가 발생했습니다."); } }
     finally { if (cancelAnalyze.current === controller) { setBusy(false); cancelAnalyze.current = null; } }
   }
@@ -251,7 +263,7 @@ export function ElectronicsWorkspace() {
     const actingUser = projectUser;
     const version = analysisVersion.current;
     try {
-      const project: SavedProject = { version: 1, id: projectId || crypto.randomUUID(), title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId };
+      const project: SavedProject = { version: 1, id: projectId || crypto.randomUUID(), title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId, ...(projectSource ? { source: projectSource } : {}) };
       // Persist the captured snapshot before awaiting the network. A late response
       // must never replace a newer edit already written by browser autosave.
       try { setProjects(saveLocalProject(actingUser, project)); } catch { /* Cloud saving still works when browser storage is full. */ }
@@ -259,7 +271,7 @@ export function ElectronicsWorkspace() {
       if (readyUser.current !== actingUser || analysisVersion.current !== version) return;
       if (!res.ok || !data.ok) throw new Error(data.message || "클라우드에 저장하지 못했습니다.");
       const current = currentProjectState.current;
-      const changed = current.circuit !== project.circuit || current.layout !== project.layout || current.boardOptions !== project.boardOptions || current.completedSteps !== project.completedSteps || current.experimentId !== project.experimentId;
+      const changed = current.circuit !== project.circuit || current.layout !== project.layout || current.boardOptions !== project.boardOptions || current.completedSteps !== project.completedSteps || current.experimentId !== project.experimentId || current.source !== project.source;
       setProjectId(project.id); setMessage(changed ? "저장 버튼을 누른 시점의 설계를 클라우드에 저장했습니다. 이후 변경 내용은 다시 저장해 주세요." : "내 관리자 계정의 비공개 프로젝트에 저장했습니다.");
     } catch (e) { if (readyUser.current === actingUser && analysisVersion.current === version) setError(e instanceof Error ? e.message : "저장하지 못했습니다."); }
     finally { if (readyUser.current === actingUser) setSaving(false); }
@@ -288,11 +300,38 @@ export function ElectronicsWorkspace() {
       // All parsing and layout validation have completed before any state changes.
       analysisVersion.current += 1; cancelAnalyze.current?.abort(); cancelAnalyze.current = null; setBusy(false);
       setBoardOptions(project.boardOptions); setCircuit(project.circuit); setLayout(project.layout);
+      setProjectSource(project.source);
       setManualCheck(null); setChecksOpen(false); setSelection(null); setStepIndex(null); setUndoStack([]); setPickingPin(null); setError("");
       setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false);
       setCompletedSteps(project.completedSteps); setProjectId(project.id); if (project.experimentId) setExperimentId(project.experimentId); setView("board"); setMessage("프로젝트를 불러오고 배선을 다시 검사했습니다.");
       return true;
     } catch { setError("이 프로젝트 형식을 읽지 못했습니다. 회로 JSON을 확인해 주세요."); return false; }
+  }
+
+  function importAssistantDesign(value: unknown, source: ProjectSource) {
+    if (!projectUser || readyUser.current !== projectUser) return false;
+    const validatedSource = parseProjectSource(source);
+    if (validatedSource?.channel !== "assistant") throw new Error("가져올 설계의 대화 출처를 선택해 주세요.");
+    const candidate = value && typeof value === "object" && "version" in value && "circuit" in value
+      ? parseProjectForWorkspace(value, COMPONENT_CATALOG)
+      : { version: 1 as const, title: "", circuit: parseCircuit(value, COMPONENT_CATALOG), boardOptions, completedSteps: [], experimentId };
+    const imported: SavedProject = { ...candidate, id: crypto.randomUUID(), title: candidate.circuit.title, updatedAt: new Date().toISOString(), source: validatedSource };
+    if (!openProject(imported)) return false;
+    // Imported identities never target an existing Gemini or saved project.
+    setProjectFilter("assistant"); setDrawer(null);
+    setMessage(`${getSourceLabel(validatedSource)}를 새 프로젝트로 가져왔습니다. 원본과 연결 검사 결과를 확인하세요.`);
+    return true;
+  }
+
+  function applyManualJson() {
+    try {
+      const value = JSON.parse(jsonText);
+      if (value && value.version === 1 && value.circuit) {
+        const parsed = parseProjectForWorkspace(value, COMPONENT_CATALOG);
+        if (!openProject({ ...parsed, id: projectId || crypto.randomUUID(), source: projectSource })) return;
+      } else { applyCircuit(parseCircuit(value, COMPONENT_CATALOG)); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); }
+      setJsonOpen(false); setView("board"); setMessage("현재 설계의 회로 JSON을 적용했습니다. 출처와 원본 사진은 유지됩니다.");
+    } catch (e) { setError(e instanceof Error ? e.message : "JSON 형식을 확인해 주세요."); }
   }
 
   function exportAssembly() {
@@ -448,10 +487,11 @@ export function ElectronicsWorkspace() {
         {(message || error) && <div className={`el-notice ${error ? "error" : ""}`} role={error ? "alert" : "status"}><span>{error || message}</span><button aria-label="알림 닫기" onClick={() => { setMessage(""); setError(""); }}>×</button></div>}
 
         {simulationOpened && <div id="electronics-simulation-panel" hidden={view !== "simulation"}>
-          <SimulationPanel key={`${projectUser}:${projectId}:${circuit.id}`} circuit={circuit} definitions={COMPONENT_CATALOG} layout={layout} probes={probes} pickingChannel={pickingProbe} onPickProbe={beginProbePick} onClearProbe={channel => { setProbeHoles(current => current.map((hole, index) => index === channel ? null : hole) as ProbeHoles); setPickingProbe(null); }} />
+          <SimulationPanel key={`${projectUser}:${projectId}:${circuit.id}`} circuit={circuit} definitions={COMPONENT_CATALOG} layout={layout} probes={probes} pickingChannel={pickingProbe} onPickProbe={beginProbePick} onClearProbe={channel => { setProbeHoles(current => current.map((hole, index) => index === channel ? null : hole) as ProbeHoles); setPickingProbe(null); }} onSetProbeHoles={setProbeHoles} controlRequest={simulationControls.controlRequest} onControlResult={simulationControls.onControlResult} onContextChange={simulationControls.onContextChange} />
         </div>}
         {(view === "board" || view === "simulation") && <>
           <div className="el-circuit-heading"><div><p className="el-eyebrow">BREADBOARD DESIGN</p><input aria-label="설계 이름" value={circuit.title} onChange={e => setCircuit(c => ({ ...c, title: e.target.value.slice(0, 120) }))} /><p>{circuit.description}</p></div><span className={`el-status ${report.valid ? "ok" : "needs-review"}`}>{report.valid ? <Icon name="check" size={15} /> : <span>!</span>}{report.valid ? "연결 검사 통과" : "배선 확인 필요"}</span></div>
+          <ProjectSourceSummary source={projectSource} />
           <details className="el-board-settings"><summary>빵판 설정 <span>{boardOptions.boards === 1 ? "830홀 · 1장" : "1660홀 · 2장"} / {boardOptions.railMode === "split" ? "레일 중앙 분리" : "레일 연속"}</span></summary>          <div className="el-board-options"><label>빵판 <select aria-label="빵판 구성" value={boardOptions.boards} onChange={e => { const next: BoardOptions = { ...boardOptions, boards: Number(e.target.value) === 2 ? 2 : 1 }; setBoardOptions(next); applyCircuit(circuit, next); }}><option value={1}>사진형 단일판 · 830홀</option><option value={2}>단일판 2장 · 1660홀</option></select></label><label>전원 레일 <select aria-label="전원 레일 구조" value={boardOptions.railMode} onChange={e => { const next: BoardOptions = { ...boardOptions, railMode: e.target.value === "continuous" ? "continuous" : "split" }; setBoardOptions(next); applyCircuit(circuit, next); }}><option value="split">중앙 분리</option><option value="continuous">연속 연결</option></select></label><label className="el-checkbox"><input type="checkbox" checked={labelsVisible} onChange={e => setLabelsVisible(e.target.checked)} />소자 번호</label><button className="el-button el-small" onClick={() => { applyCircuit(circuit); setMessage("전체 소자와 점퍼를 다시 배치하고 연결을 검사했습니다."); }}>전체 자동 배치</button></div></details>
           <div className="el-layer-panel" aria-label="빵판 표시 필터">
             <div className="el-layer-top"><b>표시할 항목</b><label>한 종류만 보기 <select aria-label="한 종류만 보기" value={visibleLayers.length === ALL_BOARD_LAYERS.length ? "all" : visibleLayers.length === 1 ? visibleLayers[0] : "custom"} onChange={e => { if (e.target.value === "all") changeLayers([...ALL_BOARD_LAYERS]); else if (e.target.value !== "custom") changeLayers([e.target.value as BoardLayer]); }}><option value="all">전체 보기</option><option value="custom" disabled>직접 선택</option>{BOARD_LAYERS.map(layer => <option key={layer.id} value={layer.id}>{layer.label}만</option>)}</select></label></div>
@@ -481,16 +521,16 @@ export function ElectronicsWorkspace() {
           </details>
           <section className="el-assembly"><div className="el-assembly-title"><div><span className="el-mini-tag">BUILD GUIDE</span><h2>화면 그대로, 하나씩 꽂기</h2></div><span>{completedSteps.length} / {steps.length} 완료</span></div>{stepIndex === null ? <div className="el-assembly-start"><p>소자 방향과 구멍 좌표, 점퍼의 양 끝을 단계마다 확인합니다.</p><button className="el-button el-primary" disabled={!steps.length} onClick={() => showStep(0)}>조립 안내 시작 <Icon name="arrow" /></button></div> : steps[stepIndex] && <div className="el-step"><div className="el-step-number">{stepIndex + 1}</div><div className="el-step-copy"><b>{steps[stepIndex].title}</b><p>{steps[stepIndex].description}</p><div className="el-hole-chips">{steps[stepIndex].holes.map(h => <span key={h}>{h}</span>)}</div></div><div className="el-step-actions"><label><input type="checkbox" checked={completedSteps.includes(steps[stepIndex].id)} onChange={e => setCompletedSteps(s => e.target.checked ? [...new Set([...s, steps[stepIndex].id])] : s.filter(id => id !== steps[stepIndex].id))} /> 완료</label><button className="el-button el-small" disabled={stepIndex === 0} onClick={() => showStep((stepIndex || 0) - 1)}>이전</button><button className="el-button el-small el-primary" disabled={stepIndex >= steps.length - 1} onClick={() => showStep((stepIndex || 0) + 1)}>다음</button><button className="el-text-button" onClick={() => setStepIndex(null)}>안내 닫기</button></div></div>}</section>
           <details className="el-checks-panel" open={checksOpen} onToggle={event => setChecksOpen(event.currentTarget.open)}><summary>연결 검사 · 원문 확인 <span>{report.issues.filter(i => i.severity === "error").length}개 오류 / {openReviews.length}개 미확인</span></summary><div className="el-bottom-grid"><section className="el-card"><div className="el-card-title"><h2>연결 검사</h2><span className="el-mini-tag">{report.checkedPins} pins</span></div>{report.issues.length ? <ul className="el-issues">{report.issues.map((i, index) => <li key={`${i.code}-${index}`} className={i.severity}><span>{i.severity === "error" ? "!" : "i"}</span>{i.message}</li>)}</ul> : <p className="el-success-text"><Icon name="check" />목표 회로와 빵판의 연결이 일치합니다.</p>}<p className="el-small-note">실제 소자의 정격, 핀 방향과 계측기 내부 접지는 별도로 확인하세요. 사진만으로 전원 레일 내부 연결을 확정할 수 없습니다.</p></section><section className="el-card"><div className="el-card-title"><h2>원문·조건 확인</h2><span className="el-mini-tag">{openReviews.length}개 미확인</span></div>{circuit.reviewItems.map(item => <label className="el-review" key={item.id}><input type="checkbox" checked={item.resolved} onChange={e => setCircuit(c => ({ ...c, reviewItems: c.reviewItems.map(i => i.id === item.id ? { ...i, resolved: e.target.checked } : i) }))} /><span>{item.message}</span></label>)}{circuit.notes.map((n, i) => <p className="el-note" key={i}>{n}</p>)}{circuit.provenance && <p className="el-small-note">출처: {circuit.provenance}</p>}</section></div></details>
-          <div className="el-export"><span>설계와 조립 좌표를 내보내기</span><button className="el-button el-small" onClick={exportSvg}><Icon name="download" size={14} />현재 보기 SVG</button><button className="el-button el-small" onClick={exportAssembly}>조립 안내 TXT</button><button className="el-button el-small" onClick={() => downloadText(`${circuit.title}.json`, JSON.stringify({ version: 1, id: projectId, title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId }, null, 2))}>프로젝트 JSON</button></div>
+          <div className="el-export"><span>설계와 조립 좌표를 내보내기</span><button className="el-button el-small" onClick={exportSvg}><Icon name="download" size={14} />현재 보기 SVG</button><button className="el-button el-small" onClick={exportAssembly}>조립 안내 TXT</button><button className="el-button el-small" onClick={() => downloadText(`${circuit.title}.json`, JSON.stringify({ version: 1, id: projectId, title: circuit.title, updatedAt: new Date().toISOString(), circuit, boardOptions, layout, completedSteps, experimentId, ...(projectSource ? { source: projectSource } : {}) }, null, 2))}>프로젝트 JSON</button></div>
         </>}
 
-        {view === "experiments" && <section className="el-guide"><div className="el-guide-top"><span className="el-guide-number">{experiment.number}</span><div><p className="el-eyebrow">COURSE EXPERIMENT</p><h2>{experiment.title}</h2><p>{experiment.summary}</p></div></div><div className="el-topic-chips">{experiment.topics.map(t => <span key={t}>{t}</span>)}</div><div className="el-guide-section"><h3>회로 예제와 설계</h3>{experiment.templateIds.length ? <div className="el-template-grid">{experiment.templateIds.map(id => { const t = CIRCUIT_TEMPLATES.find(t => t.id === id); return t ? <button key={id} onClick={() => openTemplate(id)}><span><Icon name="board" /></span><b>{t.title}</b><p>{t.description}</p><small>{t.components.length}개 소자 · 배치도 열기 →</small></button> : null; })}</div> : <div className="el-soft-box">이 실험은 계측 또는 소프트웨어 신호처리가 중심입니다. 아래 연결·설정과 실험 절차를 확인하세요.</div>}</div><div className="el-bottom-grid"><section className="el-card"><h3>계측기·실험 설정</h3><dl className="el-setting-list">{experiment.settings.map((s, i) => <div key={i}><dt>{s.label}</dt><dd>{s.value}</dd></div>)}</dl></section><section className="el-card"><h3>실험 절차</h3><ol className="el-procedure">{experiment.procedure.map((p, i) => <li key={i}><b>{String(i + 1).padStart(2, "0")}</b><span>{p}</span></li>)}</ol></section></div><div className="el-future"><span className="el-mini-tag">{courseSupport?.status === "guide" ? "설정·절차 안내" : "일부 회로 실행 지원"}</span><h3>이 실험의 지원 범위</h3>{courseSupport && <><p><b>현재 가능</b> · {courseSupport.available.join(" · ")}</p><p><b>추가 구현·검수</b> · {courseSupport.remaining.join(" · ")}</p></>}<small>교육 모델의 계산 결과와 원문 전체 회로·실물 성능 검증은 구분합니다. 파형·계측에서 소자 모델과 현재 배선을 함께 확인하세요.</small></div><button className="el-button el-primary" onClick={() => { setDrawer("sources"); setSourceText(`${experiment.title}\n실험 조건: ${experiment.settings.map(s => `${s.label}: ${s.value}`).join("; ")}\n`); }}>이 실험의 PDF·사진으로 설계 <Icon name="arrow" /></button></section>}
+        {view === "experiments" && <section className="el-guide"><div className="el-guide-top"><span className="el-guide-number">{experiment.number}</span><div><p className="el-eyebrow">COURSE EXPERIMENT</p><h2>{experiment.title}</h2><p>{experiment.summary}</p></div></div><div className="el-topic-chips">{experiment.topics.map(t => <span key={t}>{t}</span>)}</div><div className="el-guide-section"><h3>회로 예제와 설계</h3>{experiment.templateIds.length ? <div className="el-template-grid">{experiment.templateIds.map(id => { const t = CIRCUIT_TEMPLATES.find(t => t.id === id); return t ? <button key={id} onClick={() => openTemplate(id)}><span><Icon name="board" /></span><b>{t.title}</b><p>{t.description}</p><small>{t.components.length}개 소자 · 배치도 열기 →</small></button> : null; })}</div> : <div className="el-soft-box">이 실험은 계측 또는 소프트웨어 신호처리가 중심입니다. 아래 연결·설정과 실험 절차를 확인하세요.</div>}</div><div className="el-bottom-grid"><section className="el-card"><h3>계측기·실험 설정</h3><dl className="el-setting-list">{experiment.settings.map((s, i) => <div key={i}><dt>{s.label}</dt><dd>{s.value}</dd></div>)}</dl></section><section className="el-card"><h3>실험 절차</h3><ol className="el-procedure">{experiment.procedure.map((p, i) => <li key={i}><b>{String(i + 1).padStart(2, "0")}</b><span>{p}</span></li>)}</ol></section></div><div className="el-future"><span className="el-mini-tag">{courseSupport?.status === "guide" ? "설정·절차 안내" : "일부 회로 실행 지원"}</span><h3>이 실험의 지원 범위</h3>{courseSupport && <><p><b>현재 가능</b> · {courseSupport.available.join(" · ")}</p><p><b>추가 구현·검수</b> · {courseSupport.remaining.join(" · ")}</p></>}<small>교육 모델의 계산 결과와 원문 전체 회로·실물 성능 검증은 구분합니다. 파형·계측에서 소자 모델과 현재 배선을 함께 확인하세요.</small></div><button className="el-button el-primary" onClick={() => { setSourceChannel("gemini"); setDrawer("sources"); setSourceText(`${experiment.title}\n실험 조건: ${experiment.settings.map(s => `${s.label}: ${s.value}`).join("; ")}\n`); }}>이 실험의 PDF·사진으로 설계 <Icon name="arrow" /></button></section>}
 
         {view === "catalog" && <section className="el-catalog"><p className="el-eyebrow">COMPONENT LIBRARY</p><h2>실험에 필요한 소자, 한곳에서</h2><p>정확한 패키지와 핀맵, 직접 삽입 가능 여부를 확인합니다.</p><div className="el-catalog-search"><input aria-label="소자 검색" placeholder="품번, 종류, 패키지 검색…" value={catalogSearch} onChange={e => setCatalogSearch(e.target.value)} /><select aria-label="소자 분류" value={catalogCategory} onChange={e => setCatalogCategory(e.target.value)}>{categories.map(c => <option key={c}>{c}</option>)}</select></div><div className="el-catalog-info"><b>{filteredCatalog.length}개 항목</b><span>등록 · 핀맵 확인 · 배치 지원 상태를 구분합니다.</span></div><div className="el-catalog-grid">{filteredCatalog.map(d => <article key={d.id}><div className="el-catalog-card-top"><span className="el-part-symbol">{d.kind === "resistor" ? "▰" : d.kind === "capacitor" || d.kind === "electrolytic" ? "⊣⊢" : d.kind === "diode" ? "▷│" : "▣"}</span><span className={`el-part-status ${d.pinoutStatus === "unverified" ? "pending" : ""}`}>{d.pinoutStatus === "unverified" ? "핀맵 확인 전" : d.pinoutStatus === "datasheet" ? "자료 확인" : "범용 모델"}</span></div><h3>{d.name}</h3><div className="el-part-meta">{d.category} · {d.package}</div><p>{d.description}</p><div className="el-pin-preview">{d.pins.slice(0, 8).map(p => <span key={p.id}>{p.id}: {p.label}</span>)}{d.pins.length > 8 && <span>+{d.pins.length - 8}핀</span>}</div><footer><span>{d.mounting === "direct" ? "직접 삽입" : d.mounting === "adapter" ? "어댑터 필요" : "외부 연결"}</span>{d.sourceUrl && <a href={d.sourceUrl} target="_blank" rel="noreferrer">데이터시트 ↗</a>}</footer>{d.mounting === "direct" && d.pinoutStatus !== "unverified" && d.pins.length > 0 && <button className="el-button el-small" style={{ marginTop: 12 }} onClick={() => addComponent(d.id)}>현재 회로에 추가 +</button>}</article>)}</div></section>}
       </section>
 
       <aside className="el-chat-rail" hidden={!chatOpen} aria-label="Gemini 질문 패널">
-        <ElectronicsChat key={`${projectUser}:${projectId}`} ownerId={projectUser} circuit={circuit} boardOptions={boardOptions} layout={layout} selection={selection} onClose={() => setChatOpen(false)} />
+        <ElectronicsChat key={`${projectUser}:${projectId}`} ownerId={projectUser} circuit={circuit} boardOptions={boardOptions} layout={layout} selection={selection} simulation={simulationControls.simulation} onSimulationAction={simulationControls.perform} onClose={() => setChatOpen(false)} />
       </aside>
     </div>
     {drawer && <WorkspaceDrawer title={drawer === "experiments" ? "수업 실험 선택" : drawer === "sources" ? "내 자료로 설계" : "내 프로젝트"} onClose={() => setDrawer(null)}>
@@ -499,10 +539,24 @@ export function ElectronicsWorkspace() {
 
         <div className="el-sidebar-tabs"><button className={drawer === "experiments" ? "active" : ""} onClick={() => setDrawer("experiments")}>수업 실험</button><button className={drawer === "sources" ? "active" : ""} onClick={() => setDrawer("sources")}>내 자료</button><button className={drawer === "projects" ? "active" : ""} onClick={() => setDrawer("projects")}>저장함</button></div>
         {drawer === "experiments" && <><div className="el-section-label">고급전자회로실험 <span>{EXPERIMENTS.length}개 가이드</span></div><div className="el-experiment-list">{EXPERIMENTS.map(e => <button key={e.id} className={experiment.id === e.id ? "active" : ""} onClick={() => { setExperimentId(e.id); setView("experiments"); setSelection(null); setPickingPin(null); setStepIndex(null); setDrawer(null); }}><span className="el-experiment-number">{e.number}</span><span><b>{e.title}</b><small>{modes[e.mode]}</small></span>{experiment.id === e.id && <i />}</button>)}</div><div className="el-sidebar-note"><Icon name="book" /><span>회로·계측·신호처리를<br />실험별로 연결해 봅니다.</span></div></>}
-        {drawer === "sources" && <div className="el-source-panel"><h3>실험 자료로 설계하기</h3><p>회로도와 본문 조건을 함께 올려 주세요.</p><div className="el-clipboard-zone" tabIndex={0} role="region" aria-label="클립보드 붙여넣기 영역"><b>캡처한 사진이나 복사한 조건을 바로 붙여넣기</b><span>이 영역을 클릭하고 <kbd>Ctrl</kbd> + <kbd>V</kbd> · Mac은 <kbd>⌘</kbd> + <kbd>V</kbd></span><button type="button" className="el-button el-small" disabled={pasting} onClick={() => void pasteFromButton()}>{pasting ? "클립보드 읽는 중…" : "클립보드에서 붙여넣기"}</button><span>사진은 첨부 자료로, 텍스트는 추가 조건으로 들어갑니다. 붙여넣은 뒤 분석 버튼을 눌러 주세요.</span></div><label className="el-dropzone" htmlFor={inputId}><Icon name="upload" size={28} /><b>PDF·사진 추가</b><span>최대 4개 · 합계 2.9MB</span></label><input id={inputId} type="file" hidden multiple accept="application/pdf,image/png,image/jpeg,image/webp" onChange={e => { void addFiles(e.target.files); e.target.value = ""; }} />{files.map((f, i) => <div className="el-file" key={`${f.name}-${i}`}>{f.mimeType.startsWith("image/") && <Image className="el-source-thumbnail" src={`data:${f.mimeType};base64,${f.data}`} alt={`${f.name} 미리보기`} width={56} height={44} unoptimized />}<span>{f.name}<small>{Math.round(f.size / 1024)} KB</small></span><button aria-label={`${f.name} 제거`} onClick={() => setFiles(f => f.filter((_, j) => i !== j))}>×</button></div>)}<label className="el-field-label" htmlFor="el-source-text">추가 조건 또는 회로 설명</label><textarea id="el-source-text" maxLength={20000} value={sourceText} onChange={e => setSourceText(e.target.value)} placeholder="예: 회로의 트랜스는 사용하지 않고 커패시터 두 개로 입력합니다. 전원은 9V입니다." rows={7} /><button className="el-button el-primary el-full" disabled={busy} onClick={analyze}><Icon name="spark" />{busy ? "자료 분석 중…" : "자료 분석 · 전체 설계"}</button>{busy && <button className="el-button el-full" onClick={() => cancelAnalyze.current?.abort()}>분석 취소</button>}<button className="el-button el-full" onClick={() => { setJsonText(JSON.stringify(circuit, null, 2)); setJsonOpen(true); setDrawer(null); }}>ChatGPT 설계 가져오기</button><p className="el-small-note">분석 결과는 원문 확인이 필요한 초안입니다. 불명확한 소자·핀·연결은 검토 항목으로 표시합니다.</p></div>}
-        {drawer === "projects" && <div className="el-saved-panel"><button className="el-button el-full" disabled={saving} onClick={loadCloud}><Icon name="save" />{cloudLoaded ? "클라우드 새로고침" : "내 클라우드 프로젝트"}</button><div className="el-section-label">최근 프로젝트 <span>{projects.length}</span></div>{projects.map(p => <button key={p.id} className="el-project-card" onClick={() => { if (openProject(p)) setDrawer(null); }}><b>{p.title}</b><span>{new Date(p.updatedAt).toLocaleString("ko-KR")}</span><small>{p.circuit.components.length}개 소자 · {p.boardOptions.boards}장</small></button>)}{!projects.length && <p className="el-small-note">작업을 시작하면 이 브라우저에 자동 저장됩니다.</p>}</div>}
+        {drawer === "sources" && <div>
+          <div className="el-source-channel-tabs" role="tablist" aria-label="설계 가져오기 경로">
+            <button type="button" role="tab" id="el-source-gemini-tab" aria-selected={sourceChannel === "gemini"} aria-controls="el-source-channel-panel" className={sourceChannel === "gemini" ? "active" : ""} onClick={() => { setSourceChannel("gemini"); setError(""); }}>Gemini 분석</button>
+            <button type="button" role="tab" id="el-source-assistant-tab" aria-selected={sourceChannel === "assistant"} aria-controls="el-source-channel-panel" className={sourceChannel === "assistant" ? "active" : ""} onClick={() => { setSourceChannel("assistant"); setError(""); }}>ChatGPT·Claude 가져오기</button>
+          </div>
+          <div id="el-source-channel-panel" role="tabpanel" aria-labelledby={sourceChannel === "gemini" ? "el-source-gemini-tab" : "el-source-assistant-tab"}>
+            {sourceChannel === "gemini" ? <div className="el-source-panel"><h3>Gemini로 자료 분석</h3><p>회로도와 본문 조건을 함께 올리면 사이트의 Gemini API로 설계 초안을 만듭니다.</p><div className="el-clipboard-zone" tabIndex={0} role="region" aria-label="클립보드 붙여넣기 영역"><b>캡처한 사진이나 복사한 조건을 바로 붙여넣기</b><span>이 영역을 클릭하고 <kbd>Ctrl</kbd> + <kbd>V</kbd> · Mac은 <kbd>⌘</kbd> + <kbd>V</kbd></span><button type="button" className="el-button el-small" disabled={pasting} onClick={() => void pasteFromButton()}>{pasting ? "클립보드 읽는 중…" : "클립보드에서 붙여넣기"}</button><span>사진은 첨부 자료로, 텍스트는 추가 조건으로 들어갑니다. 붙여넣은 뒤 분석 버튼을 눌러 주세요.</span></div><label className="el-dropzone" htmlFor={inputId}><Icon name="upload" size={28} /><b>PDF·사진 추가</b><span>최대 4개 · 합계 2.9MB</span></label><input id={inputId} type="file" hidden multiple accept="application/pdf,image/png,image/jpeg,image/webp" onChange={e => { void addFiles(e.target.files); e.target.value = ""; }} />{files.map((f, i) => <div className="el-file" key={`${f.name}-${i}`}>{f.mimeType.startsWith("image/") && <Image className="el-source-thumbnail" src={`data:${f.mimeType};base64,${f.data}`} alt={`${f.name} 미리보기`} width={56} height={44} unoptimized />}<span>{f.name}<small>{Math.round(f.size / 1024)} KB</small></span><button aria-label={`${f.name} 제거`} onClick={() => setFiles(f => f.filter((_, j) => i !== j))}>×</button></div>)}<label className="el-field-label" htmlFor="el-source-text">추가 조건 또는 회로 설명</label><textarea id="el-source-text" maxLength={20000} value={sourceText} onChange={e => setSourceText(e.target.value)} placeholder="예: 회로의 트랜스는 사용하지 않고 커패시터 두 개로 입력합니다. 전원은 9V입니다." rows={7} /><button className="el-button el-primary el-full" disabled={busy} onClick={analyze}><Icon name="spark" />{busy ? "자료 분석 중…" : "자료 분석 · 전체 설계"}</button>{busy && <button className="el-button el-full" onClick={() => cancelAnalyze.current?.abort()}>분석 취소</button>}<p className="el-small-note">분석 결과는 원문 확인이 필요한 초안입니다. 불명확한 소자·핀·연결은 검토 항목으로 표시합니다.</p></div> : <AssistantDesignImport key={projectUser} onImport={importAssistantDesign} />}
+          </div>
+        </div>}
+        {drawer === "projects" && <div className="el-saved-panel">
+          <button className="el-button el-full" disabled={saving} onClick={loadCloud}><Icon name="save" />{cloudLoaded ? "클라우드 새로고침" : "내 클라우드 프로젝트"}</button>
+          <div className="el-project-filters" role="group" aria-label="저장된 설계 출처 필터">{([{ id: "all", label: "전체" }, { id: "gemini", label: "Gemini" }, { id: "assistant", label: "ChatGPT·Claude" }, { id: "legacy", label: "기존·기타" }] as const).map(filter => <button type="button" key={filter.id} className={projectFilter === filter.id ? "active" : ""} aria-pressed={projectFilter === filter.id} onClick={() => setProjectFilter(filter.id)}>{filter.label}</button>)}</div>
+          <div className="el-section-label">최근 프로젝트 <span>{filteredProjects.length} / {projects.length}</span></div>
+          {filteredProjects.map(p => <button key={p.id} className="el-project-card" onClick={() => { if (openProject(p)) setDrawer(null); }}><b>{p.title}</b><span className="el-source-badge">{getSourceLabel(p.source)}</span><span>{new Date(p.updatedAt).toLocaleString("ko-KR")}</span><small>{p.circuit.components.length}개 소자 · {p.boardOptions.boards}장{p.source?.attachment ? " · 원본 사진 보관" : ""}</small></button>)}
+          {!filteredProjects.length && <p className="el-small-note">{projects.length ? "이 출처로 저장된 프로젝트가 없습니다." : "작업을 시작하면 이 브라우저에 자동 저장됩니다."}</p>}
+        </div>}
       </aside>
     </WorkspaceDrawer>}
-    {jsonOpen && <div className="el-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setJsonOpen(false); }}><section className="el-modal" role="dialog" aria-modal="true" aria-labelledby="el-json-title"><div className="el-card-title"><h2 id="el-json-title">ChatGPT 설계 가져오기 · 회로 편집</h2><button className="el-button" onClick={() => setJsonOpen(false)}>닫기</button></div><p>이 채팅에서 만든 설계 파일을 불러오면 같은 배치 엔진으로 생성하고 검사합니다. 회로 또는 프로젝트 JSON을 붙여 넣거나 선택하세요.</p><label className="el-json-import">JSON 파일 불러오기<input type="file" accept="application/json,.json" onChange={async e => { const file = e.target.files?.[0]; if (file && file.size < 3_000_000) { const owner = projectUser; const version = analysisVersion.current; const json = await file.text(); if (readyUser.current === owner && analysisVersion.current === version) setJsonText(json); } else if (file) setError("JSON 파일은 3MB 미만으로 선택하세요."); }} /></label><textarea aria-label="회로 JSON" value={jsonText} onChange={e => setJsonText(e.target.value)} spellCheck={false} />{error && <div className="el-notice error" role="alert">{error}</div>}<div className="el-modal-actions"><button className="el-button el-primary" onClick={() => { try { const value = JSON.parse(jsonText); if (value.version === 1 && value.circuit) { if (!openProject(value)) return; } else { applyCircuit(parseCircuit(value, COMPONENT_CATALOG)); setVisibleLayers([...ALL_BOARD_LAYERS]); setDetailsOpen(false); setProjectId(crypto.randomUUID()); } setJsonOpen(false); setView("board"); } catch (e) { setError(e instanceof Error ? e.message : "JSON 형식을 확인해 주세요."); } }}>적용 · 전체 재배치</button></div></section></div>}
+    {jsonOpen && <div className="el-modal-backdrop" onClick={e => { if (e.target === e.currentTarget) setJsonOpen(false); }}><section className="el-modal" role="dialog" aria-modal="true" aria-labelledby="el-json-title"><div className="el-card-title"><h2 id="el-json-title">현재 회로 JSON 편집</h2><button className="el-button" onClick={() => setJsonOpen(false)}>닫기</button></div><p>현재 설계의 회로 또는 프로젝트 JSON을 편집합니다. 설계 출처와 원본 사진은 유지됩니다. 대화에서 만든 새 설계는 내 자료의 ChatGPT·Claude 가져오기를 이용하세요.</p><label className="el-json-import">JSON 파일 불러오기<input type="file" accept="application/json,.json" onChange={async e => { const file = e.target.files?.[0]; if (file && file.size < 3_000_000) { const owner = projectUser; const version = analysisVersion.current; const json = await file.text(); if (readyUser.current === owner && analysisVersion.current === version) setJsonText(json); } else if (file) setError("JSON 파일은 3MB 미만으로 선택하세요."); }} /></label><textarea aria-label="회로 JSON" value={jsonText} onChange={e => setJsonText(e.target.value)} spellCheck={false} />{error && <div className="el-notice error" role="alert">{error}</div>}<div className="el-modal-actions"><button className="el-button el-primary" onClick={applyManualJson}>적용 · 전체 재배치</button></div></section></div>}
   </main>;
 }

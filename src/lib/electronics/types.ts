@@ -96,6 +96,19 @@ export type Experiment = {
   future: string[];
 };
 
+export type ProjectSourceAttachment = {
+  name: string;
+  mimeType: "image/png" | "image/jpeg" | "image/webp";
+  /** Canonical base64 of the uploaded original image, without a data URL prefix. */
+  data: string;
+};
+
+/** User-selected origin metadata, not proof of circuit accuracy or verification. */
+export type ProjectSource = (
+  | { channel: "gemini"; provider: "gemini" }
+  | { channel: "assistant"; provider: "chatgpt" | "claude" }
+) & { attachment?: ProjectSourceAttachment };
+
 export type SavedProject = {
   version: 1;
   id: string;
@@ -106,4 +119,5 @@ export type SavedProject = {
   layout?: CircuitLayout;
   completedSteps: string[];
   experimentId?: string;
+  source?: ProjectSource;
 };

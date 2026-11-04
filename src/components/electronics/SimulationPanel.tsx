@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { defaultSimulationConfig } from "@/lib/electronics/simulation";
+import { defaultSimulationConfig, parseSimulationConfig } from "@/lib/electronics/simulation";
+import { applySimulationSettings, parseSimulationAction, parseSimulationContext, type SimulationAssistantAction, type SimulationContext } from "@/lib/electronics/simulation-controls";
+import { deriveSimulationRecommendation, resolveSimulationProbeHoles, simulationSamplingWarning } from "@/lib/electronics/simulation-recommendations";
+import { createSimulationLayoutIndex } from "@/lib/electronics/simulation-layout";
+import type { ProbeHoles } from "@/lib/electronics/simulation-probes";
 import { amplitudeSpectrum, differentialResponse } from "@/lib/electronics/simulation-measurements";
 import { NONLINEAR_MODEL_REGISTRY } from "@/lib/electronics/simulation-models";
 import type { Circuit, CircuitLayout, ComponentDefinition } from "@/lib/electronics/types";
@@ -82,9 +86,13 @@ function WavePlot({ x, traces, mode, cursor, onCursor }: { x: number[]; traces: 
   </div>;
 }
 
-export function SimulationPanel({ circuit, layout, definitions, probes, onPickProbe, onClearProbe, pickingChannel }: {
+export function SimulationPanel({ circuit, layout, definitions, probes, onPickProbe, onClearProbe, pickingChannel, controlRequest, onControlResult, onContextChange, onSetProbeHoles }: {
   circuit: Circuit; layout: CircuitLayout; definitions: ComponentDefinition[];
   probes: [SimulationProbe, SimulationProbe]; onPickProbe: (channel: Channel) => void; onClearProbe: (channel: Channel) => void; pickingChannel: Channel | null;
+  controlRequest?: { id: number; action: SimulationAssistantAction };
+  onControlResult?: (id: number, message: string) => void;
+  onContextChange?: (context: SimulationContext | null) => void;
+  onSetProbeHoles?: (holes: ProbeHoles) => void;
 }) {
   const [config, setConfig] = useState<SimulationConfig>(() => defaultSimulationConfig(circuit));
   const [capture, setCapture] = useState<CapturedResult | null>(null);
@@ -95,8 +103,27 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   const [acMode, setAcMode] = useState<"gain" | "phase">("gain");
   const [cursor, setCursor] = useState<number | null>(null);
   const [showDifference, setShowDifference] = useState(false);
+  const [controlNotice, setControlNotice] = useState("");
+  const [requestedNets, setRequestedNets] = useState<[string | null, string | null]>([null, null]);
+  type Undo = { config: SimulationConfig; holes: ProbeHoles; nets: [string | null, string | null]; scene: string; appliedConfig: string; appliedHoles: string };
+  const [undo, setUndo] = useState<Undo | null>(null);
+  const [pendingRun, setPendingRun] = useState<{ id?: number; configKey: string; holes: ProbeHoles; scene: string; generation: number } | null>(null);
+  const controlGeneration = useRef(0);
+  const lastControlId = useRef(-1);
+  const callbacks = useRef({ onControlResult, onContextChange, onSetProbeHoles });
+  callbacks.current = { onControlResult, onContextChange, onSetProbeHoles };
   const worker = useRef<Worker | null>(null), timer = useRef<ReturnType<typeof setTimeout> | null>(null), sequence = useRef(0);
   const nets = useMemo(() => netIds(circuit), [circuit]);
+  const recommendation = useMemo(() => deriveSimulationRecommendation(circuit, definitions), [circuit, definitions]);
+  const sceneKey = useMemo(() => JSON.stringify({ circuit, placements: layout.placements, jumpers: layout.jumpers, terminals: layout.terminals, board: layout.board.options, definitions }), [circuit, layout, definitions]);
+  const previousScene = useRef(sceneKey);
+  const probeKey = JSON.stringify(probes.map(probe => probe.holeId));
+  const configKey = JSON.stringify(config);
+  const samplingWarning = simulationSamplingWarning(config);
+  const wiringStatus = useMemo(() => {
+    try { createSimulationLayoutIndex(circuit, definitions, layout); return ""; }
+    catch (failure) { return failure instanceof Error ? failure.message : "실행 전에 빵판 연결을 확인하세요."; }
+  }, [circuit, definitions, layout]);
   const hasOpamp = circuit.components.some(component => definitions.find(definition => definition.id === component.definitionId)?.kind === "opamp");
   const deviceModels = useMemo(() => circuit.components.flatMap(component => {
     const model = NONLINEAR_MODEL_REGISTRY.find(model => model.definitionId === component.definitionId);
@@ -125,8 +152,13 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [netsKey]);
 
-  const updateSource = (patch: Partial<SimulationConfig["source"]>) => setConfig(previous => ({ ...previous, source: { ...previous.source, ...patch }, supplies: patch.netId ? previous.supplies.filter(supply => supply.netId !== patch.netId) : previous.supplies }));
-  const updateConfig = (patch: Partial<SimulationConfig>) => setConfig(previous => ({ ...previous, ...patch }));
+  const invalidateControls = () => {
+    const message = pendingRun ? "직접 설정을 변경하여 예약 실행을 취소했습니다." : "";
+    if (pendingRun?.id !== undefined) callbacks.current.onControlResult?.(pendingRun.id, message);
+    controlGeneration.current += 1; setUndo(null); setPendingRun(null); setControlNotice(message); setRequestedNets([null, null]);
+  };
+  const updateSource = (patch: Partial<SimulationConfig["source"]>) => { invalidateControls(); setConfig(previous => ({ ...previous, source: { ...previous.source, ...patch }, supplies: patch.netId ? previous.supplies.filter(supply => supply.netId !== patch.netId) : previous.supplies })); };
+  const updateConfig = (patch: Partial<SimulationConfig>) => { invalidateControls(); setConfig(previous => ({ ...previous, ...patch })); };
   const extraSources = config.extraSources || [];
   const drivenNets = [config.source.netId, ...extraSources.map(source => source.netId), ...config.supplies.map(supply => supply.netId)];
   const availableDriveNets = nets.filter(net => net !== config.groundNetId && !drivenNets.includes(net));
@@ -158,6 +190,121 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
       instance.postMessage(request);
     } catch (failure) { stop(); setRunning(false); setError(failure instanceof Error ? failure.message : "이 브라우저에서 계산 작업을 시작하지 못했습니다."); }
   };
+  const respondControl = (id: number | undefined, message: string) => {
+    setControlNotice(message);
+    if (id !== undefined) callbacks.current.onControlResult?.(id, message);
+  };
+  const applyPrepared = (next: SimulationConfig, targetNets: [string | null, string | null], run: boolean, id?: number) => {
+    const generation = ++controlGeneration.current;
+    const checked = parseSimulationConfig(next);
+    const resolved = resolveSimulationProbeHoles(circuit, definitions, layout, targetNets);
+    const oldHoles = probes.map(probe => probe.holeId) as ProbeHoles;
+    const canMove = Boolean(callbacks.current.onSetProbeHoles) || JSON.stringify(resolved.holes) === probeKey;
+    // Preserve only a real, valid prior configuration. A direct invalid edit is
+    // never advertised as a usable undo target.
+    let prior: SimulationConfig | null = null;
+    try { prior = parseSimulationConfig(config); } catch { /* direct incomplete input */ }
+    setUndo(prior ? { config: prior, holes: oldHoles, nets: [...requestedNets] as [string | null, string | null], scene: sceneKey, appliedConfig: JSON.stringify(checked), appliedHoles: JSON.stringify(canMove ? resolved.holes : oldHoles) } : null);
+    stop(); setRunning(false); setError(""); setConfig(checked); setRequestedNets(targetNets);
+    if (canMove) callbacks.current.onSetProbeHoles?.(resolved.holes);
+    const blocked = resolved.blockedReason || (!canMove ? "프로브 위치를 자동으로 적용할 연결이 없습니다. CH1·CH2를 직접 지정하세요." : !resolved.holes.some(Boolean) ? "계산할 프로브의 빵판 위치를 확인하세요." : "");
+    if (run && !blocked) {
+      setPendingRun({ id, configKey: JSON.stringify(checked), holes: resolved.holes, scene: sceneKey, generation });
+      setControlNotice("설정과 프로브를 적용한 뒤 계산을 시작합니다.");
+    } else {
+      setPendingRun(null);
+      respondControl(id, blocked ? `파형 설정은 적용했습니다. 실행은 차단되어 있습니다. ${blocked}` : "파형 설정과 VIN·VOUT 프로브를 적용했습니다. 실행 버튼으로 계산할 수 있습니다.");
+      if (run && blocked) setError(blocked);
+    }
+  };
+  const controlRun = (id?: number) => {
+    try {
+      parseSimulationConfig(config);
+      const index = createSimulationLayoutIndex(circuit, definitions, layout);
+      if (!probes.some(probe => probe.holeId && probe.netId)) throw new Error("VIN·VOUT 프로브의 빵판 위치를 먼저 지정하세요.");
+      for (const probe of probes) if (probe.holeId && (!probe.netId || index.netForHole(probe.holeId) !== probe.netId)) throw new Error("프로브의 현재 빵판 연결을 다시 확인하세요.");
+      start();
+      respondControl(id, worker.current ? "현재 설정과 실제 빵판 연결로 계산을 시작했습니다." : "계산을 시작하지 못했습니다. 파형 화면의 오류를 확인하세요.");
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "파형 설정과 빵판 연결을 확인하세요.";
+      setError(message); setRunning(false); respondControl(id, `실행이 차단되었습니다. ${message}`);
+    }
+  };
+  const applyCommand = (value: SimulationAssistantAction, id?: number) => {
+    controlGeneration.current += 1;
+    try {
+      const action = parseSimulationAction(value, circuit);
+      setPendingRun(null);
+      if (action.resultTab) { setTab(action.resultTab); setCursor(null); }
+      if (action.kind === "stop") { stop(); setRunning(false); respondControl(id, "계산을 취소했습니다."); return; }
+      if (action.kind === "run") { controlRun(id); return; }
+      if (action.kind === "undo") {
+        if (!undo || undo.scene !== sceneKey || undo.appliedConfig !== configKey || undo.appliedHoles !== probeKey) throw new Error("현재 상태에서 되돌릴 자동 설정이 없습니다. 직접 편집이나 회로 변경 후에는 이전 자동 설정을 복원하지 않습니다.");
+        if (!callbacks.current.onSetProbeHoles && JSON.stringify(undo.holes) !== probeKey) throw new Error("이전 프로브 위치를 복원할 연결이 없습니다.");
+        stop(); setRunning(false); setError(""); setConfig(undo.config); setRequestedNets(undo.nets); callbacks.current.onSetProbeHoles?.(undo.holes); setUndo(null);
+        respondControl(id, "직전 자동 설정 이전의 발생기·시간 설정과 프로브 위치로 되돌렸습니다."); return;
+      }
+      const initial = action.kind === "auto_setup" ? recommendation.config : config;
+      if (!initial) throw new Error("입력과 GND를 추천할 근거가 부족합니다. 연결을 직접 선택해 주세요.");
+      const next = applySimulationSettings(initial, action.settings);
+      const targets: [string | null, string | null] = action.kind === "auto_setup"
+        ? [action.settings?.sourceNetId ?? recommendation.inputNetId, action.settings?.outputNetId ?? recommendation.outputNetId]
+        : [action.settings?.sourceNetId ?? requestedNets[0] ?? probes[0].netId, action.settings?.outputNetId ?? requestedNets[1] ?? probes[1].netId];
+      applyPrepared(next, targets, action.run === true, id);
+    } catch (failure) {
+      const message = failure instanceof Error ? failure.message : "파형 조작을 적용하지 못했습니다.";
+      setError(message); respondControl(id, message);
+    }
+  };
+  // Invalidate actions tied to a previous circuit/layout before accepting a new
+  // command. IDs remain monotonic across ordinary parent re-renders.
+  useEffect(() => {
+    if (previousScene.current === sceneKey) return;
+    previousScene.current = sceneKey;
+    controlGeneration.current += 1;
+    setUndo(null); setPendingRun(null); setRequestedNets([null, null]); setControlNotice("");
+    if (controlRequest && controlRequest.id > lastControlId.current) { lastControlId.current = controlRequest.id; respondControl(controlRequest.id, "회로·배치가 변경되어 이전 파형 요청을 적용하지 않았습니다. 현재 회로에서 다시 요청하세요."); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sceneKey]);
+  useEffect(() => {
+    if (!controlRequest || !Number.isSafeInteger(controlRequest.id) || controlRequest.id < 0 || controlRequest.id <= lastControlId.current) return;
+    lastControlId.current = controlRequest.id;
+    applyCommand(controlRequest.action, controlRequest.id);
+  // Request contents are consumed exactly once. Current render state is used.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [controlRequest?.id]);
+  useEffect(() => {
+    if (!pendingRun || pendingRun.generation !== controlGeneration.current) return;
+    if (pendingRun.scene !== sceneKey) { setPendingRun(null); respondControl(pendingRun.id, "회로·배치가 변경되어 예약한 계산을 취소했습니다."); return; }
+    if (pendingRun.configKey !== configKey || JSON.stringify(pendingRun.holes) !== probeKey) return;
+    setPendingRun(null); controlRun(pendingRun.id);
+  // The queued command survives the parent's removal of controlRequest.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingRun, configKey, probeKey, sceneKey]);
+  useEffect(() => {
+    if (!pendingRun) return;
+    const timeout = setTimeout(() => {
+      if (pendingRun.generation !== controlGeneration.current) return;
+      controlGeneration.current += 1; setPendingRun(null);
+      const message = "설정·프로브 적용을 확인하지 못해 예약 실행을 취소했습니다. 현재 연결을 확인한 뒤 다시 실행하세요.";
+      setError(message); respondControl(pendingRun.id, message);
+    }, 1500);
+    return () => clearTimeout(timeout);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingRun]);
+  useEffect(() => {
+    if (undo && (undo.scene !== sceneKey || undo.appliedConfig !== configKey || (!pendingRun && undo.appliedHoles !== probeKey))) setUndo(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configKey, probeKey, sceneKey]);
+  const contextKey = JSON.stringify({ config, probes: probes.map(probe => probe.netId), status: running ? "running" : error ? "error" : capture && !stale ? "complete" : "idle", message: error || controlNotice || notice });
+  useEffect(() => {
+    try {
+      const context = parseSimulationContext({ config, probeNetIds: probes.map(probe => probe.netId), status: running ? "running" : error ? "error" : capture && !stale ? "complete" : "idle", message: (error || controlNotice || notice).slice(0, 800) }, circuit);
+      callbacks.current.onContextChange?.(context);
+    } catch { callbacks.current.onContextChange?.(null); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [contextKey, sceneKey]);
+
   const resultChannels = useMemo(() => capture ? capture.probes.flatMap((probe, channel) => {
     const values = probe.netId ? capture.result.nodeVoltages[probe.netId] : undefined;
     return probe.holeId && probe.netId && values?.length === capture.result.time.length && values.every(Number.isFinite) ? [{ channel, probe, values, label: `CH${channel + 1} · ${capture.names[probe.netId] || probe.netId}`, color: CHANNEL_COLORS[channel] }] : [];
@@ -191,8 +338,20 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   return <section className="el-simulation" aria-label="파형 및 회로 시뮬레이션">
     <header className="el-sim-header"><div><span className="el-eyebrow">VIRTUAL INSTRUMENTS</span><h2>파형 · 계측</h2><p>빵판의 측정 지점을 고르고 회로 응답을 확인하세요.</p></div><span className={`el-sim-status ${stale ? "stale" : ""}`}>{running ? "계산 중" : stale ? "다시 계산 필요" : capture ? "계산 완료" : "실행 대기"}</span></header>
     <p className="el-sim-model-note">교육용 회로 모델 · BJT/MOSFET의 바이어스와 비선형 응답 계산 · 제조사 SPICE 실측 모델과 다를 수 있습니다</p>
+    <div className="el-sim-setup" aria-label="파형 자동 설정">
+      <div className="el-sim-setup-heading"><div><h3>VIN · VOUT 자동 설정</h3><p>계측기 단자·연결 이름·소자 핀을 바탕으로 측정 지점을 추천합니다.</p></div><div><button className="el-button el-primary" onClick={() => applyCommand({ kind: "auto_setup", run: true })} disabled={!recommendation.config || Boolean(wiringStatus)}>자동 설정 · 실행</button><button className="el-button" onClick={() => applyCommand({ kind: "auto_setup" })} disabled={!recommendation.config}>설정만 적용</button><button className="el-button" onClick={() => applyCommand({ kind: "undo" })} disabled={!undo || undo.scene !== sceneKey || undo.appliedConfig !== configKey || undo.appliedHoles !== probeKey}>설정 되돌리기</button></div></div>
+      <div className="el-sim-fields">{([0, 1] as const).map(channel => <label key={channel} className="el-sim-field"><span>{channel === 0 ? "VIN · CH1 측정 연결" : "VOUT · CH2 측정 연결"}</span><select aria-label={channel === 0 ? "VIN 측정 연결" : "VOUT 측정 연결"} value={requestedNets[channel] ?? probes[channel].netId ?? ""} onChange={event => {
+        const targets = [requestedNets[0] ?? probes[0].netId, requestedNets[1] ?? probes[1].netId] as [string | null, string | null];
+        targets[channel] = event.target.value || null;
+        try { applyPrepared(config, targets, false); } catch (failure) { setError(failure instanceof Error ? failure.message : "측정 연결을 적용하지 못했습니다."); }
+      }}><option value="">측정 연결 선택</option>{nets.map(net => <option key={net} value={net}>{netName(net)}</option>)}</select></label>)}</div>
+      <details><summary>추천 근거와 확인할 기본값</summary><ul>{recommendation.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>{recommendation.assumptions.length > 0 && <div className="el-sim-assumptions"><b>미지정 조건은 교육용 시작값입니다</b><ul>{recommendation.assumptions.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}</details>
+      {wiringStatus && <p className="el-sim-setup-blocked" role="status"><b>설정은 가능하지만 현재 빵판으로 실행할 수 없습니다.</b> {wiringStatus}</p>}
+      {samplingWarning && <p className="el-sim-sampling-warning" role="status">{samplingWarning}</p>}
+      {controlNotice && <p className="el-sim-control-notice" role="status">{controlNotice}</p>}
+    </div>
     {deviceModels.length > 0 && <details className="el-sim-device-models"><summary>사용한 반도체 모델 · {deviceModels.length}개 · 300 K</summary>{deviceModels.map(({ id, model }) => <div key={id}><b>{id} · {model.label}</b><p>{model.parameterBasis}</p><small>{Object.entries(model.parameters).map(([key, value]) => `${key}=${value}`).join(" · ")}</small>{model.pinoutSources.filter(source => source.url).map(source => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">제조사 핀맵 ↗</a>)}</div>)}</details>}
-    <div className="el-sim-probes">{probes.map((probe, channel) => <div key={channel} className={`el-sim-probe ${pickingChannel === channel ? "picking" : ""}`} style={{ "--channel-color": CHANNEL_COLORS[channel] } as React.CSSProperties}><button onClick={() => onPickProbe(channel as Channel)} aria-pressed={pickingChannel === channel}><b>CH{channel + 1}</b><span><strong>{probe.holeId || "측정할 구멍 선택"}</strong><small>{pickingChannel === channel ? "빵판에서 구멍을 클릭하세요" : probe.netId ? netName(probe.netId) : probe.holeId ? "연결되지 않은 구멍" : "클릭하여 프로브 연결"}</small></span><span aria-hidden="true">↗</span></button>{probe.holeId && <button className="el-sim-probe-clear" aria-label={`CH${channel + 1} 프로브 해제`} onClick={() => onClearProbe(channel as Channel)}>×</button>}</div>)}</div>
+    <div className="el-sim-probes">{probes.map((probe, channel) => <div key={channel} className={`el-sim-probe ${pickingChannel === channel ? "picking" : ""}`} style={{ "--channel-color": CHANNEL_COLORS[channel] } as React.CSSProperties}><button onClick={() => { invalidateControls(); onPickProbe(channel as Channel); }} aria-pressed={pickingChannel === channel}><b>CH{channel + 1}</b><span><strong>{probe.holeId || "측정할 구멍 선택"}</strong><small>{pickingChannel === channel ? "빵판에서 구멍을 클릭하세요" : probe.netId ? netName(probe.netId) : probe.holeId ? "연결되지 않은 구멍" : "클릭하여 프로브 연결"}</small></span><span aria-hidden="true">↗</span></button>{probe.holeId && <button className="el-sim-probe-clear" aria-label={`CH${channel + 1} 프로브 해제`} onClick={() => { invalidateControls(); onClearProbe(channel as Channel); }}>×</button>}</div>)}</div>
     <div className="el-sim-controls"><div className="el-sim-control-heading"><h3>신호 발생기</h3><span>전압은 선택한 GND 기준</span></div>
       {hasOpamp && <details className="el-sim-advanced"><summary>연산증폭기 모델<span>{config.opampModel === "educational-dynamic" ? "대역폭 · 슬루율 · 출력 제한" : "이상적 선형 모델"}</span></summary><div className="el-sim-fields"><label className="el-sim-field"><span>UA741 계산 모델</span><select value={config.opampModel ?? "ideal"} onChange={event => updateConfig({ opampModel: event.target.value as SimulationConfig["opampModel"] })}><option value="ideal">이상적 선형 모델</option><option value="educational-dynamic">교육용 동적 모델</option></select></label>{config.opampModel === "educational-dynamic" && <NumericField label="시동 초기 변화" unit="mV" value={(config.startupPerturbationVolts ?? 0) * 1000} onChange={value => updateConfig({ startupPerturbationVolts: value / 1000 })} min={0} max={10} />}</div><p className="el-sim-control-note">동적 모델은 유한 대역폭·슬루율·전원에 따른 출력 제한을 계산합니다. 발진기의 초기 변화는 사용자가 지정한 시동 조건이며 실제 잡음이 아닙니다. 양의 피드백 회로는 시간 파형과 주파수 성분으로 확인하세요.</p></details>}
       <div className="el-sim-fields"><label className="el-sim-field"><span>입력 연결</span><select value={config.source.netId} onChange={event => updateSource({ netId: event.target.value })}><option value="">입력 선택</option>{nets.map(net => <option key={net} value={net} disabled={net === config.groundNetId || extraSources.some(source => source.netId === net)}>{netName(net)}</option>)}</select></label><label className="el-sim-field"><span>기준 GND</span><select value={config.groundNetId} onChange={event => updateConfig({ groundNetId: event.target.value, supplies: config.supplies.filter(supply => supply.netId !== event.target.value) })}><option value="">GND 선택</option>{nets.map(net => <option key={net} value={net} disabled={net === config.source.netId || extraSources.some(source => source.netId === net)}>{netName(net)}</option>)}</select></label></div>

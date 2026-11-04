@@ -16,7 +16,7 @@ const ast = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarge
 const body = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ElectronicsWorkspace").body;
 const actions = ["addFiles", "appendSourceText", "pasteSource", "pasteFromButton"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
 function harness(options = {}) {
-  const state = { files: options.files ?? [], sourceText: options.text ?? "", error: "", pasting: false };
+  const state = { files: options.files ?? [], sourceText: options.text ?? "", error: "", pasting: false, drawer: options.drawer ?? null, sourceChannel: options.sourceChannel ?? "gemini" };
   const readers = [];
   class FileReaderMock {
     readAsDataURL(file) { this.file = file; readers.push(this); }
@@ -25,11 +25,11 @@ function harness(options = {}) {
   }
   const env = { ...clipboard, FileReader: FileReaderMock, Error, projectUser: "owner-A", readyUser: { current: "owner-A" }, analysisVersion: { current: 0 },
     filesRef: { current: state.files }, sourceTextRef: { current: state.sourceText }, pendingAttachments: { current: { count: 0, bytes: 0 } }, pasting: false,
-    navigator: { clipboard: options.clipboard },
+    navigator: { clipboard: options.clipboard }, drawer: state.drawer, sourceChannel: state.sourceChannel,
   };
-  for (const key of ["Files", "SourceText", "Error", "Message", "Drawer", "Pasting"]) env[`set${key}`] = value => {
+  for (const key of ["Files", "SourceText", "Error", "Message", "Drawer", "Pasting", "SourceChannel"]) env[`set${key}`] = value => {
     const field = key[0].toLowerCase() + key.slice(1); state[field] = typeof value === "function" ? value(state[field]) : value;
-    if (field === "pasting") env.pasting = state[field];
+    if (["pasting", "drawer", "sourceChannel"].includes(field)) env[field] = state[field];
   };
   vm.createContext(env); vm.runInContext(ts.transpileModule(actions, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText, env);
   return { env, state, readers };
@@ -138,4 +138,16 @@ test("late clipboard responses and permission errors cannot overwrite a differen
   const denied = new Error("permission detail"); denied.name = "NotAllowedError";
   const h = harness({ clipboard: { read: async () => { throw denied; } } }); await h.env.pasteFromButton();
   assert.match(h.state.error, /Ctrl\+V/); assert.ok(!h.state.error.includes("permission detail"));
+});
+
+
+test("assistant source channel leaves image and text paste to its own importer", () => {
+  const h = harness({ drawer: "sources", sourceChannel: "assistant" });
+  const image = pasteEvent({ files: [png()], text: "image text" });
+  h.env.pasteSource(image);
+  const text = pasteEvent({ text: '{"components":[]}' });
+  h.env.pasteSource(text);
+  assert.equal(image.prevented, false); assert.equal(text.prevented, false);
+  assert.equal(h.readers.length, 0); assert.equal(h.state.files.length, 0);
+  assert.equal(h.state.sourceText, ""); assert.equal(h.state.sourceChannel, "assistant");
 });

@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { COMPONENT_CATALOG } from "@/lib/electronics/catalog";
 import { assertSafeData, parseCircuit, CircuitValidationError } from "@/lib/electronics/schema";
 import { createBoard, createAssemblySteps, validateLayout } from "@/lib/electronics/engine";
+import { parseProjectSource, ProjectSourceValidationError } from "@/lib/electronics/project-source";
 import type { BoardOptions, Circuit, CircuitLayout, SavedProject } from "@/lib/electronics/types";
 
 export const runtime = "nodejs";
@@ -91,7 +92,7 @@ function normalizeLayout(value: unknown, circuit: Circuit, boardOptions: BoardOp
 }
 function normalizeProject(value: unknown, saving: boolean): SavedProject {
   assertSafeData(value);
-  const p = object(value, ["version", "id", "title", "updatedAt", "circuit", "boardOptions", "layout", "completedSteps", "experimentId"]);
+  const p = object(value, ["version", "id", "title", "updatedAt", "circuit", "boardOptions", "layout", "completedSteps", "experimentId", "source"]);
   if (p.version !== 1) invalid("지원하지 않는 프로젝트 버전입니다.");
   const id = text(p.id, 36);
   if (!UUID.test(id)) invalid("프로젝트 ID는 UUID 형식이어야 합니다.");
@@ -99,6 +100,7 @@ function normalizeProject(value: unknown, saving: boolean): SavedProject {
   if (!Number.isFinite(Date.parse(updated))) invalid("프로젝트 수정 시각이 올바르지 않습니다.");
   const circuit = parseCircuit(p.circuit, COMPONENT_CATALOG);
   const boardOptions = options(p.boardOptions);
+  const source = parseProjectSource(p.source);
   const layout = p.layout !== undefined ? normalizeLayout(p.layout, circuit, boardOptions) : undefined;
   const validSteps = new Set(layout ? createAssemblySteps(circuit, COMPONENT_CATALOG, layout).map((step) => step.id)
     : [...circuit.components.map((c) => `component:${c.id}`), ...circuit.instruments.map((c) => `terminal:${c.id}`)]);
@@ -107,7 +109,7 @@ function normalizeProject(value: unknown, saving: boolean): SavedProject {
   });
   if (new Set(completedSteps).size !== completedSteps.length) invalid("완료한 조립 단계가 중복되었습니다.");
   return { version: 1, id, title: text(p.title), updatedAt: saving ? new Date().toISOString() : new Date(updated).toISOString(), circuit, boardOptions,
-    ...(layout ? { layout } : {}), completedSteps, ...(p.experimentId !== undefined ? { experimentId: identifier(p.experimentId) } : {}) };
+    ...(layout ? { layout } : {}), completedSteps, ...(source ? { source } : {}), ...(p.experimentId !== undefined ? { experimentId: identifier(p.experimentId) } : {}) };
 }
 function isMissing(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
@@ -150,8 +152,8 @@ async function readBody(request: Request): Promise<unknown> {
   try { return JSON.parse(Buffer.concat(chunks).toString("utf8")); } catch { invalid("프로젝트 JSON을 읽지 못했습니다."); }
 }
 function errorResponse(error: unknown) {
-  const status = error instanceof ProjectError ? error.status : error instanceof CircuitValidationError ? 400 : 503;
-  const message = error instanceof ProjectError || error instanceof CircuitValidationError ? error.message : "프로젝트 저장소를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  const status = error instanceof ProjectError ? error.status : error instanceof CircuitValidationError || error instanceof ProjectSourceValidationError ? 400 : 503;
+  const message = error instanceof ProjectError || error instanceof CircuitValidationError || error instanceof ProjectSourceValidationError ? error.message : "프로젝트 저장소를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.";
   return NextResponse.json({ ok: false, message }, { status, headers: { "Cache-Control": "no-store" } });
 }
 

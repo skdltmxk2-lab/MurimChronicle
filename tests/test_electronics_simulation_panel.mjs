@@ -25,6 +25,7 @@ const { COMPONENT_CATALOG: definitions } = library("catalog");
 const { CIRCUIT_TEMPLATES } = library("templates");
 const { createLayout } = library("engine");
 const { runSimulation } = library("simulation");
+const { resolveSimulationProbes } = library("simulation-probes");
 const circuit = CIRCUIT_TEMPLATES.find(item => item.id === "rc-lowpass");
 const layout = createLayout(circuit, definitions, { boards: 1, railMode: "split" });
 const resistor = layout.placements.find(item => item.componentId === "R1");
@@ -117,6 +118,7 @@ function harness(overrides = {}) {
   flush();
   return {
     workers, timers, downloads, flush, button,
+    wireProbeUpdates() { props = { ...props, onSetProbeHoles(holes) { props = { ...props, probes: resolveSimulationProbes(props.circuit, props.definitions, props.layout, holes) }; dirty = true; } }; dirty = true; flush(); },
     get tree() { return tree; }, get props() { return props; },
     click(label) { button(label).props.onClick(); return flush(); },
     numeric(label, value, runEffects = true) { const field = select(tree, node => node.type === "label" && node.props.className === "el-sim-field" && textIn(node).startsWith(label)); select(field, node => node.type === "input").props.onChange({ target: { value: String(value) } }); return flush(runEffects); },
@@ -127,6 +129,82 @@ function harness(overrides = {}) {
     unmount() { for (const frame of frames.values()) for (const slot of frame.slots) slot?.cleanup?.(); },
   };
 }
+
+test("assistant auto setup applies new config and actual probe holes before one run, then undo restores both", () => {
+  const reports = [], contexts = [];
+  const h = harness({ probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }], onControlResult(id, message) { reports.push({ id, message }); }, onContextChange(context) { contexts.push(context); } });
+  h.wireProbeUpdates();
+  const before = structuredClone(contexts.at(-1));
+  const action = { kind: "auto_setup", settings: { frequencyHz: 2000, amplitudePeak: 0.02, durationSeconds: 0.002, sampleCount: 256 }, run: true, resultTab: "time" };
+  h.update({ controlRequest: { id: 1, action } });
+  assert.equal(h.workers.length, 1);
+  const request = h.workers[0].messages[0];
+  assert.equal(request.input.config.source.frequencyHz, 2000); assert.equal(request.input.config.source.amplitudePeak, 0.02);
+  assert.equal(request.input.config.sampleCount, 256); assert.equal(request.input.config.durationSeconds, 0.002);
+  assert.equal(serial(h.props.probes.map(probe => probe.netId)), serial(["IN", "OUT"]));
+  assert.equal(reports.length, 1); assert.match(reports[0].message, /계산을 시작/);
+  h.update({ controlRequest: { id: 1, action: { kind: "run" } } });
+  assert.equal(h.workers.length, 1, "Same id is never consumed twice");
+  h.complete(); h.update({ controlRequest: { id: 2, action: { kind: "undo" } } });
+  assert.equal(contexts.at(-1).config.source.amplitudePeak, before.config.source.amplitudePeak);
+  assert.equal(serial(h.props.probes.map(probe => probe.holeId)), serial([null, null]));
+  assert.equal(h.button("설정 되돌리기").props.disabled, true);
+});
+
+test("direct setting changes invalidate undo and invalid input clears chat context", () => {
+  const contexts = [];
+  const h = harness({ onContextChange(value) { contexts.push(value); } }); h.wireProbeUpdates();
+  h.click("설정만 적용");
+  assert.equal(h.button("설정 되돌리기").props.disabled, false);
+  h.numeric("진폭", 0.123);
+  assert.equal(h.button("설정 되돌리기").props.disabled, true);
+  h.numeric("진폭", ""); assert.equal(contexts.at(-1), null);
+  h.numeric("진폭", 0.2); assert.equal(contexts.at(-1).config.source.amplitudePeak, 0.2);
+  const previous = contexts.length;
+  h.update({ circuit: { ...circuit, components: circuit.components.map(part => part.id === "R1" ? { ...part, value: "22 kΩ" } : part) } });
+  assert.ok(contexts.length > previous, "An idle circuit revision refreshes context even with identical config and probes");
+});
+
+test("scheduled run survives cleared request, but stop and unmatched probe application cannot launch it later", () => {
+  const reports = []; let requestedHoles;
+  const h = harness({ probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }], onSetProbeHoles(holes) { requestedHoles = holes; }, onControlResult(id, message) { reports.push({ id, message }); } });
+  h.update({ controlRequest: { id: 1, action: { kind: "auto_setup", run: true } } });
+  assert.equal(h.workers.length, 0);
+  h.update({ controlRequest: undefined, probes: resolveSimulationProbes(circuit, definitions, layout, requestedHoles) });
+  assert.equal(h.workers.length, 1, "Clearing the parent request does not discard a legitimately queued run");
+  h.update({ controlRequest: { id: 2, action: { kind: "stop" } } });
+  assert.equal(h.workers[0].terminated, true);
+  h.update({ probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }], controlRequest: { id: 3, action: { kind: "auto_setup", run: true } } });
+  const pendingTimer = [...h.timers].find(([, value]) => value.delay === 1500);
+  assert.ok(pendingTimer); h.timers.delete(pendingTimer[0]); pendingTimer[1].callback(); h.flush();
+  h.update({ probes: resolveSimulationProbes(circuit, definitions, layout, requestedHoles) });
+  assert.equal(h.workers.length, 1, "An expired queue never launches when holes happen to match later");
+  assert.ok(reports.some(report => report.id === 3 && /예약 실행을 취소/.test(report.message)));
+  h.update({ probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }], controlRequest: { id: 4, action: { kind: "auto_setup", run: true } } });
+  h.numeric("진폭", 0.03);
+  assert.ok(reports.some(report => report.id === 4 && /직접 설정.*취소/.test(report.message)), "Manual cancellation acknowledges the waiting chat request immediately");
+  h.update({ probes: resolveSimulationProbes(circuit, definitions, layout, requestedHoles) });
+  assert.equal(h.workers.length, 1);
+});
+
+test("auto setup may apply settings but never runs a BC109C circuit with missing physical placement", () => {
+  const lab = library("lab5-reference").buildLab5ReferenceCircuit(1, "1:1");
+  const labLayout = createLayout(lab, definitions, { boards: 1, railMode: "split" });
+  const reports = [];
+  const h = harness({ circuit: lab, layout: labLayout, probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }], onControlResult(id, message) { reports.push({ id, message }); } });
+  h.wireProbeUpdates(); h.update({ controlRequest: { id: 1, action: { kind: "auto_setup", run: true } } });
+  assert.equal(h.workers.length, 0); assert.match(reports[0].message, /설정은 적용.*실행은 차단/);
+  assert.equal(h.button("자동 설정 · 실행").props.disabled, true);
+  assert.match(textIn(h.tree), /교육용 시작값/); assert.match(textIn(h.tree), /BC109C/);
+});
+
+test("a circuit change invalidates a contemporaneous old control request instead of running its stale intent", () => {
+  const reports = []; const h = harness({ onControlResult(id, message) { reports.push({ id, message }); } });
+  h.wireProbeUpdates();
+  h.update({ circuit: { ...circuit, components: circuit.components.map(part => part.id === "R1" ? { ...part, value: "22 kΩ" } : part) }, controlRequest: { id: 5, action: { kind: "run" } } });
+  assert.equal(h.workers.length, 0); assert.equal(reports[0].id, 5); assert.match(reports[0].message, /이전 파형 요청/);
+  h.update({ controlRequest: { id: 6, action: { kind: "run" } } }); assert.equal(h.workers.length, 1);
+});
 
 test("run posts the current circuit, layout and edited settings; accepted numerical results render axes, cursor and CSV", async () => {
   const h = harness();

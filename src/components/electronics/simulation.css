@@ -5,6 +5,20 @@
 .el-sim-status { padding: 5px 10px; border: 1px solid var(--el-line); border-radius: 6px; color: var(--el-muted); font-size: 11px; white-space: nowrap; }
 .el-sim-status.stale { color: #a77832; }
 .el-sim-model-note { padding: 10px 13px; border: 1px solid var(--el-line); background: var(--el-soft); border-radius: 8px; font-size: 12px; color: var(--el-muted); line-height: 1.7; }
+.el-sim-setup { margin-top: 16px; padding: 18px; border: 1px solid var(--el-line); border-radius: 10px; background: var(--el-surface); }
+.el-sim-setup-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.el-sim-setup-heading h3 { font-size: 14px; font-weight: 700; margin: 0; }
+.el-sim-setup-heading p, .el-sim-setup details, .el-sim-setup-blocked, .el-sim-control-notice, .el-sim-sampling-warning { font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.el-sim-setup-heading p { color: var(--el-muted); margin: 4px 0 0; }
+.el-sim-setup-heading > div:last-child { display: flex; flex-wrap: wrap; gap: 8px; }
+.el-sim-setup > .el-sim-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.el-sim-setup details { margin-top: 12px; color: var(--el-muted); }
+.el-sim-setup summary { cursor: pointer; padding: 4px 0; }
+.el-sim-setup ul { padding-left: 19px; margin: 8px 0; }
+.el-sim-assumptions, .el-sim-setup-blocked, .el-sim-sampling-warning { background: var(--el-soft); border-left: 3px solid #a28b6b; padding: 10px 12px; margin: 12px 0 0; border-radius: 5px; }
+.el-sim-setup-blocked b { display: block; }
+.el-sim-control-notice { padding: 10px 0 0; margin: 0; color: var(--el-text); }
+@media (max-width: 650px) { .el-sim-setup-heading { flex-direction: column; } .el-sim-setup > .el-sim-fields { grid-template-columns: 1fr; } }
 .el-sim-probes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
 .el-sim-probe { display: flex; align-items: center; min-width: 0; border: 1px solid var(--el-line); border-left: 3px solid var(--channel-color); background: var(--el-surface); border-radius: 8px; overflow: hidden; }
 .el-sim-probe.picking { outline: 2px solid var(--channel-color); outline-offset: 2px; }

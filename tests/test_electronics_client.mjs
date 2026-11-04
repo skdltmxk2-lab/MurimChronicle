@@ -45,7 +45,7 @@ test("logout and cancelled account-bound operations do not send requests", async
 test("local project list excludes metadata that would crash rendering or assembly controls", () => {
   const good = { version: 1, id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", title: "draft", updatedAt: "2026-01-01T00:00:00Z", circuit: { components: [] }, boardOptions: { boards: 1, railMode: "split" }, completedSteps: [] };
   const bad = [ { ...good, title: {} }, { ...good, updatedAt: {} }, { ...good, completedSteps: {} }, { ...good, circuit: { components: null } }, { ...good, id: "../../B" } ];
-  const storage = load("src/lib/electronics/storage.ts", {}, { localStorage: { getItem: key => { assert.equal(key, "cbt:electronics:v1:owner-A"); return JSON.stringify([good, ...bad]); } } });
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": load("src/lib/electronics/project-source.ts") }, { localStorage: { getItem: key => { assert.equal(key, "cbt:electronics:v1:owner-A"); return JSON.stringify([good, ...bad]); } } });
   const projects = storage.readLocalProjects("owner-A");
   assert.equal(projects.length, 1); assert.equal(projects[0].title, "draft");
   assert.equal(storage.isSavedProjectMetadata({ ...good, completedSteps: "all" }), false);

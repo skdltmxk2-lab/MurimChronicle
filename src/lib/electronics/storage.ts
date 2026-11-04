@@ -1,4 +1,5 @@
 import type { SavedProject } from "./types";
+import { isProjectSource, parseProjectSource } from "./project-source";
 
 export function projectStorageKey(userId: string) { return `cbt:electronics:v1:${userId}`; }
 export function isSavedProjectMetadata(value: unknown): value is SavedProject {
@@ -10,7 +11,8 @@ export function isSavedProjectMetadata(value: unknown): value is SavedProject {
     && !!p.circuit && typeof p.circuit === "object" && Array.isArray(p.circuit.components) && p.circuit.components.length <= 80
     && !!p.boardOptions && [1, 2].includes(p.boardOptions.boards) && ["split", "continuous"].includes(p.boardOptions.railMode)
     && Array.isArray(p.completedSteps) && p.completedSteps.length <= 1400 && p.completedSteps.every(step => typeof step === "string" && step.length <= 100)
-    && (p.experimentId === undefined || typeof p.experimentId === "string");
+    && (p.experimentId === undefined || typeof p.experimentId === "string")
+    && (p.source === undefined || isProjectSource(p.source));
 }
 export function readLocalProjects(userId: string): SavedProject[] {
   try {
@@ -19,7 +21,9 @@ export function readLocalProjects(userId: string): SavedProject[] {
   } catch { return []; }
 }
 export function saveLocalProject(userId: string, project: SavedProject) {
-  const projects = [project, ...readLocalProjects(userId).filter(p => p.id !== project.id)].slice(0, 30);
+  const source = parseProjectSource(project.source);
+  const normalized = { ...project, ...(source ? { source } : {}) };
+  const projects = [normalized, ...readLocalProjects(userId).filter(p => p.id !== project.id)].slice(0, 30);
   localStorage.setItem(projectStorageKey(userId), JSON.stringify(projects));
   return projects;
 }

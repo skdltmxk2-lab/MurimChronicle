@@ -7,16 +7,17 @@ import vm from "node:vm";
 import ts from "typescript";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-function load(relative, dependencies = {}) {
+function load(relative, dependencies = {}, globals = {}) {
   const output = ts.transpileModule(readFileSync(path.join(root, relative), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
   vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) {
     if (!(name in dependencies)) throw Error(`Unexpected dependency: ${name}`);
     return dependencies[name];
-  }, Buffer, Uint8Array, JSON, Request, Response, Blob }, { filename: relative });
+  }, Buffer, Uint8Array, JSON, Request, Response, Blob, ...globals }, { filename: relative });
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
+const projectSource = load("src/lib/electronics/project-source.ts");
 const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
 const definitions = [{ id: "r", name: "저항", pins: [{ id: "1", label: "1" }, { id: "2", label: "2" }], kind: "resistor", mounting: "direct", pinoutStatus: "generic", package: "Axial", category: "수동", description: "" }];
 const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -64,6 +65,7 @@ function harness(options = {}) {
     "@/lib/electronics/catalog": { COMPONENT_CATALOG: definitions },
     "@/lib/electronics/schema": schema,
     "@/lib/electronics/engine": engine,
+    "@/lib/electronics/project-source": projectSource,
   });
   return { state, route, post: value => route.POST(new Request("https://example.test/projects?userId=" + other, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(value) })), get: () => route.GET(new Request("https://example.test/projects?userId=" + other)) };
 }
@@ -148,4 +150,118 @@ test("ignores traversing filenames and oversized or corrupt stored entries", asy
   const data = await response.json(); assert.equal(data.projects.length, 0); assert.equal(data.skipped, 2);
   const downloads = h.state.calls.filter(call => call[0] === "download");
   assert.equal(downloads.length, 1); assert.equal(downloads[0][1], `${owner}/${corruptId}.json`);
+});
+
+const imageAttachment = (mimeType = "image/png", size) => {
+  const header = mimeType === "image/png" ? [137, 80, 78, 71, 13, 10, 26, 10]
+    : mimeType === "image/jpeg" ? [255, 216, 255] : [82, 73, 70, 70, 0, 0, 0, 0, 87, 69, 66, 80];
+  const bytes = Buffer.alloc(size ?? header.length + 8); bytes.set(header);
+  return { name: "original circuit.png", mimeType, data: bytes.toString("base64") };
+};
+const origins = [
+  { channel: "gemini", provider: "gemini" },
+  { channel: "assistant", provider: "chatgpt" },
+  { channel: "assistant", provider: "claude" },
+];
+
+test("origin metadata keeps legacy projects compatible and only identifies the declared source", () => {
+  assert.equal(projectSource.parseProjectSource(undefined), undefined);
+  assert.equal(projectSource.isProjectSource(undefined), false);
+  assert.equal(projectSource.getSourceLabel(undefined), "출처 미지정");
+  for (const [index, origin] of origins.entries()) {
+    const parsed = projectSource.parseProjectSource(origin);
+    assert.deepEqual(JSON.parse(JSON.stringify(parsed)), origin);
+    assert.equal(projectSource.isProjectSource(origin), true);
+    assert.equal(projectSource.getSourceLabel(parsed), ["Gemini 분석", "ChatGPT · Codex 설계", "Claude 설계"][index]);
+  }
+  for (const invalid of [null, [], {}, { channel: "gemini", provider: "chatgpt" }, { channel: "assistant", provider: "gemini" }, { channel: "assistant", provider: "other" }, { ...origins[0], verified: true }]) {
+    assert.throws(() => projectSource.parseProjectSource(invalid), error => error.name === "ProjectSourceValidationError");
+    assert.equal(projectSource.isProjectSource(invalid), false);
+  }
+});
+
+test("source images preserve original canonical bytes and enforce the exact 300KB boundary", () => {
+  for (const mimeType of ["image/png", "image/jpeg", "image/webp"]) {
+    const attachment = imageAttachment(mimeType);
+    const result = projectSource.parseProjectSource({ ...origins[1], attachment });
+    assert.deepEqual(JSON.parse(JSON.stringify(result.attachment)), attachment);
+  }
+  const atLimit = imageAttachment("image/png", projectSource.SOURCE_ATTACHMENT_MAX_BYTES);
+  assert.equal(projectSource.parseProjectSource({ ...origins[2], attachment: atLimit }).attachment.data, atLimit.data);
+  assert.throws(() => projectSource.parseProjectSource({ ...origins[2], attachment: imageAttachment("image/png", 300_001) }), /300KB/);
+});
+
+test("source images reject malformed base64, noncanonical pad bits, spoofed MIME and unknown metadata", () => {
+  const valid = imageAttachment();
+  const invalidImages = [
+    { ...valid, name: " " }, { ...valid, name: "x".repeat(201) }, { ...valid, name: "bad\u0000.png" },
+    { ...valid, mimeType: "image/svg+xml" }, { ...valid, mimeType: "application/pdf" }, { ...valid, mimeType: "image/jpeg" },
+    { ...valid, data: "" }, { ...valid, data: "%%%=" }, { ...valid, data: valid.data + "\n" }, { ...valid, data: `data:image/png;base64,${valid.data}` },
+    { ...valid, data: Buffer.from("not an image").toString("base64") }, { ...valid, data: "iVBORw0KGgoB==" },
+    // The same PNG header decodes from both strings in permissive decoders;
+    // the final nonzero padding bits must be rejected, not normalized silently.
+    { ...valid, data: "iVBORw0KGgp=" }, { ...valid, data: "iVBORw0KGgoAAB==" },
+    { ...valid, url: "https://example.test/image.png" }, null,
+  ];
+  assert.deepEqual(Buffer.from("iVBORw0KGgp=", "base64"), Buffer.from("iVBORw0KGgo=", "base64"));
+  for (const attachment of invalidImages) assert.throws(() => projectSource.parseProjectSource({ ...origins[0], attachment }), error => error.name === "ProjectSourceValidationError");
+  const unsafe = JSON.parse('{"channel":"gemini","provider":"gemini","__proto__":{}}');
+  assert.throws(() => projectSource.parseProjectSource(unsafe), /지원하지/);
+});
+
+test("cloud POST and GET preserve each source and original attachment without changing validation", async () => {
+  for (const origin of origins) {
+    const h = harness(); const p = project();
+    p.source = { ...origin, attachment: imageAttachment() };
+    p.layout.jumpers.push({ id: "Wshort", netId: "VCC", from: "B1:A1", to: "B1:A5", color: "#000000" });
+    const savedResponse = await h.post(p); assert.equal(savedResponse.status, 200);
+    const saved = (await savedResponse.json()).project;
+    assert.deepEqual(saved.source, p.source);
+    assert.deepEqual(saved.circuit, p.circuit);
+    assert.equal(saved.layout.issues.some(issue => issue.code === "SHORT_CIRCUIT"), true);
+    const loaded = await (await h.get()).json();
+    assert.equal(loaded.projects.length, 1); assert.deepEqual(loaded.projects[0].source, p.source);
+    assert.deepEqual(JSON.parse(h.state.files.get(`${owner}/${projectId}.json`)).source, p.source);
+  }
+});
+
+test("invalid source is rejected before cloud storage and corrupt saved metadata is skipped", async () => {
+  for (const source of [{ channel: "assistant", provider: "gemini" }, { ...origins[1], verified: true }, { ...origins[2], attachment: { ...imageAttachment(), data: "not-base64" } }]) {
+    const h = harness(); const response = await h.post({ ...project(), source });
+    assert.equal(response.status, 400); assert.equal(h.state.calls.length, 0);
+  }
+  const h = harness(); const p = project();
+  h.state.files.set(`${owner}/${projectId}.json`, JSON.stringify({ ...p, source: { channel: "assistant", provider: "gemini" } }));
+  const validId = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
+  h.state.files.set(`${owner}/${validId}.json`, JSON.stringify({ ...p, id: validId }));
+  const data = await (await h.get()).json();
+  assert.equal(data.projects.length, 1); assert.equal(data.projects[0].id, validId); assert.equal(data.skipped, 1);
+  assert.equal(Object.hasOwn(data.projects[0], "source"), false);
+});
+
+test("local persistence and project JSON import/export retain source bytes and reject invalid imports atomically", () => {
+  let stored = "[]";
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource }, { localStorage: {
+    getItem: () => stored, setItem: (_key, value) => { stored = value; },
+  } });
+  const { parseProjectForWorkspace } = load("src/lib/electronics/project-input.ts", {
+    "./schema": schema, "./engine": engine, "./storage": storage, "./project-source": projectSource,
+  });
+  for (const origin of origins) {
+    const p = { ...project(), source: { ...origin, attachment: imageAttachment() } };
+    storage.saveLocalProject(owner, p);
+    const local = storage.readLocalProjects(owner)[0];
+    const imported = parseProjectForWorkspace(JSON.parse(JSON.stringify(local)), definitions);
+    const exported = JSON.parse(JSON.stringify(imported));
+    assert.deepEqual(exported.source, p.source); assert.deepEqual(exported.circuit, p.circuit);
+    p.source.attachment.name = "changed outside saved project";
+    assert.notEqual(imported.source.attachment.name, p.source.attachment.name);
+  }
+  const bad = { ...project(), source: { channel: "assistant", provider: "gemini" } }, previous = stored;
+  assert.throws(() => storage.saveLocalProject(owner, bad), /일치하지/); assert.equal(stored, previous);
+  assert.throws(() => parseProjectForWorkspace(bad, definitions));
+  stored = JSON.stringify([bad, project()]);
+  const legacy = storage.readLocalProjects(owner);
+  assert.equal(legacy.length, 1); assert.equal(legacy[0].source, undefined);
+  assert.equal(parseProjectForWorkspace(legacy[0], definitions).source, undefined);
 });

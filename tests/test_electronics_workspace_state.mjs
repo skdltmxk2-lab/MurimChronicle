@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import vm from "node:vm";
 import ts from "typescript";
+import { randomUUID } from "node:crypto";
 
 const cache = new Map();
 function load(file) {
@@ -19,6 +20,8 @@ function load(file) {
 }
 const engine = load("src/lib/electronics/engine.ts");
 const { parseProjectForWorkspace } = load("src/lib/electronics/project-input.ts");
+const { parseProjectSource, getSourceLabel } = load("src/lib/electronics/project-source.ts");
+const { parseCircuit } = load("src/lib/electronics/schema.ts");
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const { CIRCUIT_TEMPLATES: templates } = load("src/lib/electronics/templates.ts");
 const circuit = templates.find(item => item.id === "rc-lowpass");
@@ -30,17 +33,18 @@ const makeProject = () => JSON.parse(JSON.stringify({ version: 1, id: "aaaaaaaa-
 const file = "src/components/electronics/ElectronicsWorkspace.tsx";
 const ast = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX);
 const body = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ElectronicsWorkspace").body;
-const actions = ["openProject", "saveCloud", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "verifyChanges"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
+const actions = ["openProject", "saveCloud", "importAssistantDesign", "applyManualJson", "openTemplate", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "verifyChanges"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
 function harness(project = makeProject()) {
-  const state = { ...project, projectId: project.id, undoStack: [] };
+  const state = { ...project, projectId: project.id, projectSource: project.source, undoStack: [] };
   const writes = [];
   const owner = "owner-A";
-  const env = { ...engine, ...project, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, COMPONENT_CATALOG: definitions, parseProjectForWorkspace, ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null,
+  const env = { ...engine, ...project, projectSource: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, COMPONENT_CATALOG: definitions, CIRCUIT_TEMPLATES: templates, parseProjectForWorkspace, parseProjectSource, getSourceLabel, parseCircuit, crypto: { randomUUID }, cloneCircuit: value => structuredClone(value), ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null,
     readyUser: { current: owner }, analysisVersion: { current: 0 }, cancelAnalyze: { current: null },
     currentProjectState: { current: { ...project, experimentId: project.experimentId ?? "lab-0", projectId: project.id } },
     saveLocalProject(user, snapshot) { assert.equal(user, owner); state.stored = snapshot; writes.push(snapshot); return [snapshot]; },
+    applyCircuit(next) { state.circuit = next; state.layout = engine.createLayout(next, definitions, project.boardOptions); },
   };
-  for (const key of ["BoardOptions", "Circuit", "Layout", "Selection", "StepIndex", "CompletedSteps", "UndoStack", "PickingPin", "ManualCheck", "ChecksOpen", "Busy", "ProjectId", "ExperimentId", "Saving", "Projects", "VisibleLayers", "DetailsOpen", "View", "Message", "Error"]) {
+  for (const key of ["BoardOptions", "Circuit", "Layout", "Selection", "StepIndex", "CompletedSteps", "UndoStack", "PickingPin", "ManualCheck", "ChecksOpen", "Busy", "ProjectId", "ProjectSource", "ProjectFilter", "Drawer", "JsonOpen", "ExperimentId", "Saving", "Projects", "VisibleLayers", "DetailsOpen", "View", "Message", "Error"]) {
     env[`set${key}`] = value => { const field = key[0].toLowerCase() + key.slice(1); state[field] = typeof value === "function" ? value(state[field]) : value; };
   }
   vm.createContext(env);
@@ -190,4 +194,76 @@ test("the inspector uses single-pin movement and fixed IC pins reject without ch
   assert.equal(rigid.state.layout, rigidProject.layout);
   assert.equal(rigid.state.undoStack.length, 0);
   assert.ok(rigid.state.error);
+});
+
+const originalImage = { name: "reference.png", mimeType: "image/png", data: Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).toString("base64") };
+const assistantSource = { channel: "assistant", provider: "chatgpt", attachment: originalImage };
+
+test("opening saved sources restores the original image and a legacy project clears the previous source", () => {
+  const saved = { ...makeProject(), source: assistantSource };
+  const h = harness();
+  assert.equal(h.env.openProject(saved), true);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.projectSource)), assistantSource);
+  assert.notEqual(h.state.projectSource, saved.source, "source is validated before it becomes workspace state");
+  assert.equal(h.env.openProject(makeProject()), true);
+  assert.equal(h.state.projectSource, undefined);
+});
+
+test("assistant import always creates a new identity and does not overwrite a Gemini project", () => {
+  const previous = { ...makeProject(), source: { channel: "gemini", provider: "gemini" } };
+  const incoming = structuredClone(previous);
+  const h = harness(previous);
+  assert.equal(h.env.importAssistantDesign(incoming, assistantSource), true);
+  assert.notEqual(h.state.projectId, previous.id);
+  assert.notEqual(h.state.projectId, incoming.id);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.projectSource)), assistantSource);
+  assert.equal(previous.source.channel, "gemini"); assert.equal(incoming.source.channel, "gemini");
+  assert.equal(h.state.projectFilter, "assistant"); assert.equal(h.state.drawer, null);
+  assert.match(h.state.message, /새 프로젝트/);
+});
+
+test("assistant bare circuit imports validate first and malformed imports leave the previous workspace intact", () => {
+  const h = harness();
+  assert.equal(h.env.importAssistantDesign(structuredClone(circuit), { channel: "assistant", provider: "claude" }), true);
+  assert.equal(h.state.projectSource.provider, "claude");
+  const before = h.state.circuit, id = h.state.projectId;
+  const invalid = structuredClone(circuit); invalid.components[0].definitionId = "not-listed";
+  assert.throws(() => h.env.importAssistantDesign(invalid, assistantSource));
+  assert.throws(() => h.env.importAssistantDesign(circuit, { channel: "gemini", provider: "gemini" }));
+  assert.equal(h.state.circuit, before); assert.equal(h.state.projectId, id);
+});
+
+test("manual circuit and project JSON edits retain current source, image and identity", () => {
+  for (const fullProject of [false, true]) {
+    const previous = { ...makeProject(), source: assistantSource };
+    const h = harness(previous);
+    const replacement = { ...makeProject(), id: randomUUID(), source: { channel: "gemini", provider: "gemini" } };
+    replacement.circuit.title = "Edited circuit";
+    h.env.jsonText = JSON.stringify(fullProject ? replacement : replacement.circuit);
+    h.env.applyManualJson();
+    assert.equal(h.state.projectId, previous.id);
+    assert.deepEqual(JSON.parse(JSON.stringify(h.state.projectSource)), assistantSource);
+    assert.equal(h.state.circuit.title, "Edited circuit");
+    assert.equal(h.state.jsonOpen, false);
+  }
+});
+
+test("cloud save captures the source image and reports a source change while the request is pending", async () => {
+  const h = harness({ ...makeProject(), source: assistantSource });
+  let respond, sent;
+  h.env.electronicsAdminFetch = (_owner, _url, options) => { sent = JSON.parse(options.body); return new Promise(resolve => { respond = resolve; }); };
+  const pending = h.env.saveCloud();
+  assert.deepEqual(sent.source, assistantSource);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.stored.source)), assistantSource);
+  h.env.currentProjectState.current = { ...h.env.currentProjectState.current, source: { channel: "assistant", provider: "claude" } };
+  respond({ ok: true, json: async () => ({ ok: true }) });
+  await pending;
+  assert.equal(h.writes.length, 1); assert.match(h.state.message, /이후 변경/);
+});
+
+test("opening a template clears imported source metadata", () => {
+  const h = harness({ ...makeProject(), source: assistantSource });
+  h.env.openTemplate("rc-lowpass");
+  assert.equal(h.state.projectSource, undefined);
+  assert.notEqual(h.state.projectId, h.env.projectId);
 });

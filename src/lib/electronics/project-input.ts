@@ -1,6 +1,7 @@
 import { createAssemblySteps, createBoard, createLayout, validateLayout } from "./engine";
 import { assertSafeData, CIRCUIT_LIMITS, parseCircuit } from "./schema";
 import { isSavedProjectMetadata } from "./storage";
+import { parseProjectSource } from "./project-source";
 import type { Circuit, CircuitLayout, ComponentDefinition, SavedProject } from "./types";
 
 function invalid(): never { throw new Error("프로젝트의 배치·연결 데이터 형식을 확인해 주세요."); }
@@ -66,10 +67,11 @@ function parseLayout(value: unknown, circuit: Circuit, definitions: ComponentDef
 export function parseProjectForWorkspace(value: unknown, definitions: ComponentDefinition[]): SavedProject & { layout: CircuitLayout } {
   assertSafeData(value);
   if (!isSavedProjectMetadata(value)) invalid();
+  const source = parseProjectSource(value.source);
   const circuit = parseCircuit(value.circuit, definitions);
   const boardOptions = { boards: value.boardOptions.boards, railMode: value.boardOptions.railMode };
   const layout = value.layout === undefined ? createLayout(circuit, definitions, boardOptions) : parseLayout(value.layout, circuit, definitions, value);
   const validSteps = new Set(createAssemblySteps(circuit, definitions, layout).map(step => step.id));
   if (new Set(value.completedSteps).size !== value.completedSteps.length || value.completedSteps.some(step => !validSteps.has(step))) invalid();
-  return { ...value, circuit, boardOptions, layout, completedSteps: [...value.completedSteps] };
+  return { ...value, ...(source ? { source } : {}), circuit, boardOptions, layout, completedSteps: [...value.completedSteps] };
 }
