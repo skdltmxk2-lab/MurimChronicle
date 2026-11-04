@@ -17,17 +17,22 @@ function load(relative, dependencies = {}, extras = {}) {
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
+const aiErrors = load("src/lib/electronics/ai-errors.ts");
 const definitions = [{ id: "r", name: "저항", pins: [{ id: "1", label: "1" }, { id: "2", label: "2" }], kind: "resistor", mounting: "direct", pinoutStatus: "generic", package: "axial", category: "수동", description: "" }];
 const circuit = () => ({ id: "test-circuit", title: "분압", description: "", components: [{ id: "R1", definitionId: "r", value: "1k", pinNets: { "1": "VCC", "2": "GND" } }], netNames: { VCC: "전원", GND: "접지" }, instruments: [], notes: [], reviewItems: [], provenance: "synthetic fixture" });
 function harness(options = {}) {
   const calls = [];
-  const sdk = { GoogleGenAI: class { constructor() {} models = { generateContent: async (request) => {
+  const warnings = [];
+  const clientKeys = [];
+  const sdk = { GoogleGenAI: class { constructor({ apiKey }) { clientKeys.push(apiKey); } models = { generateContent: async (request) => {
     calls.push(request);
     if (options.error) throw options.error;
     return { text: JSON.stringify(options.output ?? circuit()) };
   } }; } };
-  const recognition = load("src/lib/electronics/recognition.ts", { "@google/genai": sdk, "./schema": schema, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" } }, { process: { env: { GEMINI_API_KEY: options.noKey ? "" : "synthetic-key" } } });
-  return { recognition, calls };
+  const dependencies = { "@google/genai": sdk, "./schema": schema, "./ai-errors": aiErrors, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" } };
+  if (options.importError) Object.defineProperty(dependencies, "@/lib/ai/gemini", { get() { throw options.importError; } });
+  const recognition = load("src/lib/electronics/recognition.ts", dependencies, { process: { env: { GEMINI_API_KEY: options.apiKey ?? (options.noKey ? "" : "synthetic-key") } }, console: { warn: value => warnings.push(value) } });
+  return { recognition, calls, warnings, clientKeys };
 }
 
 test("strict parser retains exact pins and all circuit references", () => {
@@ -108,4 +113,50 @@ test("API checks administrator access before reading files or invoking AI", asyn
   });
   const result = await route.POST(new Request("https://example.test/analyze", { method: "POST" }));
   assert.equal(result.status, 403); assert.equal(invoked, false);
+});
+
+test("recognition trims configured keys and treats whitespace-only configuration as missing", async () => {
+  const missing = harness({ apiKey: " \n\t " });
+  await assert.rejects(missing.recognition.recognizeCircuit({ text: "x", files: [] }, definitions), error => error.status === 503 && error.code === "GEMINI_NOT_CONFIGURED");
+  assert.equal(missing.calls.length, 0);
+  const configured = harness({ apiKey: " synthetic-key \n" });
+  await configured.recognition.recognizeCircuit({ text: "x", files: [] }, definitions);
+  assert.deepEqual(configured.clientKeys, ["synthetic-key"]);
+});
+
+test("recognition model initialization failures are caught and redact all raw data", async () => {
+  const h = harness({ importError: Error("private-import-secret") });
+  await assert.rejects(h.recognition.recognizeCircuit({ text: "private-user-prompt", files: [] }, definitions), error => error.status === 503 && error.code === "GEMINI_UNKNOWN" && !error.message.includes("private"));
+  assert.equal(h.calls.length, 0);
+  assert.equal(h.warnings.length, 1);
+  assert.equal(JSON.parse(h.warnings[0]).feature, "electronics-recognition");
+  assert.ok(!JSON.stringify(h.warnings).includes("private"));
+});
+
+test("recognition provider errors preserve safe codes through real calls and the authenticated route", async () => {
+  const secret = "private-circuit-and-provider-key-never-return";
+  for (const [providerStatus, code, httpStatus] of [[429, "GEMINI_RATE_LIMITED", 429], [404, "GEMINI_MODEL_UNAVAILABLE", 503], [401, "GEMINI_INVALID_KEY", 503]]) {
+    const h = harness({ error: Object.assign(new Error(secret), { status: providerStatus }) });
+    await assert.rejects(h.recognition.recognizeCircuit({ text: "x", files: [] }, definitions), error => error.status === httpStatus && error.code === code && !error.message.includes(secret));
+    const route = load("app/api/admin/electronics/analyze/route.ts", {
+      "next/server": { NextResponse: { json: (body, options = {}) => new Response(JSON.stringify(body), options) } },
+      "@/lib/auth/requireAdmin": { requireAdmin: async () => ({ ok: true }) },
+      "@/lib/electronics/catalog": { COMPONENT_CATALOG: definitions }, "@/lib/electronics/recognition": h.recognition,
+    });
+    const response = await route.POST(new Request("https://example.test/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: "x", files: [] }) }));
+    assert.equal(response.status, httpStatus);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    const body = await response.json();
+    assert.equal(body.ok, false); assert.equal(body.code, code);
+    assert.equal(h.calls.length, 2); assert.equal(h.warnings.length, 2);
+    for (const warning of h.warnings) {
+      const metadata = JSON.parse(warning);
+      assert.equal(metadata.feature, "electronics-recognition");
+      assert.equal(metadata.category, code);
+      assert.equal(metadata.providerStatus, providerStatus);
+      assert.deepEqual(Object.keys(metadata).sort(), ["category", "feature", "provider", "providerStatus", "retryable"]);
+    }
+    assert.ok(!JSON.stringify([body, h.warnings]).includes(secret));
+    assert.ok(!JSON.stringify(h.warnings).includes("synthetic-key"));
+  }
 });

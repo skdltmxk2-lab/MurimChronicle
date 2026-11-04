@@ -17,6 +17,7 @@ function load(relative, dependencies = {}, extras = {}) {
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
+const aiErrors = load("src/lib/electronics/ai-errors.ts");
 const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const workflow = readFileSync(path.join(root, "docs/electronics-agent-workflow.md"), "utf8");
@@ -28,7 +29,10 @@ function input() {
 }
 function harness(options = {}) {
   const calls = [];
+  const warnings = [];
+  const clientKeys = [];
   const sdk = { GoogleGenAI: class {
+    constructor({ apiKey }) { clientKeys.push(apiKey); }
     models = { generateContent: async (request) => {
       calls.push(request);
       if (options.waitForAbort) return new Promise((_resolve, reject) => {
@@ -41,10 +45,10 @@ function harness(options = {}) {
     } };
   } };
   const chat = load("src/lib/electronics/chat.ts", {
-    "@google/genai": sdk, "./schema": schema, "./engine": engine, "./power": load("src/lib/electronics/power.ts"), "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" },
-  }, { process: { env: { GEMINI_API_KEY: options.noKey ? "" : "synthetic-key" } }, ...(options.timeout ? { setTimeout: callback => setTimeout(callback, 1) } : {}) });
+    "@google/genai": sdk, "./schema": schema, "./engine": engine, "./power": load("src/lib/electronics/power.ts"), "./ai-errors": aiErrors, "@/lib/ai/gemini": { GEMINI_MODEL: "existing-primary-test-model" },
+  }, { process: { env: { GEMINI_API_KEY: options.apiKey ?? (options.noKey ? "" : "synthetic-key") } }, console: { warn: value => warnings.push(value) }, ...(options.timeout ? { setTimeout: callback => setTimeout(callback, 1) } : {}) });
   const parse = value => chat.validateChatInput(value, definitions);
-  return { chat, calls, parse, answer: (value = input(), signal) => chat.answerElectronicsChat(parse(value), definitions, signal) };
+  return { chat, calls, warnings, clientKeys, parse, answer: (value = input(), signal) => chat.answerElectronicsChat(parse(value), definitions, signal) };
 }
 
 test("chat validates a real circuit and uses actual edited pin positions in its context", () => {
@@ -148,4 +152,41 @@ test("chat route returns no-store success and sanitizes unexpected errors", asyn
   assert.equal(response.status, 200); assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal((await response.json()).ok, true);
   const error = await route(true).POST(request()); assert.equal(error.status, 503); assert.equal((await error.text()).includes("secret-auth-token"), false);
+});
+
+test("chat trims configured keys and rejects whitespace configuration before invoking the provider", async () => {
+  const missing = harness({ apiKey: " \n\t " });
+  await assert.rejects(missing.answer(), error => error.status === 503 && error.code === "GEMINI_NOT_CONFIGURED");
+  assert.equal(missing.calls.length, 0);
+  const configured = harness({ apiKey: " synthetic-key \n" });
+  await configured.answer();
+  assert.deepEqual(configured.clientKeys, ["synthetic-key"]);
+});
+
+test("chat provider failures retain safe codes through real calls and the authenticated route", async () => {
+  const secret = "private-circuit-and-provider-key-never-return";
+  for (const [providerStatus, code, httpStatus] of [[429, "GEMINI_RATE_LIMITED", 429], [404, "GEMINI_MODEL_UNAVAILABLE", 503], [401, "GEMINI_INVALID_KEY", 503]]) {
+    const h = harness({ error: Object.assign(new Error(secret), { status: providerStatus }) });
+    await assert.rejects(h.answer(), error => error.status === httpStatus && error.code === code && !error.message.includes(secret));
+    const route = load("app/api/admin/electronics/chat/route.ts", {
+      "next/server": { NextResponse: { json: (body, options = {}) => new Response(JSON.stringify(body), options) } },
+      "@/lib/auth/requireAdmin": { requireAdmin: async () => ({ ok: true }) },
+      "@/lib/electronics/catalog": { COMPONENT_CATALOG: definitions }, "@/lib/electronics/chat": h.chat,
+    });
+    const response = await route.POST(new Request("https://example.test/chat", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(input()) }));
+    assert.equal(response.status, httpStatus);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    const body = await response.json();
+    assert.equal(body.ok, false); assert.equal(body.code, code);
+    assert.equal(h.calls.length, 2); assert.equal(h.warnings.length, 2);
+    for (const warning of h.warnings) {
+      const metadata = JSON.parse(warning);
+      assert.equal(metadata.feature, "electronics-chat");
+      assert.equal(metadata.category, code);
+      assert.equal(metadata.providerStatus, providerStatus);
+      assert.deepEqual(Object.keys(metadata).sort(), ["category", "feature", "provider", "providerStatus", "retryable"]);
+    }
+    assert.ok(!JSON.stringify([body, h.warnings]).includes(secret));
+    assert.ok(!JSON.stringify(h.warnings).includes("synthetic-key"));
+  }
 });

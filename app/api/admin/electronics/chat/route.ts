@@ -16,6 +16,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const status = error instanceof ElectronicsChatError ? error.status : 503;
     const message = error instanceof ElectronicsChatError ? error.message : "채팅 서비스를 사용할 수 없습니다. 잠시 후 다시 시도해 주세요.";
-    return NextResponse.json({ ok: false, message }, { status, headers: { "Cache-Control": "no-store" } });
+    const code = error instanceof ElectronicsChatError ? error.code : undefined;
+    return NextResponse.json({ ok: false, message, ...(code ? { code } : {}) }, { status, headers: { "Cache-Control": "no-store" } });
   }
 }

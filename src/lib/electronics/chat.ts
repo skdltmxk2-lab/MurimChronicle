@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { assertSafeData, parseCircuit, CircuitValidationError } from "./schema";
 import { createBoard, createLayout, validateLayout } from "./engine";
 import { getRailUsage } from "./power";
+import { classifyGeminiError, type GeminiFailureCode } from "./ai-errors";
 import type { BoardOptions, Circuit, CircuitLayout, ComponentDefinition } from "./types";
 
 export const CHAT_LIMITS = { requestBytes: 600_000, messages: 21, userChars: 4000, assistantChars: 12000, totalChars: 40000, timeoutMs: 90_000 } as const;
@@ -14,11 +15,11 @@ export type ElectronicsChatRequest = {
   layout?: Pick<CircuitLayout, "placements" | "jumpers" | "terminals">;
   selection?: ElectronicsChatSelection | null;
 };
-export type ElectronicsChatResponse = { ok: true; answer: string; model: string } | { ok: false; message: string };
+export type ElectronicsChatResponse = { ok: true; answer: string; model: string } | { ok: false; message: string; code?: GeminiFailureCode | "GEMINI_NOT_CONFIGURED" };
 export type ParsedChatInput = Omit<ElectronicsChatRequest, "layout"> & { layout: CircuitLayout };
 
 export class ElectronicsChatError extends Error {
-  constructor(public readonly status: number, message: string) { super(message); this.name = "ElectronicsChatError"; }
+  constructor(public readonly status: number, message: string, public readonly code?: GeminiFailureCode | "GEMINI_NOT_CONFIGURED") { super(message); this.name = "ElectronicsChatError"; }
 }
 function bad(message: string): never { throw new ElectronicsChatError(400, message); }
 function object(value: unknown, fields: string[]): Record<string, unknown> {
@@ -163,9 +164,9 @@ export function createChatContext(input: ParsedChatInput, definitions: readonly 
 }
 
 export async function answerElectronicsChat(input: ParsedChatInput, definitions: readonly ComponentDefinition[], signal?: AbortSignal): Promise<{ answer: string; model: string }> {
-  if (signal?.aborted) throw new ElectronicsChatError(499, "질문이 취소되었습니다.");
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new ElectronicsChatError(503, "Gemini 채팅이 아직 연결되지 않았습니다. 서버의 Gemini API 설정이 필요합니다.");
+  if (signal?.aborted) throw new ElectronicsChatError(499, "질문이 취소되었습니다.", "GEMINI_CANCELLED");
+  const key = process.env.GEMINI_API_KEY?.trim();
+  if (!key) throw new ElectronicsChatError(503, "Gemini 채팅이 아직 연결되지 않았습니다. 서버의 Gemini API 설정이 필요합니다.", "GEMINI_NOT_CONFIGURED");
   const controller = new AbortController();
   let timedOut = false;
   const abort = () => controller.abort();
@@ -187,13 +188,14 @@ validation은 목표 연결과 빵판 도통의 일치 검사이며 실제 동�
 사용자의 질문에 직접 답하고 필요할 때만 짧은 순서나 수식을 제시한다. HTML 없이 일반 텍스트로 쓰며 답변은 12000자 이내로 제한한다.`,
       temperature: 0.3, maxOutputTokens: 3072, abortSignal: controller.signal, httpOptions: { timeout: CHAT_LIMITS.timeoutMs },
     } });
-    if (controller.signal.aborted) throw new ElectronicsChatError(timedOut ? 504 : 499, timedOut ? "답변 시간이 길어졌습니다. 질문을 줄여 다시 시도해 주세요." : "질문이 취소되었습니다.");
+    if (controller.signal.aborted) throw new ElectronicsChatError(timedOut ? 504 : 499, timedOut ? "답변 시간이 길어졌습니다. 질문을 줄여 다시 시도해 주세요." : "질문이 취소되었습니다.", timedOut ? "GEMINI_TIMEOUT" : "GEMINI_CANCELLED");
     const answer = result.text?.trim();
     if (!answer || answer.length > CHAT_LIMITS.assistantChars) throw new ElectronicsChatError(502, "Gemini 답변을 받지 못했습니다. 질문을 조금 바꿔 다시 시도해 주세요.");
     return { answer, model };
   } catch (error) {
     if (error instanceof ElectronicsChatError) throw error;
-    if (controller.signal.aborted) throw new ElectronicsChatError(timedOut ? 504 : 499, timedOut ? "답변 시간이 길어졌습니다. 질문을 줄여 다시 시도해 주세요." : "질문이 취소되었습니다.");
-    throw new ElectronicsChatError(503, "Gemini가 답변하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    const failure = classifyGeminiError(error, { timedOut, aborted: controller.signal.aborted });
+    console.warn(JSON.stringify({ feature: "electronics-chat", ...failure.metadata }));
+    throw new ElectronicsChatError(failure.status, failure.message, failure.code);
   } finally { clearTimeout(timer); signal?.removeEventListener("abort", abort); }
 }
