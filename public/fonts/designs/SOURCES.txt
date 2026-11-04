@@ -1,0 +1,20 @@
+General Sans 400, 500, 600
+Official CSS: https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap
+Official license source: https://api.fontshare.com/v2/fonts/download/general-sans
+ITF Free Font License v2.0 is preserved in GeneralSans-FFL.txt.
+Fontshare binaries are served by the official CDN and are not redistributed in this repository.
+
+Geist Mono 400
+https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400&display=swap
+https://github.com/google/fonts/tree/main/ofl/geistmono
+
+Host Grotesk 400, 500
+https://fonts.googleapis.com/css2?family=Host+Grotesk:wght@400;500&display=swap
+https://github.com/google/fonts/tree/main/ofl/hostgrotesk
+
+Atkinson Hyperlegible Mono 400, 500
+https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500&display=swap
+https://github.com/google/fonts/tree/main/ofl/atkinsonhyperlegiblemono
+
+Google Fonts binaries are unmodified official Latin WOFF2 subsets, with their OFL notices.
+Korean text falls back to the existing self-hosted Pretendard Variable font.

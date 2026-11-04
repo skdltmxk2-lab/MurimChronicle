@@ -1,50 +1,42 @@
 # Design: 루트편입 CBT
 
-Hallmark의 여러 화면이 공유하는 시스템이다. 새로운 화면도 이 기준을 읽고, 변경은 명시적으로 기록한다.
+관리자가 선택한 Hallmark 디자인을 사이트 전체에서 공유한다. 라이트·다크는 각 사용자가 유지한다.
 
-## System
-- Genre: modern-minimal.
-- 첫 페이지: Feature Stack, Settled hero. 학습·응시 화면은 app screen.
-- Theme: Terrazzo, 라이트 off-white와 다크 black 계열의 같은 시스템.
-- Axes: light / geometric-sans / warm. Rust는 선택·상태·포커스에 한정한다.
-- Signature: 실제 수학 문제지와 학습 화면. 가짜 제품 UI나 임의의 성과 수치를 만들지 않는다.
+## Registered systems
+- Coral (`coral`, 기본 추천): 따뜻한 면지, 넓은 2열 구성, 눌린 카드형 컨트롤. General Sans 400/500/600, Geist Mono 측정값, 한글 Pretendard.
+- Console (`console`): 그래파이트 작업 면, 얇은 공유 구획, 큰 선두 도구와 촘촘한 기록. Host Grotesk 400/500, Atkinson Hyperlegible Mono 측정값, 한글 Pretendard.
+- Terrazzo (`terrazzo`): 종이와 굵은 잉크 테두리, 각진 컨트롤과 offset. Syne 700, Onest 400/500, JetBrains Mono 측정값, 한글 Pretendard.
+- 실제 카탈로그에서 파생한 세 시스템 모두 라이트·다크를 제공하며 글꼴·재질·모서리·간격·배치가 함께 바뀐다.
+- 장식용 카드별 색 분류와 컬러 상단선은 사용하지 않는다. 상태·선택·포커스는 각 시스템의 역할색을 따른다.
 
-## Tokens
-`app/tokens.css`가 유일한 값의 기준이다. 아래는 역할별 핵심 값이다.
-```css
-:root {
-  --color-paper: oklch(96% 0.009 82); --color-plate: oklch(99.5% 0.003 82);
-  --color-paper-2: oklch(92% 0.012 82); --color-paper-3: oklch(87.5% 0.014 80);
-  --color-ink: oklch(16% 0.006 60); --color-muted: oklch(46% 0.01 60);
-  --color-accent: oklch(53% 0.15 38); --color-focus: oklch(50% 0.16 38);
-  --font-display: "Syne", "Pretendard Variable", sans-serif;
-  --font-body: "Onest", "Pretendard Variable", sans-serif;
-  --font-outlier: "JetBrains Mono", ui-monospace, monospace;
-  --radius-card: 0; --radius-pill: 0; --rule-hair: 1px; --rule-bar: 2px;
-  --shadow-card: 8px 8px 0 var(--color-paper-3);
-}
-```
-간격·글자 크기·레이어·완급·시간도 같은 파일의 토큰을 쓴다. 수식은 기존 KaTeX 경로를 유지한다.
+## Source of truth
+- `app/tokens.css`: Terrazzo 기본 토큰과 기존 수식·인쇄용 legacy 값.
+- `app/design-presets.css`: `html[data-design]`별 Coral·Console 토큰과 화면 구획, 각 `.dark` 파생.
+- 역할: paper/plate/elevated, ink/ink-2/muted, rule/rule-strong/control-line, primary/on-primary, accent/accent-2, positive/negative.
+- Coral의 밝은 accent는 큰 상태 표식용이다. 작은 글자는 `--color-accent-2`를 쓴다.
+- 색·글꼴 값은 토큰에서 가져온다. 숫자는 tabular figures, Mono는 수량·시간·코드에 한정한다.
 
-## Modes
-- 라이트: 따뜻한 종이, 밝은 specimen 표면, 잉크색 2px 경계와 번짐 없는 offset.
-- 다크: `.dark`와 기존 `cbt:theme` 선택을 사용한다. paper L14%, plate L21%, elevated L26%.
-- 다크 글자는 ink L95%, muted L74%; rust는 L75%로 조정한다. 색상 계열은 유지한다.
-- 다크에서는 offset을 없애고 밝기 단계와 inset 경계로 표면을 구분한다.
-- 입력 경계는 `--color-control-line`; 일반 구분선·강한 경계·포커스를 서로 대체하지 않는다.
+## Selection and preview
+- `/admin/appearance`에서 관리자만 변경한다. 서버 설정은 `app_settings.site_design`, 허용 ID는 위 세 개뿐이다.
+- 선택은 자동 저장하지 않는다. 미리보기는 현재 브라우저의 React 상태이며, 명시적인 전체 적용만 서버에 저장한다.
+- 미리보기는 페이지 이동에도 유지된다. 상단 안내에서 종료할 수 있고 로그아웃하면 종료한다.
+- 기본값은 Coral. 조회가 일시 실패해도 기본 화면을 제공하며, 저장 실패는 성공으로 표시하지 않는다.
+- 기존 `cbt:theme`와 `.dark`를 유지한다. 밝기 모드와 사이트 디자인은 독립적이다.
+
+## Coverage and content
+- 랜딩·학습·응시·영어·요금제·검색·결과·관리 화면과 body 포털을 공통 역할에 연결한다.
+- 화면의 코칭 문제지·답안지 미리보기도 같은 디자인을 따른다.
+- 실제 인쇄·PDF는 흰 종이 형식을 유지한다. 수식 글꼴·내용·폭·넘침 처리·풀이 로직을 보존한다.
+- 전자공학 회로·측정 시각화와 필기 색상은 데이터 표현이므로 별도 시스템을 유지한다.
+- 기존 문구·가격·수량·권한·링크·핸들러를 보존하며 비교 캡처에는 명시한 예시 자료만 사용한다.
 
 ## Controls and motion
-- Primary: ink 채움과 paper 글자. Secondary: 투명한 바탕과 잉크색 윤곽. 모두 각진 형태다.
-- 주요 행동은 44px 이상의 터치 영역과 즉시 보이는 focus-visible을 제공한다.
-- 숫자·시간·수량은 tabular figures; Mono는 코드와 측정값에만 쓴다.
-- 화면은 정적이다. 상태 피드백만 짧게 바꾸고 reduced-motion에서는 즉시 끝낸다.
+- 주 행동 하나를 primary, 보조 행동을 outline/quiet로 표시한다. 모든 입력 경계·작은 글자의 실제 대비를 확인한다.
+- 포커스는 즉시 보인다. 작은 화면은 16px 여백과 44px 터치 영역이 기본이며 넓은 표는 표 내부에서 스크롤한다.
+- 동작 변화는 짧게 끝내고 reduced-motion에서는 즉시 끝낸다.
 
 ## Exports
-- 값: `app/tokens.css`; 자체 호스팅 글꼴: `app/fonts.css`, `public/fonts/`.
-- 기본 규칙·연결: `app/base.css`, `app/globals.css`; 화면: `app/terrazzo-{shell,landing,study,exam}.css`.
-- 관리자 공통 UI·도구 목록: `app/terrazzo-admin.css`, `app/terrazzo-admin-home.css`. 전자공학 작업 영역과 코칭 인쇄지는 별도 렌더링을 유지한다.
-- 실제 제품 캡처: `public/hallmark/study-{light,dark}.png`. 인쇄·수식의 legacy 토큰은 별도로 보존한다.
-
-## Variants
-- 관리자 도구에는 요청에 따라 blue와 sage 보조색을 더한다. 아이콘·상단 선·호버·선택 탭에만 사용하며 본문과 기본 버튼은 기존 paper/ink 역할을 유지한다.
-- Blue: light `oklch(43% 0.075 235)`, dark `oklch(75% 0.065 235)`; Sage: light `oklch(43% 0.07 155)`, dark `oklch(75% 0.065 155)`. 옅은 배경은 각각 `--color-blue-soft`, `--color-sage-soft`를 쓴다.
+- 기본 CSS: `app/terrazzo-{shell,landing,study,exam,admin,admin-home}.css`.
+- 공통 누락 보정: `app/design-legacy.css`; 선택 UI: `app/design-picker.css`.
+- 글꼴: `app/fonts.css`, `app/design-fonts.css`, `public/fonts/`, `public/fonts/designs/`. General Sans는 공식 Fontshare CDN을 사용한다.
+- 제품 캡처: `public/hallmark/{id}-study-{light,dark}.png`; 비교 캡처: `public/hallmark/previews/{id}-{light,dark}.png`.

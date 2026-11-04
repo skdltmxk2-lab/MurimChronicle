@@ -40,6 +40,7 @@ export function AdminHeader() {
         </Link>
         <div className="tz-admin-header__actions">
           <ThemeToggle />
+          <Link href="/admin/appearance" className="tz-admin-header__logout">디자인</Link>
           <Link
             href="/student/exams"
             className="tz-admin-header__student"

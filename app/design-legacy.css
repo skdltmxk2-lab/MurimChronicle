@@ -1,0 +1,60 @@
+/* Hallmark · theme: selected site design · scope: app screen · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: share semantic surfaces across legacy routes without changing mathematical content or print geometry. */
+@media screen {
+  html[data-design]:not(:has(.electronics-app, .lab5-page, .el-loading)) {
+    --legacy-body-ink: var(--color-ink); --legacy-dark-ink: var(--color-ink);
+    --legacy-surface: var(--color-plate); --legacy-dark-surface: var(--color-plate);
+    --legacy-dark-canvas: var(--color-paper); --legacy-dark-line: var(--color-rule);
+    --legacy-muted-ink: var(--color-muted);
+    --legacy-paint-7: var(--color-rule); --legacy-paint-10: var(--color-accent-2, var(--color-accent));
+    --legacy-paint-17: var(--color-muted);
+    --legacy-paint-18: var(--color-plate); --legacy-paint-19: var(--color-plate);
+    --legacy-paint-20: var(--color-plate); --legacy-paint-21: var(--color-plate);
+    --legacy-paint-22: var(--color-plate); --legacy-paint-23: var(--color-plate);
+    --legacy-paint-24: var(--color-paper-2); --legacy-paint-25: var(--color-paper-3); --legacy-paint-26: var(--color-paper-3);
+    --legacy-paint-27: var(--color-ink-2); --legacy-paint-28: var(--color-muted);
+    --legacy-paint-29: var(--color-muted); --legacy-paint-30: var(--color-ink-2);
+    --legacy-paint-31: var(--color-accent-2, var(--color-accent)); --legacy-paint-32: var(--color-accent-soft); --legacy-paint-33: var(--color-accent-soft);
+    --legacy-paint-34: var(--color-accent); --legacy-paint-35: var(--color-positive);
+    --legacy-paint-36: var(--color-positive-soft); --legacy-paint-37: var(--color-positive-soft);
+    --legacy-paint-38: var(--color-negative-soft);
+    --legacy-paint-39: var(--color-paper-2); --legacy-paint-40: var(--color-paper-3); --legacy-paint-41: var(--color-accent-2, var(--color-accent));
+    --legacy-paint-42: var(--color-paper-2); --legacy-paint-43: var(--color-accent-2, var(--color-accent));
+    --legacy-paint-44: var(--color-paper-2); --legacy-paint-45: var(--color-ink-2);
+  }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-brand-600, .bg-brand-700) { background-color: var(--color-primary) !important; color: var(--color-on-primary) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.text-brand-500, .text-brand-600, .text-brand-700, .text-brand-800) { color: var(--color-accent-2, var(--color-accent)) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-brand-50, .bg-brand-100) { background-color: var(--color-accent-soft) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is([class~="bg-white/95"], [class~="bg-white/90"], [class~="bg-white/80"], [class~="bg-white/70"]) { background-color: var(--color-plate) !important; }
+  html[data-design].dark body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is([class~="dark:bg-slate-700"], [class~="dark:bg-slate-800"], [class~="dark:bg-slate-900"]) { background-color: var(--color-paper-2) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is([class*="bg-gradient-to-"]) { background-image: none; background-color: var(--color-paper-2); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) { border-radius: var(--radius-input, var(--radius-card)); border-color: var(--color-control-line) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) input:is([type="checkbox"], [type="radio"]) { accent-color: var(--color-focus); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) button { border-radius: var(--radius-stock, var(--radius-input, var(--radius-card))); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(section, article, aside, form)[class*="rounded-"] { border-radius: var(--radius-card); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) div[class*="rounded-"][class*="border"] { border-radius: var(--radius-card); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.shadow-soft, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) { box-shadow: var(--design-card-shadow, var(--shadow-card)); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(h1, h2, h3, h4) { font-family: var(--font-display); font-weight: var(--display-weight) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-ink, .design-ink-surface) { background-color: var(--color-ink) !important; color: var(--color-paper) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-ink, .design-ink-surface) :is(.text-white, .text-slate-300, .text-slate-400) { color: var(--color-paper) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-brand-600, .bg-brand-700) .text-white { color: var(--color-on-primary) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-amber-50, .bg-orange-50, .bg-sky-50, .bg-blue-50) { background-color: var(--color-paper-2) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.border-brand-200, .border-brand-300, .border-amber-200, .border-orange-200, .border-sky-200) { border-color: var(--color-rule-strong) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.text-amber-600, .text-amber-700, .text-amber-800, .text-orange-600, .text-orange-700, .text-sky-600, .text-sky-700, .text-blue-600, .text-blue-700) { color: var(--color-accent-2, var(--color-accent)) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.text-mint-600, .text-mint-700, .text-emerald-600, .text-emerald-700, .text-green-600, .text-green-700) { color: var(--color-positive) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-mint-50, .bg-emerald-50, .bg-green-50) { background-color: var(--color-positive-soft) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.text-coral-600, .text-coral-700, .text-rose-600, .text-rose-700, .text-red-600, .text-red-700) { color: var(--color-negative) !important; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.bg-coral-50, .bg-rose-50, .bg-red-50) { background-color: var(--color-negative-soft) !important; }
+  html[data-design] .design-plan-pro { border-color: var(--color-primary) !important; }
+  html[data-design] .design-plan-current { outline: var(--rule-bar) solid var(--color-control-line); outline-offset: 3px; }
+  html[data-design] table .design-plan-column { border-inline: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2) !important; }
+  html[data-design] .design-plan-tag { border-radius: var(--radius-input, var(--radius-card)); background: var(--color-primary); color: var(--color-on-primary); }
+  html[data-design] .design-plan-status { border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-stock, var(--radius-input, var(--radius-card))); background: var(--color-paper-2); color: var(--color-ink); }
+  html[data-design] .design-dialog-backdrop { background: var(--color-overlay) !important; backdrop-filter: none; }
+  html[data-design] .design-dialog-surface { border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-plate); color: var(--color-ink); box-shadow: var(--design-card-shadow, var(--shadow-card)); }
+  html[data-design] .student-print-card { border-radius: var(--radius-card); }
+  html[data-design] .student-print-card :is(label, span).rounded-full { border-radius: var(--radius-input, var(--radius-card)); }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.math-display-block, .math-inline-scroll, .math-inline, .coaching-print-content .overflow-x-auto, .overflow-x-auto:has(> span > :is(.katex, .katex-display))) { scrollbar-width: thin; scrollbar-color: var(--color-control-line) transparent; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.math-display-block, .math-inline-scroll, .math-inline, .coaching-print-content .overflow-x-auto, .overflow-x-auto:has(> span > :is(.katex, .katex-display)))::-webkit-scrollbar { height: 4px; }
+  html[data-design] body:not(:has(.electronics-app, .lab5-page, .el-loading)) :is(.math-display-block, .math-inline-scroll, .math-inline, .coaching-print-content .overflow-x-auto, .overflow-x-auto:has(> span > :is(.katex, .katex-display)))::-webkit-scrollbar-thumb { background: var(--color-control-line); border-radius: var(--radius-input, var(--radius-card)); }
+}

@@ -1,0 +1,441 @@
+/* Hallmark · themes: Coral, Console, Terrazzo · scope: app screens · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: distinct reading materials and compositions, with the same learning content and controls. */
+/* Hallmark · answered F4 · joined track and answer filters carry existing selection state; the primary action remains one per task. */
+@media screen {
+  :root {
+    --preset-cotton-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011 .92' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.045'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)'/%3E%3C/svg%3E");
+    --preset-coral-light-color-paper: oklch(97% 0.006 55);
+    --preset-coral-light-color-paper-2: oklch(94.5% 0.007 55);
+    --preset-coral-light-color-paper-3: oklch(91.5% 0.009 55);
+    --preset-coral-light-color-ink: oklch(21% 0.012 38);
+    --preset-coral-light-color-ink-2: oklch(29% 0.013 40);
+    --preset-coral-light-color-muted: oklch(47% 0.013 45);
+    --preset-coral-light-color-rule: oklch(85% 0.009 55);
+    --preset-coral-light-color-rule-2: oklch(78% 0.011 55);
+    --preset-coral-light-color-rule-strong: oklch(72% 0.011 55);
+    --preset-coral-light-color-accent: oklch(74% 0.125 30);
+    --preset-coral-light-color-accent-ink: oklch(21% 0.012 38);
+    --preset-coral-light-color-accent-soft: oklch(93% 0.025 30);
+    --preset-coral-light-color-accent-2: oklch(51% 0.16 30);
+    --preset-coral-light-color-focus: oklch(51% 0.16 30);
+    --preset-coral-light-color-cotton: oklch(98.8% 0.0045 80);
+    --preset-coral-light-color-desk: oklch(94.3% 0.008 64);
+    --preset-coral-light-color-print: oklch(23% 0.012 38);
+    --preset-coral-light-color-board: oklch(22% 0.011 40);
+    --preset-coral-light-color-board-type: oklch(96.5% 0.006 70);
+    --preset-coral-light-color-paid: oklch(51% 0.15 33);
+    --preset-coral-light-color-control-line: oklch(52% 0.013 45);
+    --preset-coral-light-color-positive: oklch(42% 0.08 150);
+    --preset-coral-light-color-positive-soft: oklch(94% 0.02 150);
+    --preset-coral-light-color-negative: oklch(47% 0.16 30);
+    --preset-coral-light-color-negative-soft: oklch(94% 0.025 30);
+    --preset-coral-light-color-overlay: oklch(21% 0.012 38 / 52%);
+    --preset-coral-light-color-stock-shade: oklch(32% 0.03 50 / 22%);
+    --preset-coral-light-color-stock-lit: oklch(100% 0.005 80 / 90%);
+    --preset-coral-light-color-stock-wall: oklch(32% 0.03 50 / 8%);
+    --preset-coral-light-color-stock-cast: oklch(32% 0.03 50 / 17%);
+    --preset-coral-light-font-display: "General Sans", "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+    --preset-coral-light-font-outlier: "Geist Mono", "Pretendard Variable", ui-monospace, monospace;
+    --preset-coral-dark-color-paper: oklch(16% 0.009 55);
+    --preset-coral-dark-color-paper-2: oklch(20% 0.01 55);
+    --preset-coral-dark-color-paper-3: oklch(24% 0.012 55);
+    --preset-coral-dark-color-ink: oklch(94% 0.009 38);
+    --preset-coral-dark-color-ink-2: oklch(85% 0.01 40);
+    --preset-coral-dark-color-muted: oklch(73% 0.013 45);
+    --preset-coral-dark-color-rule: oklch(35% 0.009 55);
+    --preset-coral-dark-color-rule-2: oklch(44% 0.011 55);
+    --preset-coral-dark-color-rule-strong: oklch(49% 0.011 55);
+    --preset-coral-dark-color-accent: oklch(78% 0.105 30);
+    --preset-coral-dark-color-accent-ink: oklch(21% 0.012 38);
+    --preset-coral-dark-color-accent-soft: oklch(28% 0.035 30);
+    --preset-coral-dark-color-accent-2: oklch(78% 0.105 30);
+    --preset-coral-dark-color-focus: oklch(78% 0.105 30);
+    --preset-coral-dark-color-cotton: oklch(23% 0.011 80);
+    --preset-coral-dark-color-desk: oklch(18% 0.009 64);
+    --preset-coral-dark-color-board: oklch(88% 0.01 40);
+    --preset-coral-dark-color-board-type: oklch(19% 0.008 70);
+    --preset-coral-dark-color-paid: oklch(78% 0.105 33);
+    --preset-coral-dark-color-control-line: oklch(64% 0.013 45);
+    --preset-coral-dark-color-overlay: oklch(10% 0.01 38 / 72%);
+    --preset-coral-dark-color-positive: oklch(77% 0.09 150);
+    --preset-coral-dark-color-positive-soft: oklch(27% 0.03 150);
+    --preset-coral-dark-color-negative: oklch(78% 0.1 30);
+    --preset-coral-dark-color-negative-soft: oklch(27% 0.035 30);
+    --preset-console-light-color-paper: oklch(98% 0.006 85);
+    --preset-console-light-color-paper-2: oklch(95% 0.005 85);
+    --preset-console-light-color-paper-3: oklch(92% 0.006 85);
+    --preset-console-light-color-ink: oklch(19% 0.01 60);
+    --preset-console-light-color-ink-2: oklch(32% 0.01 60);
+    --preset-console-light-color-muted: oklch(46% 0.008 60);
+    --preset-console-light-color-rule: oklch(81% 0.008 85);
+    --preset-console-light-color-rule-2: oklch(65% 0.012 85);
+    --preset-console-light-color-rule-strong: oklch(61% 0.012 85);
+    --preset-console-light-color-accent: oklch(54% 0.14 70);
+    --preset-console-light-color-accent-ink: oklch(99% 0.006 85);
+    --preset-console-light-color-accent-soft: oklch(93% 0.035 80);
+    --preset-console-light-color-focus: oklch(48% 0.14 70);
+    --preset-console-light-color-cool: oklch(48% 0.115 250);
+    --preset-console-light-color-cool-soft: oklch(92% 0.025 250);
+    --preset-console-light-color-ok: oklch(44% 0.115 150);
+    --preset-console-light-color-ok-soft: oklch(93% 0.025 150);
+    --preset-console-light-color-bad: oklch(47% 0.16 25);
+    --preset-console-light-color-bad-soft: oklch(94% 0.025 25);
+    --preset-console-light-color-control-line: oklch(55% 0.012 85);
+    --preset-console-light-color-overlay: oklch(19% 0.01 60 / 60%);
+    --preset-console-light-font-display: "Host Grotesk", "Pretendard Variable", ui-sans-serif, system-ui, sans-serif;
+    --preset-console-light-font-outlier: "Atkinson Hyperlegible Mono", "Pretendard Variable", ui-monospace, monospace;
+    --preset-console-dark-color-paper: oklch(17% 0.008 250);
+    --preset-console-dark-color-paper-2: oklch(21% 0.009 250);
+    --preset-console-dark-color-paper-3: oklch(24% 0.01 250);
+    --preset-console-dark-color-ink: oklch(95% 0.005 250);
+    --preset-console-dark-color-ink-2: oklch(83% 0.008 250);
+    --preset-console-dark-color-muted: oklch(71% 0.01 250);
+    --preset-console-dark-color-rule: oklch(34% 0.01 250);
+    --preset-console-dark-color-rule-2: oklch(45% 0.012 250);
+    --preset-console-dark-color-rule-strong: oklch(49% 0.012 250);
+    --preset-console-dark-color-accent: oklch(82% 0.15 80);
+    --preset-console-dark-color-accent-ink: oklch(18% 0.04 75);
+    --preset-console-dark-color-accent-soft: oklch(29% 0.05 80);
+    --preset-console-dark-color-focus: oklch(82% 0.15 80);
+    --preset-console-dark-color-cool: oklch(77% 0.12 245);
+    --preset-console-dark-color-cool-soft: oklch(29% 0.05 245);
+    --preset-console-dark-color-ok: oklch(76% 0.15 150);
+    --preset-console-dark-color-ok-soft: oklch(24.5% 0.03 150);
+    --preset-console-dark-color-bad: oklch(70% 0.17 25);
+    --preset-console-dark-color-bad-soft: oklch(24.5% 0.035 25);
+    --preset-console-dark-color-control-line: oklch(62% 0.012 250);
+    --preset-console-dark-color-overlay: oklch(10% 0.008 250 / 75%);
+  }
+  html[data-design="coral"] {
+    --color-paper: var(--preset-coral-light-color-paper); --color-paper-2: var(--preset-coral-light-color-paper-2); --color-paper-3: var(--preset-coral-light-color-paper-3);
+    --color-ink: var(--preset-coral-light-color-ink); --color-ink-2: var(--preset-coral-light-color-ink-2); --color-muted: var(--preset-coral-light-color-muted);
+    --color-rule: var(--preset-coral-light-color-rule); --color-rule-2: var(--preset-coral-light-color-rule-2); --color-rule-strong: var(--preset-coral-light-color-rule-strong);
+    --color-accent: var(--preset-coral-light-color-accent); --color-accent-ink: var(--preset-coral-light-color-accent-ink); --color-accent-soft: var(--preset-coral-light-color-accent-soft);
+    --color-accent-2: var(--preset-coral-light-color-accent-2); --color-focus: var(--preset-coral-light-color-focus);
+    --color-cotton: var(--preset-coral-light-color-cotton); --color-desk: var(--preset-coral-light-color-desk); --color-print: var(--preset-coral-light-color-print);
+    --color-board: var(--preset-coral-light-color-board); --color-board-type: var(--preset-coral-light-color-board-type); --color-paid: var(--preset-coral-light-color-paid);
+    --color-plate: var(--color-cotton); --color-elevated: var(--color-cotton); --color-surface: var(--color-cotton);
+    --color-control-line: var(--preset-coral-light-color-control-line); --color-quiet: var(--color-paper-2);
+    --color-primary: var(--color-board); --color-on-primary: var(--color-board-type);
+    --color-positive: var(--preset-coral-light-color-positive); --color-positive-soft: var(--preset-coral-light-color-positive-soft);
+    --color-negative: var(--preset-coral-light-color-negative); --color-negative-soft: var(--preset-coral-light-color-negative-soft);
+    --color-error: var(--color-negative); --color-success: var(--color-positive);
+    --color-overlay: var(--preset-coral-light-color-overlay);
+    --color-stock-shade: var(--preset-coral-light-color-stock-shade); --color-stock-lit: var(--preset-coral-light-color-stock-lit);
+    --color-stock-wall: var(--preset-coral-light-color-stock-wall); --color-stock-cast: var(--preset-coral-light-color-stock-cast);
+    --font-display: var(--preset-coral-light-font-display); --font-body: var(--font-display);
+    --font-outlier: var(--preset-coral-light-font-outlier);
+    --radius-card: 8px; --radius-input: 6px; --radius-pill: 8px; --rule-bar: 1px; --rule-hair: 1px;
+    --display-weight: 600; --tracking-display: -.03em; --container: 1280px;
+    --edge-stock: inset 0 1px 0 var(--color-stock-lit), inset 0 -1px 0 var(--color-stock-wall), 0 0 0 .5px var(--color-stock-shade);
+    --cast-stock: 6px 5px 10px -6px var(--color-stock-cast); --cast-stock-lift: 10px 8px 14px -7px var(--color-stock-cast);
+    --press-groove: inset 1px 1.5px 2px var(--color-stock-shade), inset -1px -1px 0 var(--color-stock-lit);
+    --shadow-card: var(--edge-stock), var(--cast-stock); --shadow-card-hover: var(--edge-stock), var(--cast-stock-lift);
+    --design-control-shadow: var(--edge-stock), 2px 2px 4px -3px var(--color-stock-cast);
+    --design-card-shadow: var(--shadow-card); --design-tint: var(--color-accent-2);
+    --tex-cotton: var(--preset-cotton-texture);
+  }
+  html[data-design="coral"].dark {
+    --color-paper: var(--preset-coral-dark-color-paper); --color-paper-2: var(--preset-coral-dark-color-paper-2); --color-paper-3: var(--preset-coral-dark-color-paper-3);
+    --color-ink: var(--preset-coral-dark-color-ink); --color-ink-2: var(--preset-coral-dark-color-ink-2); --color-muted: var(--preset-coral-dark-color-muted);
+    --color-rule: var(--preset-coral-dark-color-rule); --color-rule-2: var(--preset-coral-dark-color-rule-2); --color-rule-strong: var(--preset-coral-dark-color-rule-strong);
+    --color-accent: var(--preset-coral-dark-color-accent); --color-accent-ink: var(--preset-coral-dark-color-accent-ink); --color-accent-soft: var(--preset-coral-dark-color-accent-soft);
+    --color-accent-2: var(--preset-coral-dark-color-accent-2); --color-focus: var(--preset-coral-dark-color-focus);
+    --color-cotton: var(--preset-coral-dark-color-cotton); --color-desk: var(--preset-coral-dark-color-desk); --color-print: var(--color-ink);
+    --color-board: var(--preset-coral-dark-color-board); --color-board-type: var(--preset-coral-dark-color-board-type); --color-paid: var(--preset-coral-dark-color-paid);
+    --color-control-line: var(--preset-coral-dark-color-control-line); --color-overlay: var(--preset-coral-dark-color-overlay);
+    --color-positive: var(--preset-coral-dark-color-positive); --color-positive-soft: var(--preset-coral-dark-color-positive-soft);
+    --color-negative: var(--preset-coral-dark-color-negative); --color-negative-soft: var(--preset-coral-dark-color-negative-soft);
+    --edge-stock: inset 0 1px 0 var(--color-rule-2), inset 0 -1px 0 var(--color-rule);
+    --cast-stock: 0 0 0 0 transparent; --cast-stock-lift: 0 0 0 0 transparent;
+    --press-groove: inset 0 0 0 1px var(--color-rule-2);
+    --shadow-card: inset 0 0 0 1px var(--color-rule); --shadow-card-hover: inset 0 0 0 1px var(--color-rule-2);
+    --design-control-shadow: inset 0 0 0 1px var(--color-rule);
+    --tex-cotton: none;
+  }
+  html[data-design="console"] {
+    --color-paper: var(--preset-console-light-color-paper); --color-paper-2: var(--preset-console-light-color-paper-2); --color-paper-3: var(--preset-console-light-color-paper-3);
+    --color-ink: var(--preset-console-light-color-ink); --color-ink-2: var(--preset-console-light-color-ink-2); --color-muted: var(--preset-console-light-color-muted);
+    --color-rule: var(--preset-console-light-color-rule); --color-rule-2: var(--preset-console-light-color-rule-2); --color-rule-strong: var(--preset-console-light-color-rule-strong);
+    --color-accent: var(--preset-console-light-color-accent); --color-accent-ink: var(--preset-console-light-color-accent-ink); --color-accent-soft: var(--preset-console-light-color-accent-soft);
+    --color-focus: var(--preset-console-light-color-focus); --color-cool: var(--preset-console-light-color-cool); --color-cool-soft: var(--preset-console-light-color-cool-soft);
+    --color-ok: var(--preset-console-light-color-ok); --color-ok-soft: var(--preset-console-light-color-ok-soft); --color-bad: var(--preset-console-light-color-bad); --color-bad-soft: var(--preset-console-light-color-bad-soft);
+    --color-plate: var(--color-paper-2); --color-elevated: var(--color-paper-2); --color-surface: var(--color-paper-2);
+    --color-control-line: var(--preset-console-light-color-control-line); --color-quiet: var(--color-paper-3); --color-overlay: var(--preset-console-light-color-overlay);
+    --color-primary: var(--color-accent); --color-on-primary: var(--color-accent-ink);
+    --color-positive: var(--color-ok); --color-positive-soft: var(--color-ok-soft); --color-negative: var(--color-bad); --color-negative-soft: var(--color-bad-soft);
+    --color-error: var(--color-negative); --color-success: var(--color-positive);
+    --font-display: var(--preset-console-light-font-display); --font-body: var(--font-display);
+    --font-outlier: var(--preset-console-light-font-outlier);
+    --radius-card: 10px; --radius-input: 6px; --radius-pill: 6px; --rule-bar: 1px; --rule-hair: 1px;
+    --display-weight: 500; --tracking-display: -.03em; --container: 1360px;
+    --shadow-card: none; --shadow-card-hover: none; --design-card-shadow: none; --design-control-shadow: none; --design-tint: var(--color-cool);
+  }
+  html[data-design="console"].dark {
+    --color-paper: var(--preset-console-dark-color-paper); --color-paper-2: var(--preset-console-dark-color-paper-2); --color-paper-3: var(--preset-console-dark-color-paper-3);
+    --color-ink: var(--preset-console-dark-color-ink); --color-ink-2: var(--preset-console-dark-color-ink-2); --color-muted: var(--preset-console-dark-color-muted);
+    --color-rule: var(--preset-console-dark-color-rule); --color-rule-2: var(--preset-console-dark-color-rule-2); --color-rule-strong: var(--preset-console-dark-color-rule-strong);
+    --color-accent: var(--preset-console-dark-color-accent); --color-accent-ink: var(--preset-console-dark-color-accent-ink); --color-accent-soft: var(--preset-console-dark-color-accent-soft); --color-focus: var(--preset-console-dark-color-focus);
+    --color-cool: var(--preset-console-dark-color-cool); --color-cool-soft: var(--preset-console-dark-color-cool-soft);
+    --color-ok: var(--preset-console-dark-color-ok); --color-ok-soft: var(--preset-console-dark-color-ok-soft); --color-bad: var(--preset-console-dark-color-bad); --color-bad-soft: var(--preset-console-dark-color-bad-soft);
+    --color-control-line: var(--preset-console-dark-color-control-line); --color-overlay: var(--preset-console-dark-color-overlay);
+  }
+
+  /* Shared geometry changes with the chosen material; content and mathematical glyphs do not. */
+  html:is([data-design="coral"], [data-design="console"]) { font-variant-numeric: tabular-nums; }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header, .tz-footer, .tz-study, .tz-exam, .tz-landing, .tz-admin-header, .tz-admin-home) { font-family: var(--font-body); }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header__wordmark, .tz-admin-header__wordmark > span:first-child, .tz-study h1, .tz-study h2, .tz-study h3, .tz-study h4, .tz-admin-home h1, .tz-admin-home h2, .tz-admin-home h3, .tz-landing-main h1, .tz-landing-main h2, .tz-landing-main h3, .tz-exam-title h1, .tz-exam-navigator h2, .tz-welcome__sheet h1, .tz-english-intro__sheet h1) { font-family: var(--font-display); font-weight: var(--display-weight); letter-spacing: var(--tracking-display); text-wrap: balance; }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header, .tz-study, .tz-landing, .tz-exam, .tz-admin-header, .tz-admin-home) :is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; transition: none; }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-study-daily-count strong, .tz-study-figure, .tz-study-advanced-figure, .tz-landing-price, .tz-landing-fact-grid dd, .tz-exam-number) { font-weight: var(--display-weight); }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header, .tz-footer, .tz-admin-header) { border-color: var(--color-rule); border-width: 1px; }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header__popover, .tz-welcome__sheet, .tz-english-intro__sheet, .tz-study-daily, .tz-study-method, .tz-study-review, .tz-study-login, .tz-study-modal, .tz-english-primary, .tz-landing-product, .tz-landing-feature, .tz-landing-plan, .tz-exam-question, .tz-exam-mobile-nav, .tz-admin-home-access) { border-radius: var(--radius-card); border-width: 1px; border-color: var(--color-rule); box-shadow: var(--shadow-card); }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header__button, .tz-header__resend, .tz-header__summary, .tz-header__account-link, .tz-theme, .tz-track, .tz-track__button, .tz-welcome__start, .tz-english-intro__dismiss, .tz-english-shortcuts__link, .tz-study-button, .tz-study-disabled, .tz-study-modal button, .tz-landing-button, .tz-exam-action, .tz-exam-tab, .tz-exam-jump, .tz-exam-option-label, .tz-admin-header__student, .tz-admin-header__logout, .tz-admin-home-access-link) { border-radius: var(--radius-pill); border-width: 1px; font-weight: 500; }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header .tz-header__input, .tz-exam-answer-input input, .tz-study-modal input, .tz-study-modal select) { border-radius: var(--radius-input); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-study-square { border-radius: var(--radius-input); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-exam-question-head > span.rounded-full { border-radius: 4px; }
+  html:is([data-design="coral"], [data-design="console"]) .tz-exam-option { border-radius: var(--radius-input); }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header__button--primary, .tz-study-button:not(.tz-study-button-quiet), .tz-welcome__start, .tz-landing-button:not(.tz-landing-button-quiet), .tz-exam-action-primary, .tz-admin-home-access-link) { background: var(--color-primary); color: var(--color-on-primary); border-color: var(--color-primary); }
+  html:is([data-design="coral"], [data-design="console"]) :is(.tz-header__button--primary, .tz-study-button:not(.tz-study-button-quiet), .tz-welcome__start, .tz-landing-button:not(.tz-landing-button-quiet), .tz-exam-action-primary, .tz-admin-home-access-link):hover { background: var(--color-ink-2); color: var(--color-paper); border-color: var(--color-ink-2); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) [class*="rounded-"]:not(:where(.coaching-print-page, .coaching-print-page *)) { border-radius: var(--radius-input); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.border:not(:where(.coaching-print-page, .coaching-print-page *)) { border-radius: var(--radius-card); border-color: var(--color-rule) !important; }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(h1, h2, h3):not(:where(.coaching-print-page, .coaching-print-page *)) { font-family: var(--font-display); font-weight: var(--display-weight); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, input, select, textarea):not(:where(.coaching-print-page, .coaching-print-page *)) { font-family: var(--font-body); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) :is(button, label, thead, th, dt):not(:where(.coaching-print-page, .coaching-print-page *)) { font-weight: 500; }
+  html:is([data-design="coral"], [data-design="console"]) .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button:is(.bg-brand-600, .bg-amber-500, .bg-coral-600) { background: var(--color-plate) !important; color: var(--color-ink) !important; box-shadow: var(--design-control-shadow); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-landing-product-image { aspect-ratio: 1376 / 1004; border-radius: calc(var(--radius-card) - 1px) calc(var(--radius-card) - 1px) 0 0; }
+  html:is([data-design="coral"], [data-design="console"]) .tz-landing-product-image > img { object-fit: contain; }
+  html:is([data-design="coral"], [data-design="console"]) .tz-landing-product figcaption { border-color: var(--color-rule); }
+  html:is([data-design="coral"], [data-design="console"]) .tz-landing-feature-4 :is(h3, p) { color: var(--color-ink); }
+
+  /* Coral: an open cotton desk, with a sheet for today's work and a companion review card. */
+  html[data-design="coral"] :is(.tz-header__mark, .tz-admin-header__mark) { color: var(--color-ink); }
+  html[data-design="coral"] :is(.tz-header__inner, .tz-footer__inner) { padding-inline: var(--gutter); }
+  html[data-design="coral"] :is(.tz-header, .tz-admin-header) { background: var(--color-cotton); }
+  html[data-design="coral"] :is(.tz-header__button, .tz-header__resend, .tz-theme, .tz-study-button, .tz-landing-button, .tz-welcome__start, .tz-english-shortcuts__link, .tz-exam-action, .tz-admin-header__student, .tz-admin-header__logout) { min-height: 48px; box-shadow: var(--design-control-shadow); border-color: var(--color-rule); }
+  html[data-design="coral"] :is(.tz-header__button, .tz-header__resend, .tz-theme, .tz-study-button, .tz-landing-button, .tz-welcome__start, .tz-english-shortcuts__link, .tz-exam-action, .tz-admin-header__student, .tz-admin-header__logout):active { box-shadow: var(--press-groove); transform: translateY(1px); }
+  html[data-design="coral"] :is(.tz-track, .tz-exam-tabs) { padding: var(--space-2xs); gap: var(--space-2xs); border: 0; background: var(--color-paper-2); box-shadow: var(--press-groove); border-radius: 12px; }
+  html[data-design="coral"] .tz-track__button + .tz-track__button { border: 0; }
+  html[data-design="coral"] :is(.tz-track__button[aria-pressed="true"], .tz-exam-tab[aria-pressed="true"]) { background: var(--color-cotton); color: var(--color-ink); box-shadow: var(--edge-stock), var(--cast-stock); }
+  html[data-design="coral"] .tz-exam-tab { border: 0; background: transparent; }
+  html[data-design="coral"] .tz-admin-home { max-width: 1100px; padding-top: 56px; }
+  html[data-design="coral"] .tz-admin-home-intro { border: 0; padding-bottom: 20px; margin-bottom: 32px; text-align: center; }
+  html[data-design="coral"] .tz-admin-home-intro h1 { max-width: 24ch; margin-inline: auto; font-size: clamp(1.875rem, 3vw, 2.625rem); }
+  html[data-design="coral"] .tz-admin-home-intro p { max-width: 58ch; margin: var(--space-md) auto 0; }
+  html[data-design="coral"] .tz-admin-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-lg); }
+  html[data-design="coral"] .tz-admin-home-card { min-height: 184px; padding: 28px; border: 1px solid var(--color-rule); border-radius: 8px; background: var(--color-cotton); box-shadow: var(--shadow-card); }
+  html[data-design="coral"] :is(.tz-admin-home-card, .tz-study-daily, .tz-study-review, .tz-study-method, .tz-study-login, .tz-study-modal, .tz-english-primary, .tz-english-review, .tz-exam-question, .tz-landing-feature, .tz-landing-plan, .tz-welcome__sheet) { background-image: var(--tex-cotton); }
+  html[data-design="coral"] .tz-admin-home-card:hover { background: var(--color-cotton); box-shadow: var(--shadow-card-hover); transform: translateY(-1px); }
+  html[data-design="coral"] .tz-admin-home-card:active { box-shadow: var(--press-groove); transform: translateY(1px); }
+  html[data-design="coral"] .tz-admin-home-card[data-attention] { border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-admin-home-icon { color: var(--color-ink-2); }
+  html[data-design="coral"] .tz-admin-home-badge { border-radius: 4px; background: transparent; color: var(--color-paid); border-color: var(--color-paid); }
+  html[data-design="coral"] .tz-admin-home-english > h2 { border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-study { max-width: 1200px; padding-top: 44px; }
+  html[data-design="coral"] .tz-study-heading { display: block; text-align: center; margin-bottom: 32px; }
+  html[data-design="coral"] .tz-study-heading h1 { font-size: clamp(2rem, 3vw, 2.75rem); }
+  html[data-design="coral"] .tz-study-counts { justify-content: center; margin-top: var(--space-lg); gap: 48px; }
+  html[data-design="coral"] .tz-study-counts dd { font-weight: 400; }
+  html[data-design="coral"] .tz-study-today { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 28px; margin-bottom: 44px; }
+  html[data-design="coral"] :is(.tz-study-daily, .tz-study-review) { min-height: 244px; padding: 28px; background: var(--color-cotton); border: 1px solid var(--color-rule); box-shadow: var(--shadow-card); }
+  html[data-design="coral"] .tz-study-daily-main h2 { font-size: 1.75rem; line-height: 1.2; }
+  html[data-design="coral"] .tz-study-daily-main h2 br { display: none; }
+  html[data-design="coral"] .tz-study-review h2 { font-size: 1.5rem; }
+  html[data-design="coral"] .tz-study-review h2 br { display: none; }
+  html[data-design="coral"] .tz-study-daily-count strong { font-size: 4rem; }
+  html[data-design="coral"] .tz-study-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  html[data-design="coral"] .tz-study-method { padding: 28px; background: var(--color-cotton); }
+  html[data-design="coral"] .tz-study-section-heading { border-top: 0; padding-top: 0; margin-bottom: 20px; }
+  html[data-design="coral"] .tz-study-advanced { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); border: 1px solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-paper-2); padding: 32px; }
+  html[data-design="coral"] .tz-study-advanced-figure { font-size: 4.5rem; }
+  html[data-design="coral"] :is(.tz-study-availability, .tz-study-accent, .tz-header__feedback, .tz-english-primary-top > span, .tz-landing-plan-recommend) { color: var(--color-accent-2); }
+  html[data-design="coral"] .tz-study-weakness { border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-english-workspace { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 28px; }
+  html[data-design="coral"] .tz-english-primary { min-height: 300px; padding: 32px; }
+  html[data-design="coral"] .tz-english-review { border: 1px solid var(--color-rule); border-radius: var(--radius-card); padding: 28px; background: var(--color-cotton); box-shadow: var(--shadow-card); }
+  html[data-design="coral"] .tz-english-review a { border-radius: 0; }
+  html[data-design="coral"] .tz-landing-hero { background: var(--color-desk); }
+  html[data-design="coral"] .tz-landing-hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 72px; }
+  html[data-design="coral"] .tz-landing-hero-copy h1 { font-size: clamp(2.75rem, 4.6vw, 4.25rem); }
+  html[data-design="coral"] .tz-landing-product { transform: rotate(-1deg); }
+  html[data-design="coral"] .tz-landing-section-head { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; gap: 20px; }
+  html[data-design="coral"] .tz-landing-drawer { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  html[data-design="coral"] .tz-landing-feature { grid-column: auto; min-height: 190px; padding: 28px; border-radius: 8px; }
+  html[data-design="coral"] .tz-landing-feature-1 { grid-column: 1 / -1; min-height: 200px; }
+  html[data-design="coral"] .tz-landing-feature-4 { background: var(--color-cotton); border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-landing-feature-8 { display: flex; padding: 28px; border: 1px solid var(--color-rule); background: var(--color-cotton); }
+  html[data-design="coral"] .tz-landing-flow-grid { border: 0; border-radius: 8px; background: var(--color-board); color: var(--color-board-type); }
+  html[data-design="coral"] .tz-landing-flow :is(h2, h3, p, li::before) { color: var(--color-board-type); }
+  html[data-design="coral"] .tz-landing-plan { padding: 36px; }
+  html[data-design="coral"] .tz-landing-plan ul { border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-exam { max-width: 1240px; padding-top: 32px; }
+  html[data-design="coral"] .tz-exam-toolbar { border-color: var(--color-rule); }
+  html[data-design="coral"] .tz-exam-question { margin-bottom: 32px; }
+  html[data-design="coral"] .tz-exam-question-body { padding: 28px 36px 36px; }
+  html[data-design="coral"] .tz-exam-option[aria-pressed="true"] { border-color: var(--color-accent-2); background: var(--color-accent-soft); box-shadow: inset 0 0 0 1px var(--color-accent-2); }
+  html[data-design="coral"] .tz-exam-option[aria-pressed="true"] .tz-exam-option-label { background: transparent; color: var(--color-paid); border-color: var(--color-paid); }
+  html[data-design="coral"] .tz-exam-navigator { padding: 20px; border: 1px solid var(--color-rule); border-radius: 8px; background: var(--color-cotton); }
+  html[data-design="coral"] .tz-exam-jump[data-answered="true"] { background: var(--color-accent-soft); color: var(--color-paid); border-color: var(--color-paid); }
+  html[data-design="coral"] .tz-exam-action[aria-pressed="true"] { background: var(--color-accent-soft); color: var(--color-paid); border-color: var(--color-paid); }
+
+  /* Console: one shared instrument surface, with a large record above a compact tool directory. */
+  html[data-design="console"] :is(.tz-header, .tz-admin-header) { background: var(--color-paper-2); }
+  html[data-design="console"] :is(.tz-header__inner, .tz-admin-header__inner) { min-height: 68px; }
+  html[data-design="console"] :is(.tz-header__mark, .tz-admin-header__mark) { color: var(--color-ink); }
+  html[data-design="console"] :is(.tz-header__summary, .tz-header__account-link, .tz-header__nav-link) { min-height: 42px; }
+  html[data-design="console"] .tz-track { border-color: var(--color-rule-2); background: var(--color-paper-3); overflow: clip; }
+  html[data-design="console"] .tz-track__button + .tz-track__button { border-color: var(--color-rule); }
+  html[data-design="console"] .tz-track__button[aria-pressed="true"] { background: var(--color-cool-soft); color: var(--color-cool); }
+  html[data-design="console"] .tz-admin-home { padding-top: 28px; }
+  html[data-design="console"] .tz-admin-home-intro { margin-bottom: var(--space-lg); padding-bottom: 20px; border-color: var(--color-rule); }
+  html[data-design="console"] .tz-admin-home-intro h1 { font-size: 1.875rem; }
+  html[data-design="console"] .tz-admin-home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-rule); overflow: clip; }
+  html[data-design="console"] .tz-admin-home-card { display: grid; grid-template-columns: 36px minmax(0, 1fr) 24px; grid-template-rows: auto auto; column-gap: var(--space-md); row-gap: var(--space-xs); align-content: center; min-height: 116px; padding: var(--space-lg); border: 0; border-radius: 0; box-shadow: none; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-admin-home-card:hover { background: var(--color-paper-3); box-shadow: none; transform: none; }
+  html[data-design="console"] .tz-admin-home-card:first-child { grid-column: 1 / -1; min-height: 164px; }
+  html[data-design="console"] .tz-admin-home-card:first-child h2 { font-size: 1.875rem; }
+  html[data-design="console"] .tz-admin-home-card-top { grid-column: 1; grid-row: 1 / 3; width: auto; min-height: 0; margin: 0; align-items: center; }
+  html[data-design="console"] .tz-admin-home-card :is(h2, h3) { grid-column: 2; grid-row: 1; font-size: 1.125rem; }
+  html[data-design="console"] .tz-admin-home-card p { grid-column: 2; grid-row: 2; margin: 0; }
+  html[data-design="console"] .tz-admin-home-open { position: static; grid-column: 3; grid-row: 1 / 3; align-self: center; color: var(--color-muted); }
+  html[data-design="console"] .tz-admin-home-badge { position: absolute; top: 14px; right: 16px; border-radius: 4px; background: var(--color-accent-soft); color: var(--color-accent); }
+  html[data-design="console"] .tz-admin-home-icon { color: var(--color-ink-2); }
+  html[data-design="console"] .tz-admin-home-english { margin-top: 32px; }
+  html[data-design="console"] .tz-admin-home-english > h2 { border: 0; padding-top: 0; margin-bottom: var(--space-md); }
+  html[data-design="console"] .tz-admin-home-english .tz-admin-home-card:first-child { min-height: 116px; }
+  html[data-design="console"] .tz-study { max-width: 1360px; padding-top: 28px; }
+  html[data-design="console"] .tz-study-heading { margin-bottom: var(--space-lg); }
+  html[data-design="console"] .tz-study h1 { font-size: 2rem; }
+  html[data-design="console"] .tz-study-counts dd { color: var(--color-cool); font-size: 1.5rem; }
+  html[data-design="console"] .tz-study-today { grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 1px; margin-bottom: 32px; border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-rule); overflow: clip; }
+  html[data-design="console"] :is(.tz-study-daily, .tz-study-review) { min-height: 204px; border: 0; border-radius: 0; padding: var(--space-lg); box-shadow: none; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-study-daily-main h2 { font-size: 1.5rem; }
+  html[data-design="console"] .tz-study-daily-main h2 br { display: none; }
+  html[data-design="console"] .tz-study-daily-count strong { font-family: var(--font-outlier); font-size: 4rem; font-weight: 400; color: var(--color-cool); }
+  html[data-design="console"] .tz-study-section-heading { border: 0; padding-top: 0; }
+  html[data-design="console"] .tz-study-method-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-rule); overflow: clip; }
+  html[data-design="console"] .tz-study-method { padding: var(--space-lg); border: 0; border-radius: 0; box-shadow: none; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-study-method h3 { font-size: 1.375rem; }
+  html[data-design="console"] :is(.tz-study-figure, .tz-study-advanced-figure) { font-family: var(--font-outlier); font-weight: 400; color: var(--color-cool); }
+  html[data-design="console"] .tz-study-figure { font-size: 2.25rem; }
+  html[data-design="console"] .tz-study-specs dd { font-family: var(--font-outlier); color: var(--color-cool); font-weight: 400; }
+  html[data-design="console"] .tz-study-advanced { grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: 32px; margin-top: 32px; padding: 28px; border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-study-advanced-figure { font-size: 4.5rem; }
+  html[data-design="console"] .tz-study-weakness { border-color: var(--color-rule); }
+  html[data-design="console"] .tz-english-primary { padding: 28px; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-english-primary-top h2 { font-size: 2.25rem; }
+  html[data-design="console"] .tz-english-review { border-color: var(--color-rule); }
+  html[data-design="console"] .tz-landing-container { max-width: 1408px; padding-inline: 48px; }
+  html[data-design="console"] .tz-landing-hero { min-height: min(740px, calc(100svh - 68px)); }
+  html[data-design="console"] .tz-landing-hero-grid { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 56px; }
+  html[data-design="console"] .tz-landing-hero-copy h1 { font-size: clamp(2.75rem, 4.5vw, 4rem); }
+  html[data-design="console"] .tz-landing-lead { margin-top: 28px !important; }
+  html[data-design="console"] .tz-landing-fact-grid { border: 1px solid var(--color-rule); border-radius: 10px; overflow: clip; }
+  html[data-design="console"] .tz-landing-fact-grid > div { padding: var(--space-lg); border: 0; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-landing-fact-grid > div + div { border-left: 1px solid var(--color-rule); }
+  html[data-design="console"] .tz-landing-fact-grid dd { color: var(--color-cool); font-family: var(--font-outlier); font-weight: 400; }
+  html[data-design="console"] .tz-landing-tools { padding-block: 80px; }
+  html[data-design="console"] .tz-landing-drawer { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-rule); overflow: clip; }
+  html[data-design="console"] .tz-landing-feature { grid-column: auto; min-height: 160px; padding: 28px; border: 0; border-radius: 0; box-shadow: none; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-landing-feature-1 { grid-column: 1 / -1; min-height: 196px; }
+  html[data-design="console"] .tz-landing-feature-1 h3 { font-size: 2.25rem; }
+  html[data-design="console"] .tz-landing-feature-8 { display: flex; padding: 28px; }
+  html[data-design="console"] .tz-landing-flow-grid { border: 1px solid var(--color-rule); border-radius: 10px; background: var(--color-paper-2); color: var(--color-ink); }
+  html[data-design="console"] .tz-landing-flow :is(h2, h3, p) { color: var(--color-ink); }
+  html[data-design="console"] .tz-landing-flow-list li { border-color: var(--color-rule); }
+  html[data-design="console"] .tz-landing-flow-list li::before { font-family: var(--font-outlier); color: var(--color-cool); font-weight: 400; }
+  html[data-design="console"] .tz-landing-plan ul { border-color: var(--color-rule); }
+  html[data-design="console"] .tz-landing-price { font-family: var(--font-outlier); font-weight: 400; color: var(--color-cool); }
+  html[data-design="console"] .tz-exam { padding-top: var(--space-lg); }
+  html[data-design="console"] .tz-exam-toolbar { border: 1px solid var(--color-rule); border-radius: 10px; padding: 20px; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-exam-toolbar-top { align-items: center; }
+  html[data-design="console"] .tz-exam-metric > div:last-child { color: var(--color-cool); }
+  html[data-design="console"] .tz-exam-grid { grid-template-columns: minmax(0, 1fr) 220px; gap: var(--space-lg); }
+  html[data-design="console"] .tz-exam-question { margin-bottom: var(--space-lg); }
+  html[data-design="console"] .tz-exam-question-head { padding: var(--space-md) var(--space-lg); background: var(--color-paper-3); border-radius: 9px 9px 0 0; }
+  html[data-design="console"] .tz-exam-number { font-family: var(--font-outlier); color: var(--color-cool); font-weight: 400; }
+  html[data-design="console"] .tz-exam-question-body { padding: var(--space-lg) 28px 28px; }
+  html[data-design="console"] .tz-exam-option[aria-pressed="true"] { border-color: var(--color-accent); box-shadow: inset 0 0 0 1px var(--color-accent); }
+  html[data-design="console"] .tz-exam-option[aria-pressed="true"] .tz-exam-option-label { background: var(--color-accent); color: var(--color-accent-ink); border-color: var(--color-accent); }
+  html[data-design="console"] .tz-exam-navigator { border: 1px solid var(--color-rule); border-radius: 10px; padding: 20px; background: var(--color-paper-2); }
+  html[data-design="console"] .tz-exam-tab[aria-pressed="true"] { background: var(--color-cool-soft); color: var(--color-cool); }
+  html[data-design="console"] .tz-exam-jump[data-answered="true"] { background: var(--color-cool-soft); color: var(--color-cool); border-color: var(--color-cool); }
+  html[data-design="console"] .tz-exam-action[aria-pressed="true"] { background: var(--color-accent-soft); color: var(--color-accent); border-color: var(--color-accent); }
+  html[data-design="console"] .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button:is(.bg-brand-600, .bg-amber-500, .bg-coral-600) { background: var(--color-cool-soft) !important; color: var(--color-cool) !important; box-shadow: inset 0 -2px 0 var(--color-cool); }
+
+  /* The on-screen coaching sheet belongs to the selected design. Printed paper remains untouched. */
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) { background: var(--color-plate) !important; color: var(--color-ink) !important; border-color: var(--color-rule) !important; border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+  html[data-design] .tz-admin :is(.coaching-print-page .coaching-print-question, .coaching-print-page .coaching-print-question *, .coaching-answer-sheet, .coaching-answer-sheet *) { color: var(--color-ink) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) :is(.text-slate-400, .text-slate-500, .coaching-print-option-label) { color: var(--color-muted) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) .bg-white { background: var(--color-plate) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) :is(.bg-slate-50, .coaching-print-viewbox) { background: var(--color-paper-2) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) :is(.border-line, .coaching-print-viewbox, .coaching-print-column-right, .coaching-page-custom-header) { border-color: var(--color-rule-strong) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) :is(h1, h2, h3, .coaching-print-header, .coaching-page-custom-header) { color: var(--color-ink) !important; }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) :is(h1, h2, h3, .coaching-page-custom-header) { font-family: var(--font-display); font-weight: var(--display-weight); }
+  html[data-design] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) .coaching-print-viewbox { border-radius: var(--radius-input, var(--radius-card)); }
+  html[data-design="coral"] .tz-admin :is(.coaching-print-page, .coaching-answer-sheet) { background-image: var(--tex-cotton) !important; }
+
+  @media (max-width: 60rem) {
+    html[data-design="coral"] .tz-landing-hero-grid, html[data-design="console"] .tz-landing-hero-grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+    html[data-design="coral"] .tz-landing-hero { min-height: auto; }
+    html[data-design="console"] .tz-landing-hero { min-height: auto; }
+    html[data-design="console"] .tz-exam-grid { grid-template-columns: minmax(0, 1fr); }
+    html[data-design="coral"] .tz-exam-question-body { padding-inline: 28px; }
+  }
+  @media (max-width: 40rem) {
+    html:is([data-design="coral"], [data-design="console"]) { --gutter: 16px; }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study { padding: var(--space-lg) var(--space-md) var(--space-2xl); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-admin-home-grid { grid-template-columns: minmax(0, 1fr); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study-today { grid-template-columns: minmax(0, 1fr); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study-method-grid { grid-template-columns: minmax(0, 1fr); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study-method-top { gap: var(--space-sm); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study-advanced { grid-template-columns: minmax(0, 1fr); padding: var(--space-lg); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-study-advanced-title { flex-direction: row; }
+    html:is([data-design="coral"], [data-design="console"]) .tz-english-workspace { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-landing-drawer { grid-template-columns: minmax(0, 1fr); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-landing-feature { grid-column: 1 / -1; min-height: 0; }
+    html:is([data-design="coral"], [data-design="console"]) .tz-landing-container { padding-inline: var(--space-md); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-landing-hero-copy h1 { font-size: clamp(2.25rem, 9vw, 3.25rem); }
+    html:is([data-design="coral"], [data-design="console"]) .tz-exam-question-body { padding: var(--space-lg) var(--space-md); }
+    html[data-design="coral"] .tz-admin-home { padding-top: 32px; }
+    html[data-design="coral"] .tz-admin-home-intro { margin-bottom: var(--space-lg); }
+    html[data-design="coral"] .tz-admin-home-intro h1 { font-size: 1.875rem; }
+    html[data-design="coral"] .tz-admin-home-card { padding: var(--space-lg); min-height: 176px; }
+    html[data-design="coral"] .tz-study-heading { text-align: left; }
+    html[data-design="coral"] .tz-study-counts { justify-content: flex-start; margin-top: 20px; gap: 32px; }
+    html[data-design="coral"] :is(.tz-study-daily, .tz-study-review, .tz-study-method) { padding: var(--space-lg); }
+    html[data-design="coral"] .tz-study-review { align-items: flex-start; flex-direction: column; min-height: 196px; }
+    html[data-design="coral"] .tz-study-review h2 { font-size: 1.25rem; }
+    html[data-design="coral"] .tz-study-daily-main { flex-direction: column; gap: var(--space-sm); }
+    html[data-design="coral"] .tz-study-daily-bottom { align-items: end; gap: var(--space-sm); }
+    html[data-design="coral"] .tz-study-daily-count strong { font-size: 3.5rem; }
+    html[data-design="coral"] .tz-study-button { padding-inline: var(--space-md); font-size: .8125rem; }
+    html[data-design="coral"] .tz-english-primary { padding: var(--space-lg); min-height: 268px; }
+    html[data-design="coral"] .tz-english-review { padding: var(--space-lg); }
+    html[data-design="coral"] .tz-landing-product { transform: none; }
+    html[data-design="coral"] .tz-landing-plan { padding: 28px; }
+    html[data-design="console"] :is(.tz-header__inner, .tz-admin-header__inner) { min-height: 68px; }
+    html[data-design="console"] .tz-admin-home-card { padding: 20px; min-height: 120px; column-gap: var(--space-sm); }
+    html[data-design="console"] .tz-admin-home-card:first-child { min-height: 164px; }
+    html[data-design="console"] .tz-admin-home-card:first-child h2 { font-size: 1.5rem; }
+    html[data-design="console"] .tz-admin-home-card p { font-size: .8125rem; }
+    html[data-design="console"] .tz-study-heading { align-items: flex-start; gap: var(--space-sm); }
+    html[data-design="console"] .tz-study h1 { font-size: 1.75rem; }
+    html[data-design="console"] .tz-study-counts { flex-shrink: 0; gap: var(--space-md); }
+    html[data-design="console"] .tz-study-counts dd { font-size: 1rem; }
+    html[data-design="console"] :is(.tz-study-daily, .tz-study-review, .tz-study-method) { padding: 20px; }
+    html[data-design="console"] .tz-study-review { min-height: 144px; align-items: flex-start; flex-direction: column; gap: var(--space-md); }
+    html[data-design="console"] .tz-study-daily-bottom { align-items: end; gap: var(--space-sm); }
+    html[data-design="console"] .tz-study-daily-count strong { font-size: 3.5rem; }
+    html[data-design="console"] .tz-study-figure { font-size: 1.875rem; }
+    html[data-design="console"] .tz-study-advanced-figure { font-size: 3.25rem; }
+    html[data-design="console"] .tz-study-button { padding-inline: var(--space-md); font-size: .8125rem; }
+    html[data-design="console"] .tz-landing-fact-grid > div { padding: 20px var(--space-md); }
+    html[data-design="console"] .tz-landing-fact-grid > div:nth-child(3) { border-left: 0; }
+    html[data-design="console"] .tz-landing-fact-grid > div:nth-child(n+3) { border-top: 1px solid var(--color-rule); }
+    html[data-design="console"] .tz-exam-toolbar { padding: var(--space-md); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html:is([data-design="coral"], [data-design="console"]) :is(.tz-admin-home-card, .tz-study-button, .tz-landing-button, .tz-header__button, .tz-exam-action) { transition: none; }
+    html[data-design="coral"] .tz-admin-home-card:hover { transform: none; }
+  }
+}

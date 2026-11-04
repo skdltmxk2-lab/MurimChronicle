@@ -73,13 +73,13 @@ export function InquiryModal({ onClose }: { onClose: () => void }) {
 
   const modal = (
     <div
-      className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-slate-900/60 px-4 py-6 backdrop-blur-sm"
+      className="design-dialog-backdrop fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto px-4 py-6"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       <div
-        className="my-auto w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
+        className="design-dialog-surface my-auto w-full max-w-lg overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="border-b border-line px-6 py-4">

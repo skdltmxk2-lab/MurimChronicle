@@ -5,7 +5,7 @@
   .tz-admin-header { border-bottom: var(--rule-bar) solid var(--color-rule-strong); background: var(--color-paper); color: var(--color-ink); }
   .tz-admin-header__inner { width: 100%; max-width: var(--container); min-height: 80px; margin-inline: auto; padding: var(--space-sm) var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: var(--space-lg); }
   .tz-admin-header__brand { display: inline-flex; align-items: center; gap: var(--space-sm); min-width: 0; color: var(--color-ink); text-decoration: none; }
-  .tz-admin-header__mark { flex: none; color: var(--color-accent); }
+  .tz-admin-header__mark { flex: none; }
   .tz-admin-header__wordmark { display: grid; gap: var(--space-2xs); }
   .tz-admin-header__wordmark > span:first-child { font-size: 1.125rem; font-weight: 700; line-height: 1.2; }
   .tz-admin-header__wordmark > span:last-child { color: var(--color-muted); font-size: .75rem; line-height: 1.25; }
@@ -40,9 +40,6 @@
   .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) button:not(:where(.coaching-print-page, .coaching-print-page *)):disabled { opacity: .45; cursor: not-allowed; }
   .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) table button:not(:where(.coaching-print-page, .coaching-print-page *)) { flex-shrink: 0; white-space: nowrap; }
   .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button { min-width: 0; word-break: keep-all; }
-  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button.bg-brand-600 { background: var(--color-blue-soft) !important; color: var(--color-blue) !important; box-shadow: inset 0 -2px 0 var(--color-blue); }
-  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button.bg-amber-500 { background: var(--color-sage-soft) !important; color: var(--color-sage) !important; box-shadow: inset 0 -2px 0 var(--color-sage); }
-  .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) > section.flex > button.bg-coral-600 { background: var(--color-accent-soft) !important; color: var(--color-accent) !important; box-shadow: inset 0 -2px 0 var(--color-accent); }
   .tz-admin > main:not(:is(.electronics-app, .lab5-page, .el-loading)) .overflow-x-auto:has(> table) { position: relative; }
 }
 @media screen and (max-width: 60rem) {

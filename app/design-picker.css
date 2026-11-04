@@ -1,0 +1,95 @@
+/* Hallmark · shape: app screen · genre: modern-minimal · theme: shared design selector · modes: light+dark · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V4 · weakest: S, actual product captures compare the complete design systems. */
+/* Hallmark · answered F4 · the plate-backed secondary controls retain a visible outline; only the site-wide apply action uses the primary ink fill, and the access-guard action is in a mutually exclusive state. */
+@media screen {
+  .design-picker {
+    width: min(calc(100% - var(--gutter) * 2), var(--container));
+    margin-inline: auto;
+    padding-block: var(--space-xl) var(--space-2xl);
+    color: var(--color-ink);
+  }
+  .design-picker-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-xl); margin-bottom: var(--space-lg); }
+  .design-picker h1 { min-width: 0; margin: var(--space-md) 0 var(--space-sm); color: var(--color-ink); font-family: var(--font-display); font-size: clamp(1.75rem, 2.5vw, 2.4rem); font-weight: var(--display-weight); letter-spacing: var(--tracking-display); line-height: 1.2; overflow-wrap: break-word; }
+  .design-picker-heading p { max-width: 60ch; margin: 0; color: var(--color-muted); font-size: var(--text-md); line-height: 1.7; word-break: keep-all; }
+  .design-picker-back { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-muted); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: 4px; }
+  .design-picker-mode { display: flex; flex-shrink: 0; align-items: center; gap: var(--space-sm); color: var(--color-muted); font-size: var(--text-sm); }
+  .design-picker-current { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); padding-block: var(--space-md); margin-bottom: var(--space-xl); border-block: var(--rule-hair) solid var(--color-rule); color: var(--color-muted); font-size: var(--text-sm); }
+  .design-picker-current strong { color: var(--color-ink); font-weight: 500; }
+  .design-picker-preview-status { margin-left: auto; color: var(--color-accent-2, var(--color-accent)); }
+  .design-picker-loading { margin-bottom: var(--space-lg); color: var(--color-muted); font-size: var(--text-sm); }
+  .design-picker-options { min-width: 0; padding: 0; margin: 0; border: 0; }
+  .design-picker-options legend { padding: 0; margin-bottom: var(--space-lg); color: var(--color-ink); font-size: var(--text-lg); font-weight: 500; }
+  .design-picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-lg); }
+  .design-picker-choice { display: flex; position: relative; min-width: 0; flex-direction: column; overflow: clip; border: var(--rule-hair) solid var(--color-control-line); border-radius: var(--radius-card); background: var(--color-plate); color: var(--color-ink); cursor: pointer; transition: border-color var(--dur-micro) var(--ease-out); }
+  .design-picker-choice:hover { border-color: var(--color-ink); }
+  .design-picker-choice[data-selected] { border-color: var(--color-ink); box-shadow: 0 0 0 1px var(--color-ink); }
+  .design-picker-choice:has(.design-picker-choice-input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: 5px; transition: none; }
+  .design-picker-choice:has(.design-picker-choice-input:disabled) { background: var(--color-paper-2); color: var(--color-muted); cursor: wait; }
+  .design-picker-choice-input { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; clip-path: inset(50%); white-space: nowrap; }
+  .design-picker-thumbnail { display: block; aspect-ratio: 1.6; overflow: clip; border-bottom: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2); }
+  .design-picker-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+  .design-picker-thumbnail-dark { display: none; }
+  .dark .design-picker-thumbnail-light { display: none; }
+  .dark .design-picker-thumbnail-dark { display: block; }
+  .design-picker-choice-content { display: flex; padding: var(--space-lg); flex: 1; flex-direction: column; gap: var(--space-md); }
+  .design-picker-choice-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); }
+  .design-picker-choice-title > strong { color: var(--color-ink); font-family: var(--font-display); font-size: var(--text-xl); font-weight: var(--display-weight); line-height: 1.3; }
+  .design-picker-tag { padding: var(--space-2xs) var(--space-xs); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-pill); color: var(--color-muted); font-size: var(--text-xs); line-height: 1.4; }
+  .design-picker-choice-indicator { margin-left: auto; color: var(--color-muted); font-size: var(--text-xs); }
+  .design-picker-choice[data-selected] .design-picker-choice-indicator { color: var(--color-ink); font-weight: 500; }
+  .design-picker-description { display: block; color: var(--color-ink-2); font-size: var(--text-sm); line-height: 1.7; word-break: keep-all; overflow-wrap: break-word; }
+  .design-picker-caption { display: block; margin-top: auto; color: var(--color-muted); font-size: var(--text-xs); line-height: 1.5; }
+  .design-picker-actions { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--space-lg); margin-top: var(--space-xl); padding-block: var(--space-lg); border-block: var(--rule-hair) solid var(--color-rule); }
+  .design-picker-action-copy { flex: 1 1 360px; min-width: 0; }
+  .design-picker-action-copy h2 { margin: 0 0 var(--space-xs); color: var(--color-ink); font-size: var(--text-lg); font-weight: 500; line-height: 1.4; }
+  .design-picker-action-copy p { max-width: 60ch; margin: 0; color: var(--color-muted); font-size: var(--text-sm); line-height: 1.7; word-break: keep-all; }
+  .design-picker-action-buttons { display: flex; flex-wrap: wrap; gap: var(--space-sm); }
+  .design-picker-button { display: inline-flex; min-height: 46px; padding: var(--space-sm) var(--space-lg); align-items: center; justify-content: center; border: var(--rule-hair) solid var(--color-control-line); border-radius: var(--radius-pill); background: var(--color-plate); color: var(--color-ink); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; line-height: 1.5; text-decoration: none; cursor: pointer; }
+  .design-picker-button:hover { border-color: var(--color-ink); background: var(--color-paper-2); color: var(--color-ink); }
+  .design-picker-button:active { background: var(--color-paper-3); }
+  .design-picker-button-primary { border-color: var(--color-primary); background: var(--color-primary); color: var(--color-on-primary); }
+  .design-picker-button-primary:hover,
+  .design-picker-button-primary:active { background: var(--color-ink-2); color: var(--color-paper); }
+  .design-picker-button:disabled { border-color: var(--color-rule); background: var(--color-paper-2); color: var(--color-muted); cursor: not-allowed; }
+  .design-picker-button:focus-visible,
+  .design-picker a:focus-visible,
+  .design-preview-bar a:focus-visible,
+  .design-preview-bar button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+  .design-picker-preview-links { display: flex; flex-wrap: wrap; gap: var(--space-lg); margin-top: var(--space-sm); }
+  .design-picker-preview-links a { display: inline-flex; min-height: 44px; align-items: center; color: var(--color-ink); font-size: var(--text-sm); text-decoration: underline; text-underline-offset: 4px; }
+  .design-picker-preview-links a:hover,
+  .design-picker-back:hover { color: var(--color-accent-2, var(--color-accent)); }
+  .design-picker-message { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-md); padding: var(--space-md); margin-block: var(--space-lg); border-inline-start: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-2); color: var(--color-ink); font-size: var(--text-sm); line-height: 1.7; word-break: keep-all; }
+  .design-picker-message p { margin: 0; flex: 1; }
+  .design-picker-message-error { border-inline-start-color: var(--color-negative); color: var(--color-negative); }
+  .design-picker-access { max-width: 600px; margin: var(--space-xl) auto; padding: var(--space-xl); border: var(--rule-hair) solid var(--color-rule); border-radius: var(--radius-card); background: var(--color-elevated); color: var(--color-ink); }
+  .design-picker-access h1 { word-break: keep-all; text-wrap: balance; }
+  .design-picker-access .design-picker-button { margin-top: var(--space-lg); }
+  .design-preview-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-sm) var(--space-lg); width: 100%; padding: var(--space-sm) max(var(--gutter), calc((100% - var(--container)) / 2)); border-bottom: var(--rule-hair) solid var(--color-rule); background: var(--color-paper-2); color: var(--color-ink); font-family: var(--font-body); font-size: var(--text-sm); line-height: 1.5; }
+  .design-preview-bar p { margin: 0; flex: 1 1 240px; }
+  .design-preview-bar a,
+  .design-preview-bar button { display: inline-flex; min-height: 44px; padding: var(--space-xs) var(--space-sm); align-items: center; justify-content: center; border: var(--rule-hair) solid var(--color-control-line); border-radius: var(--radius-pill); background: var(--color-plate); color: var(--color-ink); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 500; text-decoration: none; cursor: pointer; }
+  .design-preview-bar a:hover,
+  .design-preview-bar button:hover { border-color: var(--color-ink); background: var(--color-paper-2); }
+  .design-preview-bar a:active,
+  .design-preview-bar button:active { background: var(--color-paper-3); }
+  @media (max-width: 1024px) {
+    .design-picker-grid { gap: var(--space-md); }
+    .design-picker-choice-content { padding: var(--space-md); }
+  }
+  @media (max-width: 760px) {
+    .design-picker { width: calc(100% - var(--space-md) * 2); padding-top: var(--space-lg); }
+    .design-picker-heading { flex-wrap: wrap; gap: var(--space-md); }
+    .design-picker-mode { margin-left: auto; }
+    .design-picker-current { margin-bottom: var(--space-lg); }
+    .design-picker-preview-status { margin-left: 0; }
+    .design-picker-grid { grid-template-columns: minmax(0, 1fr); gap: var(--space-lg); }
+    .design-picker-action-buttons { width: 100%; }
+    .design-picker-action-buttons .design-picker-button { flex: 1 1 140px; }
+    .design-picker-access { padding: var(--space-lg); }
+    .design-preview-bar { padding-inline: var(--space-md); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .design-picker-choice { transition: none; }
+  }
+}

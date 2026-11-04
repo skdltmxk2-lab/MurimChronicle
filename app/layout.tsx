@@ -4,6 +4,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { ClientAuthWrapper } from "@/components/layout/ClientAuthWrapper";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { DesignProvider } from "@/lib/design/DesignProvider";
+import { getSiteDesign } from "@/lib/design/server";
 import "./globals.css";
 
 const SITE_DESC =
@@ -56,13 +58,14 @@ export const metadata: Metadata = {
   formatDetection: { email: false, address: false, telephone: false },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: ReactNode;
 }>) {
+  const design = await getSiteDesign();
   return (
-    <html lang="ko" suppressHydrationWarning>
+    <html lang="ko" data-design={design} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -73,7 +76,7 @@ export default function RootLayout({
       </head>
       <body>
         <JsonLd />
-        <ClientAuthWrapper>{children}</ClientAuthWrapper>
+        <ClientAuthWrapper><DesignProvider initialDesign={design}>{children}</DesignProvider></ClientAuthWrapper>
         <Analytics />
       </body>
     </html>

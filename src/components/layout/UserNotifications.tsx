@@ -113,13 +113,13 @@ function AnnouncementModal({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
+      className="design-dialog-backdrop fixed inset-0 z-50 flex items-center justify-center px-4"
       role="dialog"
       aria-modal="true"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-[0_20px_60px_-15px_rgba(15,23,42,0.4)]"
+        className="design-dialog-surface w-full max-w-md overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-gradient-to-b from-brand-50 to-white px-7 pt-7 pb-3 text-center">

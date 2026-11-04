@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { StudentHeader } from "@/components/layout/StudentHeader";
 import { StudentFooter } from "@/components/layout/StudentFooter";
+import { useSiteDesign } from "@/lib/design/DesignProvider";
+import { isAdminUser } from "@/lib/auth/mockAuth";
 
 type Feature = { title: string; desc: string };
 
@@ -41,6 +43,9 @@ export function LandingClient({ displayedUsers, questionStat }: {
 }) {
   const router = useRouter();
   const { user, authChecked } = useAuth();
+  const { design, previewing } = useSiteDesign();
+  const previewLanding = previewing && isAdminUser(user);
+  const captureHeight = design === "console" ? 976 : design === "coral" ? 1000 : 1004;
 
   const STATS = [
     { label: "등록 문항", value: questionStat },
@@ -51,14 +56,14 @@ export function LandingClient({ displayedUsers, questionStat }: {
 
   // 이미 로그인된 사용자는 마케팅 랜딩 대신 학습 페이지로
   useEffect(() => {
-    if (authChecked && user) {
+    if (authChecked && user && !previewLanding) {
       router.replace("/student/exams");
     }
-  }, [authChecked, user, router]);
+  }, [authChecked, user, router, previewLanding]);
 
   // 로그인 상태 판정 전엔 빈 화면 (FOUC 방지)
   if (!authChecked) return null;
-  if (user) return null;
+  if (user && !previewLanding) return null;
 
   return (
     <div className="tz-landing">
@@ -75,11 +80,11 @@ export function LandingClient({ displayedUsers, questionStat }: {
               </div>
             </div>
             <figure className="tz-landing-product">
-              <div className="tz-landing-product-image" data-slot="study" data-kind="product" data-alt="루트편입의 실제 학습 화면">
+              <div className="tz-landing-product-image" style={{ aspectRatio: `1376 / ${captureHeight}` }} data-slot="study" data-kind="product" data-alt="루트편입의 실제 학습 화면">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="tz-landing-capture-light" src="/hallmark/study-light.png" width="1376" height="1004" alt="문제와 답안을 한 곳에서 확인하는 루트편입 학습 화면" fetchPriority="high" />
+                <img className="tz-landing-capture-light" src={`/hallmark/${design}-study-light.png`} width="1376" height={captureHeight} alt="문제와 답안을 한 곳에서 확인하는 루트편입 학습 화면" fetchPriority="high" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="tz-landing-capture-dark" src="/hallmark/study-dark.png" width="1376" height="1004" alt="어두운 테마의 루트편입 학습 화면" fetchPriority="high" />
+                <img className="tz-landing-capture-dark" src={`/hallmark/${design}-study-dark.png`} width="1376" height={captureHeight} alt="어두운 테마의 루트편입 학습 화면" fetchPriority="high" />
               </div>
               <figcaption><span>루트편입 CBT</span><span>학습 화면 예시</span></figcaption>
             </figure>

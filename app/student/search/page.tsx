@@ -44,7 +44,7 @@ export default function SearchPage() {
   return (
     <main className="mx-auto max-w-2xl px-5 py-12">
       <div className="mb-8 text-center">
-        <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-2xl bg-[#0D1F3C] text-4xl">
+        <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-2xl design-ink-surface text-4xl">
           🔍
         </div>
         <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-4 py-1.5 text-sm font-black text-amber-700">

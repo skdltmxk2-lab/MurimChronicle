@@ -2,6 +2,7 @@
  * terrazzo: off-white + black · modes: light+dark · nav: compact study shell · signature: study specimens and the question paper · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R4 V5 · weakest: S, using the real study workspace as the product material instead of a decorative catalogue */
 @import "./fonts.css";
+@import "./design-fonts.css";
 @import "./tokens.css";
 @import "./base.css" layer(base);
 @import "./terrazzo-shell.css";
@@ -10,6 +11,9 @@
 @import "./terrazzo-exam.css";
 @import "./terrazzo-admin.css";
 @import "./terrazzo-admin-home.css";
+@import "./design-picker.css";
+@import "./design-presets.css";
+@import "./design-legacy.css";
 @import "katex/dist/katex.min.css";
 
 @tailwind base;

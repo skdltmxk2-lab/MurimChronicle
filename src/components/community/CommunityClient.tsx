@@ -220,7 +220,7 @@ export function CommunityClient() {
   return (
     <main className="mx-auto max-w-2xl px-4 pb-16 pt-0">
       {/* 헤더 배너 */}
-      <div className="-mx-4 mb-4 bg-[#0D1F3C] px-6 py-5">
+      <div className="-mx-4 mb-4 design-ink-surface px-6 py-5">
         <div className="flex items-center gap-3">
           <span className="text-2xl">📖</span>
           <h1 className="text-xl font-black text-white">커뮤니티</h1>

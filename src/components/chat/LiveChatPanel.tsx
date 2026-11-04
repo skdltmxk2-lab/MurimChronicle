@@ -131,7 +131,7 @@ export function LiveChatPanel({ className = "" }: { className?: string }) {
       className={`flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-soft ${className}`}
     >
       {/* 헤더 */}
-      <div className="flex items-center gap-2 border-b border-line bg-[#0D1F3C] px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-line design-ink-surface px-4 py-3">
         <span className="text-lg">💬</span>
         <div>
           <p className="text-sm font-black text-white">실시간 채팅</p>

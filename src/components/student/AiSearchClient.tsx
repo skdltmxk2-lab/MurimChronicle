@@ -376,7 +376,7 @@ export function AiSearchClient() {
   return (
     <main className={`mx-auto px-5 py-10 ${extracted ? "max-w-6xl" : "max-w-3xl"}`}>
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-2xl bg-[#0D1F3C] text-3xl">
+        <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-2xl design-ink-surface text-3xl">
           🔍
         </div>
         <h1 className="text-2xl font-black text-ink">AI 문제 검색</h1>
@@ -671,7 +671,7 @@ export function AiSearchClient() {
           <div className="mt-6 lg:mt-0 lg:w-96 lg:shrink-0">
             <div className="lg:sticky lg:top-4">
               <section className="rounded-2xl border border-line bg-white shadow-soft">
-                <div className="flex items-center gap-2 border-b border-line bg-[#0D1F3C] px-4 py-3">
+                <div className="flex items-center gap-2 border-b border-line design-ink-surface px-4 py-3">
                   <span className="text-lg">🤖</span>
                   <div>
                     <p className="text-sm font-black text-white">AI 튜터에게 질문</p>

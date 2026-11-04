@@ -25,7 +25,7 @@ const TIERS: Tier[] = [
     price: 0,
     tagline: "핵심 학습 기능을 무료로",
     headerBg: "bg-slate-100",
-    rim: "border-slate-300",
+    rim: "border-line",
     priceText: "text-slate-700",
     emoji: "🌱",
   },
@@ -35,9 +35,9 @@ const TIERS: Tier[] = [
     price: PRO_PRICE,
     tagline: "광고 없이, 모든 기능을 한 번에",
     badge: "추천",
-    headerBg: "bg-amber-50",
-    rim: "border-amber-400",
-    priceText: "text-amber-700",
+    headerBg: "bg-white",
+    rim: "design-plan-pro",
+    priceText: "text-ink",
     emoji: "🏆",
   },
 ];
@@ -120,12 +120,12 @@ export function PricingClient() {
             <div
               key={t.id}
               className={`relative flex flex-col rounded-2xl border-2 ${t.rim} ${t.headerBg} p-6 ${
-                isCurrent ? "shadow-xl ring-4 ring-brand-200" : isPro ? "shadow-lg ring-2 ring-amber-200" : "shadow-soft"
+                isCurrent ? "shadow-xl design-plan-current" : isPro ? "shadow-lg" : "shadow-soft"
               }`}
             >
               {t.badge ? (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-500 px-3 py-1 text-[10px] font-black tracking-wider text-white shadow-md">
-                  ⭐ {t.badge}
+                <span className="design-plan-tag absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap px-3 py-1 text-[10px] font-medium">
+                  {t.badge}
                 </span>
               ) : null}
               {isCurrent ? (
@@ -150,7 +150,7 @@ export function PricingClient() {
                 )}
               </div>
               {isPro ? (
-                <div className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-amber-500 px-5 py-3 text-sm font-black text-white">
+                <div className="design-plan-status mt-5 inline-flex w-full items-center justify-center px-5 py-3 text-sm font-medium">
                   계정 등급 적용 후 이용
                 </div>
               ) : (
@@ -175,7 +175,7 @@ export function PricingClient() {
                 <th
                   key={t.id}
                   className={`px-4 py-4 text-center text-sm font-black ${t.headerBg} ${t.priceText} ${
-                    t.id === "pro" ? "border-x-2 border-amber-300" : ""
+                    t.id === "pro" ? "design-plan-column" : ""
                   }`}
                 >
                   {t.emoji} {t.label}
@@ -196,7 +196,7 @@ export function PricingClient() {
                   return (
                     <td
                       key={t.id}
-                      className={`px-4 py-3 text-center ${isPro ? "border-x-2 border-amber-200/70 bg-amber-50/30 dark:border-amber-500/30 dark:bg-amber-500/[0.07]" : ""}`}
+                      className={`px-4 py-3 text-center ${isPro ? "design-plan-column" : ""}`}
                     >
                       {v === true ? (
                         <span className="text-xl font-black text-mint-600">O</span>
