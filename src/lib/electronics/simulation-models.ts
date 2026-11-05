@@ -1,4 +1,5 @@
 import type { Circuit, ComponentDefinition } from "./types";
+import { hasBc109cFormedProfile } from "./physical-profiles";
 
 /** Currents are positive INTO each terminal. Voltages and rows follow pinLabels. */
 export type NonlinearDevice = {
@@ -52,7 +53,7 @@ export const NONLINEAR_MODEL_REGISTRY: readonly NonlinearModel[] = [
   { definitionId: "diode-1n4148-vishay-do35", label: "1N4148 · 교육용 Shockley", educational: true, componentKind: "diode", package: "DO-35", pinLabels: ["A", "K"], rolePinIds: ["1", "2"], physicalPlacement: "direct", pinoutSources: [{ title: "Vishay 1N4148: 검은 띠=K", url: "https://www.vishay.com/docs/81857/1n4148.pdf" }], parameterBasis: "Is=2 nA, n=1.9를 교육용으로 선택: 300 K, 1 mA에서 약 0.645 V. 데이터시트 곡선의 정밀 피팅이나 제조사 SPICE 값이 아닙니다.", parameters: { family: "shockley", saturationCurrent: 2e-9, emissionCoefficient: 1.9 }, limitations: ["정적 Shockley 교육 모델이며 직렬 저항·접합 용량·역회복·항복·발열을 계산하지 않습니다."] },
   bjt("bjt-bc549c-onsemi-to92", "BC549C", ["C", "B", "E"], "npn", 7.049e-15, 493.2, 2.886, "https://www.onsemi.com/pdf/datasheet/bc550-d.pdf", `${courseLibrary}의 Philips BC549C Is/Bf/Br만 사용한 축소 모델입니다. onsemi 실물 핀맵과 Philips 교육 파라미터의 출처가 다릅니다.`),
   bjt("bjt-bc556b-onsemi-to92", "BC556B", ["C", "B", "E"], "pnp", 1.02e-15, 306.5, 7.437, "https://www.onsemi.com/pdf/datasheet/bc556b-d.pdf", `${courseLibrary}의 Philips BC556B Is/Bf/Br만 사용한 축소 모델입니다. onsemi 실물 특성의 보증값이 아닙니다.`),
-  bjt("bjt-bc109c-philips-to18", "BC109C", ["E", "B", "C / CASE"], "npn", 7.049e-15, 677, 2.209, "generalNPN_BC109.pdf", `${courseLibrary}의 BC109C Is/Bf/Br만 사용합니다. TO-18 삼각 리드의 물리 배치를 지원하지 않아 현재 빵판 시뮬레이션에서는 자동 치환하지 않고 연결 검증 단계에서 보류합니다.`, "TO-18 SOT18"),
+  bjt("bjt-bc109c-philips-to18", "BC109C", ["E", "B", "C / CASE"], "npn", 7.049e-15, 677, 2.209, "generalNPN_BC109.pdf", `${courseLibrary}의 BC109C Is/Bf/Br만 사용합니다. 빵판 시뮬레이션은 명시한 TO-18 성형 프로필과 물리 연결 검증을 사용합니다. 원형 리드는 성형 프로필을 선택하기 전까지 미배치로 유지합니다.`, "TO-18 SOT18"),
   bjt("bjt-2n3904-onsemi-to92", "2N3904", ["E", "B", "C"], "npn", 1e-14, 200, 4, "https://www.onsemi.com/pdf/datasheet/2n3903-d.pdf", "소신호 범용 NPN 교육값 Is=10 fA, βF=200, βR=4. 특정 제조사 곡선 피팅 없이 극성·증폭·포화 학습용으로 선택했습니다."),
   bjt("bjt-2n3906-onsemi-to92", "2N3906", ["E", "B", "C"], "pnp", 1e-14, 200, 4, "https://www.onsemi.com/pdf/datasheet/2n3906-d.pdf", "소신호 범용 PNP 교육값 Is=10 fA, βF=200, βR=4. 2N3904 교육 프로파일의 극성 대칭이며 실물 상보쌍의 일치 보증이 아닙니다."),
   bjt("bjt-bc547b-onsemi-to92", "BC547B", ["C", "B", "E"], "npn", 1e-14, 300, 4, "https://www.onsemi.com/pdf/datasheet/bc550-d.pdf", "B 등급 학습용 고정 βF=300, Is=10 fA, βR=4. 실물 전류·온도별 hFE 변화를 재현하지 않습니다."),
@@ -152,7 +153,9 @@ export function buildNonlinearDevices(circuit: Circuit, definitions: ComponentDe
     devices.push({ id: component.id, pins: netIds, pinLabels, evaluate: voltages => evaluate(model, voltages), validateFinal: voltages => validateFinal(model, voltages) });
     warnings.add(`${model.label}: ${model.parameterBasis}`);
     model.limitations.forEach(message => warnings.add(message));
-    if (model.physicalPlacement === "external-only") warnings.add(`${definition.name}: 수치 모델은 있으나 TO-18 외부 리드 배치는 별도 검증이 필요합니다.`);
+    if (model.physicalPlacement === "external-only") warnings.add(hasBc109cFormedProfile(component, definition)
+      ? `${definition.name}: 명시한 TO-18 성형 패턴으로 배치합니다. 실제 리드 성형·금속 캔 절연 조건은 조립 안내를 확인하세요.`
+      : `${definition.name}: 수치 모델은 있으나 TO-18 원형 리드의 빵판 배치는 성형 프로필 적용이 필요합니다.`);
   }
   if (devices.length) warnings.add("모든 비선형 모델은 300 K 고정 온도입니다. 지수 인자 40 초과의 접선 연장은 반복 중에만 허용하며 해당 구간의 최종해는 거부합니다. 실물 정격·고주파·열 성능 검증용이 아닙니다.");
   return { devices, warnings: [...warnings] };

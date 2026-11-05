@@ -37,6 +37,18 @@ test("final patched config preserves other drives and rejects supply/ground coll
   assert.throws(() => applySimulationSettings(withSupply, { sourceNetId: "OUT" }));
 });
 
+test("assistant modulation controls preserve DSB phase and reject invalid envelope or duty values", () => {
+  const settings = { waveform: "dsb", phaseDegrees: 90, modulationFrequencyHz: 300, modulationDepth: 0.4, dutyCyclePercent: 25 };
+  const action = parseSimulationAction({ kind: "configure", settings, run: true }, rc);
+  const config = defaultSimulationConfig(rc);
+  const changed = applySimulationSettings(config, action.settings);
+  for (const [key, value] of Object.entries(settings)) assert.equal(changed.source[key], value);
+  assert.equal(config.source.waveform, "sine");
+  for (const [key, value] of [["phaseDegrees", 361], ["phaseDegrees", -361], ["modulationFrequencyHz", 0], ["modulationFrequencyHz", Infinity], ["modulationDepth", -0.1], ["modulationDepth", 1.1], ["dutyCyclePercent", 0], ["dutyCyclePercent", 100], ["phaseDegrees", "90"]]) {
+    assert.throws(() => parseSimulationAction({ kind: "configure", settings: { [key]: value } }, rc), SimulationControlError);
+  }
+});
+
 test("context validates actual circuit nets and has bounded status text", () => {
   const context = { config: defaultSimulationConfig(rc), probeNetIds: ["IN", "OUT"], status: "complete", message: "계산 완료" };
   assert.equal(parseSimulationContext(context, rc).probeNetIds[1], "OUT");

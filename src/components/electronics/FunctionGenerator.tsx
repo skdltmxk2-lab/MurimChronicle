@@ -12,7 +12,7 @@ export type FunctionGeneratorProps = {
 };
 const WAVEFORMS: { id: SimulationWaveform; label: string }[] = [
   { id: "sine", label: "사인파" }, { id: "square", label: "사각파" }, { id: "triangle", label: "삼각파" },
-  { id: "pulse", label: "펄스" }, { id: "sawtooth", label: "톱니파" }, { id: "am", label: "AM 진폭 변조" }, { id: "dc", label: "DC" },
+  { id: "pulse", label: "펄스" }, { id: "sawtooth", label: "톱니파" }, { id: "am", label: "AM 진폭 변조" }, { id: "dsb", label: "DSB-SC 억압반송파" }, { id: "dc", label: "DC" },
 ];
 function NumericField({ label, value, onChange, unit, min, max, disabled = false }: {
   label: string; value: number; onChange: (value: number) => void; unit: string; min?: number; max?: number; disabled?: boolean;
@@ -31,13 +31,14 @@ function validSource(source: SimulationSource) {
 export function FunctionGenerator({ source, onChange, label = "기본 입력", idPrefix }: FunctionGeneratorProps) {
   const isPrimary = label === "기본 입력", prefix = isPrimary ? "" : `${label} `;
   const previewTitleId = `${idPrefix ?? `generator-${label.replace(/\s+/g, "-")}`}-preview`;
-  const isDc = source.waveform === "dc", isAm = source.waveform === "am", isPulse = source.waveform === "pulse";
+  const isDc = source.waveform === "dc", isAm = source.waveform === "am", isDsb = source.waveform === "dsb", isPulse = source.waveform === "pulse";
+  const isModulated = isAm || isDsb;
   const preview = useMemo(() => {
     if (!validSource(source)) return null;
     const limits = sourceSamplingLimits(source);
     // Keep the entire visible preview adequately sampled even for extreme AM ratios.
     // Show two envelope periods where possible, otherwise state the shorter window.
-    const duration = isDc ? 0.002 : isAm
+    const duration = isDc ? 0.002 : isModulated
       ? Math.min(2 / Math.min(source.frequencyHz, source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz), 16 / Math.max(source.frequencyHz, limits.maximumFrequencyHz))
       : 2 / source.frequencyHz;
     const sampleCount = Math.max(257, Math.min(2049, Math.ceil(duration / limits.maximumOutputStepSeconds * 2) + 1));
@@ -46,16 +47,16 @@ export function FunctionGenerator({ source, onChange, label = "기본 입력", i
     const padding = Math.max(peak * 0.2, Math.abs(source.offset) * 0.05, 0.001), low = source.offset - peak - padding, high = source.offset + peak + padding;
     const y = (value: number) => 18 + (high - value) / (high - low) * 112;
     return { duration, low, high, zeroY: y(0), path: values.map((value, index) => `${index ? "L" : "M"}${(64 + index / (sampleCount - 1) * 468).toFixed(3)},${y(value).toFixed(3)}`).join(" "), limits };
-  }, [source, isDc, isAm]);
+  }, [source, isDc, isAm, isModulated]);
   return <section className="el-function-generator" aria-label={`${label} 함수발생기`}>
     <div className="el-sim-fields">
-      <label className="el-sim-field"><span>{prefix}파형</span><select value={source.waveform} onChange={event => onChange({ waveform: event.target.value as SimulationWaveform })}>{WAVEFORMS.map(wave => <option key={wave.id} value={wave.id}>{wave.label}</option>)}</select></label>
-      <NumericField label={`${prefix}주파수`} unit={isAm ? "Hz · 반송파" : "Hz"} value={source.frequencyHz} onChange={frequencyHz => onChange({ frequencyHz })} min={0.001} max={1e7} disabled={isDc} />
-      <NumericField label={`${prefix}진폭`} unit={isAm ? "V peak · 반송파" : "V peak"} value={source.amplitudePeak} onChange={amplitudePeak => onChange({ amplitudePeak })} min={0} max={1e4} disabled={isDc} />
+      <label className="el-sim-field"><span>{prefix}파형</span><select value={source.waveform} onChange={event => { const waveform = event.target.value as SimulationWaveform; onChange({ waveform, ...(waveform === "pulse" ? {} : { dutyCyclePercent: undefined }), ...(waveform === "am" ? {} : { modulationDepth: undefined }), ...(waveform === "am" || waveform === "dsb" ? {} : { modulationFrequencyHz: undefined }) }); }}>{WAVEFORMS.map(wave => <option key={wave.id} value={wave.id}>{wave.label}</option>)}</select></label>
+      <NumericField label={`${prefix}주파수`} unit={isModulated ? "Hz · 반송파" : "Hz"} value={source.frequencyHz} onChange={frequencyHz => onChange({ frequencyHz })} min={0.001} max={1e7} disabled={isDc} />
+      <NumericField label={`${prefix}진폭`} unit={isDsb ? "V · 곱 계수" : isAm ? "V peak · 반송파" : "V peak"} value={source.amplitudePeak} onChange={amplitudePeak => onChange({ amplitudePeak })} min={0} max={1e4} disabled={isDc} />
       <NumericField label={isPrimary ? isDc ? "DC 전압" : "DC 오프셋" : `${label} 오프셋`} unit="V" value={source.offset} onChange={offset => onChange({ offset })} min={-1e4} max={1e4} />
-      <NumericField label={`${label} 위상`} unit={isAm ? "° · 반송파" : "°"} value={source.phaseDegrees ?? 0} onChange={phaseDegrees => onChange({ phaseDegrees })} min={-360} max={360} disabled={isDc} />
+      <NumericField label={`${label} 위상`} unit={isModulated ? "° · 반송파" : "°"} value={source.phaseDegrees ?? 0} onChange={phaseDegrees => onChange({ phaseDegrees })} min={-360} max={360} disabled={isDc} />
       {isPulse && <NumericField label={`${prefix}듀티 비율`} unit="% · high 구간" value={source.dutyCyclePercent ?? SOURCE_DEFAULTS.dutyCyclePercent} onChange={dutyCyclePercent => onChange({ dutyCyclePercent })} min={1} max={99} />}
-      {isAm && <><NumericField label={`${prefix}변조 주파수`} unit="Hz · cos 포락선" value={source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz} onChange={modulationFrequencyHz => onChange({ modulationFrequencyHz })} min={0.001} max={1e7} /><NumericField label={`${prefix}변조 깊이`} unit="0~1" value={source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth} onChange={modulationDepth => onChange({ modulationDepth })} min={0} max={1} /></>}
+      {isModulated && <><NumericField label={`${prefix}변조 주파수`} unit="Hz · cos 포락선" value={source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz} onChange={modulationFrequencyHz => onChange({ modulationFrequencyHz })} min={0.001} max={1e7} />{isAm && <NumericField label={`${prefix}변조 깊이`} unit="0~1" value={source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth} onChange={modulationDepth => onChange({ modulationDepth })} min={0} max={1} />}</>}
     </div>
     <details data-generator-preview="true" aria-labelledby={previewTitleId} style={{ margin: "12px 0 0", border: "1px solid var(--el-line)", borderRadius: 8, padding: "10px 12px", background: "var(--el-bg)" }}>
       <summary id={previewTitleId} style={{ fontSize: 12, fontWeight: 700, color: "var(--el-text)", cursor: "pointer" }}>발생기 설정 미리보기 <span style={{ fontWeight: 400 }}>· {label}</span></summary>
@@ -69,6 +70,7 @@ export function FunctionGenerator({ source, onChange, label = "기본 입력", i
       </svg><p className="el-sim-control-note">무부하 이상 전압원의 설정 파형입니다. 회로 결과는 시뮬레이션 실행 후 표시되며, 시간 0의 회로 초기값은 DC 오프셋입니다.{!isDc && ` 이 설정의 출력 표본 간격은 ${format(preview.limits.maximumOutputStepSeconds * 1e6, "µs")} 이하여야 합니다.`}</p></> : <p className="el-notice error" role="alert">유효한 발생기 설정을 입력하면 미리보기가 표시됩니다.</p>}
     </details>
     {isAm && <p className="el-sim-control-note">AM = 오프셋 + 진폭 × [1 + 깊이 × cos(2π × 변조 주파수 × t)] × sin(2π × 반송파 주파수 × t + 위상). cos 반송파는 위상을 90°로 설정하세요.</p>}
+    {isDsb && <p className="el-sim-control-note">DSB-SC = 오프셋 + 진폭 × cos(2π × 변조 주파수 × t) × sin(2π × 반송파 주파수 × t + 위상). 각 측파대의 peak 진폭은 곱 계수의 절반입니다.</p>}
     {isPulse && <p className="el-sim-control-note">high = 오프셋 + 진폭, low = 오프셋 − 진폭. 짧은 high/low 구간당 출력 4표본·내부 16단계 이상이 필요합니다.</p>}
     {["square", "pulse", "sawtooth"].includes(source.waveform) && <p className="el-sim-control-note">상승·하강 시간은 0인 이상 파형입니다. 모든 고조파나 실제 발생기의 에지를 재현하지 않습니다. 내부 계산은 출력 구간당 128단계·전체 65,536단계로 제한됩니다.</p>}
   </section>;

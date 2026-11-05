@@ -16,8 +16,9 @@ function load(relative, dependencies = {}) {
   }, Buffer, Uint8Array, JSON, Request, Response }, { filename: relative });
   return mod.exports;
 }
-const schema = load("src/lib/electronics/schema.ts");
-const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
+const physicalProfiles = load("src/lib/electronics/physical-profiles.ts");
+const schema = load("src/lib/electronics/schema.ts", { "./physical-profiles": physicalProfiles });
+const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts"), "./physical-profiles": physicalProfiles });
 const catalog = load("src/lib/electronics/catalog.ts");
 const workflow = readFileSync(path.join(root, "docs/electronics-agent-workflow.md"), "utf8");
 const input = () => JSON.parse(workflow.match(/```json\r?\n([\s\S]*?)\r?\n```/)[1]);

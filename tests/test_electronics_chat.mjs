@@ -187,6 +187,7 @@ test("validated setting patches and run, stop, undo requests retain their exact 
     ["1kHz로 바꾸고 실행한 뒤 설명해줘", { kind: "configure", settings: { frequencyHz: 1000 }, run: true }],
     ["주파수 2kHz로 바꿔줘. 그리고 왜 그런지도 설명해줘", { kind: "configure", settings: { frequencyHz: 2000 } }],
     ["사인파로 해줘", { kind: "configure", settings: { waveform: "sine" } }],
+    ["DSB 파형으로 바꾸고 위상 90도, 변조 주파수 300Hz로 설정해줘", { kind: "configure", settings: { waveform: "dsb", phaseDegrees: 90, modulationFrequencyHz: 300 } }],
     ["현재 설정으로 실행해줘", { kind: "run", resultTab: "ac" }],
     ["지금 계산 멈춰", { kind: "stop" }],
     ["이전 설정으로 되돌려", { kind: "undo" }],

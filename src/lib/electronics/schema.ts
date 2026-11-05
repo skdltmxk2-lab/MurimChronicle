@@ -1,4 +1,5 @@
 import type { Circuit, ComponentDefinition } from "./types";
+import { BC109C_FORMED_PROFILE, supportsBc109cForming } from "./physical-profiles";
 
 export const CIRCUIT_LIMITS = { components: 80, nets: 256, instruments: 32, reviews: 80 } as const;
 const UNSAFE_KEYS = new Set(["__proto__", "prototype", "constructor"]);
@@ -60,13 +61,14 @@ export function parseCircuit(value: unknown, definitions: readonly ComponentDefi
   };
   const componentIds = new Set<string>();
   const components = list(source.components, "소자", CIRCUIT_LIMITS.components).map((item) => {
-    const c = record(item, "소자", ["id", "definitionId", "value", "pinNets"]);
+    const c = record(item, "소자", ["id", "definitionId", "value", "pinNets", "physicalProfile"]);
     const id = identifier(c.id, "소자 ID");
     if (componentIds.has(id)) fail("중복된 소자 ID가 있습니다.");
     componentIds.add(id);
     const definitionId = identifier(c.definitionId, "부품 ID");
     const definition = definitionById.get(definitionId);
     if (!definition) fail("라이브러리에 없는 부품입니다. 지원 부품을 선택하거나 확인 항목으로 남겨주세요.");
+    if (c.physicalProfile !== undefined && (c.physicalProfile !== BC109C_FORMED_PROFILE || !supportsBc109cForming(definition))) fail("이 부품에 적용할 수 없는 물리 배치 프로필입니다.");
     const pins = record(c.pinNets, "핀 연결");
     const expected = new Set(definition.pins.map((pin) => pin.id));
     if (Object.keys(pins).length !== expected.size || Object.keys(pins).some((key) => !expected.has(key))) fail("부품의 핀 번호가 누락되었거나 맞지 않습니다.");
@@ -75,7 +77,8 @@ export function parseCircuit(value: unknown, definitions: readonly ComponentDefi
       if (!Object.hasOwn(pins, pin.id)) fail("부품의 핀 연결이 누락되었습니다.");
       pinNets[pin.id] = requireNet(pins[pin.id]);
     }
-    return { id, definitionId, value: str(c.value, "소자 값", 160, true), pinNets };
+    return { id, definitionId, value: str(c.value, "소자 값", 160, true), pinNets,
+      ...(c.physicalProfile === BC109C_FORMED_PROFILE ? { physicalProfile: BC109C_FORMED_PROFILE } : {}) };
   });
   const instrumentIds = new Set<string>();
   const instruments = list(source.instruments, "계측기 연결", CIRCUIT_LIMITS.instruments).map((item) => {

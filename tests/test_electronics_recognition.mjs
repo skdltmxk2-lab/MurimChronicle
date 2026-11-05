@@ -16,7 +16,8 @@ function load(relative, dependencies = {}, extras = {}) {
   }, Buffer, Uint8Array, Request, Response, JSON, ...extras }, { filename: relative });
   return mod.exports;
 }
-const schema = load("src/lib/electronics/schema.ts");
+const physicalProfiles = load("src/lib/electronics/physical-profiles.ts");
+const schema = load("src/lib/electronics/schema.ts", { "./physical-profiles": physicalProfiles });
 const aiErrors = load("src/lib/electronics/ai-errors.ts");
 const aiModel = load("src/lib/electronics/ai-model.ts", { "@google/genai": { ThinkingLevel: { LOW: "LOW", MEDIUM: "MEDIUM" } } });
 const recognitionOutput = load("src/lib/electronics/recognition-output.ts", { "./schema": schema });

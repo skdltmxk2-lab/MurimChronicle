@@ -3,6 +3,7 @@ import type {
   CircuitLayout, ComponentDefinition, PlacedComponent, TerminalPlacement, ValidationIssue, ValidationReport,
 } from "./types";
 import { getPowerNetRole, type PowerNetRole } from "./power";
+import { BC109C_FORMED_GUIDANCE, hasBc109cFormedProfile, supportsBc109cForming } from "./physical-profiles";
 
 const PITCH = 18;
 const ROWS = "ABCDEFGHIJ";
@@ -48,8 +49,9 @@ class UnionFind {
   union(a: string, b: string): void { const x = this.find(a), y = this.find(b); if (x !== y) this.parents.set(x, y); }
 }
 
-type Footprint = "dip" | "two" | "three" | "unsupported";
-function footprint(definition: ComponentDefinition): Footprint {
+type Footprint = "dip" | "two" | "three" | "to18-formed" | "unsupported";
+function footprint(definition: ComponentDefinition, component?: CircuitComponent): Footprint {
+  if (component?.physicalProfile !== undefined) return hasBc109cFormedProfile(component, definition) ? "to18-formed" : "unsupported";
   if (definition.mounting !== "direct") return "unsupported";
   if (/\b(?:P?DIP|DIL)[ -]?\d*/i.test(definition.package)) {
     const count = definition.pins.length;
@@ -91,11 +93,15 @@ function sourceIssues(circuit: Circuit, definitions: Map<string, ComponentDefini
     seen.add(componentId);
     const definition = definitions.get(component.definitionId);
     if (!definition) { issues.push({ severity: "error", code: "UNKNOWN_DEFINITION", componentId, message: `${componentId}: 소자 정의를 찾을 수 없습니다.` }); continue; }
-    if (definition.mounting !== "direct") issues.push({ severity: "error", code: "UNSUPPORTED_MOUNTING", componentId,
-      message: `${componentId}: ${definition.mounting === "adapter" ? "어댑터" : "외부 연결"}가 필요한 소자입니다. 현재 자동 삽입 엔진에서는 지원하지 않습니다.` });
+    if (component.physicalProfile !== undefined && !hasBc109cFormedProfile(component, definition)) issues.push({ severity: "error", code: "INVALID_PHYSICAL_PROFILE", componentId, message: `${componentId}: 부품의 물리 배치 프로필과 핀 정의가 맞지 않습니다.` });
+    else if (hasBc109cFormedProfile(component, definition)) issues.push({ severity: "warning", code: "LEAD_FORMING_REQUIRED", componentId, message: `${componentId}: ${BC109C_FORMED_GUIDANCE}` });
+    else if (definition.mounting !== "direct") issues.push({ severity: "error", code: "UNSUPPORTED_MOUNTING", componentId,
+      message: supportsBc109cForming(definition)
+        ? `${componentId}: 원형 BC109C 리드는 빵판에 직접 꽂지 않습니다. 'BC109C 성형 적용'으로 앱이 정한 1번 E·2번 B·3번 C 성형 배치를 적용하면 자동 배치합니다.`
+        : `${componentId}: ${definition.mounting === "adapter" ? "어댑터가" : "외부 연결이"} 필요한 소자입니다. 현재 자동 삽입 엔진에서는 지원하지 않습니다.` });
     else if (footprint(definition) === "unsupported") issues.push({ severity: "error", code: "UNSUPPORTED_FOOTPRINT", componentId, message: `${componentId}: ${definition.package}의 물리 핀 배치를 지원하지 않습니다.` });
     if (new Set(definition.pins.map(pin => pin.id)).size !== definition.pins.length) issues.push({ severity: "error", code: "DUPLICATE_PIN_DEFINITION", componentId, message: `${componentId}: 물리 핀 번호가 중복되었습니다.` });
-    if (definition.pinoutStatus === "unverified") issues.push({ severity: "warning", code: "PINOUT_UNVERIFIED", componentId, message: `${componentId}: 실제 품번·패키지의 핀 순서를 확인해야 합니다.` });
+    if (definition.pinoutStatus === "unverified") issues.push({ severity: "error", code: "PINOUT_UNVERIFIED", componentId, message: `${componentId}: 실제 품번·패키지의 핀 순서를 확인해야 합니다.` });
     for (const [pinId, net] of Object.entries(component.pinNets)) {
       if (!definition.pins.some(pin => pin.id === pinId)) issues.push({ severity: "error", code: "UNKNOWN_PIN", componentId, message: `${componentId}: 정의에 없는 핀 ${pinId}입니다.` });
       if (typeof net !== "string" || !net.trim() || net.startsWith("__unconnected:")) issues.push({ severity: "error", code: "INVALID_NET", componentId, message: `${componentId}.${pinId}: 연결 이름이 올바르지 않습니다.` });
@@ -112,9 +118,16 @@ function sourceIssues(circuit: Circuit, definitions: Map<string, ComponentDefini
 }
 
 type Box = { x1: number; x2: number; y1: number; y2: number; componentId: string };
-function bodyBox(placement: PlacedComponent, holes: Map<string, BoardHole>): Box | null {
+function bodyBox(placement: PlacedComponent, holes: Map<string, BoardHole>, component?: CircuitComponent, definition?: ComponentDefinition): Box | null {
   const points = Object.values(placement.pins).map(id => holes.get(id)).filter((hole): hole is BoardHole => Boolean(hole));
   if (!points.length) return null;
+  if (component && definition && hasBc109cFormedProfile(component, definition)) {
+    const emitter = holes.get(placement.pins["1"]), collector = holes.get(placement.pins["3"]);
+    if (!emitter || !collector) return null;
+    const x = (emitter.x + collector.x) / 2, y = emitter.y;
+    // 5.45 mm flange + tab + working clearance, enclosing the formed leads.
+    return { x1: x - 25, x2: x + 25, y1: y - 25, y2: y + 25, componentId: placement.componentId };
+  }
   return { x1: Math.min(...points.map(p => p.x)) - 7, x2: Math.max(...points.map(p => p.x)) + 7,
     y1: Math.min(...points.map(p => p.y)) - 7, y2: Math.max(...points.map(p => p.y)) + 7, componentId: placement.componentId };
 }
@@ -122,7 +135,7 @@ function overlaps(a: Box, b: Box): boolean { return a.x1 < b.x2 && a.x2 > b.x1 &
 
 function candidatePlacement(component: CircuitComponent, definition: ComponentDefinition, board: number, column: number, bottom: boolean): PlacedComponent {
   const pins: Record<string, string> = {};
-  const kind = footprint(definition);
+  const kind = footprint(definition, component);
   if (kind === "dip") {
     const half = definition.pins.length / 2;
     // Top view, notch to the left: pin 1 at F, last pin at E.
@@ -130,6 +143,11 @@ function candidatePlacement(component: CircuitComponent, definition: ComponentDe
       pins[String(index + 1)] = `B${board}:F${column + index}`;
       pins[String(definition.pins.length - index)] = `B${board}:E${column + index}`;
     }
+  } else if (kind === "to18-formed") {
+    const row = bottom ? "H" : "C", baseRow = bottom ? "I" : "D";
+    pins["1"] = `B${board}:${row}${column}`;
+    pins["2"] = `B${board}:${baseRow}${column + 1}`;
+    pins["3"] = `B${board}:${row}${column + 2}`;
   } else {
     const row = kind === "three" ? (bottom ? "H" : "C") : (bottom ? "I" : "B");
     const span = kind === "three" || (definition.kind === "connector" && /2\.54\s*mm/i.test(definition.package))
@@ -155,11 +173,18 @@ function nominalPlacementMatches(component: CircuitComponent, definition: Compon
 }
 
 function physicalPlacementMatches(component: CircuitComponent, definition: ComponentDefinition, placement: PlacedComponent, holes: Map<string, BoardHole>): boolean {
-  if (footprint(definition) === "unsupported" || placement.componentId !== component.id || Object.keys(placement.pins).length !== definition.pins.length) return false;
+  if (footprint(definition, component) === "unsupported" || placement.componentId !== component.id || Object.keys(placement.pins).length !== definition.pins.length) return false;
   const points = definition.pins.map(pin => holes.get(placement.pins[pin.id]));
   if (!points.length || points.some(point => !point)) return false;
   const existing = points as BoardHole[];
   if (existing.some(point => point.board !== existing[0].board || !ROWS.includes(point.row) || point.row.length !== 1)) return false;
+  if (hasBc109cFormedProfile(component, definition)) {
+    const emitter = holes.get(placement.pins["1"])!, base = holes.get(placement.pins["2"])!, collector = holes.get(placement.pins["3"])!;
+    const row = ROWS.indexOf(emitter.row);
+    return base.column === emitter.column + 1 && collector.column === emitter.column + 2 &&
+      collector.row === emitter.row && ROWS.indexOf(base.row) === row + 1 &&
+      (row < 5) === (ROWS.indexOf(base.row) < 5);
+  }
   const span = flexibleLeadSpan(definition);
   if (span) {
     const [a, b] = existing;
@@ -314,7 +339,8 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
   // are still evaluated afresh, so fixed anchors and routing remain deterministic.
   const candidateCache = new Map<string, Candidate[]>();
   const candidatesFor = (component: CircuitComponent, definition: ComponentDefinition): Candidate[] => {
-    const cached = candidateCache.get(definition.id);
+    const cacheKey = `${definition.id}:${component.physicalProfile ?? "original"}`;
+    const cached = candidateCache.get(cacheKey);
     if (cached) return cached;
     const candidates: Candidate[] = [];
     for (let boardNumber = 1; boardNumber <= options.boards; boardNumber++) {
@@ -327,12 +353,12 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
         }
       }
     }
-    candidateCache.set(definition.id, candidates);
+    candidateCache.set(cacheKey, candidates);
     return candidates;
   };
   for (const component of ordered) {
     const definition = definitionById.get(component.definitionId);
-    if (!definition || footprint(definition) === "unsupported" || placedIds.has(component.id)) continue;
+    if (!definition || footprint(definition, component) === "unsupported" || placedIds.has(component.id)) continue;
     let best: Candidate | undefined, bestScore = Infinity;
     const priorPoints = new Map(definition.pins.map(pin => [pin.id, netPoints.get(pinNet(component, pin.id))]));
     for (const candidate of candidatesFor(component, definition)) {
@@ -368,7 +394,7 @@ export function createLayout(circuit: Circuit, definitions: ComponentDefinition[
     addEndpoint(connection.netId, selected);
     layout.terminals.push({ connectionId: connection.id, netId: connection.netId, holeId: selected.id });
   }
-  const boxes = layout.placements.map(p => bodyBox(p, holes)).filter((box): box is Box => Boolean(box));
+  const boxes = layout.placements.map(p => { const c = componentById.get(p.componentId); return bodyBox(p, holes, c, c && definitionById.get(c.definitionId)); }).filter((box): box is Box => Boolean(box));
   const exposed = new Map<string, BoardHole[]>();
   const available = (group: string) => {
     let contacts = exposed.get(group);
@@ -468,7 +494,7 @@ export function validateLayout(circuit: Circuit, definitions: ComponentDefinitio
     }
     // A directly mounted package must retain its physical pin geometry.
     const placedHoles = Object.values(placement.pins).map(id => holes.get(id));
-    if (placedHoles.every(Boolean) && placedHoles.length === definition.pins.length && footprint(definition) !== "unsupported") {
+    if (placedHoles.every(Boolean) && placedHoles.length === definition.pins.length && footprint(definition, component) !== "unsupported") {
       if (!physicalPlacementMatches(component, definition, placement, holes)) issues.push({ severity: "error", code: "PIN_GEOMETRY", componentId: component.id, message: `${component.id}: 핀 간격·순서 또는 DIP 중앙골 배치가 맞지 않습니다.` });
       else if (flexibleLeadSpan(definition) && !nominalPlacementMatches(component, definition, placement, definition.pins.map(pin => holes.get(placement.pins[pin.id])!))) issues.push({ severity: "warning", code: "LEAD_FORMING_REQUIRED", componentId: component.id, message: `${component.id}: 기본 핀 간격을 변경했습니다. 실제 소자의 리드 길이·몸체 크기·절연 간격을 확인한 뒤 다리를 성형하세요.` });
     }
@@ -510,8 +536,16 @@ export function validateLayout(circuit: Circuit, definitions: ComponentDefinitio
     if (actual?.size === 1 && !actual.has(wire.netId)) issues.push({ severity: "error", code: "JUMPER_NET_MISMATCH", message: `${wire.id}: 실제 연결과 점퍼의 표시 이름이 다릅니다.` });
     if (!actual?.size) issues.push({ severity: "warning", code: "UNUSED_JUMPER", message: `${wire.id}: 소자나 계측기와 연결되지 않은 점퍼입니다.` });
   }
-  const boxes = layout.placements.map(placement => bodyBox(placement, holes)).filter((box): box is Box => Boolean(box));
+  const boxes = layout.placements.map(placement => { const c = componentById.get(placement.componentId); return bodyBox(placement, holes, c, c && definitionById.get(c.definitionId)); }).filter((box): box is Box => Boolean(box));
   for (let a = 0; a < boxes.length; a++) for (let b = a + 1; b < boxes.length; b++) if (overlaps(boxes[a], boxes[b])) issues.push({ severity: "error", code: "BODY_COLLISION", componentId: boxes[b].componentId, message: `${boxes[a].componentId}와 ${boxes[b].componentId}의 장착 영역이 겹칩니다.` });
+  const connectionHoles = [...layout.terminals.map(terminal => terminal.holeId), ...layout.jumpers.flatMap(wire => [wire.from, wire.to])];
+  for (const box of boxes) {
+    const component = componentById.get(box.componentId), definition = component && definitionById.get(component.definitionId);
+    if (!component || !definition || !hasBc109cFormedProfile(component, definition)) continue;
+    if (connectionHoles.some(id => { const hole = holes.get(id); return hole && hole.x > box.x1 && hole.x < box.x2 && hole.y > box.y1 && hole.y < box.y2; })) {
+      issues.push({ severity: "error", code: "BODY_CLEARANCE", componentId: component.id, message: `${component.id}: TO-18 금속 캔의 여유 영역에 점퍼 또는 계측기 삽입점이 있습니다. 같은 연결 열의 노출된 구멍으로 옮기세요.` });
+    }
+  }
   return { valid: !issues.some(issue => issue.severity === "error"), issues,
     checkedPins: layout.placements.reduce((sum, placement) => sum + Object.keys(placement.pins).length, 0),
     checkedNets: [...byNet.keys()].filter(net => !net.startsWith("__unconnected:")).length };
@@ -527,7 +561,7 @@ export function createAssemblySteps(circuit: Circuit, definitions: ComponentDefi
     const pins = definition.pins.map(pin => `${pin.id}번 ${pin.label} → ${placement.pins[pin.id] ?? "미배치"}`).join(", ");
     steps.push({ id: `component:${component.id}`, componentId: component.id,
       title: `${component.id} · ${definition.name}${component.value ? ` · ${component.value}` : ""}`,
-      description: `${pins}.${footprint(definition) === "dip" ? " 위에서 보았을 때 홈은 왼쪽, 1번 핀은 중앙골 아래쪽입니다." : " 핀 순서와 극성을 확인하고 꽂으세요."}`,
+      description: `${pins}. ${hasBc109cFormedProfile(component, definition) ? BC109C_FORMED_GUIDANCE : footprint(definition) === "dip" ? "위에서 보았을 때 홈은 왼쪽, 1번 핀은 중앙골 아래쪽입니다." : "핀 순서와 극성을 확인하고 꽂으세요."}`,
       holes: Object.values(placement.pins) });
   }
   const holes = new Map(layout.board.holes.map(hole => [hole.id, hole]));
@@ -540,7 +574,7 @@ export function createAssemblySteps(circuit: Circuit, definitions: ComponentDefi
     const railCount = railEnds(wire);
     const action = railCount === 2 ? from?.board !== to?.board ? "보드 간 레일 연결" : from?.row !== to?.row ? "레일 사이 연결" : "분리 레일 연결" : railCount === 1 ? "레일 연결" : "점퍼 연결";
     steps.push({ id: `jumper:${wire.id}`, jumperId: wire.id, title: `${wire.id} · ${circuit.netNames[wire.netId] ?? wire.netId} · ${action}`,
-      description: `${wire.from}에서 ${wire.to}까지 점퍼를 연결하세요.${label ? ` ${label} 배선입니다.` : ""}${railCount === 2 ? " 같은 전원·접지의 분리 구간만 이어주세요. 이 점퍼가 없으면 레일은 서로 연결되지 않습니다." : ""}`, holes: [wire.from, wire.to] });
+      description: `${wire.from}에서 ${wire.to}까지 점퍼를 연결하세요.${label ? ` ${label} 배선입니다.` : ""}${railCount === 2 ? " 같은 전원·접지의 분리 구간만 이어주세요. 일반 830홀 모델에서는 이 점퍼가 없으면 레일 구간이 서로 연결되지 않습니다. 실물 빵판의 레일이 중간에서 끊겨 있는지 조립 전에 도통을 확인하세요." : ""}`, holes: [wire.from, wire.to] });
   }
   const terminalOrder = (netId: string) => { const role = getPowerNetRole(circuit, netId); return role === "ground" ? 0 : role ? 2 : 1; };
   for (const terminal of [...layout.terminals].sort((a, b) => terminalOrder(a.netId) - terminalOrder(b.netId))) {

@@ -24,6 +24,7 @@ const { parseProjectSource, getSourceLabel } = load("src/lib/electronics/project
 const { parseCircuit } = load("src/lib/electronics/schema.ts");
 const { mergeProjects } = load("src/lib/electronics/storage.ts");
 const { componentLayer } = load("src/lib/electronics/visibility.ts");
+const physicalProfiles = load("src/lib/electronics/physical-profiles.ts");
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const { CIRCUIT_TEMPLATES: templates } = load("src/lib/electronics/templates.ts");
 const circuit = templates.find(item => item.id === "rc-lowpass");
@@ -35,7 +36,7 @@ const makeProject = () => JSON.parse(JSON.stringify({ version: 1, id: "aaaaaaaa-
 const file = "src/components/electronics/ElectronicsWorkspace.tsx";
 const ast = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX);
 const body = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ElectronicsWorkspace").body;
-const actions = ["openProject", "saveCloud", "loadCloud", "importAssistantDesign", "applyManualJson", "openTemplate", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "redoEdit", "restoreEdit", "verifyChanges", "editSnapshot", "rememberEdit", "finishTextEdit", "persistCurrentProject", "preserveBeforeSwitch", "duplicateProject", "removeComponent", "addComponent", "changePinNet", "exportProject", "setStepCompleted", "setReviewResolved", "openCloudCopy"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
+const actions = ["openProject", "saveCloud", "loadCloud", "importAssistantDesign", "applyManualJson", "openTemplate", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "redoEdit", "restoreEdit", "verifyChanges", "editSnapshot", "rememberEdit", "finishTextEdit", "persistCurrentProject", "preserveBeforeSwitch", "duplicateProject", "removeComponent", "addComponent", "changePinNet", "changePhysicalProfile", "exportProject", "setStepCompleted", "setReviewResolved", "openCloudCopy"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
 const applyCircuitNode = body.statements.flatMap(node => ts.isVariableStatement(node) ? [...node.declarationList.declarations] : []).find(node => node.name.getText(ast) === "applyCircuit");
 const applyCircuitAction = `var applyCircuit = ${applyCircuitNode.initializer.arguments[0].getText(ast)};`;
 const effectCallbacks = body.statements.filter(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression) && node.expression.expression.getText(ast) === "useEffect").map(node => node.expression.arguments[0]);
@@ -46,7 +47,7 @@ function harness(project = makeProject()) {
   const state = { ...project, projectId: project.id, projectSource: project.source, undoStack: [], redoStack: [], projects: [], cloudProjects: [], localSaveStatus: "pending", workspaceOwner: "owner-A" };
   const writes = [];
   const owner = "owner-A";
-  const env = { ...engine, ...project, projectSource: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, workspaceOwner: owner, user: { id: owner }, isAdminUser: () => true, initial: circuit, defaultBoard: boardOptions, COMPONENT_CATALOG: definitions, CIRCUIT_TEMPLATES: templates, parseProjectForWorkspace, parseProjectSource, getSourceLabel, parseCircuit, mergeProjects, componentLayer, crypto: { randomUUID }, cloneCircuit: value => structuredClone(value), ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null, undoStack: [], redoStack: [], loadingProjects: false,
+  const env = { ...engine, ...physicalProfiles, ...project, projectSource: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, workspaceOwner: owner, user: { id: owner }, isAdminUser: () => true, initial: circuit, defaultBoard: boardOptions, COMPONENT_CATALOG: definitions, CIRCUIT_TEMPLATES: templates, parseProjectForWorkspace, parseProjectSource, getSourceLabel, parseCircuit, mergeProjects, componentLayer, crypto: { randomUUID }, cloneCircuit: value => structuredClone(value), ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null, undoStack: [], redoStack: [], loadingProjects: false,
     readyUser: { current: owner }, analysisVersion: { current: 0 }, cancelAnalyze: { current: null },
     textEditStart: { current: null }, lastLocalSaved: { current: null }, lastExternalSaved: { current: null }, cloudRequest: { current: 0 },
     currentProjectState: { current: { circuit: project.circuit, layout: project.layout, boardOptions: project.boardOptions, completedSteps: project.completedSteps, source: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id } },
@@ -515,4 +516,47 @@ test("drawer teardown restores a detached modal's opener without stealing focus 
   disconnected.cleanup();
   assert.equal(disconnected.document.activeElement, disconnected.document.body);
   assert.ok(!disconnected.events.some(event => event[0] === "focus"));
+});
+
+
+test("explicit BC109C forming applies to selected instances, keeps history and is reversible", () => {
+  const project = makeProject();
+  const original = { id: "Q1", definitionId: physicalProfiles.BC109C_DEFINITION_ID, value: "BC109C", pinNets: { 1: "GND", 2: "VIN", 3: "VOUT" } };
+  project.circuit = { ...project.circuit, components: [original, { ...original, id: "Q2" }], netNames: { GND: "GND", VIN: "VIN", VOUT: "VOUT" }, instruments: [] };
+  project.layout = engine.createLayout(project.circuit, definitions, boardOptions);
+  const h = harness(project);
+  h.state.visibleLayers = [];
+  h.env.changePhysicalProfile(["Q1"], true);
+  assert.equal(h.state.circuit.components[0].physicalProfile, physicalProfiles.BC109C_FORMED_PROFILE);
+  assert.equal(h.state.circuit.components[1].physicalProfile, undefined);
+  assert.equal(h.state.circuit.components[0].definitionId, original.definitionId);
+  assert.equal(h.state.layout.placements.length, 1);
+  assert.equal(h.state.selection.id, "Q1");
+  assert.ok(h.state.visibleLayers.includes("semiconductor"));
+  assert.equal(h.state.undoStack.length, 1);
+  h.render();
+  h.env.changePhysicalProfile(["Q1", "Q2"], true);
+  assert.equal(h.state.layout.placements.length, 2);
+  assert.equal(engine.validateLayout(h.state.circuit, definitions, h.state.layout).valid, true);
+  h.render();
+  h.env.changePhysicalProfile(["Q1"], false);
+  assert.equal(h.state.circuit.components[0].physicalProfile, undefined);
+  assert.equal(h.state.layout.placements.length, 1);
+  h.render();
+  h.env.undoPositionChange();
+  assert.equal(h.state.layout.placements.length, 2);
+  assert.equal(h.state.circuit.components[0].physicalProfile, physicalProfiles.BC109C_FORMED_PROFILE);
+});
+
+test("catalog adds BC109C only through an explicit formed-profile action", () => {
+  const h = harness();
+  h.state.visibleLayers = [];
+  const count = h.state.circuit.components.length;
+  h.env.addComponent(physicalProfiles.BC109C_DEFINITION_ID);
+  assert.equal(h.state.circuit.components.length, count);
+  h.env.addComponent(physicalProfiles.BC109C_DEFINITION_ID, true);
+  assert.equal(h.state.circuit.components.length, count + 1);
+  const component = h.state.circuit.components.at(-1);
+  assert.equal(component.physicalProfile, physicalProfiles.BC109C_FORMED_PROFILE);
+  assert.ok(h.state.layout.placements.some(p => p.componentId === component.id));
 });

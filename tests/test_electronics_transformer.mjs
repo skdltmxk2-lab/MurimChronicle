@@ -112,6 +112,6 @@ test("registered BC109C numerical simulation keeps its physical TO-18 mounting u
   config.supplies = [{ netId: "VCC", voltage: 9 }];
   const result = runSimulation(circuit, definitions, config), current = result.dc.deviceCurrents.Q1;
   near(current.C + current.B + current.E, 0, 1e-12); near(current.C / current.B, 677, 1e-4);
-  assert.match(result.warnings.join(" "), /TO-18 외부 리드 배치/);
+  assert.match(result.warnings.join(" "), /TO-18 원형 리드.*성형 프로필/);
   assert.equal(COMPONENT_CATALOG.find(def => def.id === "bjt-bc109c-philips-to18").mounting, "external");
 });

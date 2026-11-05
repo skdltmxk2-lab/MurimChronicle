@@ -15,6 +15,7 @@ export function sourceVoltage(source: SimulationSource, timeSeconds: number): nu
     case "pulse": normalized = cycle < (source.dutyCyclePercent ?? SOURCE_DEFAULTS.dutyCyclePercent) / 100 ? 1 : -1; break;
     case "sawtooth": normalized = 2 * cycle - 1; break;
     case "am": normalized = (1 + (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) * Math.cos(TAU * (source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz) * timeSeconds)) * Math.sin(TAU * cycle); break;
+    case "dsb": normalized = Math.cos(TAU * (source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz) * timeSeconds) * Math.sin(TAU * cycle); break;
     default: throw new Error("지원하지 않는 발생기 파형입니다.");
   }
   return source.offset + source.amplitudePeak * normalized;
@@ -25,7 +26,8 @@ export function sourceSamplingLimits(source: SimulationSource): {
   maximumFrequencyHz: number; maximumOutputStepSeconds: number; maximumInternalStepSeconds: number; shortestPulseSeconds?: number;
 } {
   if (source.waveform === "dc" || source.amplitudePeak === 0) return { maximumFrequencyHz: 0, maximumOutputStepSeconds: Infinity, maximumInternalStepSeconds: Infinity };
-  const maximumFrequencyHz = source.frequencyHz + (source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0 ? source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz : 0);
+  const modulated = source.waveform === "dsb" || (source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0);
+  const maximumFrequencyHz = source.frequencyHz + (modulated ? source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz : 0);
   const duty = (source.dutyCyclePercent ?? SOURCE_DEFAULTS.dutyCyclePercent) / 100;
   const shortestPulseSeconds = source.waveform === "pulse" ? Math.min(duty, 1 - duty) / source.frequencyHz : undefined;
   return {

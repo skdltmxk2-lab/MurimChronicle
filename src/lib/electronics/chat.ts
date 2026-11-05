@@ -160,6 +160,7 @@ export function createChatContext(input: ParsedChatInput, definitions: readonly 
       const placement = byPlacement.get(item.id);
       return { id: item.id, value: item.value, name: definition.name, package: definition.package, kind: definition.kind,
         mounting: definition.mounting, pinoutStatus: definition.pinoutStatus, sourceUrl: definition.sourceUrl,
+        ...(item.physicalProfile ? { physicalProfile: item.physicalProfile } : {}),
         pins: definition.pins.map((pin) => ({ pin: pin.id, label: pin.label, net: item.pinNets[pin.id], hole: placement?.pins[pin.id] ?? null })) };
     }),
     netNames: circuit.netNames, jumpers: layout.jumpers, railUsage: getRailUsage(circuit, layout),
@@ -192,7 +193,7 @@ function requestedSimulationActions(content: string): Set<SimulationAssistantAct
   if (!command) return allowed;
   const deny = (subject: string) => new RegExp(`(?:${subject})[^.!?\\n]{0,16}(?:하지\\s*마|하지\\s*말|하지\\s*않|금지)|(?:안|말고)\\s*(?:${subject})|(?:don't|do not|never)\\s+(?:${subject})`, "i").test(request);
   if (/(?:자동\s*(?:설정|세팅)|알아서\s*(?:설정|세팅)|\bauto(?:matic)?[ -]?(?:setup|configure)\b)/i.test(request) && !deny("설정|세팅|setup|configure")) allowed.add("auto_setup");
-  const settingTopic = /(?:주파수|진폭|오프셋|파형|사인파|사각파|삼각파|펄스|톱니파|직류|샘플|표본|측정점|프로브|시간\s*범위|입력|출력|접지|\b(?:frequency|amplitude|offset|waveform|duration|sample|probe|input|output|ground)\b|\d\s*(?:k?Hz|MHz|m?V|ms|s)\b)/i.test(request);
+  const settingTopic = /(?:주파수|진폭|오프셋|위상|변조|듀티|DSB|파형|사인파|사각파|삼각파|펄스|톱니파|직류|샘플|표본|측정점|프로브|시간\s*범위|입력|출력|접지|\b(?:frequency|amplitude|offset|waveform|duration|sample|probe|input|output|ground)\b|\d\s*(?:k?Hz|MHz|m?V|ms|s)\b)/i.test(request);
   if (settingTopic && /(?:설정|세팅|변경|바꿔|바꾸|맞춰|조절|해|\b(?:set|change|configure)\b)/i.test(request) && !deny("설정|변경|바꾸|바꿔|set|change|configure")) allowed.add("configure");
   if (/(?:실행|돌려|(?:파형|스펙트럼|결과).{0,16}(?:보여|그려)|\b(?:run|simulate)\b|\bshow\b.{0,24}\b(?:waveform|spectrum|simulation|results?)\b)/i.test(request) && !deny("실행|돌리|시뮬레이션|run|simulate")) allowed.add("run");
   if (/(?:멈춰|중지|중단|정지|\bstop\b)/i.test(request) && !deny("중지|중단|정지|stop")) allowed.add("stop");
@@ -204,7 +205,8 @@ function responseSchema(allowed: Set<SimulationAssistantAction["kind"]>) {
   const settings = { type: "object", additionalProperties: false, properties: {
     sourceNetId: { type: "string" }, groundNetId: { type: "string" }, outputNetId: { type: "string" },
     frequencyHz: { type: "number" }, amplitudePeak: { type: "number" }, offset: { type: "number" },
-    waveform: { type: "string", enum: ["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am"] },
+    phaseDegrees: { type: "number" }, modulationFrequencyHz: { type: "number" }, modulationDepth: { type: "number" }, dutyCyclePercent: { type: "number" },
+    waveform: { type: "string", enum: ["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am", "dsb"] },
     durationSeconds: { type: "number" }, sampleCount: { type: "integer" },
   } };
   const resultTab = { type: "string", enum: ["time", "spectrum", "ac", "dc", "meter"] };
@@ -262,7 +264,7 @@ export async function answerElectronicsChat(input: ParsedChatInput, definitions:
 매 요청의 마지막 스냅샷이 현재 상태다. 이전 대화의 좌표보다 이를 우선한다. 선택된 소자가 있으면 그것을 참고한다. 구멍 위치는 실제 제공된 hole 값만 안내한다. 배치되지 않은 부품 또는 알려지지 않은 핀/값/제조사/정격은 추측해 확정하지 말고 확인할 정보를 짚는다. generic/unverified 핀맵이나 원문 확인 항목을 검증된 것으로 표현하지 않는다.
 validation은 목표 연결과 빵판 도통의 일치 검사이며 실제 동작, 파형, 원문 인식, 부품 정격 검증은 아니다. 계산은 사용한 가정과 값을 밝히고 실측 결과처럼 말하지 않는다. 데이터시트를 새로 열어 확인했다거나 실제 파형을 실행했다고 말하지 않는다. 외부 장비 접지/차동 입력을 서로 단락하도록 안내하지 않는다.
 응답은 {"answer":"한국어 설명","action":null 또는 액션 객체} JSON만 출력한다. answer는 HTML 없는 일반 텍스트 12000자 이내다. 액션 허용 kind는 ${JSON.stringify([...allowed])}이다. 허용 목록이 비면 action은 반드시 null이다. 설정을 바꿔도 되는지·방법·원리를 묻는 질문은 실행 요청이 아니다.
-액션 kind는 auto_setup(현재 회로의 기본 신호·전원·측정점 자동설정), configure(명시한 settings만 변경), run(현재 설정으로 계산), stop(진행 중 계산 중지), undo(이전 설정 복원)이다. configure에는 비어 있지 않은 settings가 필요하다. settings는 sourceNetId/groundNetId/outputNetId/frequencyHz/amplitudePeak/offset/waveform/durationSeconds/sampleCount만 허용한다. net ID는 현재 회로의 정확한 ID를 사용한다. amplitudePeak는 Vpeak이며 Vpp 요청은 반으로 환산한다. 단위는 Hz, V, 초다. run:true는 auto_setup/configure에서 사용자가 실행도 요청한 경우에만 쓴다. run kind에는 settings나 run 필드를 넣지 않는다. stop/undo에는 kind만 넣는다. 결과 탭은 resultTab=time|spectrum|ac|dc|meter이다.
+액션 kind는 auto_setup(현재 회로의 기본 신호·전원·측정점 자동설정), configure(명시한 settings만 변경), run(현재 설정으로 계산), stop(진행 중 계산 중지), undo(이전 설정 복원)이다. configure에는 비어 있지 않은 settings가 필요하다. settings는 sourceNetId/groundNetId/outputNetId/frequencyHz/amplitudePeak/offset/phaseDegrees/modulationFrequencyHz/modulationDepth/dutyCyclePercent/waveform/durationSeconds/sampleCount만 허용한다. net ID는 현재 회로의 정확한 ID를 사용한다. amplitudePeak는 Vpeak이며 Vpp 요청은 반으로 환산한다. 단위는 Hz, V, 초, 위상 각도 °다. waveform=dsb는 amplitudePeak*cos(2π*modulationFrequencyHz*t)*sin(2π*frequencyHz*t+phaseDegrees)의 억압반송파이며 cos 반송파는 phaseDegrees=90이다. waveform=am은 1+modulationDepth*cos 변조 포락선이다. run:true는 auto_setup/configure에서 사용자가 실행도 요청한 경우에만 쓴다. run kind에는 settings나 run 필드를 넣지 않는다. stop/undo에는 kind만 넣는다. 결과 탭은 resultTab=time|spectrum|ac|dc|meter이다.
 simulation 스냅샷이 없으면 현재 설정값이나 실행 상태를 안다고 주장하지 않는다. 초기 '자동설정하고 실행' 요청은 auto_setup와 run:true로 제안할 수 있다. 설정은 앱이 현재 회로와 최신 상태를 다시 검사한 뒤 적용한다. 당신이 '설정 적용 완료', '실행 성공', '정상 작동 확인'처럼 이미 실행됐다고 말하면 안 된다. '요청한 설정을 앱에 전달하겠습니다'처럼 설명하고 실행 성공·실패는 앱의 실제 결과 표시를 따른다. 불명확한 수치나 연결은 추측하지 말고 action:null과 확인 질문을 반환한다.`,
       responseMimeType: "application/json", responseJsonSchema: responseSchema(allowed), maxOutputTokens: 4096, abortSignal: controller.signal, httpOptions: { timeout: CHAT_LIMITS.timeoutMs },
     } });

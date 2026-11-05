@@ -6,6 +6,8 @@ export type ScopeWindow = { start: number; end: number; secondsPerDivision: numb
 export function scopeFormat(value: number | undefined, unit = "") {
   if (value === undefined || !Number.isFinite(value)) return "—";
   if (!value) return `0${unit ? ` ${unit}` : ""}`;
+  // A dimensionless quantity has no SI prefix to print, so rescaling it would misstate its size by 10^3n.
+  if (!unit) return String(Number(value.toPrecision(4)));
   const power = Math.max(-12, Math.min(9, Math.floor(Math.log10(Math.abs(value)) / 3) * 3));
   const prefixes: Record<number, string> = { [-12]: "p", [-9]: "n", [-6]: "µ", [-3]: "m", 0: "", 3: "k", 6: "M", 9: "G" };
   return `${Number((value / 10 ** power).toPrecision(4))}${unit ? ` ${prefixes[power]}${unit}` : ""}`;

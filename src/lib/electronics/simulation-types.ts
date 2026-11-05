@@ -1,5 +1,5 @@
 /** Numerical scope: ideal linear R/C and the explicitly verified UA741 pin map. */
-export type SimulationWaveform = "sine" | "square" | "triangle" | "dc" | "pulse" | "sawtooth" | "am";
+export type SimulationWaveform = "sine" | "square" | "triangle" | "dc" | "pulse" | "sawtooth" | "am" | "dsb";
 
 export type SimulationSource = {
   netId: string;
@@ -10,7 +10,7 @@ export type SimulationSource = {
   phaseDegrees?: number;
   /** Pulse high-state fraction, 1–99 percent; omitted means 50. */
   dutyCyclePercent?: number;
-  /** AM envelope frequency; omitted means 100 Hz. Carrier uses frequencyHz. */
+  /** AM/DSB envelope frequency; omitted means 100 Hz. Carrier uses frequencyHz. */
   modulationFrequencyHz?: number;
   /** AM envelope depth, 0–1; omitted means 0.2. */
   modulationDepth?: number;

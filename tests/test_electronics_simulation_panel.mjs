@@ -197,8 +197,23 @@ test("auto setup may apply settings but never runs a BC109C circuit with missing
   assert.equal(h.button("자동 설정 · 실행").props.disabled, true);
   assert.equal(h.button("시뮬레이션 실행").props.disabled, true);
   h.run(); assert.equal(h.workers.length, 0, "Manual entry also rejects the known missing physical footprint");
-  assert.match(textIn(h.tree), /이 패키지의 물리 배치 지원이 필요합니다/);
+  // Forming fixes a round-lead BC109C, so it is told to apply the forming rather than that nothing can help.
+  assert.match(textIn(h.tree), /원형 BC109C 리드는 빵판에 직접 꽂지 않습니다/);
+  assert.match(textIn(h.tree), /BC109C 성형 배치를 적용하면 실행할 수 있습니다/);
+  assert.doesNotMatch(textIn(h.tree), /설정 변경이나 재실행으로 해결되지 않습니다/);
   assert.match(textIn(h.tree), /교육용 시작값/); assert.match(textIn(h.tree), /BC109C/);
+});
+
+test("a part that forming cannot fix keeps the generic physical-support message, even beside formed BC109C parts", () => {
+  const lab = structuredClone(library("lab5-reference").buildLab5ReferenceCircuit(2, "1:1"));
+  for (const part of lab.components) if (part.definitionId === "bjt-bc109c-philips-to18") part.physicalProfile = "bc109c-to18-formed-v1";
+  const labLayout = createLayout(lab, definitions, { boards: 1, railMode: "split" });
+  const h = harness({ circuit: lab, layout: labLayout, probes: [{ holeId: null, netId: null }, { holeId: null, netId: null }] });
+  const content = textIn(h.tree);
+  assert.match(content, /외부 연결이 필요한 소자입니다/, "the particle agrees with the noun");
+  assert.doesNotMatch(content, /외부 연결가/);
+  assert.match(content, /이 패키지의 물리 배치 지원이 필요합니다. 설정 변경이나 재실행으로 해결되지 않습니다/);
+  assert.doesNotMatch(content, /BC109C 성형 배치를 적용하면/);
 });
 
 test("a circuit change invalidates a contemporaneous old control request instead of running its stale intent", () => {

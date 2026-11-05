@@ -11,7 +11,7 @@ function load(name) {
   const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   const mod = { exports: {} };
   vm.runInNewContext(output, { module: mod, exports: mod.exports, require(dependency) {
-    if (dependency === "./power") return load("power");
+    if (["./power", "./physical-profiles"].includes(dependency)) return load(dependency.slice(2));
     throw Error(`Unexpected dependency: ${dependency}`);
   } }, { filename: `electronics/${name}.ts` });
   cache.set(name, mod.exports); return mod.exports;

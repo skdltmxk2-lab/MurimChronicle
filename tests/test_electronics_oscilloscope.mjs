@@ -184,3 +184,35 @@ test("actual React server rendering exposes labelled controls and scoped clippin
   assert.match(markup, /가상 오실로스코프/); assert.match(markup, /트리거 레벨/); assert.match(markup, /clipPath/); assert.match(markup, /평균을 빼는 교육용 근사/);
   assert.doesNotMatch(markup, /NaN|Infinity/);
 });
+
+test("normalized DSP samples retain dimensionless labels and never acquire voltage units", () => {
+  const h = harness({ ...fixture(), amplitudeUnit: "normalized" });
+  const content = textIn(h.flush());
+  assert.match(content, /정규화 진폭/);
+  assert.match(content, /진폭 pp/);
+  assert.match(content, /Δ진폭/);
+  assert.doesNotMatch(content, /V\/div|ΔV|\d V/);
+  h.change("CH1 자동 진폭/div", "", false);
+  assert.equal(tracesIn(h.change("CH1 진폭/div", "0.5")).length, 2);
+});
+
+test("a dimensionless value is never rescaled without its SI prefix while unit-bearing values keep theirs", () => {
+  const { scopeFormat } = utility.exports;
+  for (const [value, expected] of [[0.5, "0.5"], [0.71, "0.71"], [0.001, "0.001"], [1.4, "1.4"], [1500, "1500"], [-0.25, "-0.25"], [12345.678, "12350"], [0, "0"]]) assert.equal(scopeFormat(value, ""), expected);
+  assert.equal(scopeFormat(0.5), "0.5");
+  assert.equal(scopeFormat(undefined), "—");
+  assert.equal(scopeFormat(NaN, "V"), "—");
+  assert.equal(scopeFormat(0.5, "V"), "500 mV");
+  assert.equal(scopeFormat(0.0005, "s"), "500 µs");
+  assert.equal(scopeFormat(1500, "Hz"), "1.5 kHz");
+});
+
+test("normalized samples below one are displayed at their true size in the measurement table", () => {
+  const { time } = sample(), values = time.map(t => 0.25 * Math.sin(2 * Math.PI * 1000 * t));
+  const h = harness({ time, traces: [{ label: "CH1", color: "#d49124", values }], captureKey: "small", stale: false, amplitudeUnit: "normalized" });
+  const row = find(h.flush(), node => node.type === "tr" && textIn(node).startsWith("CH1"));
+  const cells = [...walk(row)].filter(node => node.type === "td").map(textIn);
+  assert.equal(cells[0], "0.5", "peak-to-peak is 0.5, not 500");
+  assert.equal(cells[2], String(Number((0.25 * Math.sqrt(0.5 * 1200 / 1201)).toPrecision(4))), "rms keeps its decimal magnitude");
+  assert.doesNotMatch(textIn(h.flush()), /V|ΔV/);
+});

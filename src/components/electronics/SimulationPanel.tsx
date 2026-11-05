@@ -5,6 +5,7 @@ import { defaultSimulationConfig, parseSimulationConfig } from "@/lib/electronic
 import { applySimulationSettings, parseSimulationAction, parseSimulationContext, type SimulationAssistantAction, type SimulationContext } from "@/lib/electronics/simulation-controls";
 import { deriveSimulationRecommendation, fitSimulationSampling, resolveSimulationProbeHoles, simulationSamplingWarning } from "@/lib/electronics/simulation-recommendations";
 import { createSimulationLayoutIndex, SimulationLayoutError } from "@/lib/electronics/simulation-layout";
+import { supportsBc109cForming } from "@/lib/electronics/physical-profiles";
 import type { ProbeHoles } from "@/lib/electronics/simulation-probes";
 import { amplitudeSpectrum, differentialResponse } from "@/lib/electronics/simulation-measurements";
 import { NONLINEAR_MODEL_REGISTRY } from "@/lib/electronics/simulation-models";
@@ -121,7 +122,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   const configKey = JSON.stringify(config);
   const samplingWarning = simulationSamplingWarning(config);
   const wiringCheck = useMemo(() => {
-    try { createSimulationLayoutIndex(circuit, definitions, layout); return { message: "", issues: [], unsupported: false }; }
+    try { createSimulationLayoutIndex(circuit, definitions, layout); return { message: "", issues: [], unsupported: false, formable: false }; }
     catch (failure) {
       const issues = failure instanceof SimulationLayoutError ? failure.issues : [];
       const unsupportedIds = new Set(issues.filter(issue => ["UNSUPPORTED_MOUNTING", "UNSUPPORTED_FOOTPRINT"].includes(issue.code)).map(issue => issue.componentId));
@@ -129,6 +130,11 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
         message: failure instanceof Error ? failure.message : "실행 전에 빵판 연결을 확인하세요.",
         issues: issues.filter(issue => issue.code !== "MISSING_PLACEMENT" || !unsupportedIds.has(issue.componentId)),
         unsupported: unsupportedIds.size > 0,
+        // A round-lead BC109C is the one unsupported part that the user can fix by choosing the forming profile.
+        formable: unsupportedIds.size > 0 && [...unsupportedIds].every(id => {
+          const part = circuit.components.find(item => item.id === id), definition = part && definitions.find(item => item.id === part.definitionId);
+          return Boolean(part && definition && part.physicalProfile === undefined && supportsBc109cForming(definition));
+        }),
       };
     }
   }, [circuit, definitions, layout]);
@@ -374,7 +380,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
       {recommendation.assumptions.length > 0 && <p className="el-sim-assumption-summary">자동 설정에 원자료 확인이 필요한 조건 {recommendation.assumptions.length}개가 있습니다. 아래 기본값을 확인하세요.</p>}
       {recommendation.captureNote && <p className="el-sim-assumption-summary">자동 설정 추천 · {recommendation.captureNote}</p>}
       <details><summary>추천 근거와 확인할 기본값{recommendation.assumptions.length > 0 && <span className="el-sim-assumption-count">확인 {recommendation.assumptions.length}개</span>}</summary>{recommendation.assumptions.length > 0 && <div className="el-sim-assumptions"><b>미지정 조건은 교육용 시작값입니다</b><ul>{recommendation.assumptions.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}<ul>{recommendation.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></details>
-      {wiringStatus && <div className="el-sim-setup-blocked" role="status"><b>빵판 배치를 먼저 확인하세요</b>{wiringCheck.issues.length > 0 ? <ul>{wiringCheck.issues.slice(0, 5).map((issue, index) => <li key={`${issue.code}-${index}`}>{issue.message}</li>)}</ul> : <p>{wiringStatus}</p>}{wiringCheck.issues.length > 5 && <p>추가 {wiringCheck.issues.length - 5}개 항목은 빵판의 연결 검사에서 확인할 수 있습니다.</p>}{wiringCheck.unsupported && <p>이 패키지의 물리 배치 지원이 필요합니다. 설정 변경이나 재실행으로 해결되지 않습니다.</p>}</div>}
+      {wiringStatus && <div className="el-sim-setup-blocked" role="status"><b>빵판 배치를 먼저 확인하세요</b>{wiringCheck.issues.length > 0 ? <ul>{wiringCheck.issues.slice(0, 5).map((issue, index) => <li key={`${issue.code}-${index}`}>{issue.message}</li>)}</ul> : <p>{wiringStatus}</p>}{wiringCheck.issues.length > 5 && <p>추가 {wiringCheck.issues.length - 5}개 항목은 빵판의 연결 검사에서 확인할 수 있습니다.</p>}{wiringCheck.unsupported && (wiringCheck.formable ? <p>BC109C 성형 배치를 적용하면 실행할 수 있습니다. 빵판 설계 화면의 ‘BC109C 성형 배치 선택’에서 적용한 뒤 다시 실행하세요.</p> : <p>이 패키지의 물리 배치 지원이 필요합니다. 설정 변경이나 재실행으로 해결되지 않습니다.</p>)}</div>}
       {samplingWarning && <div className="el-sim-sampling-warning" role="status"><p>{samplingWarning}</p><button className="el-button el-small" onClick={fitCapture}>시간·샘플 자동 맞춤</button></div>}
       {controlNotice && <p className="el-sim-control-notice" role="status">{controlNotice}</p>}
     </div>

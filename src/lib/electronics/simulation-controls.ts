@@ -6,7 +6,7 @@ import type { SimulationConfig, SimulationWaveform } from "./simulation-types";
 export type SimulationResultTab = "time" | "spectrum" | "ac" | "dc" | "meter";
 export type SimulationAssistantAction = {
   kind: "auto_setup" | "configure" | "run" | "stop" | "undo";
-  settings?: { sourceNetId?: string; groundNetId?: string; outputNetId?: string; frequencyHz?: number; amplitudePeak?: number; offset?: number; waveform?: SimulationWaveform; durationSeconds?: number; sampleCount?: number };
+  settings?: { sourceNetId?: string; groundNetId?: string; outputNetId?: string; frequencyHz?: number; amplitudePeak?: number; offset?: number; phaseDegrees?: number; modulationFrequencyHz?: number; modulationDepth?: number; dutyCyclePercent?: number; waveform?: SimulationWaveform; durationSeconds?: number; sampleCount?: number };
   run?: boolean;
   resultTab?: SimulationResultTab;
 };
@@ -44,18 +44,18 @@ export function parseSimulationAction(value: unknown, circuit: Circuit): Simulat
     result.resultTab = raw.resultTab as SimulationResultTab;
   }
   if (own(raw, "settings")) {
-    const settings = object(raw.settings, ["sourceNetId", "groundNetId", "outputNetId", "frequencyHz", "amplitudePeak", "offset", "waveform", "durationSeconds", "sampleCount"]);
+    const settings = object(raw.settings, ["sourceNetId", "groundNetId", "outputNetId", "frequencyHz", "amplitudePeak", "offset", "phaseDegrees", "modulationFrequencyHz", "modulationDepth", "dutyCyclePercent", "waveform", "durationSeconds", "sampleCount"]);
     if (!Object.keys(settings).length) fail("변경할 파형 설정을 하나 이상 지정하세요.");
     const output: NonNullable<SimulationAssistantAction["settings"]> = {};
     for (const key of ["sourceNetId", "groundNetId", "outputNetId"] as const) if (own(settings, key)) output[key] = knownNet(settings[key], circuit);
-    for (const [key, min, max, integer] of [["frequencyHz", 0.001, 1e7, false], ["amplitudePeak", 0, 1e4, false], ["offset", -1e4, 1e4, false], ["durationSeconds", 1e-9, 60, false], ["sampleCount", 32, 4096, true]] as const) {
+    for (const [key, min, max, integer] of [["frequencyHz", 0.001, 1e7, false], ["amplitudePeak", 0, 1e4, false], ["offset", -1e4, 1e4, false], ["phaseDegrees", -360, 360, false], ["modulationFrequencyHz", 0.001, 1e7, false], ["modulationDepth", 0, 1, false], ["dutyCyclePercent", 1, 99, false], ["durationSeconds", 1e-9, 60, false], ["sampleCount", 32, 4096, true]] as const) {
       if (!own(settings, key)) continue;
       const number = settings[key];
       if (typeof number !== "number" || !Number.isFinite(number) || number < min || number > max || (integer && !Number.isInteger(number))) fail("파형 설정의 숫자 범위 또는 정수 형식이 올바르지 않습니다.");
       output[key] = number as number;
     }
     if (own(settings, "waveform")) {
-      if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am"].includes(settings.waveform as string)) fail("지원하지 않는 발생기 파형입니다.");
+      if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am", "dsb"].includes(settings.waveform as string)) fail("지원하지 않는 발생기 파형입니다.");
       output.waveform = settings.waveform as SimulationWaveform;
     }
     if (output.sourceNetId && output.sourceNetId === output.groundNetId) fail("입력 연결과 기준 접지는 서로 달라야 합니다.");
@@ -81,7 +81,7 @@ export function parseSimulationContext(value: unknown, circuit: Circuit): Simula
 export function applySimulationSettings(config: SimulationConfig, settings: SimulationAssistantAction["settings"]): SimulationConfig {
   const patch = settings ?? {};
   const source = { ...config.source, ...(patch.sourceNetId !== undefined ? { netId: patch.sourceNetId } : {}) };
-  for (const key of ["frequencyHz", "amplitudePeak", "offset", "waveform"] as const) if (patch[key] !== undefined) Object.assign(source, { [key]: patch[key] });
+  for (const key of ["frequencyHz", "amplitudePeak", "offset", "phaseDegrees", "modulationFrequencyHz", "modulationDepth", "dutyCyclePercent", "waveform"] as const) if (patch[key] !== undefined) Object.assign(source, { [key]: patch[key] });
   return parseSimulationConfig({ ...config, source,
     ...(patch.groundNetId !== undefined ? { groundNetId: patch.groundNetId } : {}),
     ...(patch.durationSeconds !== undefined ? { durationSeconds: patch.durationSeconds } : {}),

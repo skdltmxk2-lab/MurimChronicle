@@ -1,5 +1,6 @@
 import type { Circuit, CircuitComponent } from "./types";
 import type { SimulationConfig, SimulationResult } from "./simulation-types";
+import { ensureReferenceConnections } from "./reference-connections";
 
 export type Lab5CaseId = "c1-dc" | "c1-drive" | "c2-dc" | "c2-drive" | "c3-mix";
 export type Lab5Ratio = "1:1" | "2:1";
@@ -49,7 +50,7 @@ export function buildLab5ReferenceCase(id: Lab5CaseId, ratio: Lab5Ratio): { defi
     amplitudePeak: dc ? 0 : definition.circuitNumber === 1 ? 0.02 : 0.01, offset: 0, phaseDegrees: 0 },
     extraSources: definition.circuitNumber === 3 ? [{ netId: "LO", waveform: "sine", frequencyHz: 10000, amplitudePeak: 0.01, offset: 0, phaseDegrees: 0 }] : [],
     supplies: [{ netId: "VCC", voltage: 9 }], durationSeconds: lab5TimeSettings(definition.circuitNumber).durationSeconds, sampleCount: lab5TimeSettings(definition.circuitNumber).sampleCount, acStartHz: 10, acStopHz: 100000, acPoints: 12, opampModel: "ideal", startupPerturbationVolts: 0 };
-  return { definition, circuit, config };
+  return { definition, circuit: ensureReferenceConnections(circuit, config), config };
 }
 
 export const LAB5_DC_REFERENCE = {

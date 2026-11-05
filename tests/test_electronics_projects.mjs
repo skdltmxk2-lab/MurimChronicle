@@ -16,9 +16,10 @@ function load(relative, dependencies = {}, globals = {}) {
   }, Buffer, Uint8Array, JSON, Request, Response, Blob, URL, ...globals }, { filename: relative });
   return mod.exports;
 }
-const schema = load("src/lib/electronics/schema.ts");
+const physicalProfiles = load("src/lib/electronics/physical-profiles.ts");
+const schema = load("src/lib/electronics/schema.ts", { "./physical-profiles": physicalProfiles });
 const projectSource = load("src/lib/electronics/project-source.ts");
-const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts") });
+const engine = load("src/lib/electronics/engine.ts", { "./power": load("src/lib/electronics/power.ts"), "./physical-profiles": physicalProfiles });
 const definitions = [{ id: "r", name: "저항", pins: [{ id: "1", label: "1" }, { id: "2", label: "2" }], kind: "resistor", mounting: "direct", pinoutStatus: "generic", package: "Axial", category: "수동", description: "" }];
 const owner = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const other = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";

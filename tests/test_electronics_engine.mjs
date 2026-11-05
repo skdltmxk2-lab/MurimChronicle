@@ -9,9 +9,11 @@ const powerSource = readFileSync(new URL("../src/lib/electronics/power.ts", impo
 const powerOutput = ts.transpileModule(powerSource, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const powerModule = { exports: {} };
 vm.runInNewContext(powerOutput, { module: powerModule, exports: powerModule.exports, require(name) { throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/power.ts" });
+const profileModule = { exports: {} };
+vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../src/lib/electronics/physical-profiles.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { module: profileModule, exports: profileModule.exports });
 const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const mod = { exports: {} };
-vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) { if (name === "./power") return powerModule.exports; throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/engine.ts" });
+vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) { if (name === "./power") return powerModule.exports; if (name === "./physical-profiles") return profileModule.exports; throw new Error(`Unexpected dependency: ${name}`); } }, { filename: "electronics/engine.ts" });
 const { createBoard, createLayout, validateLayout, createAssemblySteps } = mod.exports;
 
 const options = { boards: 1, railMode: "split" };
@@ -138,7 +140,7 @@ test("unverified pinouts are visible; adapter and external parts are never silen
   const layout = createLayout(input, custom, options);
   const report = validateLayout(input, custom, layout);
   assert.equal(report.valid, false);
-  assert.ok(report.issues.some(i => i.code === "PINOUT_UNVERIFIED" && i.componentId === "Q1"));
+  assert.ok(report.issues.some(i => i.code === "PINOUT_UNVERIFIED" && i.componentId === "Q1" && i.severity === "error"));
   assert.equal(report.issues.filter(i => i.code === "UNSUPPORTED_MOUNTING").length, 2);
   assert.equal(layout.placements.length, 1);
 });

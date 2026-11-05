@@ -19,6 +19,8 @@ export type CircuitComponent = {
   definitionId: string;
   value: string;
   pinNets: Record<string, string>;
+  /** Explicit, instance-specific lead forming. Absence preserves the original package. */
+  physicalProfile?: "bc109c-to18-formed-v1";
 };
 
 export type InstrumentConnection = {

@@ -5,10 +5,30 @@ import type { AssemblyStep, BoardHole, Circuit, CircuitLayout, ComponentDefiniti
 import { ALL_BOARD_LAYERS, componentLayer, isBoardSelectionVisible, layerForAssemblyStep, type BoardLayer } from "@/lib/electronics/visibility";
 import { getPowerNetRole, getRailUsage } from "@/lib/electronics/power";
 import { resistorMarking } from "@/lib/electronics/resistor-marking";
+import { BC109C_FORMED_GUIDANCE, hasBc109cFormedProfile } from "@/lib/electronics/physical-profiles";
+import { layoutRailCaptions, partLabelBaseline, terminalLabelOffset } from "@/lib/electronics/board-label-layout";
 
 export type BoardSelection = { type: "component" | "jumper" | "terminal" | "hole"; id: string } | null;
 export type ProbeMarker = { holeId: string; label: string; color: string };
 const NO_PROBES: readonly ProbeMarker[] = [];
+const CAPTION_HEIGHT = 12;
+const HALO = { stroke: "#fafafa", strokeWidth: 2.6, paintOrder: "stroke", strokeLinejoin: "round" } as const;
+
+/** Rows, extents and trench of one board; shared by the contact surface and the coordinate overlay. */
+function boardGeometry(boardId: number, allHoles: BoardHole[]) {
+  const list = allHoles.filter(h => h.board === boardId);
+  if (!list.length) return null;
+  const xs = list.map(h => h.x), ys = list.map(h => h.y);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const rowNames = [...new Set(list.map(h => h.row))];
+  const rows = rowNames.map(row => ({ row, holes: list.filter(h => h.row === row).sort((a, b) => a.x - b.x) }));
+  const eRow = rows.find(r => r.row.toUpperCase() === "E"), fRow = rows.find(r => r.row.toUpperCase() === "F");
+  const trenchY = eRow && fRow ? (eRow.holes[0].y + fRow.holes[0].y) / 2 : (minY + maxY) / 2;
+  const coreColumns = new Set(list.filter(hole => /^[A-J]$/.test(hole.row)).map(hole => hole.column));
+  const railNumberRows = new Set([rows.find(item => !/^[A-J]$/i.test(item.row) && item.holes[0].y < trenchY)?.row,
+    rows.find(item => !/^[A-J]$/i.test(item.row) && item.holes[0].y > trenchY)?.row]);
+  return { boardId, list, minX, maxX, minY, maxY, rows, trenchY, coreColumns, railNumberRows };
+}
 type BoardDrag = {
   type: "component" | "pin" | "terminal";
   id: string;
@@ -50,6 +70,56 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
   const instruments = useMemo(() => new Map(circuit.instruments.map((connection, index) => [connection.id, { connection, reference: `T${index + 1}` }])), [circuit.instruments]);
   const railUsage = useMemo(() => new Map(getRailUsage(circuit, layout).map(rail => [rail.group, rail])), [circuit, layout]);
   const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
+  const [hoveredHoleId, setHoveredHoleId] = useState<string | null>(null);
+  const [focusedHoleId, setFocusedHoleId] = useState<string | null>(null);
+  const strips = useMemo(() => {
+    const groups = new Map<string, BoardHole[]>();
+    for (const hole of layout.board.holes) {
+      const group = groups.get(hole.group) ?? [];
+      group.push(hole);
+      groups.set(hole.group, group);
+    }
+    for (const group of groups.values()) group.sort((a, b) => a.x - b.x || a.y - b.y);
+    return groups;
+  }, [layout.board]);
+  const stripConnections = useMemo(() => {
+    const groups = new Map<string, Set<string>>();
+    const add = (holeId: string, label: string) => {
+      const hole = holes.get(holeId);
+      if (!hole) return;
+      const connections = groups.get(hole.group) ?? new Set<string>();
+      connections.add(label);
+      groups.set(hole.group, connections);
+    };
+    for (const placement of layout.placements) {
+      const component = components.get(placement.componentId);
+      const definition = component && defs.get(component.definitionId);
+      for (const [pinId, holeId] of Object.entries(placement.pins)) {
+        const pin = definition?.pins.find(item => item.id === pinId);
+        add(holeId, `${placement.componentId}.${pinId}${pin ? ` ${pin.label}` : ""} · ${holeId}`);
+      }
+    }
+    for (const jumper of layout.jumpers) {
+      const label = `점퍼 ${jumper.id} · ${jumper.from} ↔ ${jumper.to}`;
+      add(jumper.from, label);
+      add(jumper.to, label);
+    }
+    for (const terminal of layout.terminals) {
+      const instrument = instruments.get(terminal.connectionId);
+      add(terminal.holeId, `${instrument?.reference ?? terminal.connectionId} ${instrument?.connection.port ?? ""} · ${terminal.holeId}`);
+    }
+    return groups;
+  }, [layout, holes, components, defs, instruments]);
+  const connectionText = useCallback((hole: BoardHole) => {
+    const group = strips.get(hole.group) ?? [hole];
+    const coordinates = group.length <= 5 ? group.map(item => item.id).join(" · ") : `${group[0].id} ~ ${group.at(-1)!.id}`;
+    return `빵판 내부 연결 ${group.length}홀 (일반 830홀 모델)\n${coordinates}`;
+  }, [strips]);
+  const topRowY = useMemo(() => {
+    const rows = new Map<number, number>();
+    for (const hole of layout.board.holes) if (hole.row === "A" && !rows.has(hole.board)) rows.set(hole.board, hole.y);
+    return rows;
+  }, [layout.board]);
   const [fitOccupied, setFitOccupied] = useState(true);
   const scroller = useRef<HTMLDivElement>(null);
   const svg = useRef<SVGSVGElement>(null);
@@ -135,14 +205,44 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
       setTip(pendingTip.current);
     });
   }, []);
-  useEffect(() => { clearTip(); }, [layerKey, circuit, layout, clearTip]);
+  useEffect(() => { clearTip(); setHoveredHoleId(null); setFocusedHoleId(null); }, [layerKey, circuit, layout, clearTip]);
+  const leaveHole = useCallback(() => { setHoveredHoleId(null); clearTip(); }, [clearTip]);
+  const inspectedHole = holes.get(hoveredHoleId ?? focusedHoleId ?? (selection?.type === "hole" ? selection.id : ""));
+  const inspectedStrip = inspectedHole ? strips.get(inspectedHole.group) ?? [] : [];
+  const inspectedConnections = inspectedHole ? [...(stripConnections.get(inspectedHole.group) ?? [])] : [];
+  const inspectedJumpers = inspectedConnections.filter(label => label.startsWith("점퍼 "));
+  const inspectedParts = inspectedConnections.filter(label => !label.startsWith("점퍼 "));
+  const navigateHole = useCallback((event: React.KeyboardEvent<SVGGElement>, hole: BoardHole) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const horizontal = event.key === "ArrowLeft" || event.key === "ArrowRight";
+    const direction = event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 1;
+    // Focus never walks onto a hole the crop has scrolled out of view, where its ring would be invisible.
+    const visible = (candidate: BoardHole) => candidate.x >= viewRect.x - 4 && candidate.x <= viewRect.x + viewRect.width + 4 && candidate.y >= viewRect.y - 4 && candidate.y <= viewRect.y + viewRect.height + 4;
+    const candidates = layout.board.holes.filter(candidate => candidate.board === hole.board && visible(candidate) && (horizontal
+      ? candidate.row === hole.row && (candidate.x - hole.x) * direction > 0
+      : (candidate.y - hole.y) * direction > 0));
+    candidates.sort((a, b) => horizontal ? Math.abs(a.x - hole.x) - Math.abs(b.x - hole.x)
+      : Math.abs(a.y - hole.y) - Math.abs(b.y - hole.y) || Math.abs(a.x - hole.x) - Math.abs(b.x - hole.x));
+    const target = candidates[0];
+    if (target) svg.current?.querySelector<SVGGElement>(`[data-board-hole="${target.id}"]`)?.focus();
+  }, [layout.board, viewRect]);
+  // Tab enters each board at its first visible hole, so the focus ring is never on a hole the crop hides.
+  const entryHoles = useMemo(() => {
+    const entries = new Map<number, string>();
+    const shown = (hole: BoardHole) => hole.x >= viewRect.x - 4 && hole.x <= viewRect.x + viewRect.width + 4 && hole.y >= viewRect.y - 4 && hole.y <= viewRect.y + viewRect.height + 4;
+    for (const hole of layout.board.holes) if (!entries.has(hole.board) && shown(hole)) entries.set(hole.board, hole.id);
+    for (const hole of layout.board.holes) if (!entries.has(hole.board)) entries.set(hole.board, hole.id);
+    return entries;
+  }, [layout.board, viewRect]);
   const opacityFor = (componentId?: string, netId?: string, jumperId?: string) => {
     if (!selectionActive) return 1;
     if (activeStep) return (componentId && activeStep.componentId === componentId) || (jumperId && activeStep.jumperId === jumperId) || (netId && activeStep.connectionId && terminals.get(activeStep.connectionId)?.netId === netId) ? 1 : 0.16;
     const connectedComponent = componentId && selection?.type !== "component" && Object.values(components.get(componentId)?.pinNets ?? {}).some(net => selectedNets.has(net));
     return (selection?.type === "component" && selection.id === componentId) || (selection?.type === "jumper" && selection.id === jumperId) || (netId && selectedNets.has(netId)) || connectedComponent ? 1 : 0.2;
   };
-  const pinDot = (h: BoardHole, label: string, key: string, componentId?: string) => <g key={key} data-component-pin={componentId ? `${componentId}.${key}` : undefined} aria-label={componentId ? label : undefined} role={onHolePick ? "button" : undefined} tabIndex={onHolePick ? 0 : undefined} style={componentId && onMovePin && !onHolePick ? { cursor: "grab", touchAction: "none" } : onHolePick ? { cursor: "crosshair" } : undefined} onClick={onHolePick ? event => { event.stopPropagation(); onHolePick(h.id); } : undefined} onKeyDown={onHolePick ? event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); onHolePick(h.id); } } : undefined} onPointerDown={componentId && onMovePin ? event => beginDrag(event, "pin", componentId, h, key) : undefined} onMouseMove={e => { e.stopPropagation(); titleFor(label, e); }} onMouseLeave={clearTip}>
+  const pinDot = (h: BoardHole, label: string, key: string, componentId?: string, fixedPins = false) => <g key={key} data-component-pin={componentId ? `${componentId}.${key}` : undefined} aria-label={componentId ? label : undefined} role={onHolePick ? "button" : undefined} tabIndex={onHolePick ? 0 : undefined} style={componentId && onMovePin && !fixedPins && !onHolePick ? { cursor: "grab", touchAction: "none" } : onHolePick ? { cursor: "crosshair" } : undefined} onClick={onHolePick ? event => { event.stopPropagation(); onHolePick(h.id); } : undefined} onKeyDown={onHolePick ? event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); event.stopPropagation(); onHolePick(h.id); } } : undefined} onPointerDown={fixedPins ? event => event.stopPropagation() : componentId && onMovePin ? event => beginDrag(event, "pin", componentId, h, key) : undefined} onMouseMove={e => { e.stopPropagation(); setHoveredHoleId(h.id); titleFor(`${label}\n${connectionText(h)}`, e); }} onMouseLeave={leaveHole}>
     {componentId && onMovePin && <circle cx={h.x} cy={h.y} r={7} fill="transparent" />}
     <circle cx={h.x} cy={h.y} r={4} fill="#c9cdd1" stroke="#515a65" strokeWidth={1.3} />
     <circle cx={h.x} cy={h.y} r={1.4} fill="#27333c" />
@@ -164,7 +264,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
     const next: BoardDrag = { type, id, anchorPinId, pointerId: event.pointerId, start: { x: point.x, y: point.y, clientX: event.clientX, clientY: event.clientY }, origin, dx: 0, dy: 0, targetHoleId: origin.id, moved: false };
     event.currentTarget.setPointerCapture(event.pointerId);
     dragCapture.current = event.currentTarget;
-    dragRef.current = next; setDrag(next); clearTip(); setPan(null);
+    dragRef.current = next; setDrag(next); clearTip(); setHoveredHoleId(null); setPan(null);
   }
 
   function moveDrag(event: React.PointerEvent<SVGSVGElement>) {
@@ -203,18 +303,13 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
   }
 
   // Pointer previews reuse all board contacts; only selection or model changes rebuild them.
-  const boardSurface = useMemo(() => boardIds.map((boardId, bi) => {
-          const list = layout.board.holes.filter(h => h.board === boardId);
-          if (!list.length) return null;
-          const xs = list.map(h => h.x), ys = list.map(h => h.y);
-          const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
-          const rowNames = [...new Set(list.map(h => h.row))];
-          const rows = rowNames.map(row => ({ row, holes: list.filter(h => h.row === row).sort((a, b) => a.x - b.x) }));
-          const eRow = rows.find(r => r.row.toUpperCase() === "E"), fRow = rows.find(r => r.row.toUpperCase() === "F");
-          const trenchY = eRow && fRow ? (eRow.holes[0].y + fRow.holes[0].y) / 2 : (minY + maxY) / 2;
+  const boardSurface = useMemo(() => boardIds.map(boardId => {
+          const geometry = boardGeometry(boardId, layout.board.holes);
+          if (!geometry) return null;
+          const { list, minX, maxX, minY, maxY, rows, trenchY, coreColumns } = geometry;
           return <g key={boardId}>
             <rect x={minX - 32} y={minY - 24} width={maxX - minX + 64} height={maxY - minY + 46} rx={13} fill="url(#bb-surface)" stroke="#c9c9c9" strokeWidth={2} filter="url(#bb-shadow)" />
-            <text x={minX - 18} y={minY - 10} fill="#777777" fontSize={10} fontWeight={700}>B{bi + 1} · 63열</text>
+            <text x={minX - 18} y={minY - 10} fill="#555555" fontSize={9} fontWeight={700}>B{boardId}<title>{`B${boardId} · 신호 ${coreColumns.size}열`}</title></text>
             <rect x={minX - 14} y={trenchY - 7} width={maxX - minX + 28} height={14} rx={3} fill="#d5d5d5" stroke="#cccccc" />
             {rows.map(({ row, holes: rh }) => {
               const isCore = /^[a-j]$/i.test(row);
@@ -223,25 +318,102 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
               const railGroups = [...new Set(rh.map(h => h.group))].map(group => rh.filter(h => h.group === group));
               return <g key={row}>
                 {!isCore && railGroups.map(group => <g key={group[0].group} data-rail-group={group[0].group}>
-                    <line x1={group[0].x - 8} x2={group[group.length - 1].x + 8} y1={y - 8} y2={y - 8} stroke={color} strokeWidth={2} />
+                    <line x1={group[0].x - 6} x2={group[group.length - 1].x + 6} y1={y - 8} y2={y - 8} stroke={color} strokeWidth={2} />
+                    <line x1={group[0].x - 6} x2={group[0].x - 6} y1={y - 11} y2={y - 5} stroke={color} strokeWidth={1.3} />
+                    <line x1={group.at(-1)!.x + 6} x2={group.at(-1)!.x + 6} y1={y - 11} y2={y - 5} stroke={color} strokeWidth={1.3} />
+                    <title>{`빵판 내부 연결 ${group[0].id} ~ ${group.at(-1)!.id} · ${group.length}홀 (일반 830홀 모델)`}</title>
                   </g>)}
-                <text x={minX - 21} y={y + 3} fontSize={10} fontWeight={700} fill={isCore ? "#777777" : color}>{isCore ? row.toUpperCase() : row.includes("+") || /p|red/i.test(row) ? "+" : "−"}</text>
-                <text x={maxX + 14} y={y + 3} fontSize={10} fontWeight={700} fill={isCore ? "#777777" : color}>{isCore ? row.toUpperCase() : row.includes("+") || /p|red/i.test(row) ? "+" : "−"}</text>
-                {isCore && row.toUpperCase() === "A" && rh.filter(h => h.column === 1 || h.column % 5 === 0 || h.column === 63).map(h => <text key={h.id} x={h.x} y={y - 14} textAnchor="middle" fill="#888888" fontSize={9}>{h.column}</text>)}
+                {!isCore && railGroups.slice(1).map((group, index) => {
+                  const previous = railGroups[index].at(-1)!;
+                  const gapX = (previous.x + group[0].x) / 2;
+                  return <g key={group[0].group} data-rail-break={`${previous.id}/${group[0].id}`} pointerEvents="none">
+                    <path d={`M${gapX - 4},${y + 4}l4,-8m1,8l4,-8`} stroke="#555" strokeWidth={1.2} fill="none" />
+                    <title>{`전원 레일 구간 경계(모델 기준) · ${previous.id} / ${group[0].id}`}</title>
+                  </g>;
+                })}
               </g>;
             })}
             {list.map(h => {
               const active = activeHoles.has(h.id) || selectedHoles.has(h.id);
               const rail = railUsage.get(h.group);
               const holeLabel = `${h.id} · ${occupied.has(h.id) ? "사용 중" : "빈 구멍"}${rail ? ` · ${rail.netIds.map(netId => circuit.netNames[netId] || netId).join(" / ")}${rail.role === "ground" ? " (GND 기준)" : ""}` : ""}`;
-              return <g key={h.id} role="button" aria-label={holeLabel} tabIndex={onHolePick ? 0 : undefined} onClick={e => { e.stopPropagation(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); }} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); } }} onMouseMove={e => titleFor(holeLabel, e)} onMouseLeave={clearTip}>
+              const detail = `${holeLabel}\n${connectionText(h)}`;
+              return <g key={h.id} data-board-hole={h.id} role="button" aria-label={detail} tabIndex={onHolePick || h.id === entryHoles.get(boardId) ? 0 : -1} onClick={e => { e.stopPropagation(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); }} onKeyDown={e => { navigateHole(e, h); if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); } }} onFocus={() => { setHoveredHoleId(null); setFocusedHoleId(h.id); }} onBlur={() => setFocusedHoleId(null)} onMouseMove={e => { if (!dragRef.current?.moved) setHoveredHoleId(h.id); titleFor(detail, e); }} onMouseLeave={leaveHole}>
+                <rect x={h.x - 6} y={h.y - 6} width={12} height={12} fill="transparent" />
                 {active && <circle cx={h.x} cy={h.y} r={8} fill="#525252" fillOpacity={0.2} stroke="#363636" strokeWidth={2} />}
                 <rect x={h.x - 2.1} y={h.y - 2.1} width={4.2} height={4.2} rx={0.9} fill={active ? "#333333" : "#666666"} />
                 <line x1={h.x - 1.2} x2={h.x + 1.2} y1={h.y - 1.2} y2={h.y - 1.2} stroke="#b9b9b9" strokeWidth={0.8} />
               </g>;
             })}
           </g>;
-        }), [boardIds, layout.board, activeHoles, selectedHoles, railUsage, occupied, circuit.netNames, onHolePick, onSelect, titleFor, clearTip]);
+        }), [boardIds, layout.board, activeHoles, selectedHoles, railUsage, occupied, circuit.netNames, onHolePick, onSelect, titleFor, leaveHole, connectionText, navigateHole, entryHoles]);
+
+  // Coordinates are the topmost layer, so a wire, part or caption may cross a number but never hide it. Row letters
+  // that scroll out of the "사용 영역" crop are repeated, with their board when there are several, at the visible edge.
+  const boardLabels = useMemo(() => boardIds.map(boardId => {
+    const geometry = boardGeometry(boardId, layout.board.holes);
+    if (!geometry) return null;
+    const { minX, maxX, rows, railNumberRows } = geometry;
+    const left = viewRect.x, right = viewRect.x + viewRect.width;
+    const letterLeft = minX - 27, letterRight = maxX + 14;
+    const leftInView = letterLeft >= left && letterLeft + 12 <= right, rightInView = letterRight >= left && letterRight + 12 <= right;
+    return <g key={boardId} data-board-labels={boardId} pointerEvents="none">
+      {rows.map(({ row, holes: rh }) => {
+        const isCore = /^[a-j]$/i.test(row);
+        const color = /\+|p|red/i.test(row) && !isCore ? "#d96f70" : "#7397b7";
+        const fill = isCore ? "#555555" : color, size = isCore ? 10 : 8.5, y = rh[0].y, letter = row.toUpperCase();
+        const edge = (side: "left" | "right") => {
+          const text = boardIds.length > 1 ? `B${boardId}·${letter}` : letter, width = text.length * 5.6 + 8;
+          const x = side === "left" ? left + 3 : right - 3 - width;
+          return <g key={side} data-row-letter-edge={`${boardId}:${row}:${side}`}>
+            <rect x={x} y={y - 7} width={width} height={14} rx={4} fill="#fafafa" fillOpacity={0.95} stroke="#c9c9c9" strokeWidth={0.8} />
+            <text x={x + width / 2} y={y + 3} textAnchor="middle" fontSize={size} fontWeight={700} fill={fill}>{text}</text>
+          </g>;
+        };
+        return <g key={row}>
+          {leftInView ? <text x={letterLeft} y={y + 3} fontSize={size} fontWeight={700} fill={fill} {...HALO}>{letter}</text> : edge("left")}
+          {rightInView ? <text x={letterRight} y={y + 3} fontSize={size} fontWeight={700} fill={fill} {...HALO}>{letter}</text> : edge("right")}
+          {isCore && ["A", "J"].includes(letter) && rh.map(h => <text key={h.id} data-signal-column={`${boardId}:${row}:${h.column}`} x={h.x} y={y + (letter === "A" ? -12 : 13)} textAnchor="middle" fill="#555555" fontSize={9} fontWeight={h.column % 5 === 0 ? 700 : 500} {...HALO}>{h.column}</text>)}
+          {railNumberRows.has(row) && rh.map(h => <text key={h.id} data-rail-column={`${boardId}:${row}:${h.column}`} x={h.x} y={y - 13} textAnchor="middle" fill="#666666" fontSize={8} fontWeight={h.column % 5 === 0 ? 700 : 400} {...HALO}>{h.column}</text>)}
+        </g>;
+      })}
+    </g>;
+  }), [boardIds, layout.board, viewRect]);
+
+  // Rail captions live in the free lane between the two rail rows of a side, tagged with their row, placed left to
+  // right and clear of instrument-terminal labels - never above the rail where the contact numbers are.
+  const railCaptions = useMemo(() => {
+    const rowY = new Map<string, number>(), firstOfGroup = new Map<string, BoardHole>();
+    for (const hole of layout.board.holes) {
+      if (!/^[TB][+-]$/.test(hole.row)) continue;
+      if (!rowY.has(`${hole.board}:${hole.row}`)) rowY.set(`${hole.board}:${hole.row}`, hole.y);
+      const current = firstOfGroup.get(hole.group);
+      if (!current || hole.x < current.x) firstOfGroup.set(hole.group, hole);
+    }
+    const items = [...railUsage.values()].flatMap(usage => {
+      const firstHole = firstOfGroup.get(usage.group);
+      if (!firstHole) return [];
+      const conflict = usage.netIds.length > 1;
+      const railColor = conflict ? "#dc2626" : usage.role === "ground" ? "#356457" : usage.role === "positive" ? "#c74343" : usage.role === "negative" ? "#326db2" : "#667e82";
+      const names = usage.netIds.map(netId => circuit.netNames[netId] || netId).join(" / ");
+      const name = names.length > 16 ? `${names.slice(0, 15)}…` : names;
+      const groundId = usage.netIds[0] || "GND";
+      const groundName = /^(?:[ADP]?GND|GROUND)(?:$|[_:])/i.test(groundId) ? groundId : groundId === "0" ? "GND" : `GND (${groundId})`;
+      const detail = conflict ? `연결 충돌 · ${name}` : usage.role === "ground" ? `${groundName.length > 18 ? `${groundName.slice(0, 17)}…` : groundName} · 0V` : usage.role === "positive" ? `${/^\+/.test(name) ? "" : "+ "}${name}` : usage.role === "negative" ? `${/^[−-]/.test(name) ? "" : "− "}${name}` : name;
+      const caption = `${firstHole.row} · ${detail}`;
+      const width = Math.max(64, [...caption].reduce((total, character) => total + (character.charCodeAt(0) > 255 ? 9 : 5.4), 14));
+      const partner = rowY.get(`${firstHole.board}:${firstHole.row[0]}${firstHole.row[1] === "+" ? "-" : "+"}`);
+      const laneTop = partner === undefined ? firstHole.y - 16 : Math.min(firstHole.y, partner) + (Math.abs(firstHole.y - partner) - CAPTION_HEIGHT) / 2;
+      return [{ usage, firstHole, conflict, railColor, names, caption, width, laneTop, lane: `${firstHole.board}:${firstHole.row[0]}`, order: firstHole.row[1] === "+" ? 0 : 1 }];
+    });
+    const blocked: Record<string, [number, number][]> = {};
+    for (const terminal of layout.terminals) {
+      const hole = holes.get(terminal.holeId);
+      if (hole && /^[TB][+-]$/.test(hole.row)) (blocked[`${hole.board}:${hole.row[0]}`] ??= []).push([hole.x - 11, hole.x + 11]);
+    }
+    const placed = layoutRailCaptions(items.map(item => ({ id: item.usage.group, lane: item.lane, order: item.order, startX: item.firstHole.x - 6, width: item.width })), blocked);
+    return items.map(item => ({ ...item, x: placed.get(item.usage.group) ?? item.firstHole.x - 6 }));
+  }, [railUsage, layout.board, layout.terminals, holes, circuit.netNames]);
 
   return <div className={`el-board-stage ${onHolePick ? "el-picking" : ""}`}>
     <div className="el-board-toolbar">
@@ -289,7 +461,8 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           }).filter((e): e is { pin: typeof d.pins[number]; hole: BoardHole } => Boolean(e.hole));
           if (!entries.length) return null;
           const xs = entries.map(e => e.hole.x), ys = entries.map(e => e.hole.y);
-          const x = (Math.min(...xs) + Math.max(...xs)) / 2, y = (Math.min(...ys) + Math.max(...ys)) / 2;
+          const formed = hasBc109cFormedProfile(c, d);
+          const x = (Math.min(...xs) + Math.max(...xs)) / 2, y = formed ? entries.find(e => e.pin.id === "1")!.hole.y : (Math.min(...ys) + Math.max(...ys)) / 2;
           const a = entries[0].hole, b = entries[entries.length - 1].hole;
           const angle = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
           const length = Math.hypot(b.x - a.x, b.y - a.y);
@@ -298,7 +471,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const negativeLead = entries.find(entry => /^(?:−|-)$/.test(entry.pin.label));
           const negativeSide = negativeLead && negativeLead.hole.x < x ? -1 : 1;
           const marking = d.kind === "resistor" ? resistorMarking(c.value) : null;
-          const label = `${c.id} · ${d.name} · ${c.value}${marking ? ` · ${marking.label}` : ""}`;
+          const label = `${c.id} · ${d.name} · ${c.value}${marking ? ` · ${marking.label}` : ""}${formed ? ` · ${BC109C_FORMED_GUIDANCE}` : ""}`;
           const selected = selection?.type === "component" && selection.id === c.id || activeStep?.componentId === c.id;
           const opacity = opacityFor(c.id);
           const moving = (drag?.type === "component" || drag?.type === "pin") && drag.id === c.id && drag.moved ? drag : null;
@@ -306,11 +479,17 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
             {selected && <rect x={Math.min(...xs) - 12} y={Math.min(...ys) - 24} width={Math.max(...xs) - Math.min(...xs) + 24} height={Math.max(...ys) - Math.min(...ys) + 42} rx={7} fill="#525252" fillOpacity={0.08} stroke="#4a4a4a" strokeWidth={1.5} strokeDasharray="4 3" />}
             {entries.map(({ pin, hole }, index) => {
               const radial = !dip && !["resistor", "diode", "inductor"].includes(d.kind);
-              const leadX = radial ? x + (entries.length === 2 ? (hole.x < x ? -6 : 6) : (index - (entries.length - 1) / 2) * 8) : dip ? hole.x : x;
-              const leadY = radial && ["transistor", "mosfet"].includes(d.kind) ? y - 6 : radial ? y - 3 : y;
+              const leadX = formed ? x + (hole.x - x) * 0.5 : radial ? x + (entries.length === 2 ? (hole.x < x ? -6 : 6) : (index - (entries.length - 1) / 2) * 8) : dip ? hole.x : x;
+              const leadY = formed ? y + (hole.y - y) * 0.5 : radial && ["transistor", "mosfet"].includes(d.kind) ? y - 6 : radial ? y - 3 : y;
               return <line key={`lead${pin.id}`} x1={hole.x} y1={hole.y} x2={leadX} y2={leadY} stroke="#9aa4a4" strokeWidth={2.8} />;
             })}
-            {dip ? <g>
+            {formed ? <g data-physical-profile={c.physicalProfile} filter="url(#bb-shadow)">
+              <path data-to18-tab="upper-left" d={`M${x - 17},${y - 11} L${x - 23},${y - 17} L${x - 17},${y - 23} L${x - 11},${y - 17} Z`} fill="#b1b5b9" stroke="#656b71" />
+              <circle cx={x} cy={y} r={19.3} fill="#b5b9bd" stroke="#626970" strokeWidth={1.2} />
+              <circle cx={x} cy={y} r={16.6} fill="#d6d9dc" stroke="#8b939a" />
+              <text x={x} y={y - 3} textAnchor="middle" fill="#343a40" fontSize={6.5}>BC109C</text>
+              <text x={x} y={y + 6} textAnchor="middle" fill="#343a40" fontSize={6}>성형 · C 캔</text>
+            </g> : dip ? <g>
               <rect x={Math.min(...xs) - 9} y={y - 14} width={Math.max(...xs) - Math.min(...xs) + 18} height={28} rx={3} fill="url(#bb-chip)" stroke="#0b171b" />
               <path d={`M${Math.min(...xs) - 9},${y - 5} a5,5 0 0 1 0,10`} fill="#a6aeb0" />
               <circle cx={Math.min(...xs) - 2} cy={y + 8} r={1.5} fill="#b5bfbf" />
@@ -328,32 +507,20 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
                   : d.kind === "capacitor" ? <ellipse cx={x} cy={y - 8} rx={12} ry={10} fill="#bd7544" stroke="#9e572f" filter="url(#bb-shadow)" />
                     : <rect x={x - 13} y={y - 16} width={26} height={22} rx={3} fill="#426f93" stroke="#234d6b" />}
             {entries.map(({ pin, hole }) => <g key={pin.id}>
-              {pinDot(hole, `${c.id} ${pin.id}번 · ${pin.label} · ${hole.id} · ${c.pinNets[pin.id] || "연결 미정"}${onMovePin ? " · 이 다리만 끌어서 이동" : ""}`, pin.id, c.id)}
+              {pinDot(hole, `${c.id} ${pin.id}번 · ${pin.label} · ${hole.id} · ${c.pinNets[pin.id] || "연결 미정"}${formed ? " · 성형 패턴 유지 · 몸통으로 이동" : onMovePin ? " · 이 다리만 끌어서 이동" : ""}`, pin.id, c.id, formed)}
+              {formed && <text data-to18-pin={`${c.id}.${pin.id}`} x={hole.x + (pin.id === "1" ? -7 : pin.id === "3" ? 7 : 0)} y={hole.y + (pin.id === "2" ? 13 : 4)} textAnchor={pin.id === "1" ? "end" : pin.id === "3" ? "start" : "middle"} fontSize={8} fontWeight={700} fill="#444" stroke="#fff" strokeWidth={2.5} paintOrder="stroke" pointerEvents="none">{pin.label.replace(" / CASE", "")}</text>}
               {(labelsVisible || selected) && ["electrolytic", "diode", "led"].includes(d.kind) && <text data-pin-polarity={`${c.id}.${pin.id}`} x={hole.x} y={hole.y + 12} textAnchor="middle" fontSize={8} fontWeight={700} fill="#444" stroke="#fff" strokeWidth={2.5} paintOrder="stroke" pointerEvents="none">{pin.label}</text>}
             </g>)}
-            {(labelsVisible || selected) && <text x={x} y={Math.min(...ys) - (dip ? 12 : ["transistor", "mosfet"].includes(d.kind) ? 34 : d.kind === "electrolytic" ? 30 : 18)} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="#414141" stroke="#fafafa" strokeWidth={3.4} paintOrder="stroke">{selected ? `${c.id} · ${c.value || d.name}` : c.id}</text>}
+            {(labelsVisible || selected) && <text x={x} y={partLabelBaseline(Math.min(...ys) - (dip ? 12 : ["transistor", "mosfet"].includes(d.kind) ? 34 : d.kind === "electrolytic" ? 30 : 18), topRowY.get(entries[0].hole.board))} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="#414141" stroke="#fafafa" strokeWidth={3.4} paintOrder="stroke">{selected ? `${c.id} · ${c.value || d.name}` : c.id}</text>}
             <title>{`${label}\n${entries.map(e => `${e.pin.id} ${e.pin.label}: ${e.hole.id}`).join("\n")}`}</title>
           </g>;
         })}
         {/* Captions sit over wire paths; terminals render afterward and retain their hit targets. */}
-        {[...railUsage.values()].map(usage => {
-          const firstHole = layout.board.holes.find(hole => hole.group === usage.group);
-          if (!firstHole) return null;
-          const conflict = usage.netIds.length > 1;
-          const railColor = conflict ? "#dc2626" : usage.role === "ground" ? "#356457" : usage.role === "positive" ? "#c74343" : usage.role === "negative" ? "#326db2" : "#667e82";
-          const names = usage.netIds.map(netId => circuit.netNames[netId] || netId).join(" / ");
-          const name = names.length > 16 ? `${names.slice(0, 15)}…` : names;
-          const groundId = usage.netIds[0] || "GND";
-          const groundName = /^(?:[ADP]?GND|GROUND)(?:$|[_:])/i.test(groundId) ? groundId : groundId === "0" ? "GND" : `GND (${groundId})`;
-          const caption = conflict ? `연결 충돌 · ${name}` : usage.role === "ground" ? `${groundName.length > 18 ? `${groundName.slice(0, 17)}…` : groundName} · 0V` : usage.role === "positive" ? `${/^\+/.test(name) ? "" : "+ "}${name}` : usage.role === "negative" ? `${/^[−-]/.test(name) ? "" : "− "}${name}` : name;
-          const labelX = firstHole.x + 48;
-          const labelWidth = Math.max(64, [...caption].reduce((width, character) => width + (character.charCodeAt(0) > 255 ? 9 : 5.4), 14));
-          return <g key={usage.group} data-rail-label={usage.netIds.join(",")} pointerEvents="none">
-            <rect x={labelX - 5} y={firstHole.y - 16} width={labelWidth} height={14} rx={4} fill="#fafafa" stroke={railColor} strokeWidth={0.7} />
-            <text x={labelX + 1} y={firstHole.y - 6} fontSize={9} fontWeight={800} fill={railColor}>{caption}</text>
-            <title>{`${usage.group} · ${names}${usage.role === "ground" ? " · GND 기준 전위(0V)" : ""}${conflict ? " · 서로 다른 노드의 연결 충돌" : ""}`}</title>
-          </g>;
-        })}
+        {railCaptions.map(({ usage, firstHole, conflict, railColor, names, caption, width, laneTop, x }) => <g key={usage.group} data-rail-label={usage.netIds.join(",")} data-rail-caption-row={`${firstHole.board}:${firstHole.row}`} pointerEvents="none">
+          <rect x={x} y={laneTop} width={width} height={CAPTION_HEIGHT} rx={4} fill="#fafafa" stroke={railColor} strokeWidth={0.7} />
+          <text x={x + 6} y={laneTop + 9} fontSize={9} fontWeight={800} fill={railColor}>{caption}</text>
+          <title>{`${usage.group} · ${names}${usage.role === "ground" ? " · GND 기준 전위(0V)" : ""}${conflict ? " · 서로 다른 노드의 연결 충돌" : ""}`}</title>
+        </g>)}
         {displayedLayers.includes("instrument") && layout.terminals.map(t => {
           const h = holes.get(t.holeId), instrument = instruments.get(t.connectionId); if (!h || !instrument) return null;
           const { connection: c, reference } = instrument;
@@ -364,11 +531,12 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const moving = drag?.type === "terminal" && drag.id === t.connectionId && drag.moved ? drag : null;
           return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={`${label}${onMoveTerminal ? " · 끌어서 위치 이동" : ""}`} transform={moving ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onHolePick ? "crosshair" : onMoveTerminal ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveTerminal && !onHolePick ? "none" : undefined }} onPointerDown={event => beginDrag(event, "terminal", t.connectionId, h)} onClick={() => onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId }); } }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip} opacity={moving ? 0.58 : selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
             <circle cx={h.x} cy={h.y} r={active ? 7 : 5} fill={terminalColor} stroke="#fff" strokeWidth={1.5} />
-            {(labelsVisible || active) && <text x={h.x} y={h.y + 13} textAnchor="middle" fontSize={8} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{reference}</text>}
+            {(labelsVisible || active) && <text x={h.x} y={h.y + terminalLabelOffset(h.row)} textAnchor="middle" fontSize={8} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{reference}</text>}
             {active && <text x={h.x + 11} y={h.y - 13} fontSize={9} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={3} paintOrder="stroke">{c.instrument} · {c.port}{powerRole === "ground" ? " · GND" : powerRole === "positive" ? " · +전원" : powerRole === "negative" ? " · −전원" : ""}</text>}
             <title>{label}</title>
           </g>;
         })}
+        {boardLabels}
         {probeMarkers.map((probe, index) => {
           const hole = holes.get(probe.holeId);
           if (!hole) return null;
@@ -381,6 +549,11 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
             <title>{`${probe.label} · ${hole.id} 측정`}</title>
           </g>;
         })}
+        {inspectedHole && inspectedStrip.length > 0 && <g data-internal-strip={inspectedHole.group} pointerEvents="none" aria-hidden="true">
+          <line x1={inspectedStrip[0].x} y1={inspectedStrip[0].y} x2={inspectedStrip.at(-1)!.x} y2={inspectedStrip.at(-1)!.y} stroke="#333333" strokeWidth={4} opacity={0.25} />
+          {inspectedStrip.map(hole => <circle key={hole.id} data-connected-hole={hole.id} cx={hole.x} cy={hole.y} r={7} fill="#555555" fillOpacity={0.12} stroke="#444444" strokeWidth={1.5} />)}
+          <circle data-inspected-hole={inspectedHole.id} cx={inspectedHole.x} cy={inspectedHole.y} r={9} fill="none" stroke="#111111" strokeWidth={2.2} />
+        </g>}
         {drag?.moved && <g pointerEvents="none" aria-hidden="true">
           <circle cx={drag.origin.x} cy={drag.origin.y} r={8} fill="none" stroke="#858585" strokeWidth={1.5} strokeDasharray="3 3" />
           <circle cx={drag.origin.x + drag.dx} cy={drag.origin.y + drag.dy} r={9} fill={drag.targetHoleId ? "#52525222" : "#cb534322"} stroke={drag.targetHoleId ? "#4a4a4a" : "#cb5343"} strokeWidth={2} />
@@ -392,6 +565,17 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
       </svg>
     </div>
     {tip && <div className="el-board-tooltip" style={{ left: Math.max(8, tip.x), top: tip.y + 40 }}>{tip.text}</div>}
+    <div className="el-board-connection" role="status" aria-live="polite" aria-atomic="true">
+      {inspectedHole ? <>
+        <strong className="el-board-hole-coordinate">{inspectedHole.id}</strong>
+        <div className="el-board-strip-detail">
+          <span>{connectionText(inspectedHole)}</span>
+          {inspectedStrip.length > 5 && <details><summary>전체 홀 목록</summary><p>{inspectedStrip.map(hole => hole.id).join(" · ")}</p></details>}
+          {inspectedParts.length > 0 && <p>꽂힌 소자·단자 · {inspectedParts.join(" / ")}</p>}
+          {inspectedJumpers.length > 0 && <p data-strip-jumpers={inspectedHole.group}>점퍼 연결 · {inspectedJumpers.map(label => label.slice(3)).join(" / ")}</p>}
+        </div>
+      </> : <span>홀 위에서 내부 연결과 좌표 확인 (일반 830홀 모델 기준 · 실물 빵판 구조 미확인) · Tab으로 홀 선택 후 방향키로 이동</span>}
+    </div>
     <div className="el-board-caption"><span><b /> 소자 · {onMoveComponent ? "몸통 전체 / 다리 한쪽 이동" : "클릭하여 상세 확인"}</span><span><b className="el-dot-wire" /> 점퍼 · 양 끝 좌표 확인</span><span><b className="el-dot-port" /> 외부 장비 연결점</span><span>{onMoveComponent ? "이동 미리보기 · 놓아서 적용 / Esc 취소" : "정면 기준 · 색상과 좌표를 함께 확인"}</span></div>
   </div>;
 }

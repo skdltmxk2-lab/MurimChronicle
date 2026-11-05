@@ -39,12 +39,12 @@ export function parseSimulationConfig(value: unknown): SimulationConfig {
   const item = object(value, ["groundNetId", "source", "supplies", "durationSeconds", "sampleCount", "acStartHz", "acStopHz", "acPoints"], "시뮬레이션 설정", ["extraSources", "opampModel", "startupPerturbationVolts"]);
   const parseSource = (value: unknown): SimulationSource => {
     const source = object(value, ["netId", "waveform", "frequencyHz", "amplitudePeak", "offset"], "입력 신호", ["phaseDegrees", "dutyCyclePercent", "modulationFrequencyHz", "modulationDepth"]);
-    if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am"].includes(source.waveform as string)) fail("지원하지 않는 입력 파형입니다.");
+    if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am", "dsb"].includes(source.waveform as string)) fail("지원하지 않는 입력 파형입니다.");
     const result: SimulationSource = { netId: netName(source.netId, "입력 노드"), waveform: source.waveform as SimulationWaveform,
       frequencyHz: finite(source.frequencyHz, 0.001, 1e7, "입력 주파수"), amplitudePeak: finite(source.amplitudePeak, 0, 1e4, "입력 피크 진폭"), offset: finite(source.offset, -1e4, 1e4, "입력 DC 오프셋"),
       phaseDegrees: source.phaseDegrees === undefined ? 0 : finite(source.phaseDegrees, -360, 360, "입력 위상") };
     if (source.dutyCyclePercent !== undefined || result.waveform === "pulse") result.dutyCyclePercent = source.dutyCyclePercent === undefined ? SOURCE_DEFAULTS.dutyCyclePercent : finite(source.dutyCyclePercent, 1, 99, "펄스 듀티 비율");
-    if (source.modulationFrequencyHz !== undefined || result.waveform === "am") result.modulationFrequencyHz = source.modulationFrequencyHz === undefined ? SOURCE_DEFAULTS.modulationFrequencyHz : finite(source.modulationFrequencyHz, 0.001, 1e7, "AM 변조 주파수");
+    if (source.modulationFrequencyHz !== undefined || result.waveform === "am" || result.waveform === "dsb") result.modulationFrequencyHz = source.modulationFrequencyHz === undefined ? SOURCE_DEFAULTS.modulationFrequencyHz : finite(source.modulationFrequencyHz, 0.001, 1e7, "변조 주파수");
     if (source.modulationDepth !== undefined || result.waveform === "am") result.modulationDepth = source.modulationDepth === undefined ? SOURCE_DEFAULTS.modulationDepth : finite(source.modulationDepth, 0, 1, "AM 변조 깊이");
     const envelopePeak = result.amplitudePeak * (result.waveform === "am" ? 1 + result.modulationDepth! : 1);
     if (Math.abs(result.offset) + envelopePeak > 1e4) fail("입력 오프셋과 최대 진폭(AM 포락선 포함)의 합이 계산 전압 범위(10 kV)를 넘습니다.");
@@ -343,7 +343,7 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   const { outputStep, dynamicSignals, samplingLimits, subdivisions, totalSteps, work } = simulationTimePlan(model, config);
   const dynamic = dynamicSignals.length > 0;
   samplingLimits.forEach((limit, index) => {
-    if (outputStep > limit.maximumOutputStepSeconds * (1 + 1e-12)) fail(`${dynamicSignals[index].netId}: 파형 표본이 부족합니다. 가장 빠른 주파수(AM은 반송파+변조 주파수) 한 주기당 32개, 펄스의 짧은 high/low 구간당 4개 표본이 필요합니다. 현재 시간 범위에는 최소 ${Math.ceil(config.durationSeconds / limit.maximumOutputStepSeconds) + 1}개가 필요합니다(최대 4,096개). 시간 범위를 줄이거나 표본 수를 늘리세요.`);
+    if (outputStep > limit.maximumOutputStepSeconds * (1 + 1e-12)) fail(`${dynamicSignals[index].netId}: 파형 표본이 부족합니다. 가장 빠른 주파수(AM·DSB-SC는 반송파+변조 주파수) 한 주기당 32개, 펄스의 짧은 high/low 구간당 4개 표본이 필요합니다. 현재 시간 범위에는 최소 ${Math.ceil(config.durationSeconds / limit.maximumOutputStepSeconds) + 1}개가 필요합니다(최대 4,096개). 시간 범위를 줄이거나 표본 수를 늘리세요.`);
   });
   if (subdivisions > 128 || totalSteps > 65536) fail("입력 파형·빠른 RC 응답을 계산하기에 시간 범위가 너무 큽니다. 시간 범위를 줄이세요(출력 구간당 내부 최대 128단계, 전체 최대 65,536단계).");
   if (work > MAX_WORK) fail("회로 크기와 시간·AC 표본의 조합이 계산량 한도를 넘습니다. 표본 수·AC 점 수·시간 범위를 줄이거나 회로를 나누세요.");
@@ -483,6 +483,8 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   if (circuit.id === "bjt-mixer") warnings.push("LO 기본값은 각 5 mV peak, 0°/180°의 대칭 구동입니다. 자료의 B1−B2 차동 입력은 실제 연결과 부하에서 다시 확인하세요.");
   if (config.source.waveform === "dc" && config.source.amplitudePeak) warnings.push("DC 파형에서는 피크 진폭을 사용하지 않고 오프셋 전압만 인가합니다.");
   if (dynamicSignals.some(source => ["square", "pulse", "sawtooth"].includes(source.waveform))) warnings.push("구형파·펄스·톱니파는 상승·하강 시간이 0인 이상적 발생기입니다. 주기당 출력 32표본/내부 128단계, 펄스의 짧은 high/low 구간당 출력 4표본/내부 16단계 이상을 요구하지만 무한 고조파·실제 발생기의 대역폭과 에지는 재현하지 않습니다.");
+  if (dynamicSignals.some(source => source.waveform === "dsb" && (source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz) >= source.frequencyHz)) warnings.push("DSB-SC의 변조 주파수가 반송파 이상입니다. 하측파대 fc−fm이 0 Hz 이하로 접혀 DC 또는 반전 성분이 되므로 두 측파대가 분리된 억압반송파 파형으로 해석하지 마세요.");
+  if (dynamicSignals.some(source => source.waveform === "dsb")) warnings.push("DSB-SC 입력은 진폭 × cos(2πfmt) × sin(2πfct+위상)입니다. 진폭은 곱의 계수이고 각 측파대의 peak는 그 절반입니다. AC 해석은 주 입력의 소신호 응답이며 주파수 변환 이득은 시간 파형에서 측정하세요.");
   if (dynamicSignals.some(source => source.waveform === "am")) warnings.push("AM 진폭은 반송파의 V peak이며 포락선 최대값은 진폭×(1+변조 깊이)입니다. 변조 위상은 cos 기준 0°, 입력 위상은 반송파에 적용합니다. AC 해석은 AM 측파대 변환 이득이 아닙니다.");
   if (opamps.length) warnings.push(dynamicModels.length ? "UA741 교육용 동적 모델: A0=200,000, GBW=1 MHz의 단일 극, slew rate=0.5 V/µs. 출력은 상태 방정식 안에서 각 전원으로부터 1.5 V의 가정된 headroom으로 제한합니다. 실제 부하별 swing·출력전류·추가 극·포화 회복·입력 공통모드 동작을 재현하지 않습니다." : OPAMP_WARNING);
   if (opamps.length) warnings.push("op-amp 출력 부하 전류를 VCC/VEE 전원 전류로 반영하지 않으므로 소비전력·효율을 계산할 수 없습니다. 피드백 연결 경로 검사와 AC 결과는 일반 회로의 안정성 증명이 아닙니다.");

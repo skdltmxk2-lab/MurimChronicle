@@ -128,7 +128,7 @@ RC 예제의 `config`:
 
 요청은 1,000,000바이트 이하이며 시간 샘플 32~4096개, AC 지점 2~512개를 사용한다. 회로 크기와 시간 범위의 조합에는 별도 계산량 제한이 있다. 형식 오류는 400, 본문 용량 초과는 413, JSON 외 형식은 415, 배선 오류·미지원 모델·부유 노드 등 계산 불가는 422, 인증·권한 오류는 401/403이다. 클라이언트가 보낸 검사 결과나 홀 도통 정보는 신뢰하지 않고 보드 프로필에서 다시 구성해 검사한다.
 
-카탈로그는 총 147개이고 제조사 데이터시트 핀 확인 41개, 범용 물리 모델 8개, 미검증 98개다. 이 수는 시뮬레이션 지원 모델 수가 아니다. 비선형 레지스트리에는 다음 12개가 있고, 직접 실장 가능한 모델은 BC109C를 제외한 11개다. `GET /api/admin/electronics/simulate`의 `nonlinearModels`에서 정확한 제조사별 `definitionId`, `rolePinIds`, 출처, 교육 파라미터, 제한과 `physicalPlacement`를 읽는다.
+카탈로그는 총 148개이고 제조사 데이터시트 핀 확인 41개, 범용 물리 모델 9개, 미검증 98개다. 이 수는 시뮬레이션 지원 모델 수가 아니다. 비선형 레지스트리에는 다음 12개가 있고, 직접 실장 가능한 모델은 BC109C를 제외한 11개이며, BC109C는 회로 소자에 `physicalProfile: "bc109c-to18-formed-v1"`(앱이 정한 성형 배치)를 지정하고 layout이 그 배치와 일치할 때만 실행한다. 지정하지 않으면 미배치로 거부한다. `GET /api/admin/electronics/simulate`의 `nonlinearModels`에서 정확한 제조사별 `definitionId`, `rolePinIds`, 출처, 교육 파라미터, 제한과 `physicalPlacement`를 읽는다.
 
 | 모델 | 제조사·패키지 및 핀 번호 순서 | 수치 방식 / 실장 |
 | --- | --- | --- |
@@ -139,7 +139,7 @@ RC 예제의 `config`:
 | 2N7000TA | onsemi TO-92: S/G/D | N-MOS Level-1 / 직접 |
 | BS170 | onsemi TO-92: D/G/S | N-MOS Level-1 / 직접 |
 | IRF540N, IRF9540N | Infineon TO-220: G/D/S, 금속 탭=D | N/P-MOS Level-1 / 직접 |
-| BC109C | Philips TO-18: E/B/C 및 케이스=C | NPN 수치 모델 등록 / 외부 실장 보류 |
+| BC109C | Philips TO-18: E/B/C 및 케이스=C | NPN 수치 모델 등록 / 원형 리드는 미배치, `physicalProfile: "bc109c-to18-formed-v1"` 성형 배치에서만 실장·실행 |
 
 BC549C·BC556B·BC109C는 수업 `Transistors.lib`의 Is/Bf/Br을 사용한 축소 Ebers–Moll이고, 2N7000은 같은 파일의 Zetex VTO/KP/LAMBDA와 바디 다이오드 값 일부를 사용한다. 제조사 핀맵 확인과 이 교육 파라미터의 출처는 다를 수 있다. 나머지는 명시적으로 선택한 교육값이다. 어느 것도 제조사 전체 SPICE 모델을 가져와 동일하게 재현했다는 뜻이 아니다. 모델은 300 K 고정이며 BJT Early 효과·고주입·접합 전하, MOS/다이오드 기생 용량·직렬 저항, 항복·열을 생략한다. Newton 반복용 지수 접선 연장 구간의 최종값은 정상 파형으로 사용하지 않는다.
 
@@ -170,7 +170,7 @@ UA741 모델의 출력 부하 전류는 VCC/VEE 공급 전류로 반영하지 �
 
 ## 함수발생기와 가상 계측기 API
 
-`source.waveform`은 `sine`, `square`, `triangle`, `dc`, `pulse`, `sawtooth`, `am`을 지원한다. `pulse`의 `dutyCyclePercent`는 1~99(기본 50), `am`의 `modulationFrequencyHz`는 0.001~10000000 Hz(기본100), `modulationDepth`는 0~1(기본0.2)이다. AM은 `offset + A*(1+m*cos(2π*fm*t))*sin(2π*fc*t+phase)`다. 수업 2023 조건의 cos 반송파는 phaseDegrees=90으로 지정한다. 펄스는 짧은 high/low마다 출력 4표본·내부16단계, AM은 fc+fm 기준 주기당32표본이 필요하다. 부족한 표본을 조용히 보간해 계산하지 않는다.
+`source.waveform`은 `sine`, `square`, `triangle`, `dc`, `pulse`, `sawtooth`, `am`, `dsb`를 지원한다. `pulse`의 `dutyCyclePercent`는 1~99(기본 50), `am`의 `modulationFrequencyHz`는 0.001~10000000 Hz(기본100), `modulationDepth`는 0~1(기본0.2)이다. AM은 `offset + A*(1+m*cos(2π*fm*t))*sin(2π*fc*t+phase)`다. 수업 2023 조건의 cos 반송파는 phaseDegrees=90으로 지정한다. 펄스는 짧은 high/low마다 출력 4표본·내부16단계, AM·DSB-SC는 fc+fm 기준 주기당32표본이 필요하다. `dsb`는 `offset + A*cos(2π*fm*t)*sin(2π*fc*t+phase)`(억압반송파, A는 곱의 계수이고 각 측파대 peak는 A/2)이며 `modulationFrequencyHz`를 AM과 공유한다. 부족한 표본을 조용히 보간해 계산하지 않는다.
 
 멀티미터는 관리자 인증 후 `POST /api/admin/electronics/measure`에 `{ circuit, boardOptions, layout, settings, config? }`를 보낸다. 현재 배치는 설계/프로젝트 API에서 확인한 실제 배치다. 파형이나 이미 계산된 숫자는 입력으로 받지 않는다.
 

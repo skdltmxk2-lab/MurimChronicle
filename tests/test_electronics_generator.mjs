@@ -104,7 +104,7 @@ test("AM sideband and narrow pulse sampling limits govern output and internal in
 });
 
 test("every new waveform reaches circuit nodes through the same source function, with DC initialization retained", () => {
-  for (const waveform of ["pulse", "sawtooth", "am"]) {
+  for (const waveform of ["pulse", "sawtooth", "am", "dsb"]) {
     const s = source({ waveform, phaseDegrees: 41, dutyCyclePercent: 10, modulationFrequencyHz: 300, modulationDepth: 0.2, amplitudePeak: 0.01, offset: 0.002 });
     const input = config({ source: s }), before = JSON.stringify(input);
     const result = runSimulation(divider, definitions, input);
@@ -154,11 +154,54 @@ test("generator controls edit the selected source and preview is explicitly sepa
   [...walk(field)].find(node => node.type === "input").props.onChange({ target: { value: "0.7" } });
   assert.deepEqual(changes.pop(), { modulationDepth: 0.7 });
   nodes.find(node => node.type === "select").props.onChange({ target: { value: "pulse" } });
-  assert.deepEqual(changes.pop(), { waveform: "pulse" });
-  assert.equal(nodes.filter(node => node.type === "option").length, 7);
+  // Leaving AM drops the AM-only depth (and the modulation frequency pulse never uses) instead of keeping a hidden value.
+  assert.deepEqual(changes.pop(), { waveform: "pulse", modulationDepth: undefined, modulationFrequencyHz: undefined });
+  assert.equal(nodes.filter(node => node.type === "option").length, 8);
   assert.ok(nodes.some(node => node.type === "path" && !/NaN|Infinity/.test(node.props.d)));
   for (const patch of [{ amplitudePeak: NaN }, { waveform: "pulse", dutyCyclePercent: 0 }, { modulationDepth: 2 }]) {
     const invalid = [...walk(Generator({ source: { ...s, ...patch }, onChange() {} }))];
     assert.ok(invalid.some(node => node.props.role === "alert")); assert.ok(!invalid.some(node => node.type === "path"));
   }
+});
+
+test("DSB-SC keeps the two product sidebands while suppressing the carrier through the normal generator path", () => {
+  const s = source({ waveform: "dsb", amplitudePeak: 0.01, frequencyHz: 1000, modulationFrequencyHz: 300, phaseDegrees: 90 });
+  const parsed = parseSimulationConfig(config({ source: s })).source;
+  assert.equal(parsed.waveform, "dsb");
+  assert.equal(parsed.modulationFrequencyHz, 300);
+  const amplitudes = new Map([700, 1000, 1300].map(hz => [hz, [0, 0]]));
+  for (let i = 0; i < 2048; i++) {
+    const t = i / 204800;
+    const value = sourceVoltage(parsed, t);
+    near(value, 0.005 * Math.cos(2 * Math.PI * 700 * t) + 0.005 * Math.cos(2 * Math.PI * 1300 * t), 1e-15);
+    for (const [hz, projection] of amplitudes) {
+      projection[0] += value * Math.cos(2 * Math.PI * hz * t);
+      projection[1] += value * Math.sin(2 * Math.PI * hz * t);
+    }
+  }
+  for (const [hz, projection] of amplitudes) near(2 * Math.hypot(...projection) / 2048, hz === 1000 ? 0 : 0.005, 1e-14);
+  near(sourceSamplingLimits(parsed).maximumFrequencyHz, 1300);
+  const tree = Generator({ source: s, onChange() {} });
+  assert.match(textIn(tree), /DSB-SC/);
+  assert.ok(![...walk(tree)].some(node => node.type === "label" && textIn(node).includes("변조 깊이")));
+});
+
+test("a stale invalid AM depth cannot block a DSB-SC source whose form has no depth field", () => {
+  const changes = [], stale = source({ waveform: "am", modulationDepth: NaN });
+  const select = [...walk(Generator({ source: stale, onChange: patch => changes.push(patch) }))].find(node => node.type === "select");
+  select.props.onChange({ target: { value: "dsb" } });
+  const next = { ...stale, ...changes.pop() };
+  assert.equal(next.waveform, "dsb");
+  assert.equal(next.modulationDepth, undefined, "the AM-only value is gone");
+  assert.equal(next.modulationFrequencyHz, stale.modulationFrequencyHz ?? undefined, "DSB-SC keeps the modulation frequency it shares with AM");
+  const shown = [...walk(Generator({ source: next, onChange() {} }))];
+  assert.ok(!shown.some(node => node.props.role === "alert"), "no hidden invalid field blocks the run");
+  assert.ok(shown.some(node => node.type === "path"), "the preview is drawn");
+});
+
+test("a DSB-SC modulation frequency at or above the carrier is called out because the lower sideband folds", () => {
+  const warn = frequency => runSimulation(divider, definitions, config({ source: source({ waveform: "dsb", frequencyHz: 1000, modulationFrequencyHz: frequency, amplitudePeak: 0.01 }) })).warnings;
+  assert.ok(warn(1000).some(text => /DSB-SC의 변조 주파수가 반송파 이상/.test(text)));
+  assert.ok(warn(1500).some(text => /하측파대 fc−fm/.test(text)));
+  assert.ok(!warn(300).some(text => /변조 주파수가 반송파 이상/.test(text)));
 });

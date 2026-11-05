@@ -19,7 +19,7 @@ export function fitSimulationSampling(input: SimulationConfig, circuit?: Circuit
   let sampleCount = Number.isInteger(input.sampleCount) && input.sampleCount >= 32 && input.sampleCount <= 4096 ? input.sampleCount : 1024;
   let note = "DC 입력의 시간 범위를 유지했습니다. 자율 발진·과도 응답의 관측 시간은 회로에 맞게 조정하세요.";
   let limited = false;
-  const frequencies = sources.flatMap(source => source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0
+  const frequencies = sources.flatMap(source => (source.waveform === "dsb" || source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0)
     ? [source.frequencyHz, source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz]
     : [source.frequencyHz]);
   if (sources.length) {

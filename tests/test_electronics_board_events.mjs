@@ -274,3 +274,25 @@ test("channel markers follow their physical holes without blocking contact click
   const ring = select(marker, node => node.type === "circle");
   assert.equal(ring.props.cx, hole.x); assert.equal(ring.props.cy, hole.y);
 });
+
+
+test("TO-18 formed pin contacts stop pointer propagation and preserve body dragging", () => {
+  const h = harness();
+  const { COMPONENT_CATALOG: definitions } = library("catalog");
+  const { BC109C_DEFINITION_ID, BC109C_FORMED_PROFILE } = library("physical-profiles");
+  const formed = { ...circuit, components: [{ id: "Q1", definitionId: BC109C_DEFINITION_ID, value: "BC109C", physicalProfile: BC109C_FORMED_PROFILE, pinNets: { 1: "E", 2: "B", 3: "C" } }], netNames: { E: "E", B: "B", C: "C" } };
+  const layout = library("engine").createLayout(formed, definitions, { boards: 1, railMode: "split" });
+  h.update({ circuit: formed, definitions, layout });
+  const pin = h.pin("Q1.1"), event = h.event(layout.placements[0].pins["1"]);
+  pin.props.onPointerDown(event);
+  assert.equal(event.stopped, true);
+  h.up();
+  assert.equal(h.calls.pin.length, 0);
+  assert.equal(h.calls.component.length, 0);
+  const body = select(h.tree, node => node.props["data-board-layer"] === "semiconductor");
+  body.props.onPointerDown(h.event(layout.placements[0].pins["1"]));
+  h.flush();
+  h.move("B1:C20");
+  h.up("B1:C20");
+  assert.equal(h.calls.component.length, 1);
+});
