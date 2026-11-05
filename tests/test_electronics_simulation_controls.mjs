@@ -11,7 +11,7 @@ function load(name) {
   return module.exports;
 }
 const { parseSimulationAction, parseSimulationContext, applySimulationSettings, SimulationControlError } = load("simulation-controls");
-const { deriveSimulationRecommendation, resolveSimulationProbeHoles, simulationSamplingWarning } = load("simulation-recommendations");
+const { deriveSimulationRecommendation, fitSimulationSampling, resolveSimulationProbeHoles, simulationSamplingWarning } = load("simulation-recommendations");
 const { COMPONENT_CATALOG: definitions } = load("catalog");
 const { CIRCUIT_TEMPLATES } = load("templates");
 const { createLayout } = load("engine");
@@ -71,6 +71,16 @@ test("terminal topology recommends a coupling-cap input and loaded collector wit
   assert.ok(r.assumptions.some(note => /1 kHz.*원자료/.test(note)));
 });
 
+test("mixer automatic setup retains RF as the primary drive and both differential LO sources", () => {
+  const mixer = CIRCUIT_TEMPLATES.find(item => item.id === "bjt-mixer");
+  const recommendation = deriveSimulationRecommendation(mixer, definitions);
+  assert.equal(recommendation.sourceNetId, "RF");
+  assert.equal(recommendation.config.source.frequencyHz, 1000);
+  assert.deepEqual(recommendation.config.extraSources.map(source => source.netId), ["LO_PLUS", "LO_MINUS"]);
+  assert.deepEqual(recommendation.config.extraSources.map(source => source.phaseDegrees), [0, 180]);
+  assert.equal(simulationSamplingWarning(recommendation.config), "");
+});
+
 test("decimal/scientific SI numbers and peak-to-peak are read completely, not suffix-matched", () => {
   const { c } = renamedLab();
   const settings = [
@@ -115,4 +125,30 @@ test("sampling warnings compare duration and samples to the highest dynamic sour
   assert.equal(simulationSamplingWarning(config), "");
   assert.match(simulationSamplingWarning({ ...config, extraSources: [{ ...config.source, netId: "OUT", frequencyHz: 1e6 }] }), /샘플이 부족/);
   assert.match(simulationSamplingWarning({ ...config, durationSeconds: 0.0001 }), /두 주기/);
+});
+
+test("capture fitting respects AM sidebands and narrow pulses while retaining the configured source", () => {
+  const original = defaultSimulationConfig(rc);
+  for (const source of [
+    { ...original.source, waveform: "sine", frequencyHz: 1e6 },
+    { ...original.source, waveform: "am", frequencyHz: 10000, modulationFrequencyHz: 100, modulationDepth: 0.7 },
+    { ...original.source, waveform: "pulse", frequencyHz: 1000, dutyCyclePercent: 1 },
+  ]) {
+    const config = { ...original, source }, before = clone(config);
+    const timing = fitSimulationSampling(config);
+    assert.deepEqual(config, before);
+    const fitted = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
+    assert.ok(timing.sampleCount >= 32 && timing.sampleCount <= 4096);
+    assert.doesNotMatch(simulationSamplingWarning(fitted), /샘플이 부족/);
+    if (source.waveform === "am") assert.match(timing.note, /5주기보다 짧게/);
+  }
+});
+
+test("capture fitting repairs blank capture fields but rejects invalid source inputs and preserves DC capture settings", () => {
+  const config = defaultSimulationConfig(rc);
+  const fitted = fitSimulationSampling({ ...config, durationSeconds: NaN, sampleCount: NaN });
+  assert.ok(Number.isFinite(fitted.durationSeconds)); assert.ok(Number.isInteger(fitted.sampleCount));
+  assert.throws(() => fitSimulationSampling({ ...config, source: { ...config.source, frequencyHz: NaN } }));
+  const dc = { ...config, source: { ...config.source, waveform: "dc" }, durationSeconds: 0.02, sampleCount: 4096 };
+  assert.equal(fitSimulationSampling(dc).durationSeconds, 0.02); assert.equal(fitSimulationSampling(dc).sampleCount, 4096);
 });

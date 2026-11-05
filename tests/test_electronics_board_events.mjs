@@ -246,9 +246,23 @@ test("external instrument contacts can be probed by mouse or keyboard without dr
   const terminal = () => select(h.tree, node => node.props["data-board-layer"] === "instrument");
   terminal().props.onPointerDown(h.event("B1:A14"));
   h.move("B1:A20"); h.up("B1:A20"); h.click(terminal());
-  terminal().props.onKeyDown({ key: "Enter" });
+  terminal().props.onKeyDown(h.event("B1:A14", { key: "Enter" }));
   assert.deepEqual(picked, ["B1:A14", "B1:A14"]);
   assert.equal(moved.length, 0); assert.equal(h.calls.selection.length, 0);
+});
+
+test("board buttons activate on Space and prevent page scrolling", () => {
+  const h = harness();
+  const bodyKey = h.event("B1:B10", { key: " " });
+  h.body().props.onKeyDown(bodyKey);
+  assert.equal(bodyKey.prevented, true);
+  assert.equal(h.calls.selection.at(-1).type, "component");
+  const picked = [];
+  h.update({ onHolePick: holeId => picked.push(holeId) });
+  const holeKey = h.event("B1:A14", { key: " " });
+  h.hole("B1:A14").props.onKeyDown(holeKey);
+  assert.equal(holeKey.prevented, true);
+  assert.deepEqual(picked, ["B1:A14"]);
 });
 
 test("channel markers follow their physical holes without blocking contact clicks", () => {

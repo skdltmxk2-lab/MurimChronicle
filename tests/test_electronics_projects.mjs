@@ -13,7 +13,7 @@ function load(relative, dependencies = {}, globals = {}) {
   vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) {
     if (!(name in dependencies)) throw Error(`Unexpected dependency: ${name}`);
     return dependencies[name];
-  }, Buffer, Uint8Array, JSON, Request, Response, Blob, ...globals }, { filename: relative });
+  }, Buffer, Uint8Array, JSON, Request, Response, Blob, URL, ...globals }, { filename: relative });
   return mod.exports;
 }
 const schema = load("src/lib/electronics/schema.ts");
@@ -50,7 +50,8 @@ function harness(options = {}) {
         },
         async list(prefix, config) {
           state.calls.push(["list", prefix, config]);
-          return ok(options.list ?? [...state.files.keys()].filter(key => key.startsWith(`${prefix}/`)).slice(0, config.limit).map(key => ({ name: key.slice(prefix.length + 1), metadata: { size: Buffer.byteLength(state.files.get(key)) } })));
+          const entries = options.list ?? [...state.files.keys()].filter(key => key.startsWith(`${prefix}/`)).map(key => ({ name: key.slice(prefix.length + 1), metadata: { size: Buffer.byteLength(state.files.get(key)) } }));
+          return ok(entries.slice(config.offset ?? 0, (config.offset ?? 0) + config.limit));
         },
         async download(key) {
           state.calls.push(["download", key]);
@@ -67,7 +68,7 @@ function harness(options = {}) {
     "@/lib/electronics/engine": engine,
     "@/lib/electronics/project-source": projectSource,
   });
-  return { state, route, post: value => route.POST(new Request("https://example.test/projects?userId=" + other, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(value) })), get: () => route.GET(new Request("https://example.test/projects?userId=" + other)) };
+  return { state, route, post: value => route.POST(new Request("https://example.test/projects?userId=" + other, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(value) })), get: (offset = 0) => route.GET(new Request(`https://example.test/projects?userId=${other}&offset=${offset}`)) };
 }
 
 test("anonymous and non-admin access touches no storage", async () => {
@@ -121,7 +122,7 @@ test("loads only the owner's prefix and keeps manual placement", async () => {
   const data = await response.json(); assert.equal(data.projects.length, 1);
   assert.deepEqual(data.projects[0].layout.placements[0].pins, p.layout.placements[0].pins);
   const list = h.state.calls.find(call => call[0] === "list");
-  assert.equal(list[1], owner); assert.equal(list[2].limit, 30);
+  assert.equal(list[1], owner); assert.equal(list[2].limit, 31);
   assert.equal(h.state.calls.filter(call => call[0] === "download").every(call => call[1].startsWith(owner + "/")), true);
 });
 test("creates a private bucket only on 404 and corrects a public bucket", async () => {
@@ -241,7 +242,7 @@ test("invalid source is rejected before cloud storage and corrupt saved metadata
 
 test("local persistence and project JSON import/export retain source bytes and reject invalid imports atomically", () => {
   let stored = "[]";
-  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource }, { localStorage: {
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
     getItem: () => stored, setItem: (_key, value) => { stored = value; },
   } });
   const { parseProjectForWorkspace } = load("src/lib/electronics/project-input.ts", {
@@ -264,4 +265,128 @@ test("local persistence and project JSON import/export retain source bytes and r
   const legacy = storage.readLocalProjects(owner);
   assert.equal(legacy.length, 1); assert.equal(legacy[0].source, undefined);
   assert.equal(parseProjectForWorkspace(legacy[0], definitions).source, undefined);
+});
+
+test("browser autosave compacts derived board holes and restores legacy and current manual layouts", () => {
+  let stored = "[]";
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
+    getItem: () => stored, setItem: (_key, value) => { stored = value; },
+  } });
+  const original = project();
+  original.boardOptions = { boards: 2, railMode: "continuous" };
+  original.layout = JSON.parse(JSON.stringify(engine.createLayout(original.circuit, definitions, original.boardOptions)));
+  original.layout.placements[0].pins = { "1": "B2:B8", "2": "B2:B12" };
+  original.source = { ...origins[1], attachment: imageAttachment() };
+  stored = JSON.stringify([original]);
+  const legacy = storage.readLocalProjectState(owner);
+  assert.equal(legacy.error, null);
+  assert.equal(legacy.projects[0].layout.board.holes.length, 1660);
+  assert.deepEqual(legacy.projects[0].layout.placements, original.layout.placements);
+  const originalBytes = Buffer.byteLength(stored);
+  storage.saveLocalProject(owner, original);
+  const encoded = JSON.parse(stored)[0];
+  assert.equal(encoded.layout.board.holes.length, 0);
+  assert.ok(Buffer.byteLength(stored) < originalBytes / 10, "derived geometry should not exhaust browser quota");
+  assert.equal(original.layout.board.holes.length, 1660, "compact serialization must not mutate active board");
+  const restored = storage.readLocalProjectState(owner);
+  assert.equal(restored.error, null);
+  assert.deepEqual(JSON.parse(JSON.stringify(restored.projects[0].layout.board)), original.layout.board);
+  assert.deepEqual(restored.projects[0].layout.placements, original.layout.placements);
+  assert.deepEqual(restored.projects[0].source, original.source);
+});
+
+test("unreadable or corrupt browser storage is surfaced and never overwritten by autosave", () => {
+  for (const saved of ["broken json", "{}", JSON.stringify([project(), { invalid: true }])]) {
+    let writes = 0;
+    const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
+      getItem: () => saved, setItem: () => { writes++; },
+    } });
+    const result = storage.readLocalProjectState(owner);
+    assert.match(result.error, /읽지 못했습니다/);
+    assert.throws(() => storage.saveLocalProject(owner, project()), /읽지 못했습니다/);
+    assert.equal(writes, 0);
+    if (saved.startsWith("[")) { assert.equal(result.projects.length, 1); assert.equal(result.skipped, 1); }
+  }
+  const blocked = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
+    getItem: () => { throw new Error("denied"); }, setItem: () => assert.fail("blocked store must not be overwritten"),
+  } });
+  assert.match(blocked.readLocalProjectState(owner).error, /읽지 못했습니다/);
+  assert.throws(() => blocked.saveLocalProject(owner, project()), /읽지 못했습니다/);
+});
+
+test("project list merging preserves cloud-only entries and compares actual instants across time zones", () => {
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine });
+  const base = project();
+  const newer = { ...base, title: "newer edit", updatedAt: "2026-01-01T00:00:00Z" };
+  const older = { ...base, title: "older edit", updatedAt: "2026-01-01T08:00:00+09:00" };
+  const cloudOnly = { ...base, id: other, title: "cloud only" };
+  const merged = storage.mergeProjects([newer], [older, cloudOnly]);
+  assert.equal(merged.length, 2);
+  assert.equal(merged.find(item => item.id === projectId).title, "newer edit");
+  assert.equal(merged.find(item => item.id === other).title, "cloud only");
+});
+
+test("a failed compact write leaves the previous browser snapshot intact", () => {
+  const previous = JSON.stringify([project()]);
+  let stored = previous;
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
+    getItem: () => stored, setItem: () => { throw new Error("QuotaExceededError"); },
+  } });
+  assert.throws(() => storage.saveLocalProject(owner, { ...project(), title: "new edit" }), /QuotaExceededError/);
+  assert.equal(stored, previous);
+});
+
+test("saving a new local project retains more than thirty older local-only projects", () => {
+  const base = project();
+  const previous = Array.from({ length: 35 }, (_, index) => ({
+    ...base,
+    id: `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`,
+    title: `Older project ${index}`,
+    layout: { ...base.layout, board: { ...base.layout.board, holes: [] } },
+  }));
+  let stored = JSON.stringify(previous);
+  const storage = load("src/lib/electronics/storage.ts", { "./project-source": projectSource, "./engine": engine }, { localStorage: {
+    getItem: () => stored, setItem: (_key, value) => { stored = value; },
+  } });
+  assert.equal(storage.readLocalProjects(owner).length, 35);
+  storage.saveLocalProject(owner, base);
+  const restored = storage.readLocalProjects(owner);
+  assert.equal(restored.length, 36);
+  for (const item of previous) assert.ok(restored.some(candidate => candidate.id === item.id));
+  assert.ok(restored.every(item => item.layout.board.holes.length === 830));
+});
+
+test("cloud pagination makes projects beyond the first thirty accessible without duplicate downloads", async () => {
+  const h = harness();
+  const base = project();
+  for (let index = 0; index < 61; index++) {
+    const id = `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
+    h.state.files.set(`${owner}/${id}.json`, JSON.stringify({ ...base, id }));
+  }
+  const first = await (await h.get()).json();
+  assert.equal(first.projects.length, 30); assert.equal(first.nextOffset, 30);
+  const second = await (await h.get(first.nextOffset)).json();
+  assert.equal(second.projects.length, 30); assert.equal(second.nextOffset, 60);
+  const last = await (await h.get(second.nextOffset)).json();
+  assert.equal(last.projects.length, 1); assert.equal(last.nextOffset, null);
+  assert.equal(new Set([...first.projects, ...second.projects, ...last.projects].map(item => item.id)).size, 61);
+  assert.equal(h.state.calls.filter(call => call[0] === "download").length, 61);
+});
+
+test("cloud pagination rejects invalid offsets before storage and advances past corrupt entries", async () => {
+  for (const offset of ["-1", "1.5", "Infinity", "01", "1000001", "hello"]) {
+    const h = harness();
+    assert.equal((await h.get(offset)).status, 400);
+    assert.equal(h.state.calls.length, 0);
+  }
+  const h = harness();
+  const base = project();
+  for (let index = 0; index < 31; index++) {
+    const id = `00000000-0000-4000-8000-${index.toString(16).padStart(12, "0")}`;
+    h.state.files.set(`${owner}/${id}.json`, index < 30 ? "corrupt" : JSON.stringify({ ...base, id }));
+  }
+  const first = await (await h.get()).json();
+  assert.equal(first.projects.length, 0); assert.equal(first.skipped, 30); assert.equal(first.nextOffset, 30);
+  const last = await (await h.get(first.nextOffset)).json();
+  assert.equal(last.projects.length, 1); assert.equal(last.nextOffset, null);
 });

@@ -6,6 +6,7 @@ import { createNewtonSolver, NewtonConvergenceError } from "./simulation-newton"
 import { createEducationalOpamp, EDUCATIONAL_OPAMP } from "./simulation-opamp";
 import { sourceVoltage, sourceSamplingLimits, SOURCE_DEFAULTS } from "./simulation-source";
 import { buildIdealCenterTap, IDEAL_CENTER_TAP_ID, IDEAL_TRANSFORMER_WARNING, type IdealCenterTap } from "./simulation-transformer";
+import { parseExplicitComponentValue } from "./component-values";
 export { sourceVoltage, sourceSamplingLimits } from "./simulation-source";
 
 const TAU = 2 * Math.PI;
@@ -71,11 +72,8 @@ export function parseSimulationConfig(value: unknown): SimulationConfig {
 /** Deliberately accepts only explicit SI values, never a digit prefix of a label. */
 export function parseSimulationValue(value: string, kind: "resistor" | "capacitor"): number {
   if (typeof value !== "string" || value.length > 80) fail("소자 값은 명시적인 SI 수치여야 합니다.");
-  const text = value.trim().replace(/[μµ]/g, "u").replace(/Ω/g, "Ω");
-  const match = /^([+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)\s*(meg|[fpnumkKMG]?)\s*(Ω|[oO][hH][mM][sS]?|F)?$/.exec(text);
-  if (!match || (match[3] && (kind === "resistor" ? match[3] === "F" : match[3] !== "F"))) fail(`${value}: ${kind === "resistor" ? "10 kΩ" : "100 nF"}처럼 단위가 맞는 소자 값을 입력하세요.`);
-  const factors: Record<string, number> = { "": 1, f: 1e-15, p: 1e-12, n: 1e-9, u: 1e-6, m: 1e-3, k: 1e3, K: 1e3, M: 1e6, meg: 1e6, G: 1e9 };
-  const result = Number(match[1]) * factors[match[2]];
+  const result = parseExplicitComponentValue(value, kind);
+  if (result === null) fail(`${value}: ${kind === "resistor" ? "10 kΩ" : "100 nF"}처럼 단위가 맞는 소자 값을 입력하세요.`);
   return finite(result, kind === "resistor" ? 1e-3 : 1e-15, kind === "resistor" ? 1e12 : 1, `${value}의 SI 값`);
 }
 

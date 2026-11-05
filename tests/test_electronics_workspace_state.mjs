@@ -22,6 +22,8 @@ const engine = load("src/lib/electronics/engine.ts");
 const { parseProjectForWorkspace } = load("src/lib/electronics/project-input.ts");
 const { parseProjectSource, getSourceLabel } = load("src/lib/electronics/project-source.ts");
 const { parseCircuit } = load("src/lib/electronics/schema.ts");
+const { mergeProjects } = load("src/lib/electronics/storage.ts");
+const { componentLayer } = load("src/lib/electronics/visibility.ts");
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const { CIRCUIT_TEMPLATES: templates } = load("src/lib/electronics/templates.ts");
 const circuit = templates.find(item => item.id === "rc-lowpass");
@@ -33,23 +35,37 @@ const makeProject = () => JSON.parse(JSON.stringify({ version: 1, id: "aaaaaaaa-
 const file = "src/components/electronics/ElectronicsWorkspace.tsx";
 const ast = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.ESNext, true, ts.ScriptKind.TSX);
 const body = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ElectronicsWorkspace").body;
-const actions = ["openProject", "saveCloud", "importAssistantDesign", "applyManualJson", "openTemplate", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "verifyChanges"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
+const actions = ["openProject", "saveCloud", "loadCloud", "importAssistantDesign", "applyManualJson", "openTemplate", "applyPositionChange", "dragPin", "movePin", "undoPositionChange", "redoEdit", "restoreEdit", "verifyChanges", "editSnapshot", "rememberEdit", "finishTextEdit", "persistCurrentProject", "preserveBeforeSwitch", "duplicateProject", "removeComponent", "addComponent", "changePinNet", "exportProject", "setStepCompleted", "setReviewResolved", "openCloudCopy"].map(name => body.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name).getText(ast)).join("\n");
+const applyCircuitNode = body.statements.flatMap(node => ts.isVariableStatement(node) ? [...node.declarationList.declarations] : []).find(node => node.name.getText(ast) === "applyCircuit");
+const applyCircuitAction = `var applyCircuit = ${applyCircuitNode.initializer.arguments[0].getText(ast)};`;
+const effectCallbacks = body.statements.filter(node => ts.isExpressionStatement(node) && ts.isCallExpression(node.expression) && node.expression.expression.getText(ast) === "useEffect").map(node => node.expression.arguments[0]);
+const ownerEffect = effectCallbacks.find(node => node.getText(ast).includes("const authorized ="));
+const leaveEffect = effectCallbacks.find(node => node.getText(ast).includes("flushOnLeave.current()"));
+const lifecycleActions = `var runOwnerEffect = ${ownerEffect.getText(ast)}; var runLeaveEffect = ${leaveEffect.getText(ast)};`;
 function harness(project = makeProject()) {
-  const state = { ...project, projectId: project.id, projectSource: project.source, undoStack: [] };
+  const state = { ...project, projectId: project.id, projectSource: project.source, undoStack: [], redoStack: [], projects: [], cloudProjects: [], localSaveStatus: "pending", workspaceOwner: "owner-A" };
   const writes = [];
   const owner = "owner-A";
-  const env = { ...engine, ...project, projectSource: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, COMPONENT_CATALOG: definitions, CIRCUIT_TEMPLATES: templates, parseProjectForWorkspace, parseProjectSource, getSourceLabel, parseCircuit, crypto: { randomUUID }, cloneCircuit: value => structuredClone(value), ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null,
+  const env = { ...engine, ...project, projectSource: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id, projectUser: owner, workspaceOwner: owner, user: { id: owner }, isAdminUser: () => true, initial: circuit, defaultBoard: boardOptions, COMPONENT_CATALOG: definitions, CIRCUIT_TEMPLATES: templates, parseProjectForWorkspace, parseProjectSource, getSourceLabel, parseCircuit, mergeProjects, componentLayer, crypto: { randomUUID }, cloneCircuit: value => structuredClone(value), ALL_BOARD_LAYERS: [], autoRearrange: false, pickingPin: null, undoStack: [], redoStack: [], loadingProjects: false,
     readyUser: { current: owner }, analysisVersion: { current: 0 }, cancelAnalyze: { current: null },
-    currentProjectState: { current: { ...project, experimentId: project.experimentId ?? "lab-0", projectId: project.id } },
+    textEditStart: { current: null }, lastLocalSaved: { current: null }, lastExternalSaved: { current: null }, cloudRequest: { current: 0 },
+    currentProjectState: { current: { circuit: project.circuit, layout: project.layout, boardOptions: project.boardOptions, completedSteps: project.completedSteps, source: project.source, experimentId: project.experimentId ?? "lab-0", projectId: project.id } },
     saveLocalProject(user, snapshot) { assert.equal(user, owner); state.stored = snapshot; writes.push(snapshot); return [snapshot]; },
-    applyCircuit(next) { state.circuit = next; state.layout = engine.createLayout(next, definitions, project.boardOptions); },
+    readLocalProjects() { return state.stored ? [state.stored] : []; },
+    readLocalProjectState() { return { projects: state.stored ? [state.stored] : [], error: null, skipped: 0 }; },
   };
-  for (const key of ["BoardOptions", "Circuit", "Layout", "Selection", "StepIndex", "CompletedSteps", "UndoStack", "PickingPin", "ManualCheck", "ChecksOpen", "Busy", "ProjectId", "ProjectSource", "ProjectFilter", "Drawer", "JsonOpen", "ExperimentId", "Saving", "Projects", "VisibleLayers", "DetailsOpen", "View", "Message", "Error"]) {
+  for (const key of ["BoardOptions", "Circuit", "Layout", "Selection", "StepIndex", "CompletedSteps", "UndoStack", "RedoStack", "PickingPin", "ManualCheck", "ChecksOpen", "Busy", "ProjectId", "ProjectSource", "ProjectFilter", "Drawer", "JsonOpen", "ExperimentId", "Saving", "Projects", "VisibleLayers", "DetailsOpen", "View", "Message", "Error", "LocalSaveStatus", "LocalSaveError", "CloudOffset", "CloudLoaded", "LoadingProjects", "CloudProjects", "Pasting", "Files", "SourceText", "SourceChannel", "ProjectSearch", "JsonText", "AutoRearrange", "WorkspaceOwner"]) {
     env[`set${key}`] = value => { const field = key[0].toLowerCase() + key.slice(1); state[field] = typeof value === "function" ? value(state[field]) : value; };
   }
   vm.createContext(env);
-  vm.runInContext(ts.transpileModule(actions, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText, env);
-  return { env, state, writes };
+  vm.runInContext(ts.transpileModule(`${actions}\n${applyCircuitAction}\n${lifecycleActions}`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText, env);
+  env.flushOnLeave = { current: env.persistCurrentProject };
+  function render() {
+    for (const key of ["circuit", "layout", "boardOptions", "completedSteps", "projectId", "projectSource", "undoStack", "redoStack", "loadingProjects", "workspaceOwner"]) env[key] = state[key];
+    if (state.experimentId) env.experimentId = state.experimentId;
+    env.currentProjectState.current = { circuit: state.circuit, layout: state.layout, boardOptions: state.boardOptions, completedSteps: state.completedSteps, source: state.projectSource, experimentId: env.experimentId, projectId: state.projectId };
+  }
+  return { env, state, writes, render };
 }
 
 test("a rejected project import leaves the previous circuit, layout and project ID intact", () => {
@@ -146,7 +162,7 @@ test("single-pin movement with rearrangement off preserves the other pins and ex
   for (const otherPin of Object.keys(placement.pins).filter(id => id !== pinId)) assert.equal(moved.pins[otherPin], placement.pins[otherPin]);
   assert.equal(h.state.layout.jumpers, project.layout.jumpers);
   assert.equal(h.state.layout.terminals, project.layout.terminals);
-  assert.equal(h.state.undoStack[0], project.layout);
+  assert.equal(h.state.undoStack[0].layout, project.layout);
   assert.equal(placement.pins[pinId], origin.id);
   h.env.layout = h.state.layout;
   h.env.verifyChanges();
@@ -266,4 +282,179 @@ test("opening a template clears imported source metadata", () => {
   h.env.openTemplate("rc-lowpass");
   assert.equal(h.state.projectSource, undefined);
   assert.notEqual(h.state.projectId, h.env.projectId);
+});
+
+
+test("switching before the autosave debounce preserves the latest draft", () => {
+  const h = harness();
+  h.state.circuit = { ...h.state.circuit, title: "Final keystroke before switching" }; h.render();
+  h.env.openTemplate("ua741-inverting");
+  assert.equal(h.writes.length, 1);
+  assert.equal(h.writes[0].circuit.title, "Final keystroke before switching");
+  assert.notEqual(h.state.projectId, h.writes[0].id);
+});
+
+test("storage failure blocks switching and a download attempt does not claim durable backup", () => {
+  const h = harness(), original = h.state.circuit;
+  h.env.saveLocalProject = () => { throw Error("Storage full"); };
+  h.env.downloadText = () => {};
+  h.env.exportProject();
+  h.env.openTemplate("ua741-inverting");
+  assert.equal(h.state.circuit, original);
+  assert.equal(h.state.localSaveStatus, "error");
+  assert.equal(h.env.lastExternalSaved.current, null);
+});
+
+test("a late original-project save cannot adopt the new duplicate identity", async () => {
+  const h = harness(); let respond;
+  h.env.electronicsAdminFetch = () => new Promise(resolve => { respond = resolve; });
+  const pending = h.env.saveCloud();
+  h.env.duplicateProject(); h.render();
+  const duplicateId = h.state.projectId;
+  respond({ ok: true, json: async () => ({ ok: true }) }); await pending;
+  assert.equal(h.state.projectId, duplicateId);
+  assert.notEqual(duplicateId, h.writes[0].id);
+  assert.match(h.state.circuit.title, /사본/);
+  assert.match(h.state.message, /사본/);
+});
+
+test("removing a component supports full circuit/layout undo and redo", () => {
+  const project = makeProject(), h = harness(project);
+  h.env.removeComponent("R1"); h.render();
+  assert.ok(!h.state.circuit.components.some(item => item.id === "R1"));
+  const removed = h.state.circuit;
+  h.env.undoPositionChange(); h.render();
+  assert.equal(h.state.circuit, project.circuit);
+  assert.equal(h.state.layout, project.layout);
+  h.env.redoEdit(); h.render();
+  assert.equal(h.state.circuit, removed);
+});
+
+test("pending text edits can be undone before blur and checkbox edits clear stale redo", () => {
+  const h = harness(), previous = h.env.editSnapshot();
+  h.env.textEditStart.current = previous;
+  h.state.circuit = { ...h.state.circuit, title: "Editing" }; h.render();
+  h.env.undoPositionChange(); h.render();
+  assert.equal(h.state.circuit, previous.circuit);
+  assert.equal(h.state.redoStack.length, 1);
+  h.env.setStepCompleted("step-1", true); h.render();
+  assert.equal(h.state.redoStack.length, 0);
+  assert.ok(h.state.completedSteps.includes("step-1"));
+  h.env.undoPositionChange(); h.render();
+  assert.equal(h.state.completedSteps.length, 0);
+});
+
+test("project JSON undo restores the previous experiment association", () => {
+  const project = { ...makeProject(), experimentId: "lab-0" }, h = harness(project);
+  h.env.jsonText = JSON.stringify({ ...project, experimentId: "lab-5" });
+  h.env.applyManualJson(); h.render();
+  assert.equal(h.state.experimentId, "lab-5");
+  h.env.undoPositionChange(); h.render();
+  assert.equal(h.state.experimentId, "lab-0");
+});
+
+test("autosave retains cloud-only cards and cloud versions can open as separate copies", async () => {
+  const h = harness();
+  const remote = { ...makeProject(), id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", title: "Cloud only" };
+  h.env.electronicsAdminFetch = async () => ({ ok: true, json: async () => ({ ok: true, projects: [remote], nextOffset: 30 }) });
+  await h.env.loadCloud();
+  assert.equal(h.state.cloudOffset, 30);
+  h.env.persistCurrentProject();
+  assert.equal(h.state.projects.length, 2);
+  const remoteSameId = { ...makeProject(), circuit: { ...h.state.circuit, title: "Remote version" } };
+  h.env.openCloudCopy(remoteSameId);
+  assert.notEqual(h.state.projectId, remoteSameId.id);
+  assert.match(h.state.circuit.title, /Remote version.*클라우드 사본/);
+});
+
+test("the mount owner effect restores the first valid local draft with its manual layout and source", () => {
+  const saved = { ...makeProject(), source: assistantSource, experimentId: "lab-5" };
+  saved.circuit.title = "Last working circuit";
+  saved.layout.placements.find(item => item.componentId === "R1").pins = { "1": "B1:B8", "2": "B1:B12" };
+  const unreadable = structuredClone(saved);
+  unreadable.id = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+  unreadable.layout.placements = [null];
+  const h = harness();
+  h.env.readyUser.current = null;
+  h.state.workspaceOwner = null;
+  h.render();
+  let reads = 0;
+  h.env.readLocalProjectState = owner => {
+    assert.equal(owner, "owner-A"); reads++;
+    return { projects: [unreadable, saved], error: null, skipped: 0 };
+  };
+  h.env.runOwnerEffect(); h.render();
+  assert.equal(h.state.projectId, saved.id);
+  assert.equal(h.state.circuit.title, "Last working circuit");
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.layout.placements)), saved.layout.placements);
+  assert.deepEqual(JSON.parse(JSON.stringify(h.state.projectSource)), assistantSource);
+  assert.equal(h.state.experimentId, "lab-5");
+  assert.equal(h.state.localSaveStatus, "saved");
+  assert.equal(h.writes.length, 0, "mount must not replace the restored draft with the default circuit");
+  assert.equal(h.env.persistCurrentProject(), true);
+  assert.equal(h.writes.length, 0, "an unchanged restored snapshot is already durable");
+  h.env.runOwnerEffect();
+  assert.equal(reads, 1, "the workspaceOwner state update must not restore again");
+});
+
+test("mount restore preserves a readable draft while surfacing damaged browser storage", () => {
+  const saved = makeProject(), h = harness();
+  h.env.readyUser.current = null;
+  h.state.workspaceOwner = null;
+  h.render();
+  h.env.readLocalProjectState = () => ({ projects: [saved], error: "Damaged browser storage", skipped: 1 });
+  h.env.runOwnerEffect(); h.render();
+  assert.equal(h.state.projectId, saved.id);
+  assert.equal(h.state.localSaveStatus, "error");
+  assert.equal(h.state.localSaveError, "Damaged browser storage");
+  assert.equal(h.writes.length, 0);
+});
+
+test("the owner effect flushes a pending edit only to its previous owner before account switch or logout", () => {
+  for (const nextOwner of ["owner-B", null]) {
+    const h = harness();
+    h.state.circuit = { ...h.state.circuit, title: "Last edit before leaving owner A" };
+    h.state.projectSource = assistantSource;
+    h.render();
+    const writes = [];
+    const otherProject = { ...makeProject(), id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb", circuit: { ...circuit, title: "Owner B private draft" } };
+    h.env.saveLocalProject = (owner, snapshot) => {
+      assert.equal(h.env.readyUser.current, "owner-A", "flush must happen before resetting the owner boundary");
+      writes.push({ owner, snapshot });
+      return [snapshot];
+    };
+    h.env.readLocalProjectState = owner => {
+      assert.equal(owner, "owner-B");
+      return { projects: [otherProject], error: null, skipped: 0 };
+    };
+    h.env.projectUser = nextOwner || "";
+    h.env.user = nextOwner ? { id: nextOwner } : null;
+    h.env.isAdminUser = value => !!value;
+    h.env.runOwnerEffect(); h.render();
+    assert.equal(writes.length, 1);
+    assert.equal(writes[0].owner, "owner-A");
+    assert.equal(writes[0].snapshot.circuit.title, "Last edit before leaving owner A");
+    assert.deepEqual(JSON.parse(JSON.stringify(writes[0].snapshot.source)), assistantSource);
+    assert.equal(h.env.readyUser.current, nextOwner);
+    assert.equal(h.state.workspaceOwner, nextOwner);
+    assert.equal(h.state.projectSource, undefined, "previous owner's image must not remain in the next workspace");
+    assert.equal(h.state.projectId, nextOwner ? otherProject.id : "");
+    if (nextOwner) assert.equal(h.state.circuit.title, "Owner B private draft");
+    const cleanup = h.env.runLeaveEffect(); cleanup();
+    assert.equal(writes.length, 1, "a later unmount must not write owner A data into owner B storage");
+  }
+});
+
+test("the unmount cleanup flushes the latest edit before its debounce fires", () => {
+  const h = harness();
+  h.env.lastLocalSaved.current = h.env.currentProjectState.current;
+  const cleanup = h.env.runLeaveEffect();
+  h.state.circuit = { ...h.state.circuit, title: "Last keystroke before SPA navigation" };
+  h.render();
+  assert.equal(h.writes.length, 0);
+  cleanup();
+  assert.equal(h.writes.length, 1);
+  assert.equal(h.writes[0].circuit.title, "Last keystroke before SPA navigation");
+  assert.equal(h.writes[0].id, h.state.projectId);
+  assert.equal(h.state.localSaveStatus, "saved");
 });

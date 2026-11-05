@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AssemblyStep, BoardHole, Circuit, CircuitLayout, ComponentDefinition } from "@/lib/electronics/types";
 import { ALL_BOARD_LAYERS, componentLayer, isBoardSelectionVisible, layerForAssemblyStep, type BoardLayer } from "@/lib/electronics/visibility";
 import { getPowerNetRole, getRailUsage } from "@/lib/electronics/power";
+import { resistorMarking } from "@/lib/electronics/resistor-marking";
 
 export type BoardSelection = { type: "component" | "jumper" | "terminal" | "hole"; id: string } | null;
 export type ProbeMarker = { holeId: string; label: string; color: string };
@@ -20,17 +21,6 @@ type BoardDrag = {
   targetHoleId: string | null;
   moved: boolean;
 };
-
-function resistanceColors(value: string) {
-  const match = value.replace(/,/g, "").match(/([\d.]+)\s*([kKmM]?)/);
-  const n = match ? Number(match[1]) * (match[2]?.toLowerCase() === "k" ? 1000 : match[2] === "M" ? 1000000 : 1) : 1000;
-  const palette = ["#202020", "#75432a", "#bc292f", "#e47e32", "#e2bd43", "#50824b", "#3472aa", "#7e539a", "#7c8087", "#eee9d9"];
-  if (!Number.isFinite(n) || n <= 0) return [palette[0]];
-  const exponent = Math.floor(Math.log10(n)) - 1;
-  const digits = Math.round(n / 10 ** exponent).toString().padStart(2, "0");
-  const multiplier = exponent === -1 ? "#b59b52" : exponent === -2 ? "#b8bfc3" : palette[exponent] || "#75432a";
-  return [palette[Number(digits[0])], palette[Number(digits[1])], multiplier, "#b59b52"];
-}
 
 export function Breadboard({ circuit, definitions, layout, selection: requestedSelection, onSelect, activeStep: requestedActiveStep, wiresVisible = true, visibleLayers = ALL_BOARD_LAYERS, labelsVisible, onHolePick, holePickLabel, probeMarkers = NO_PROBES, onMoveComponent, onMovePin, onMoveTerminal, zoom, onZoom }: {
   circuit: Circuit;
@@ -244,7 +234,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
               const active = activeHoles.has(h.id) || selectedHoles.has(h.id);
               const rail = railUsage.get(h.group);
               const holeLabel = `${h.id} · ${occupied.has(h.id) ? "사용 중" : "빈 구멍"}${rail ? ` · ${rail.netIds.map(netId => circuit.netNames[netId] || netId).join(" / ")}${rail.role === "ground" ? " (GND 기준)" : ""}` : ""}`;
-              return <g key={h.id} role="button" aria-label={holeLabel} tabIndex={onHolePick ? 0 : undefined} onClick={e => { e.stopPropagation(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); }} onKeyDown={e => { if (e.key === "Enter") onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); }} onMouseMove={e => titleFor(holeLabel, e)} onMouseLeave={clearTip}>
+              return <g key={h.id} role="button" aria-label={holeLabel} tabIndex={onHolePick ? 0 : undefined} onClick={e => { e.stopPropagation(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); }} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onHolePick ? onHolePick(h.id) : onSelect({ type: "hole", id: h.id }); } }} onMouseMove={e => titleFor(holeLabel, e)} onMouseLeave={clearTip}>
                 {active && <circle cx={h.x} cy={h.y} r={8} fill="#525252" fillOpacity={0.2} stroke="#363636" strokeWidth={2} />}
                 <rect x={h.x - 2.1} y={h.y - 2.1} width={4.2} height={4.2} rx={0.9} fill={active ? "#333333" : "#666666"} />
                 <line x1={h.x - 1.2} x2={h.x + 1.2} y1={h.y - 1.2} y2={h.y - 1.2} stroke="#b9b9b9" strokeWidth={0.8} />
@@ -279,7 +269,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const path = sameRow ? `M${a.x},${a.y} L${a.x},${bendY} L${b.x},${bendY} L${b.x},${b.y}` : `M${a.x},${a.y} L${a.x + 6 + i % 3 * 5},${a.y} L${a.x + 6 + i % 3 * 5},${b.y} L${b.x},${b.y}`;
           const label = `${j.id} · ${circuit.netNames[j.netId] || j.netId} · ${j.from} ↔ ${j.to}`;
           const opacity = opacityFor(undefined, j.netId, j.id);
-          return <g key={j.id} data-board-layer="jumper" opacity={opacity} style={{ cursor: "pointer" }} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "jumper", id: j.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "jumper", id: j.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip}>
+          return <g key={j.id} data-board-layer="jumper" opacity={opacity} style={{ cursor: "pointer" }} role="button" tabIndex={0} aria-label={label} onClick={() => onSelect({ type: "jumper", id: j.id })} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect({ type: "jumper", id: j.id }); } }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip}>
             <path d={path} fill="none" stroke="#f0f0f0" strokeWidth={6.8} strokeLinejoin="round" />
             <path d={path} fill="none" stroke={j.color} strokeWidth={3.5} strokeLinejoin="round" />
             <path d={path} fill="none" stroke="transparent" strokeWidth={12} />
@@ -307,11 +297,12 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const bodyWidth = Math.max(22, Math.min(38, length * 0.55));
           const negativeLead = entries.find(entry => /^(?:−|-)$/.test(entry.pin.label));
           const negativeSide = negativeLead && negativeLead.hole.x < x ? -1 : 1;
-          const label = `${c.id} · ${d.name} · ${c.value}`;
+          const marking = d.kind === "resistor" ? resistorMarking(c.value) : null;
+          const label = `${c.id} · ${d.name} · ${c.value}${marking ? ` · ${marking.label}` : ""}`;
           const selected = selection?.type === "component" && selection.id === c.id || activeStep?.componentId === c.id;
           const opacity = opacityFor(c.id);
           const moving = (drag?.type === "component" || drag?.type === "pin") && drag.id === c.id && drag.moved ? drag : null;
-          return <g key={c.id} data-board-layer={componentLayer(d.kind)} opacity={moving ? 0.58 : opacity} transform={moving?.type === "component" ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onMoveComponent && !onHolePick ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveComponent && !onHolePick ? "none" : undefined }} role="button" tabIndex={0} aria-label={`${label}${onMoveComponent ? " · 끌어서 위치 이동" : ""}`} onPointerDown={event => beginDrag(event, "component", c.id, entries[0].hole, entries[0].pin.id)} onClick={() => onSelect({ type: "component", id: c.id })} onKeyDown={e => { if (e.key === "Enter") onSelect({ type: "component", id: c.id }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip}>
+          return <g key={c.id} data-board-layer={componentLayer(d.kind)} opacity={moving ? 0.58 : opacity} transform={moving?.type === "component" ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onMoveComponent && !onHolePick ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveComponent && !onHolePick ? "none" : undefined }} role="button" tabIndex={0} aria-label={`${label}${onMoveComponent ? " · 끌어서 위치 이동" : ""}`} onPointerDown={event => beginDrag(event, "component", c.id, entries[0].hole, entries[0].pin.id)} onClick={() => onSelect({ type: "component", id: c.id })} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect({ type: "component", id: c.id }); } }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip}>
             {selected && <rect x={Math.min(...xs) - 12} y={Math.min(...ys) - 24} width={Math.max(...xs) - Math.min(...xs) + 24} height={Math.max(...ys) - Math.min(...ys) + 42} rx={7} fill="#525252" fillOpacity={0.08} stroke="#4a4a4a" strokeWidth={1.5} strokeDasharray="4 3" />}
             {entries.map(({ pin, hole }, index) => {
               const radial = !dip && !["resistor", "diode", "inductor"].includes(d.kind);
@@ -326,7 +317,11 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
               <text x={x} y={y + 3} textAnchor="middle" fill="#d5dddd" fontSize={8} fontFamily="monospace">{c.value || d.name}</text>
             </g> : d.kind === "resistor" || d.kind === "diode" || d.kind === "inductor" ? <g transform={`translate(${x},${y}) rotate(${angle})`} filter="url(#bb-shadow)">
               <rect x={-bodyWidth / 2} y={-6} width={bodyWidth} height={12} rx={d.kind === "diode" ? 2 : 5} fill={d.kind === "diode" ? "#c96631" : d.kind === "inductor" ? "#527d70" : "#d8bd86"} stroke="#9c8d70" strokeWidth={0.7} />
-              {d.kind === "resistor" ? resistanceColors(c.value).map((color, i) => <rect key={i} x={-bodyWidth / 2 + 5 + i * (bodyWidth - 12) / 3} y={-5.8} width={3} height={11.6} fill={color} />) : d.kind === "diode" ? <rect x={bodyWidth / 2 - 7} y={-6} width={4} height={12} fill="#292d2f" /> : null}
+              {marking ? <g data-resistor-marking={c.id}>
+                {marking.colors.map((color, index) => <rect key={index} x={marking.colors.length === 1 ? -1.5 : -bodyWidth / 2 + 4 + index * (bodyWidth - 10) / marking.colors.length} y={-5.8} width={marking.colors.length > 3 ? 2.2 : 3} height={11.6} fill={color} />)}
+                {marking.toleranceUnknown && <text x={bodyWidth / 2 - 4} y={3} textAnchor="middle" fontSize={8} fontWeight={800} fill="#40351f">?</text>}
+                {!marking.colors.length && <text x={0} y={3} textAnchor="middle" fontSize={9} fontWeight={800} fill="#40351f">?</text>}
+              </g> : d.kind === "diode" ? <rect x={bodyWidth / 2 - 7} y={-6} width={4} height={12} fill="#292d2f" /> : null}
             </g> : d.kind === "electrolytic" ? <g filter="url(#bb-shadow)"><rect x={x - 10} y={y - 21} width={20} height={26} rx={3} fill="#315a74" /><ellipse cx={x} cy={y - 21} rx={10} ry={4} fill="#9caeb6" /><path d={`M${x - 4},${y - 21}h8M${x},${y - 24}v6`} stroke="#71858b" strokeWidth={0.7} /><rect data-negative-band={c.id} x={x + negativeSide * 7 - 2} y={y - 18} width={4} height={21} fill="#bdcbd2" /><text x={x + negativeSide * 7} y={y - 5} fontSize={7} fill="#315a74" textAnchor="middle">−</text></g>
               : d.kind === "transistor" || d.kind === "mosfet" ? <g filter="url(#bb-shadow)"><path d={`M${x - 13},${y - 6} L${x + 13},${y - 6} L${x + 13},${y - 18} Q${x},${y - 31} ${x - 13},${y - 18} Z`} fill="#27353b" stroke="#0d1d22" /><text x={x} y={y - 13} textAnchor="middle" fill="#ccd5d5" fontSize={6.5}>{c.value || d.name.replace(/ .*/, "")}</text></g>
                 : d.kind === "led" ? <g filter="url(#bb-shadow)"><circle cx={x} cy={y - 9} r={10} fill="#d64e49" fillOpacity={0.85} stroke="#9f3537" /><ellipse cx={x - 3} cy={y - 13} rx={3} ry={4} fill="#fff" opacity={0.4} /></g>
@@ -367,7 +362,7 @@ export function Breadboard({ circuit, definitions, layout, selection: requestedS
           const terminalColor = powerRole === "ground" ? "#356457" : powerRole === "positive" ? "#c74343" : powerRole === "negative" ? "#326db2" : "#da8a3b";
           const active = selection?.type === "terminal" && selection.id === t.connectionId || activeStep?.connectionId === t.connectionId;
           const moving = drag?.type === "terminal" && drag.id === t.connectionId && drag.moved ? drag : null;
-          return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={`${label}${onMoveTerminal ? " · 끌어서 위치 이동" : ""}`} transform={moving ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onHolePick ? "crosshair" : onMoveTerminal ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveTerminal && !onHolePick ? "none" : undefined }} onPointerDown={event => beginDrag(event, "terminal", t.connectionId, h)} onClick={() => onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter") onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId }); }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip} opacity={moving ? 0.58 : selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
+          return <g key={t.connectionId} data-board-layer="instrument" role="button" tabIndex={0} aria-label={`${label}${onMoveTerminal ? " · 끌어서 위치 이동" : ""}`} transform={moving ? `translate(${moving.dx},${moving.dy})` : undefined} style={{ cursor: onHolePick ? "crosshair" : onMoveTerminal ? moving ? "grabbing" : "grab" : "pointer", touchAction: onMoveTerminal && !onHolePick ? "none" : undefined }} onPointerDown={event => beginDrag(event, "terminal", t.connectionId, h)} onClick={() => onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId })} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onHolePick ? onHolePick(h.id) : onSelect({ type: "terminal", id: t.connectionId }); } }} onMouseMove={e => titleFor(label, e)} onMouseLeave={clearTip} opacity={moving ? 0.58 : selectionActive && !active && !selectedNets.has(t.netId) ? 0.22 : 1}>
             <circle cx={h.x} cy={h.y} r={active ? 7 : 5} fill={terminalColor} stroke="#fff" strokeWidth={1.5} />
             {(labelsVisible || active) && <text x={h.x} y={h.y + 13} textAnchor="middle" fontSize={8} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={2.5} paintOrder="stroke">{reference}</text>}
             {active && <text x={h.x + 11} y={h.y - 13} fontSize={9} fontWeight={800} fill={terminalColor} stroke="#fff" strokeWidth={3} paintOrder="stroke">{c.instrument} · {c.port}{powerRole === "ground" ? " · GND" : powerRole === "positive" ? " · +전원" : powerRole === "negative" ? " · −전원" : ""}</text>}

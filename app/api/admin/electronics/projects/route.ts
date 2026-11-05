@@ -10,6 +10,7 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 const BUCKET = "electronics-projects";
 const MAX_BYTES = 1_000_000;
+const PAGE_SIZE = 30;
 const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 type Authorized = Extract<Awaited<ReturnType<typeof requireAdmin>>, { ok: true }>;
 class ProjectError extends Error {
@@ -175,11 +176,16 @@ export async function GET(request: Request) {
   try {
     const auth = await requireAdmin(request); if (!auth.ok) return auth.response;
     const prefix = ownerPrefix(auth);
+    const rawOffset = new URL(request.url).searchParams.get("offset") ?? "0";
+    if (!/^(0|[1-9]\d{0,6})$/.test(rawOffset) || Number(rawOffset) > 1_000_000) invalid("프로젝트 목록의 페이지 위치를 확인해 주세요.");
+    const offset = Number(rawOffset);
     await ensurePrivateBucket(auth.supabase);
     const bucket = auth.supabase.storage.from(BUCKET);
-    const { data, error } = await bucket.list(prefix, { limit: 30, sortBy: { column: "updated_at", order: "desc" } });
+    const { data, error } = await bucket.list(prefix, { limit: PAGE_SIZE + 1, offset, sortBy: { column: "updated_at", order: "desc" } });
     if (error) throw new ProjectError(503, "프로젝트 목록을 불러오지 못했습니다.");
-    const files = (data ?? []).filter((file) => file.name.endsWith(".json") && UUID.test(file.name.slice(0, -5)));
+    const entries = data ?? [];
+    const nextOffset = entries.length > PAGE_SIZE ? offset + PAGE_SIZE : null;
+    const files = entries.slice(0, PAGE_SIZE).filter((file) => file.name.endsWith(".json") && UUID.test(file.name.slice(0, -5)));
     let skipped = 0;
     const loaded = await Promise.all(files.map(async (file): Promise<SavedProject | null> => {
       if (Number(file.metadata?.size ?? 0) > MAX_BYTES) { skipped++; return null; }
@@ -193,6 +199,6 @@ export async function GET(request: Request) {
       } catch { skipped++; return null; }
     }));
     const projects = loaded.filter((project): project is SavedProject => project !== null).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-    return NextResponse.json({ ok: true, projects, skipped }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ ok: true, projects, skipped, nextOffset }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) { return errorResponse(error); }
 }

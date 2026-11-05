@@ -1,5 +1,5 @@
 import { defaultSimulationConfig, parseSimulationConfig } from "./simulation";
-import { sourceSamplingLimits } from "./simulation-source";
+import { sourceSamplingLimits, SOURCE_DEFAULTS } from "./simulation-source";
 import { getPowerNetRole } from "./power";
 import { circuitSimulationNets } from "./simulation-controls";
 import { createSimulationLayoutIndex } from "./simulation-layout";
@@ -8,6 +8,32 @@ import type { Circuit, CircuitLayout, ComponentDefinition } from "./types";
 import type { SimulationConfig } from "./simulation-types";
 
 export type SimulationRecommendation = { sourceNetId: string | null; groundNetId: string | null; inputNetId: string | null; outputNetId: string | null; config: SimulationConfig | null; reasons: string[]; assumptions: string[]; confidence: "high" | "medium" | "low" };
+
+/** Fit the capture to the configured signals without changing any source or probe. */
+export function fitSimulationSampling(input: SimulationConfig): { durationSeconds: number; sampleCount: number; note: string } {
+  // A blank duration/sample field can be repaired, but other invalid settings
+  // must still be corrected by the user before choosing a sampling interval.
+  const config = parseSimulationConfig({ ...input, durationSeconds: 0.005, sampleCount: 1024 });
+  const sources = [config.source, ...config.extraSources ?? []].filter(source => source.waveform !== "dc" && source.amplitudePeak > 0);
+  if (!sources.length) {
+    const durationSeconds = Number.isFinite(input.durationSeconds) && input.durationSeconds >= 1e-9 && input.durationSeconds <= 60 ? input.durationSeconds : 0.005;
+    const sampleCount = Number.isInteger(input.sampleCount) && input.sampleCount >= 32 && input.sampleCount <= 4096 ? input.sampleCount : 1024;
+    return { durationSeconds, sampleCount, note: "DC 입력의 시간 범위를 유지했습니다. 자율 발진·과도 응답의 관측 시간은 회로에 맞게 조정하세요." };
+  }
+  const frequencies = sources.flatMap(source => source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0
+    ? [source.frequencyHz, source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz]
+    : [source.frequencyHz]);
+  const desiredDuration = 5 / Math.min(...frequencies);
+  const step = Math.min(...sources.map(source => sourceSamplingLimits(source).maximumOutputStepSeconds)) / 2;
+  const durationSeconds = Math.min(60, desiredDuration, step * 4095);
+  const sampleCount = Math.min(4096, Math.max(1024, Math.ceil(durationSeconds / step) + 1));
+  const limited = durationSeconds < desiredDuration * (1 - 1e-12);
+  let note = "가장 느린 입력·AM 포락선의 5주기를 표시하도록 시간 범위와 샘플 수를 맞췄습니다.";
+  if (limited) note = durationSeconds === 60
+    ? "관측 시간 상한인 60초로 맞췄습니다. 가장 느린 입력은 5주기보다 짧게 표시됩니다."
+    : "빠른 신호와 짧은 펄스를 구분하도록 시간 범위를 줄였습니다. 느린 신호·AM 포락선은 5주기보다 짧게 표시됩니다.";
+  return { durationSeconds, sampleCount, note };
+}
 const groundText = /(?:\b(?:gnd|ground|agnd|dgnd|com)\b|접지|공통\s*기준|그라운드|^\s*0\s*v\s*$)/i;
 const negativePort = /(?:ground|gnd|com|기준|접지|ch\s*\d+\s*[-−]|^\s*[-−]\s*$)/i;
 const generatorText = /(?:function\s*gen|signal\s*gen|\bfgen\b|\bfg\b|\bawg\b|함수\s*발생|신호\s*발생|입력원|발생기|vsrc)/i;
@@ -47,7 +73,13 @@ export function deriveSimulationRecommendation(circuit: Circuit, definitions: Co
   for (const port of circuit.instruments) {
     const name = `${port.instrument} ${port.id.replace(/[_-]/g, " ")}`, description = `${port.port} ${label(port.netId)}`;
     if (negativePort.test(port.port) && groundText.test(`${port.port} ${port.setting ?? ""}`)) add("ground", port.netId, 110, "계측기의 공통 기준·GND 단자");
-    if (generatorText.test(name) && !negativePort.test(port.port) && !groundText.test(label(port.netId))) add("source", port.netId, 130, "신호 발생기의 출력 단자");
+    if (generatorText.test(name) && !negativePort.test(port.port) && !groundText.test(label(port.netId))) {
+      // A mixer's LO remains an additional drive. Alphabetical net ordering
+      // must not replace the RF input with one side of a differential LO.
+      const roleText = `${name} ${description}`;
+      const score = /\b(?:rf|vsrc|vin)\b|기본\s*입력/i.test(roleText) ? 140 : /\blo\b|국부\s*발진/i.test(roleText) ? 110 : 130;
+      add("source", port.netId, score, "신호 발생기의 출력 단자");
+    }
     if (scopeText.test(name) && !negativePort.test(port.port)) {
       if (outputText.test(description) || /ch\s*2|채널\s*2/i.test(port.port)) add("output", port.netId, 125, "오실로스코프 출력 측정 단자");
       else if (inputText.test(description) || /ch\s*1|채널\s*1/i.test(port.port)) add("input", port.netId, 115, "오실로스코프 입력 측정 단자");
@@ -114,14 +146,13 @@ export function deriveSimulationRecommendation(circuit: Circuit, definitions: Co
     }
     const extraSources = (base.extraSources ?? []).filter(extra => extra.netId !== source!.net && extra.netId !== ground.net);
     const waveform = isSignal ? /square|구형/i.test(setting) ? "square" : /triangle|삼각/i.test(setting) ? "triangle" : "sine" : "dc";
-    const fastest = Math.max(frequency, ...extraSources.map(extra => extra.frequencyHz));
-    const duration = isSignal ? Math.min(60, 5 / frequency, 4095 / (64 * fastest)) : base.durationSeconds;
     try {
       config = parseSimulationConfig({ ...base, groundNetId: ground.net,
         source: { ...base.source, netId: source.net, waveform, frequencyHz: frequency, amplitudePeak: isSignal ? amplitudePeak : 0, offset: isSignal ? offset : supplies.get(source.net) ?? 0, phaseDegrees: 0 },
         extraSources, supplies: [...supplies].filter(([net]) => net !== source.net && net !== ground.net && !extraSources.some(extra => extra.netId === net)).slice(0, 8).map(([netId, voltage]) => ({ netId, voltage })),
-        durationSeconds: duration, sampleCount: Math.min(4096, Math.max(1024, Math.ceil(duration * fastest * 64) + 1)),
       });
+      const timing = fitSimulationSampling(config);
+      config = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
     } catch { assumptions.push("추천된 입력 조건이 계산 범위를 벗어납니다. 직접 확인하여 수정하세요."); }
   }
   return { sourceNetId: source?.net ?? null, groundNetId: ground?.net ?? null, inputNetId: input?.net ?? null, outputNetId: output?.net ?? null, config, reasons, assumptions: [...new Set(assumptions)], confidence: !config || !output ? "low" : assumptions.length ? "medium" : "high" };

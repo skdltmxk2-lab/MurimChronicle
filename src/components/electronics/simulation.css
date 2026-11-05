@@ -4,6 +4,7 @@
 .el-sim-header p { color: var(--el-muted); font-size: 13px; margin-top: 5px; }
 .el-sim-status { padding: 5px 10px; border: 1px solid var(--el-line); border-radius: 6px; color: var(--el-muted); font-size: 11px; white-space: nowrap; }
 .el-sim-status.stale { color: #a77832; }
+.el-sim-status.blocked { color: var(--el-muted); border-style: dashed; }
 .el-sim-model-note { padding: 10px 13px; border: 1px solid var(--el-line); background: var(--el-soft); border-radius: 8px; font-size: 12px; color: var(--el-muted); line-height: 1.7; }
 .el-sim-setup { margin-top: 16px; padding: 18px; border: 1px solid var(--el-line); border-radius: 10px; background: var(--el-surface); }
 .el-sim-setup-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
@@ -18,6 +19,10 @@
 .el-sim-assumptions, .el-sim-setup-blocked, .el-sim-sampling-warning { background: var(--el-soft); border-left: 3px solid #a28b6b; padding: 10px 12px; margin: 12px 0 0; border-radius: 5px; }
 .el-sim-setup-blocked b { display: block; }
 .el-sim-control-notice { padding: 10px 0 0; margin: 0; color: var(--el-text); }
+.el-sim-assumption-summary { margin: 12px 0 0; font-size: 12px; color: var(--el-muted); line-height: 1.6; }
+.el-sim-assumption-count { margin-left: 8px; color: var(--el-text); font-size: 11px; }
+.el-sim-sampling-warning > p { margin: 0 0 9px; }
+.el-sim-setup-blocked > p { margin: 7px 0 0; }
 @media (max-width: 650px) { .el-sim-setup-heading { flex-direction: column; } .el-sim-setup > .el-sim-fields { grid-template-columns: 1fr; } }
 .el-sim-probes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
 .el-sim-probe { display: flex; align-items: center; min-width: 0; border: 1px solid var(--el-line); border-left: 3px solid var(--channel-color); background: var(--el-surface); border-radius: 8px; overflow: hidden; }
@@ -52,6 +57,8 @@
 .el-sim-runbar { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin: 15px 0; }
 .el-sim-runbar > span { font-size: 11px; color: var(--el-muted); }
 .el-sim-runbar .el-primary { min-height: 39px; }
+.el-sim-run-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+@media (max-width: 650px) { .el-sim-runbar { align-items: stretch; flex-direction: column; } .el-sim-run-actions { justify-content: flex-start; } }
 .el-sim-message { padding: 13px 15px; border-radius: 8px; font-size: 12px; margin: 13px 0; border: 1px solid var(--el-line); background: var(--el-soft); }
 .el-sim-message p { margin: 4px 0; overflow-wrap: anywhere; }
 .el-sim-message small { display: block; margin-top: 7px; color: var(--el-muted); font-size: 11px; }

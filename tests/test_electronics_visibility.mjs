@@ -17,7 +17,7 @@ function load(relative) {
   const mod = { exports: {} };
   vm.runInNewContext(output, { module: mod, exports: mod.exports, require(name) {
     if (name.startsWith("@/")) return load(`src/${name.slice(2)}.ts`);
-    if (name === "./power") return load("src/lib/electronics/power.ts");
+    if (name.startsWith("./")) return load(`src/lib/electronics/${name.slice(2)}.ts`);
     return require(name);
   } }, { filename: relative });
   cache.set(relative, mod.exports);
@@ -28,12 +28,50 @@ const { Breadboard } = load("src/components/electronics/Breadboard.tsx");
 const { createLayout, createAssemblySteps, validateLayout } = load("src/lib/electronics/engine.ts");
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const { CIRCUIT_TEMPLATES } = load("src/lib/electronics/templates.ts");
+const { resistorMarking } = load("src/lib/electronics/resistor-marking.ts");
 const circuit = CIRCUIT_TEMPLATES.find(item => item.id === "ua741-inverting");
 const layout = createLayout(circuit, definitions, { boards: 1, railMode: "split" });
 const render = (props = {}) => renderToStaticMarkup(React.createElement(Breadboard, {
   circuit, definitions, layout, selection: null, onSelect() {}, labelsVisible: true, zoom: 1, onZoom() {}, ...props,
 }));
 const layersIn = html => [...html.matchAll(/data-board-layer="([^"]+)"/g)].map(match => match[1]);
+
+test("resistor markings preserve SI values and exact significant digits without inventing tolerance", () => {
+  const black = "#202020", brown = "#75432a", red = "#bc292f", yellow = "#e2bd43", violet = "#7e539a", white = "#eee9d9", gold = "#b59b52", silver = "#b8bfc3";
+  const examples = [
+    ["1e3 Ω", [brown, black, red]],
+    ["4.7 MOhm", [yellow, violet, "#50824b"]],
+    ["999 Ω", [white, white, white, black]],
+    ["9.99 Ω", [white, white, white, silver]],
+    ["1000 mΩ", [brown, black, gold]],
+    ["100 mΩ", [brown, black, silver]],
+    ["0 Ω", [black]],
+  ];
+  for (const [value, colors] of examples) {
+    const marking = resistorMarking(value);
+    assert.deepEqual(Array.from(marking.colors), colors, value);
+    assert.equal(marking.toleranceUnknown, value !== "0 Ω", value);
+    if (value !== "0 Ω") assert.match(marking.label, /공차 미지정/);
+  }
+  for (const value of ["10 kΩ extra", "4k7", "1 nF", "not known", "-10 Ω", "1234 Ω", "1e309", "1 mΩ"]) {
+    assert.equal(resistorMarking(value).colors.length, 0, value);
+  }
+});
+
+test("rendered resistor bands use all three significant digits and mark unspecified tolerance", () => {
+  const input = structuredClone(circuit);
+  const resistor = input.components.find(component => definitions.find(definition => definition.id === component.definitionId)?.kind === "resistor");
+  resistor.value = "999 Ω";
+  const html = render({ circuit: input });
+  const marking = html.match(new RegExp(`<g data-resistor-marking="${resistor.id}">([\\s\\S]*?)</g>`))?.[1];
+  assert.ok(marking);
+  assert.equal((marking.match(/<rect /g) || []).length, 4, "Three digits plus the multiplier are rendered");
+  assert.match(marking, />\?<\/text>/, "The tolerance position is visibly unknown");
+  assert.match(html, /공차 미지정/);
+  resistor.value = "0 Ω";
+  const zero = render({ circuit: input });
+  assert.match(zero, /0 Ω 점퍼 · 검정 한 띠/);
+});
 
 test("resistor-only and opamp-only remove all other component leads, labels, wire and instrument targets", () => {
   for (const layer of ["resistor", "opamp", "jumper", "instrument"]) {

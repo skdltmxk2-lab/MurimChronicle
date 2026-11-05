@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { defaultSimulationConfig, parseSimulationConfig } from "@/lib/electronics/simulation";
 import { applySimulationSettings, parseSimulationAction, parseSimulationContext, type SimulationAssistantAction, type SimulationContext } from "@/lib/electronics/simulation-controls";
-import { deriveSimulationRecommendation, resolveSimulationProbeHoles, simulationSamplingWarning } from "@/lib/electronics/simulation-recommendations";
-import { createSimulationLayoutIndex } from "@/lib/electronics/simulation-layout";
+import { deriveSimulationRecommendation, fitSimulationSampling, resolveSimulationProbeHoles, simulationSamplingWarning } from "@/lib/electronics/simulation-recommendations";
+import { createSimulationLayoutIndex, SimulationLayoutError } from "@/lib/electronics/simulation-layout";
 import type { ProbeHoles } from "@/lib/electronics/simulation-probes";
 import { amplitudeSpectrum, differentialResponse } from "@/lib/electronics/simulation-measurements";
 import { NONLINEAR_MODEL_REGISTRY } from "@/lib/electronics/simulation-models";
@@ -120,10 +120,29 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   const probeKey = JSON.stringify(probes.map(probe => probe.holeId));
   const configKey = JSON.stringify(config);
   const samplingWarning = simulationSamplingWarning(config);
-  const wiringStatus = useMemo(() => {
-    try { createSimulationLayoutIndex(circuit, definitions, layout); return ""; }
-    catch (failure) { return failure instanceof Error ? failure.message : "실행 전에 빵판 연결을 확인하세요."; }
+  const wiringCheck = useMemo(() => {
+    try { createSimulationLayoutIndex(circuit, definitions, layout); return { message: "", issues: [], unsupported: false }; }
+    catch (failure) {
+      const issues = failure instanceof SimulationLayoutError ? failure.issues : [];
+      const unsupportedIds = new Set(issues.filter(issue => ["UNSUPPORTED_MOUNTING", "UNSUPPORTED_FOOTPRINT"].includes(issue.code)).map(issue => issue.componentId));
+      return {
+        message: failure instanceof Error ? failure.message : "실행 전에 빵판 연결을 확인하세요.",
+        issues: issues.filter(issue => issue.code !== "MISSING_PLACEMENT" || !unsupportedIds.has(issue.componentId)),
+        unsupported: unsupportedIds.size > 0,
+      };
+    }
   }, [circuit, definitions, layout]);
+  const wiringStatus = wiringCheck.message;
+  const configurationProblem = useMemo(() => {
+    try { parseSimulationConfig(config); return ""; }
+    catch (failure) { return failure instanceof Error ? failure.message : "계산 조건을 확인하세요."; }
+  }, [config]);
+  const probeProblem = !probes.some(probe => probe.holeId && probe.netId)
+    ? "VIN·VOUT 자동 설정을 적용하거나 CH1·CH2의 측정할 구멍을 선택하세요."
+    : probes.some(probe => probe.holeId && (!probe.netId || !nets.includes(probe.netId)))
+      ? "연결되지 않았거나 회로에서 사라진 프로브가 있습니다. 위치를 다시 선택해 주세요."
+      : "";
+  const executionProblem = wiringStatus || configurationProblem || probeProblem;
   const hasOpamp = circuit.components.some(component => definitions.find(definition => definition.id === component.definitionId)?.kind === "opamp");
   const deviceModels = useMemo(() => circuit.components.flatMap(component => {
     const model = NONLINEAR_MODEL_REGISTRY.find(model => model.definitionId === component.definitionId);
@@ -166,12 +185,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   const netName = (net: string) => circuit.netNames[net] && circuit.netNames[net] !== net ? `${circuit.netNames[net]} · ${net}` : net;
   const start = () => {
     stop(); setError(""); setNotice("");
-    if (!config.groundNetId || !config.source.netId || config.groundNetId === config.source.netId) { setError("입력 신호와 기준 GND를 서로 다른 연결에서 선택해 주세요."); setRunning(false); return; }
-    if (!probes.some(probe => probe.holeId && probe.netId)) { setError("CH1 또는 CH2를 눌러 연결된 빵판 구멍에 프로브를 지정해 주세요."); setRunning(false); return; }
-    if (probes.some(probe => probe.holeId && (!probe.netId || !nets.includes(probe.netId)))) { setError("연결되지 않았거나 회로에서 사라진 프로브가 있습니다. 위치를 다시 선택해 주세요."); setRunning(false); return; }
-    const numbers = [[config.source, ...extraSources].flatMap(source => [source.frequencyHz, source.amplitudePeak, source.offset, source.phaseDegrees ?? 0, source.dutyCyclePercent ?? 50, source.modulationFrequencyHz ?? 100, source.modulationDepth ?? 0.2]), config.startupPerturbationVolts ?? 0, config.durationSeconds, config.sampleCount, config.acStartHz, config.acStopHz, config.acPoints, ...config.supplies.map(supply => supply.voltage)].flat();
-    if (numbers.some(value => !Number.isFinite(value))) { setError("빈 입력란을 포함해 모든 계산 조건에 올바른 숫자를 입력해 주세요."); setRunning(false); return; }
-    if (config.durationSeconds <= 0 || config.source.frequencyHz <= 0 || config.source.amplitudePeak < 0 || config.acStartHz <= 0 || config.acStopHz <= config.acStartHz || !Number.isInteger(config.sampleCount) || config.sampleCount < 32 || config.sampleCount > 4096 || !Number.isInteger(config.acPoints) || config.acPoints < 2 || config.acPoints > 512) { setError("시간·주파수는 양수, 진폭은 0 이상이어야 합니다. 샘플은 32~4096개, 주파수 지점은 2~512개 정수로 설정해 주세요."); setRunning(false); return; }
+    if (executionProblem) { setError(executionProblem); setRunning(false); return; }
     const requestId = ++sequence.current, runFingerprint = fingerprint;
     try {
       const instance = new Worker(new URL("../../lib/electronics/simulation.worker.ts", import.meta.url));
@@ -256,6 +270,18 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
       setError(message); respondControl(id, message);
     }
   };
+  const fitCapture = () => {
+    try {
+      const timing = fitSimulationSampling(config);
+      const next = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
+      let prior: SimulationConfig | null = null;
+      try { prior = parseSimulationConfig(config); } catch { /* blank capture fields can be repaired */ }
+      invalidateControls();
+      setConfig(next);
+      setUndo(prior ? { config: prior, holes: probes.map(probe => probe.holeId) as ProbeHoles, nets: [...requestedNets], scene: sceneKey, appliedConfig: JSON.stringify(next), appliedHoles: probeKey } : null);
+      setError(""); setControlNotice(timing.note);
+    } catch (failure) { setError(failure instanceof Error ? failure.message : "입력 조건을 확인한 뒤 자동 맞춤을 사용하세요."); }
+  };
   // Invalidate actions tied to a previous circuit/layout before accepting a new
   // command. IDs remain monotonic across ordinary parent re-renders.
   useEffect(() => {
@@ -336,7 +362,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   };
 
   return <section className="el-simulation" aria-label="파형 및 회로 시뮬레이션">
-    <header className="el-sim-header"><div><span className="el-eyebrow">VIRTUAL INSTRUMENTS</span><h2>파형 · 계측</h2><p>빵판의 측정 지점을 고르고 회로 응답을 확인하세요.</p></div><span className={`el-sim-status ${stale ? "stale" : ""}`}>{running ? "계산 중" : stale ? "다시 계산 필요" : capture ? "계산 완료" : "실행 대기"}</span></header>
+    <header className="el-sim-header"><div><span className="el-eyebrow">VIRTUAL INSTRUMENTS</span><h2>파형 · 계측</h2><p>빵판의 측정 지점을 고르고 회로 응답을 확인하세요.</p></div><span className={`el-sim-status ${error || executionProblem ? "blocked" : stale ? "stale" : ""}`}>{running ? "계산 중" : error ? "실행 오류" : executionProblem ? "설정 확인 필요" : stale ? "다시 계산 필요" : capture ? "계산 완료" : "실행 준비 완료"}</span></header>
     <p className="el-sim-model-note">교육용 회로 모델 · BJT/MOSFET의 바이어스와 비선형 응답 계산 · 제조사 SPICE 실측 모델과 다를 수 있습니다</p>
     <div className="el-sim-setup" aria-label="파형 자동 설정">
       <div className="el-sim-setup-heading"><div><h3>VIN · VOUT 자동 설정</h3><p>계측기 단자·연결 이름·소자 핀을 바탕으로 측정 지점을 추천합니다.</p></div><div><button className="el-button el-primary" onClick={() => applyCommand({ kind: "auto_setup", run: true })} disabled={!recommendation.config || Boolean(wiringStatus)}>자동 설정 · 실행</button><button className="el-button" onClick={() => applyCommand({ kind: "auto_setup" })} disabled={!recommendation.config}>설정만 적용</button><button className="el-button" onClick={() => applyCommand({ kind: "undo" })} disabled={!undo || undo.scene !== sceneKey || undo.appliedConfig !== configKey || undo.appliedHoles !== probeKey}>설정 되돌리기</button></div></div>
@@ -345,9 +371,10 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
         targets[channel] = event.target.value || null;
         try { applyPrepared(config, targets, false); } catch (failure) { setError(failure instanceof Error ? failure.message : "측정 연결을 적용하지 못했습니다."); }
       }}><option value="">측정 연결 선택</option>{nets.map(net => <option key={net} value={net}>{netName(net)}</option>)}</select></label>)}</div>
-      <details><summary>추천 근거와 확인할 기본값</summary><ul>{recommendation.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul>{recommendation.assumptions.length > 0 && <div className="el-sim-assumptions"><b>미지정 조건은 교육용 시작값입니다</b><ul>{recommendation.assumptions.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}</details>
-      {wiringStatus && <p className="el-sim-setup-blocked" role="status"><b>설정은 가능하지만 현재 빵판으로 실행할 수 없습니다.</b> {wiringStatus}</p>}
-      {samplingWarning && <p className="el-sim-sampling-warning" role="status">{samplingWarning}</p>}
+      {recommendation.assumptions.length > 0 && <p className="el-sim-assumption-summary">자동 설정에 원자료 확인이 필요한 조건 {recommendation.assumptions.length}개가 있습니다. 아래 기본값을 확인하세요.</p>}
+      <details><summary>추천 근거와 확인할 기본값{recommendation.assumptions.length > 0 && <span className="el-sim-assumption-count">확인 {recommendation.assumptions.length}개</span>}</summary>{recommendation.assumptions.length > 0 && <div className="el-sim-assumptions"><b>미지정 조건은 교육용 시작값입니다</b><ul>{recommendation.assumptions.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}<ul>{recommendation.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></details>
+      {wiringStatus && <div className="el-sim-setup-blocked" role="status"><b>빵판 배치를 먼저 확인하세요</b>{wiringCheck.issues.length > 0 ? <ul>{wiringCheck.issues.slice(0, 5).map((issue, index) => <li key={`${issue.code}-${index}`}>{issue.message}</li>)}</ul> : <p>{wiringStatus}</p>}{wiringCheck.issues.length > 5 && <p>추가 {wiringCheck.issues.length - 5}개 항목은 빵판의 연결 검사에서 확인할 수 있습니다.</p>}{wiringCheck.unsupported && <p>이 패키지의 물리 배치 지원이 필요합니다. 설정 변경이나 재실행으로 해결되지 않습니다.</p>}</div>}
+      {samplingWarning && <div className="el-sim-sampling-warning" role="status"><p>{samplingWarning}</p><button className="el-button el-small" onClick={fitCapture}>시간·샘플 자동 맞춤</button></div>}
       {controlNotice && <p className="el-sim-control-notice" role="status">{controlNotice}</p>}
     </div>
     {deviceModels.length > 0 && <details className="el-sim-device-models"><summary>사용한 반도체 모델 · {deviceModels.length}개 · 300 K</summary>{deviceModels.map(({ id, model }) => <div key={id}><b>{id} · {model.label}</b><p>{model.parameterBasis}</p><small>{Object.entries(model.parameters).map(([key, value]) => `${key}=${value}`).join(" · ")}</small>{model.pinoutSources.filter(source => source.url).map(source => <a key={source.url} href={source.url} target="_blank" rel="noreferrer">제조사 핀맵 ↗</a>)}</div>)}</details>}
@@ -366,7 +393,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
       </details>
       <details className="el-sim-advanced"><summary>전원 · 시간 범위 · 계산 정밀도<span>{engineering(config.durationSeconds, "s")} · {config.sampleCount} 샘플</span></summary><div className="el-sim-fields"><NumericField label="표시 시간" unit="ms" value={config.durationSeconds * 1000} onChange={value => updateConfig({ durationSeconds: value / 1000 })} min={0.001} /><NumericField label="시간 샘플" value={config.sampleCount} onChange={sampleCount => updateConfig({ sampleCount })} min={32} max={4096} step={1} /><NumericField label="AC 시작" unit="Hz" value={config.acStartHz} onChange={acStartHz => updateConfig({ acStartHz })} min={0.001} /><NumericField label="AC 끝" unit="Hz" value={config.acStopHz} onChange={acStopHz => updateConfig({ acStopHz })} min={0.001} /><NumericField label="AC 지점" value={config.acPoints} onChange={acPoints => updateConfig({ acPoints })} min={2} max={512} step={1} /></div><div className="el-sim-supplies"><h4>추가 DC 전원</h4>{config.supplies.map((supply, index) => <div className="el-sim-supply" key={`${index}-${supply.netId}`}><label className="el-sim-field"><span>전원 연결 {index + 1}</span><select value={supply.netId} onChange={event => updateConfig({ supplies: config.supplies.map((item, at) => at === index ? { ...item, netId: event.target.value } : item) })}>{nets.filter(net => net !== config.groundNetId && net !== config.source.netId && !extraSources.some(source => source.netId === net)).map(net => <option key={net} value={net} disabled={config.supplies.some((item, at) => at !== index && item.netId === net)}>{netName(net)}</option>)}</select></label><NumericField label="전압" unit="V" value={supply.voltage} onChange={voltage => updateConfig({ supplies: config.supplies.map((item, at) => at === index ? { ...item, voltage } : item) })} /><button className="el-text-button" onClick={() => updateConfig({ supplies: config.supplies.filter((_, at) => at !== index) })} aria-label={`${supply.netId} 전원 제거`}>제거</button></div>)}<button className="el-button el-small" onClick={() => { const netId = availableDriveNets[0]; if (netId) updateConfig({ supplies: [...config.supplies, { netId, voltage: 0 }] }); }} disabled={config.supplies.length >= 8 || !availableDriveNets.length}>+ DC 전원</button><p>기본값은 회로의 전원 표기를 참고합니다. 실제 실험의 전압과 비교해 수정하세요.</p></div></details>
     </div>
-    <div className="el-sim-runbar"><span>R/C · 검증된 BJT/MOSFET · 다이오드 · UA741</span>{running ? <button className="el-button" onClick={() => { stop(); setRunning(false); setNotice("계산을 취소했습니다."); }}>계산 취소</button> : <button className="el-button el-primary" onClick={start}>시뮬레이션 실행 <span aria-hidden="true">↗</span></button>}</div>
+    <div className="el-sim-runbar"><span>{configurationProblem || probeProblem || "현재 입력과 프로브로 계산합니다."}</span><div className="el-sim-run-actions">{!samplingWarning && <button className="el-button" onClick={fitCapture} disabled={running}>시간·샘플 자동 맞춤</button>}{running ? <button className="el-button" onClick={() => { stop(); setRunning(false); setNotice("계산을 취소했습니다."); }}>계산 취소</button> : <button className="el-button el-primary" disabled={Boolean(executionProblem)} onClick={start}>시뮬레이션 실행 <span aria-hidden="true">↗</span></button>}</div></div>
     {error && <div className="el-sim-message error" role="alert"><b>계산을 완료하지 못했습니다</b><p>{error}</p><small>지원하지 않는 소자는 결과에서 생략하지 않습니다. 지원 모델과 연결 상태를 확인해 주세요.</small></div>}
     {notice && !error && <p className="el-sim-notice" role="status">{notice}</p>}
     {stale && <div className="el-sim-message stale" role="status"><b>이전 조건의 결과입니다</b><p>회로·배선·프로브 또는 설정이 변경되었습니다. 다시 실행하면 현재 상태로 갱신됩니다.</p></div>}

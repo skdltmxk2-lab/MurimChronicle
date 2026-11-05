@@ -17,7 +17,7 @@ function source(name) {
 function library(name) {
   if (libraries.has(name)) return libraries.get(name);
   const module = { exports: {} };
-  vm.runInNewContext(source(`lib/electronics/${name}.ts`), { module, exports: module.exports, require: dependency => library(dependency.replace("./", "")) });
+  vm.runInNewContext(source(`lib/electronics/${name}.ts`), { module, exports: module.exports, Error, require: dependency => library(dependency.replace("./", "")) });
   libraries.set(name, module.exports);
   return module.exports;
 }
@@ -75,7 +75,7 @@ function harness(overrides = {}) {
   function componentModule(filename) {
   const module = { exports: {} };
   vm.runInNewContext(source(`components/electronics/${filename}.tsx`), {
-    module, exports: module.exports, Worker: MockWorker, URL: DownloadURL, Blob, structuredClone,
+    module, exports: module.exports, Worker: MockWorker, URL: DownloadURL, Blob, structuredClone, Error,
     setTimeout(callback, delay) { const id = ++timerId; timers.set(id, { callback, delay }); return id; }, clearTimeout(id) { timers.delete(id); },
     document: { body: { appendChild() {} }, createElement() { return { click() { downloads.push({ filename: this.download, blob: blobs.get(this.href) }); }, remove() {} }; } },
     require(name) {
@@ -195,6 +195,9 @@ test("auto setup may apply settings but never runs a BC109C circuit with missing
   h.wireProbeUpdates(); h.update({ controlRequest: { id: 1, action: { kind: "auto_setup", run: true } } });
   assert.equal(h.workers.length, 0); assert.match(reports[0].message, /설정은 적용.*실행은 차단/);
   assert.equal(h.button("자동 설정 · 실행").props.disabled, true);
+  assert.equal(h.button("시뮬레이션 실행").props.disabled, true);
+  h.run(); assert.equal(h.workers.length, 0, "Manual entry also rejects the known missing physical footprint");
+  assert.match(textIn(h.tree), /이 패키지의 물리 배치 지원이 필요합니다/);
   assert.match(textIn(h.tree), /교육용 시작값/); assert.match(textIn(h.tree), /BC109C/);
 });
 
@@ -254,7 +257,7 @@ test("config, circuit, physical layout and probe changes make results stale, blo
   const change = {
     config: (h, step, effects = true) => h.numeric("진폭", 0.15 + step * 0.05, effects),
     circuit: (h, step, effects = true) => h.update({ circuit: { ...h.props.circuit, components: h.props.circuit.components.map(item => item.id === "R1" ? { ...item, value: `${47 + step} kΩ` } : item) } }, effects),
-    layout: (h, step, effects = true) => h.update({ layout: { ...h.props.layout, placements: h.props.layout.placements.map(item => item.componentId === "R1" ? { ...item, pins: { ...item.pins, 1: `B1:D${20 + step}` } } : item) } }, effects),
+    layout: (h, step, effects = true) => h.update({ layout: { ...h.props.layout, jumpers: h.props.layout.jumpers.map((item, index) => index === 0 ? { ...item, color: step === 1 ? "#111111" : "#222222" } : item) } }, effects),
     probes: (h, step, effects = true) => h.update({ probes: [{ holeId: `B1:A${20 + step}`, netId: "IN" }, h.props.probes[1]] }, effects),
   };
   for (const [name, mutate] of Object.entries(change)) {
@@ -303,7 +306,7 @@ test("an unmodelled probe is explained and omitted rather than drawn as a zero w
 
 test("invalid numeric inputs and disconnected probes never dispatch a worker; worker errors remain explicit", () => {
   const h = harness(); h.numeric("진폭", ""); h.run();
-  assert.equal(h.workers.length, 0); assert.match(textIn(h.tree), /올바른 숫자/);
+  assert.equal(h.workers.length, 0); assert.match(textIn(h.tree), /입력 피크 진폭.*유한한 수/);
   h.numeric("진폭", 0.1);
   h.update({ probes: [{ holeId: "B1:A60", netId: null }, probes[1]] }); h.run();
   assert.equal(h.workers.length, 0); assert.match(textIn(h.tree), /연결되지 않았거나/);
@@ -312,6 +315,34 @@ test("invalid numeric inputs and disconnected probes never dispatch a worker; wo
   assert.equal(worker.terminated, true); assert.equal(h.timers.size, 0);
   assert.match(textIn(h.tree), /Q1: 이 트랜지스터 모델은 지원하지 않습니다/);
   assert.equal(paths(h.tree).length, 0); assert.ok(h.button("시뮬레이션 실행"));
+});
+
+test("one-click capture fit repairs undersampling and preserves edited signals and probe holes", () => {
+  const h = harness();
+  h.numeric("주파수", 100000); h.numeric("진폭", 0.037); h.numeric("DC 오프셋", 0.2);
+  assert.match(textIn(h.tree), /샘플이 부족/);
+  const beforeProbes = structuredClone(h.props.probes);
+  h.click("시간·샘플 자동 맞춤");
+  assert.doesNotMatch(textIn(h.tree), /샘플이 부족/);
+  assert.equal(serial(h.props.probes), serial(beforeProbes));
+  const worker = h.run(), settings = worker.messages[0].input.config;
+  assert.equal(settings.source.frequencyHz, 100000);
+  assert.equal(settings.source.amplitudePeak, 0.037);
+  assert.equal(settings.source.offset, 0.2);
+  assert.ok(settings.durationSeconds <= 0.000051);
+  assert.ok(settings.sampleCount >= 320);
+  assert.equal(h.button("설정 되돌리기").props.disabled, false);
+  h.click("설정 되돌리기");
+  assert.match(textIn(h.tree), /샘플이 부족/);
+  assert.equal(serial(h.props.probes), serial(beforeProbes));
+});
+
+test("a failed rerun reports an error status even when an earlier capture is available", () => {
+  const h = harness(); h.complete(h.run());
+  const worker = h.run();
+  worker.emit({ type: "error", requestId: worker.messages[0].requestId, message: "수렴 조건을 확인하세요." }); h.flush();
+  const status = select(h.tree, node => typeof node.props.className === "string" && node.props.className.startsWith("el-sim-status"));
+  assert.equal(textIn(status), "실행 오류");
 });
 
 test("AC and DC exports retain computed values and distinguish component and source current directions", async () => {

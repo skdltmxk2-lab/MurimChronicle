@@ -12,17 +12,18 @@
 .electronics-app .el-app-grid.with-chat { display: grid; grid-template-columns: minmax(0, 1fr) 350px; max-width: 1920px; gap: 0; }
 .electronics-app .el-app-grid.without-chat { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1920px; }
 .electronics-app .el-main { padding: 0 28px 28px; }
-.electronics-app .el-view-tabs { height: 54px; margin-bottom: 18px; gap: 28px; }
+.electronics-app .el-view-tabs { height: 50px; margin-bottom: 12px; gap: 24px; overflow-x: auto; scrollbar-width: thin; }
+.electronics-app .el-view-tabs button { flex-shrink: 0; }
 .electronics-app .el-circuit-heading { margin: 18px 0 14px; }
 .electronics-app .el-circuit-heading input { font-size: 24px !important; }
 .electronics-app .el-circuit-heading > div > p:last-child { font-size: 12px; }
-.el-board-settings { margin: 0 0 16px; font-size: 12px; }
+.el-board-settings { margin: 0 0 8px; font-size: 12px; }
 .el-board-settings > summary, .el-selection-panel > summary, .el-checks-panel > summary { cursor: pointer; color: var(--el-text); font-weight: 650; padding: 11px 0; }
 .el-board-settings > summary:focus-visible, .el-selection-panel > summary:focus-visible, .el-checks-panel > summary:focus-visible { outline: 2px solid var(--el-focus); outline-offset: 3px; border-radius: 4px; }
 .el-board-settings > summary span, .el-selection-panel > summary span, .el-checks-panel > summary span { margin-left: 12px; color: var(--el-muted); font-size: 12px; font-weight: 400; }
 .electronics-app .el-board-options { padding: 8px 0; }
 .electronics-app .el-board-options, .electronics-app .el-board-options select { font-size: 12px !important; }
-.el-layer-panel { padding: 14px 16px; background: var(--el-surface); border: 1px solid var(--el-line); border-radius: 12px 12px 0 0; border-bottom: 0; }
+.el-layer-panel { padding: 10px 14px; background: var(--el-surface); border: 1px solid var(--el-line); border-radius: 12px 12px 0 0; border-bottom: 0; }
 .el-layer-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
 .el-layer-top > b { font-size: 12px; }
 .el-layer-top label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--el-muted); }
@@ -72,7 +73,7 @@
 .electronics-app .el-board-toolbar > span { min-width: 0; line-height: 1.5; }
 .electronics-app .el-board-toolbar > div { flex-shrink: 0; }
 .electronics-app .el-board-toolbar button { font-size: 12px; height: 27px; min-width: 28px; }
-.electronics-app .el-board-scroll { min-height: 340px; padding: 32px 18px; }
+.electronics-app .el-board-scroll { min-height: 300px; max-height: 66dvh; padding: 24px 18px; overscroll-behavior: contain; }
 .electronics-app .el-board-caption { font-size: 12px; }
 .electronics-app .el-design-stats { margin-bottom: 4px; padding: 12px 4px; }
 .electronics-app .el-design-stats b { font-size: 17px; }
@@ -93,6 +94,43 @@
 .electronics-app .el-assembly-start p, .electronics-app .el-step-copy p { font-size: 12px; }
 .electronics-app .el-step-copy > b { font-size: 13px; }
 .el-checks-panel .el-bottom-grid { margin-top: 0; }
+
+.electronics-app .el-autosave { display: inline-flex; }
+.el-autosave.pending { color: var(--el-muted); }
+.el-autosave.error { color: #c67a53; }
+.el-autosave.error i { background: currentColor; }
+.el-save-recovery { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 28px; border-bottom: 1px solid var(--el-line); background: var(--el-soft); }
+.el-save-recovery > div { flex: 1 1 260px; min-width: 0; }
+.el-save-recovery b { font-size: 13px; }
+.el-save-recovery p { color: var(--el-muted); font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+.el-unplaced-summary { margin-bottom: 12px; padding: 12px 14px; border: 1px solid var(--el-line-strong); border-radius: 9px; background: var(--el-soft); }
+.el-unplaced-summary > div { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.el-unplaced-summary > div + div { margin-top: 10px; }
+.el-unplaced-summary b { font-size: 13px; }
+.el-unplaced-summary span { font-size: 12px; color: var(--el-muted); }
+.el-history-actions { display: flex; gap: 5px; }
+.el-library-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.el-library-actions > button { flex: 1; }
+.el-project-search { display: block; margin: 14px 0; }
+.el-project-search span { display: block; color: var(--el-muted); font-size: 12px; margin-bottom: 7px; }
+.el-project-search input { width: 100%; }
+.electronics-app .el-project-card[aria-current=true] { border-color: var(--el-line-strong); background: var(--el-soft); }
+.el-project-card > b { display: flex; justify-content: space-between; gap: 12px; overflow-wrap: anywhere; }
+.el-project-card > b > small { color: var(--el-muted); font-size: 11px; white-space: nowrap; }
+.el-json-editor > p { color: var(--el-muted); font-size: 12px; line-height: 1.7; }
+.el-json-editor textarea { width: 100%; min-height: 42vh; padding: 12px; resize: vertical; font: 12px/1.6 ui-monospace, Consolas, monospace; }
+.electronics-app .el-remove-part { display: block; margin: 16px 0 8px; }
+.el-selection-panel, .el-checks-panel { scroll-margin-top: 20px; }
+.electronics-app .el-header-actions { flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 500px) {
+  .electronics-app .el-header-actions { width: 100%; justify-content: flex-start; gap: 7px; }
+  .electronics-app .el-header-actions .el-autosave { width: 100%; font-size: 11px; }
+  .electronics-app .el-circuit-heading { flex-wrap: wrap; gap: 8px; }
+  .electronics-app .el-circuit-heading > div { flex-basis: 100%; }
+  .el-save-recovery { padding: 12px 16px; }
+  .el-history-actions { margin-left: auto; }
+  .el-library-actions > button { flex-basis: 100%; }
+}
 
 /* Native dialog isolates long experiment/source/project lists from the canvas. */
 .el-workspace-drawer { padding: 0; margin: auto; width: 640px; max-width: calc(100vw - 32px); max-height: min(82vh, 850px); background: var(--el-surface); color: var(--el-text); border: 1px solid var(--el-line); border-radius: 16px; box-shadow: 0 24px 90px #00000044; }
