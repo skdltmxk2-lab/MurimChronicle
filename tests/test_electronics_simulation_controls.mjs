@@ -16,7 +16,7 @@ const { COMPONENT_CATALOG: definitions } = load("catalog");
 const { CIRCUIT_TEMPLATES } = load("templates");
 const { createLayout } = load("engine");
 const { createSimulationLayoutIndex } = load("simulation-layout");
-const { defaultSimulationConfig } = load("simulation");
+const { defaultSimulationConfig, fitSimulationTimeRange, runSimulation } = load("simulation");
 const { buildLab5ReferenceCircuit } = load("lab5-reference");
 const rc = CIRCUIT_TEMPLATES.find(c => c.id === "rc-lowpass");
 const clone = value => structuredClone(value);
@@ -151,4 +151,34 @@ test("capture fitting repairs blank capture fields but rejects invalid source in
   assert.throws(() => fitSimulationSampling({ ...config, source: { ...config.source, frequencyHz: NaN } }));
   const dc = { ...config, source: { ...config.source, waveform: "dc" }, durationSeconds: 0.02, sampleCount: 4096 };
   assert.equal(fitSimulationSampling(dc).durationSeconds, 0.02); assert.equal(fitSimulationSampling(dc).sampleCount, 4096);
+});
+
+test("fast 1 kΩ / 1 nF RC capture fitting and automatic setup respect the engine's integration budget", () => {
+  const fast = clone(rc);
+  fast.components.find(part => part.id === "R1").value = "1e3 Ω";
+  const original = defaultSimulationConfig(fast);
+  assert.throws(() => runSimulation(fast, definitions, original), /빠른 RC 응답/);
+  const timing = fitSimulationSampling(original, fast, definitions);
+  assert.ok(timing.durationSeconds < 0.001);
+  assert.ok(timing.limited); assert.match(timing.note, /RC.*계산량 한도/); assert.match(timing.note, /주기만 표시/);
+  const fitted = { ...original, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
+  assert.deepEqual(fitted.source, original.source);
+  const result = runSimulation(fast, definitions, fitted);
+  assert.ok(result.nodeVoltages.OUT.every(Number.isFinite));
+  const recommended = deriveSimulationRecommendation(fast, definitions);
+  assert.equal(recommended.config.source.frequencyHz, 1000);
+  assert.equal(recommended.config.source.amplitudePeak, 0.5);
+  assert.ok(recommended.config.durationSeconds < 0.001);
+  assert.match(recommended.captureNote, /주기만 표시/);
+  assert.doesNotThrow(() => runSimulation(fast, definitions, recommended.config));
+});
+
+test("engine time fitting can increase samples without changing duration and stays below rounded step limits", () => {
+  const fast = clone(rc);
+  fast.components.find(part => part.id === "R1").value = "1 kΩ";
+  const short = { ...defaultSimulationConfig(fast), sampleCount: 32, durationSeconds: 0.0001 };
+  const fitted = fitSimulationTimeRange(fast, definitions, short);
+  assert.equal(fitted.durationSeconds, short.durationSeconds);
+  assert.ok(fitted.sampleCount > 32 && fitted.sampleCount <= 4096);
+  assert.doesNotThrow(() => runSimulation(fast, definitions, { ...short, durationSeconds: fitted.durationSeconds, sampleCount: fitted.sampleCount }));
 });

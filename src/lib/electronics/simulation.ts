@@ -221,6 +221,52 @@ function prepare(circuit: Circuit, definitions: ComponentDefinition[], config: S
   return { passives, opamps, transformers, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed };
 }
 
+/** Shared deterministic timestep/work budget for execution and capture fitting. */
+function simulationTimePlan(model: ReturnType<typeof prepare>, config: SimulationConfig) {
+  const { passives, opamps, drives, signals, dynamicOpamps, positiveFeedback, size } = model;
+  const outputStep = config.durationSeconds / (config.sampleCount - 1);
+  const dynamicSignals = signals.filter(source => source.waveform !== "dc" && source.amplitudePeak > 0);
+  const samplingLimits = dynamicSignals.map(sourceSamplingLimits);
+  let minTau = Infinity;
+  const prescribed = new Set([config.groundNetId, ...drives.map(drive => drive.net)]);
+  for (const cap of passives.filter(part => part.kind === "capacitor")) {
+    const freeTerminals = [cap.a, cap.b].filter(net => !prescribed.has(net));
+    if (!freeTerminals.length) continue;
+    const conductance = passives.filter(part => part.kind === "resistor" && (freeTerminals.includes(part.a) || freeTerminals.includes(part.b))).reduce((sum, part) => sum + 1 / part.value, 0);
+    if (conductance) minTau = Math.min(minTau, cap.value / conductance);
+  }
+  const opampStep = dynamicOpamps && opamps.length ? positiveFeedback ? 0.5 / (TAU * EDUCATIONAL_OPAMP.gainBandwidthHz) : 1e-6 : Infinity;
+  const maximumStep = Math.min(dynamicSignals.length ? Math.min(...samplingLimits.map(limit => limit.maximumInternalStepSeconds), minTau / 100) : outputStep, opampStep, dynamicOpamps && opamps.length ? minTau / 100 : Infinity);
+  const maximumOutputStep = Math.min(...samplingLimits.map(limit => limit.maximumOutputStepSeconds));
+  const subdivisions = Math.max(1, Math.ceil(outputStep / maximumStep));
+  const totalSteps = subdivisions * (config.sampleCount - 1);
+  const fixedWork = 2 * size ** 3 + config.acPoints * 4 * size ** 3 / 3;
+  const workPerStep = 2 * size ** 2;
+  return { outputStep, dynamicSignals, samplingLimits, maximumStep, maximumOutputStep, subdivisions, totalSteps, fixedWork, workPerStep, work: fixedWork + totalSteps * workPerStep };
+}
+
+/** Fits known model/time limits only; nonlinear convergence remains an execution check. */
+export function fitSimulationTimeRange(circuit: Circuit, definitions: ComponentDefinition[], input: SimulationConfig): { durationSeconds: number; sampleCount: number; limited: boolean } {
+  const config = parseSimulationConfig(input);
+  const plan = simulationTimePlan(prepare(circuit, definitions, config), config);
+  const { maximumStep, maximumOutputStep } = plan;
+  if (plan.subdivisions <= 128 && plan.totalSteps <= 65536 && plan.work <= MAX_WORK && plan.outputStep <= maximumOutputStep * (1 + 1e-12)) {
+    return { durationSeconds: config.durationSeconds, sampleCount: config.sampleCount, limited: false };
+  }
+  const maximumSteps = Math.min(65536, Math.floor((MAX_WORK - plan.fixedWork) / plan.workPerStep));
+  if (maximumSteps < 31) fail("현재 회로와 AC 지점 수가 최소 시간 표본의 계산량 한도를 넘습니다. AC 지점 수를 줄이거나 회로를 나누세요.");
+  const targetDuration = Math.min(config.durationSeconds, maximumSteps * maximumStep);
+  const neededIntervals = Math.max(Math.ceil(targetDuration / maximumStep / 128), Math.ceil(targetDuration / maximumOutputStep));
+  const sampleCount = Math.min(4096, maximumSteps + 1, Math.max(config.sampleCount, neededIntervals + 1));
+  const intervals = sampleCount - 1;
+  const subdivisions = Math.min(128, Math.floor(maximumSteps / intervals));
+  // Leave room for floating-point division and Math.ceil at an exact step boundary.
+  const maximumDuration = Math.min(maximumStep * subdivisions * intervals, maximumOutputStep * intervals) * (1 - 32 * Number.EPSILON);
+  const durationSeconds = Math.min(config.durationSeconds, maximumDuration);
+  if (durationSeconds < 1e-9) fail("이 회로의 빠른 응답은 최소 관측 시간 1 ns에서도 계산량 한도를 넘습니다. 소자 값과 회로 구성을 확인하세요.");
+  return { durationSeconds, sampleCount, limited: durationSeconds < config.durationSeconds * (1 - 1e-12) };
+}
+
 type Matrix = Float64Array[];
 function matrix(size: number): Matrix { return Array.from({ length: size }, () => new Float64Array(size)); }
 function stamp(matrix: Matrix, a: number | undefined, b: number | undefined, value: number) {
@@ -294,25 +340,12 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   const { passives, opamps, transformers, drives, names, index, size, signals, nonlinear, dynamicOpamps, positiveFeedback, fixed } = model;
   if (!dynamicOpamps && config.startupPerturbationVolts) fail("시동 외란은 교육용 동적 op-amp 모델에서만 사용할 수 있습니다.");
   if (!opamps.length && config.startupPerturbationVolts) fail("시동 외란을 적용할 연산증폭기가 회로에 없습니다.");
-  const outputStep = config.durationSeconds / (config.sampleCount - 1);
-  const dynamicSignals = signals.filter(source => source.waveform !== "dc" && source.amplitudePeak > 0);
-  const dynamic = dynamicSignals.length > 0, samplingLimits = dynamicSignals.map(sourceSamplingLimits);
+  const { outputStep, dynamicSignals, samplingLimits, subdivisions, totalSteps, work } = simulationTimePlan(model, config);
+  const dynamic = dynamicSignals.length > 0;
   samplingLimits.forEach((limit, index) => {
     if (outputStep > limit.maximumOutputStepSeconds * (1 + 1e-12)) fail(`${dynamicSignals[index].netId}: 파형 표본이 부족합니다. 가장 빠른 주파수(AM은 반송파+변조 주파수) 한 주기당 32개, 펄스의 짧은 high/low 구간당 4개 표본이 필요합니다. 현재 시간 범위에는 최소 ${Math.ceil(config.durationSeconds / limit.maximumOutputStepSeconds) + 1}개가 필요합니다(최대 4,096개). 시간 범위를 줄이거나 표본 수를 늘리세요.`);
   });
-  let minTau = Infinity;
-  const prescribed = new Set([config.groundNetId, ...drives.map(drive => drive.net)]);
-  for (const cap of passives.filter(part => part.kind === "capacitor")) {
-    const freeTerminals = [cap.a, cap.b].filter(net => !prescribed.has(net));
-    if (!freeTerminals.length) continue; // A capacitor clamped by ideal sources has no free voltage state.
-    const conductance = passives.filter(part => part.kind === "resistor" && (freeTerminals.includes(part.a) || freeTerminals.includes(part.b))).reduce((sum, part) => sum + 1 / part.value, 0);
-    if (conductance) minTau = Math.min(minTau, cap.value / conductance);
-  }
-  const opampStep = dynamicOpamps && opamps.length ? positiveFeedback ? 0.5 / (TAU * EDUCATIONAL_OPAMP.gainBandwidthHz) : 1e-6 : Infinity;
-  const maximumStep = Math.min(dynamic ? Math.min(...samplingLimits.map(limit => limit.maximumInternalStepSeconds), minTau / 100) : outputStep, opampStep, dynamicOpamps && opamps.length ? minTau / 100 : Infinity);
-  const subdivisions = Math.max(1, Math.ceil(outputStep / maximumStep)), totalSteps = subdivisions * (config.sampleCount - 1);
   if (subdivisions > 128 || totalSteps > 65536) fail("입력 파형·빠른 RC 응답을 계산하기에 시간 범위가 너무 큽니다. 시간 범위를 줄이세요(출력 구간당 내부 최대 128단계, 전체 최대 65,536단계).");
-  const work = 2 * size ** 3 + 2 * totalSteps * size ** 2 + config.acPoints * 4 * size ** 3 / 3;
   if (work > MAX_WORK) fail("회로 크기와 시간·AC 표본의 조합이 계산량 한도를 넘습니다. 표본 수·AC 점 수·시간 범위를 줄이거나 회로를 나누세요.");
   let workUsed = work;
   const charge = (additional: number) => { workUsed += additional; if (workUsed > MAX_WORK) fail("비선형 반복 계산량 한도를 넘었습니다. 시간 범위·표본 수·회로 크기를 줄이세요."); };

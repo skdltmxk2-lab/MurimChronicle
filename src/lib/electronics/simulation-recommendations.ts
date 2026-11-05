@@ -1,4 +1,4 @@
-import { defaultSimulationConfig, parseSimulationConfig } from "./simulation";
+import { defaultSimulationConfig, fitSimulationTimeRange, parseSimulationConfig } from "./simulation";
 import { sourceSamplingLimits, SOURCE_DEFAULTS } from "./simulation-source";
 import { getPowerNetRole } from "./power";
 import { circuitSimulationNets } from "./simulation-controls";
@@ -7,32 +7,42 @@ import type { ProbeHoles } from "./simulation-probes";
 import type { Circuit, CircuitLayout, ComponentDefinition } from "./types";
 import type { SimulationConfig } from "./simulation-types";
 
-export type SimulationRecommendation = { sourceNetId: string | null; groundNetId: string | null; inputNetId: string | null; outputNetId: string | null; config: SimulationConfig | null; reasons: string[]; assumptions: string[]; confidence: "high" | "medium" | "low" };
+export type SimulationRecommendation = { sourceNetId: string | null; groundNetId: string | null; inputNetId: string | null; outputNetId: string | null; config: SimulationConfig | null; reasons: string[]; assumptions: string[]; confidence: "high" | "medium" | "low"; captureNote?: string };
 
 /** Fit the capture to the configured signals without changing any source or probe. */
-export function fitSimulationSampling(input: SimulationConfig): { durationSeconds: number; sampleCount: number; note: string } {
+export function fitSimulationSampling(input: SimulationConfig, circuit?: Circuit, definitions?: ComponentDefinition[]): { durationSeconds: number; sampleCount: number; note: string; limited: boolean } {
   // A blank duration/sample field can be repaired, but other invalid settings
   // must still be corrected by the user before choosing a sampling interval.
   const config = parseSimulationConfig({ ...input, durationSeconds: 0.005, sampleCount: 1024 });
   const sources = [config.source, ...config.extraSources ?? []].filter(source => source.waveform !== "dc" && source.amplitudePeak > 0);
-  if (!sources.length) {
-    const durationSeconds = Number.isFinite(input.durationSeconds) && input.durationSeconds >= 1e-9 && input.durationSeconds <= 60 ? input.durationSeconds : 0.005;
-    const sampleCount = Number.isInteger(input.sampleCount) && input.sampleCount >= 32 && input.sampleCount <= 4096 ? input.sampleCount : 1024;
-    return { durationSeconds, sampleCount, note: "DC 입력의 시간 범위를 유지했습니다. 자율 발진·과도 응답의 관측 시간은 회로에 맞게 조정하세요." };
-  }
+  let durationSeconds = Number.isFinite(input.durationSeconds) && input.durationSeconds >= 1e-9 && input.durationSeconds <= 60 ? input.durationSeconds : 0.005;
+  let sampleCount = Number.isInteger(input.sampleCount) && input.sampleCount >= 32 && input.sampleCount <= 4096 ? input.sampleCount : 1024;
+  let note = "DC 입력의 시간 범위를 유지했습니다. 자율 발진·과도 응답의 관측 시간은 회로에 맞게 조정하세요.";
+  let limited = false;
   const frequencies = sources.flatMap(source => source.waveform === "am" && (source.modulationDepth ?? SOURCE_DEFAULTS.modulationDepth) > 0
     ? [source.frequencyHz, source.modulationFrequencyHz ?? SOURCE_DEFAULTS.modulationFrequencyHz]
     : [source.frequencyHz]);
-  const desiredDuration = 5 / Math.min(...frequencies);
-  const step = Math.min(...sources.map(source => sourceSamplingLimits(source).maximumOutputStepSeconds)) / 2;
-  const durationSeconds = Math.min(60, desiredDuration, step * 4095);
-  const sampleCount = Math.min(4096, Math.max(1024, Math.ceil(durationSeconds / step) + 1));
-  const limited = durationSeconds < desiredDuration * (1 - 1e-12);
-  let note = "가장 느린 입력·AM 포락선의 5주기를 표시하도록 시간 범위와 샘플 수를 맞췄습니다.";
-  if (limited) note = durationSeconds === 60
-    ? "관측 시간 상한인 60초로 맞췄습니다. 가장 느린 입력은 5주기보다 짧게 표시됩니다."
-    : "빠른 신호와 짧은 펄스를 구분하도록 시간 범위를 줄였습니다. 느린 신호·AM 포락선은 5주기보다 짧게 표시됩니다.";
-  return { durationSeconds, sampleCount, note };
+  if (sources.length) {
+    const desiredDuration = 5 / Math.min(...frequencies);
+    const step = Math.min(...sources.map(source => sourceSamplingLimits(source).maximumOutputStepSeconds)) / 2;
+    durationSeconds = Math.min(60, desiredDuration, step * 4095);
+    sampleCount = Math.min(4096, Math.max(1024, Math.ceil(durationSeconds / step) + 1));
+    limited = durationSeconds < desiredDuration * (1 - 1e-12);
+    note = "가장 느린 입력·AM 포락선의 5주기를 표시하도록 시간 범위와 샘플 수를 맞췄습니다.";
+    if (limited) note = durationSeconds === 60
+      ? "관측 시간 상한인 60초로 맞췄습니다. 가장 느린 입력은 5주기보다 짧게 표시됩니다."
+      : "빠른 신호와 짧은 펄스를 구분하도록 시간 범위를 줄였습니다. 느린 신호·AM 포락선은 5주기보다 짧게 표시됩니다.";
+  }
+  if (circuit && definitions) {
+    const fitted = fitSimulationTimeRange(circuit, definitions, { ...config, durationSeconds, sampleCount });
+    durationSeconds = fitted.durationSeconds; sampleCount = fitted.sampleCount;
+    if (fitted.limited) {
+      limited = true;
+      const cycles = sources.length ? ` 가장 느린 입력·AM 포락선의 ${Number((durationSeconds * Math.min(...frequencies)).toPrecision(3))}주기만 표시됩니다.` : " 발진·과도 응답의 일부 구간만 관측합니다.";
+      note = `회로의 빠른 RC·연산증폭기 응답과 계산량 한도에 맞춰 관측 시간을 ${Number((durationSeconds * 1000).toPrecision(4))} ms로 줄였습니다.${cycles}`;
+    }
+  }
+  return { durationSeconds, sampleCount, note, limited };
 }
 const groundText = /(?:\b(?:gnd|ground|agnd|dgnd|com)\b|접지|공통\s*기준|그라운드|^\s*0\s*v\s*$)/i;
 const negativePort = /(?:ground|gnd|com|기준|접지|ch\s*\d+\s*[-−]|^\s*[-−]\s*$)/i;
@@ -125,6 +135,7 @@ export function deriveSimulationRecommendation(circuit: Circuit, definitions: Co
   if (!source) assumptions.push("입력원 연결을 식별하지 못했습니다. 입력 연결을 직접 선택해야 합니다.");
   if (!output) assumptions.push("출력 측정 지점을 확정하지 못했습니다. VOUT을 직접 선택하세요.");
   let config: SimulationConfig | null = null;
+  let captureNote: string | undefined;
   if (source && ground && source.net !== ground.net) {
     const base = defaultSimulationConfig(circuit);
     for (const supply of base.supplies) if (!supplies.has(supply.netId) && nets.includes(supply.netId)) supplies.set(supply.netId, supply.voltage);
@@ -151,11 +162,16 @@ export function deriveSimulationRecommendation(circuit: Circuit, definitions: Co
         source: { ...base.source, netId: source.net, waveform, frequencyHz: frequency, amplitudePeak: isSignal ? amplitudePeak : 0, offset: isSignal ? offset : supplies.get(source.net) ?? 0, phaseDegrees: 0 },
         extraSources, supplies: [...supplies].filter(([net]) => net !== source.net && net !== ground.net && !extraSources.some(extra => extra.netId === net)).slice(0, 8).map(([netId, voltage]) => ({ netId, voltage })),
       });
-      const timing = fitSimulationSampling(config);
-      config = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
+      try {
+        const timing = fitSimulationSampling(config, circuit, definitions);
+        config = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
+        if (timing.limited) captureNote = timing.note;
+      } catch (failure) {
+        captureNote = `관측 시간 자동 맞춤 전에 회로 모델을 확인하세요. ${failure instanceof Error ? failure.message : "지원 모델과 소자 값을 확인하세요."}`;
+      }
     } catch { assumptions.push("추천된 입력 조건이 계산 범위를 벗어납니다. 직접 확인하여 수정하세요."); }
   }
-  return { sourceNetId: source?.net ?? null, groundNetId: ground?.net ?? null, inputNetId: input?.net ?? null, outputNetId: output?.net ?? null, config, reasons, assumptions: [...new Set(assumptions)], confidence: !config || !output ? "low" : assumptions.length ? "medium" : "high" };
+  return { sourceNetId: source?.net ?? null, groundNetId: ground?.net ?? null, inputNetId: input?.net ?? null, outputNetId: output?.net ?? null, config, reasons, assumptions: [...new Set(assumptions)], confidence: !config || !output ? "low" : assumptions.length ? "medium" : "high", ...(captureNote ? { captureNote } : {}) };
 }
 
 /** Suggested probes still require electrically valid physical holes. */

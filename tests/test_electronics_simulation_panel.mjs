@@ -337,6 +337,26 @@ test("one-click capture fit repairs undersampling and preserves edited signals a
   assert.equal(serial(h.props.probes), serial(beforeProbes));
 });
 
+test("capture fit uses actual edited RC values before dispatch and auto setup applies the same working range", () => {
+  const fast = { ...circuit, components: circuit.components.map(part => part.id === "R1" ? { ...part, value: "1e3 Ω" } : part) };
+  const h = harness({ circuit: fast });
+  h.numeric("진폭", 0.037);
+  h.click("시간·샘플 자동 맞춤");
+  assert.match(textIn(h.tree), /RC.*계산량 한도/);
+  assert.match(textIn(h.tree), /주기만 표시/);
+  let worker = h.run();
+  assert.equal(worker.messages[0].input.config.source.amplitudePeak, 0.037);
+  assert.equal(worker.messages[0].input.config.source.frequencyHz, 1000);
+  assert.ok(worker.messages[0].input.config.durationSeconds < 0.001);
+  h.complete(worker);
+  h.wireProbeUpdates(); h.click("자동 설정 · 실행");
+  worker = h.workers.at(-1);
+  assert.equal(worker.messages[0].input.config.source.amplitudePeak, 0.5);
+  assert.ok(worker.messages[0].input.config.durationSeconds < 0.001);
+  h.complete(worker);
+  assert.match(textIn(h.tree), /계산 완료/);
+});
+
 test("a failed rerun reports an error status even when an earlier capture is available", () => {
   const h = harness(); h.complete(h.run());
   const worker = h.run();

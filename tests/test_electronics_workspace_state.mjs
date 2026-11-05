@@ -458,3 +458,61 @@ test("the unmount cleanup flushes the latest edit before its debounce fires", ()
   assert.equal(h.writes[0].id, h.state.projectId);
   assert.equal(h.state.localSaveStatus, "saved");
 });
+
+function drawerHarness() {
+  const events = [], effects = [];
+  const document = { activeElement: null, body: null };
+  class Element {
+    isConnected = true;
+    focus(options) { events.push(["focus", options]); document.activeElement = this; }
+  }
+  const opener = new Element(), field = new Element();
+  document.body = new Element();
+  document.activeElement = opener;
+  const dialog = {
+    open: false,
+    showModal() { events.push(["show"]); this.open = true; document.activeElement = field; },
+    close() { if (this.open) { events.push(["close"]); this.open = false; if (document.activeElement === field) document.activeElement = document.body; } },
+    contains(element) { return element === field; },
+  };
+  const module = { exports: {} };
+  const jsx = (type, props) => ({ type, props });
+  const source = ts.transpileModule(readFileSync("src/components/electronics/WorkspaceDrawer.tsx", "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX },
+  }).outputText;
+  vm.runInNewContext(source, { module, exports: module.exports, document, HTMLElement: Element, require(name) {
+    if (name === "react") return { useRef: () => ({ current: dialog }), useEffect: effect => effects.push(effect) };
+    if (name === "react/jsx-runtime") return { jsx, jsxs: jsx };
+    throw Error(`Unexpected drawer dependency ${name}`);
+  } });
+  const tree = module.exports.WorkspaceDrawer({ title: "JSON", children: "editor", onClose: () => events.push(["unmount-request"]) });
+  const cleanup = effects[0]();
+  return { tree, cleanup, opener, field, document, dialog, events, Element };
+}
+
+test("drawer Escape closes the native modal before requesting React unmount and restores its opener", () => {
+  const h = drawerHarness();
+  let prevented = false;
+  h.tree.props.onCancel({ preventDefault() { prevented = true; } });
+  assert.equal(prevented, true);
+  assert.deepEqual(h.events.map(event => event[0]), ["show", "close", "unmount-request"]);
+  h.cleanup();
+  assert.equal(h.document.activeElement, h.opener);
+  assert.equal(h.events.at(-1)[1].preventScroll, true);
+});
+
+test("drawer teardown restores a detached modal's opener without stealing focus from another control", () => {
+  const h = drawerHarness();
+  h.document.activeElement = h.document.body;
+  h.cleanup();
+  assert.equal(h.document.activeElement, h.opener);
+  const moved = drawerHarness(), newFocus = new moved.Element();
+  moved.document.activeElement = newFocus;
+  moved.cleanup();
+  assert.equal(moved.document.activeElement, newFocus);
+  const disconnected = drawerHarness();
+  disconnected.opener.isConnected = false;
+  disconnected.cleanup();
+  assert.equal(disconnected.document.activeElement, disconnected.document.body);
+  assert.ok(!disconnected.events.some(event => event[0] === "focus"));
+});

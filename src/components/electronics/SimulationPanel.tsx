@@ -272,7 +272,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
   };
   const fitCapture = () => {
     try {
-      const timing = fitSimulationSampling(config);
+      const timing = fitSimulationSampling(config, circuit, definitions);
       const next = { ...config, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
       let prior: SimulationConfig | null = null;
       try { prior = parseSimulationConfig(config); } catch { /* blank capture fields can be repaired */ }
@@ -372,6 +372,7 @@ export function SimulationPanel({ circuit, layout, definitions, probes, onPickPr
         try { applyPrepared(config, targets, false); } catch (failure) { setError(failure instanceof Error ? failure.message : "측정 연결을 적용하지 못했습니다."); }
       }}><option value="">측정 연결 선택</option>{nets.map(net => <option key={net} value={net}>{netName(net)}</option>)}</select></label>)}</div>
       {recommendation.assumptions.length > 0 && <p className="el-sim-assumption-summary">자동 설정에 원자료 확인이 필요한 조건 {recommendation.assumptions.length}개가 있습니다. 아래 기본값을 확인하세요.</p>}
+      {recommendation.captureNote && <p className="el-sim-assumption-summary">{recommendation.captureNote}</p>}
       <details><summary>추천 근거와 확인할 기본값{recommendation.assumptions.length > 0 && <span className="el-sim-assumption-count">확인 {recommendation.assumptions.length}개</span>}</summary>{recommendation.assumptions.length > 0 && <div className="el-sim-assumptions"><b>미지정 조건은 교육용 시작값입니다</b><ul>{recommendation.assumptions.map(reason => <li key={reason}>{reason}</li>)}</ul></div>}<ul>{recommendation.reasons.map(reason => <li key={reason}>{reason}</li>)}</ul></details>
       {wiringStatus && <div className="el-sim-setup-blocked" role="status"><b>빵판 배치를 먼저 확인하세요</b>{wiringCheck.issues.length > 0 ? <ul>{wiringCheck.issues.slice(0, 5).map((issue, index) => <li key={`${issue.code}-${index}`}>{issue.message}</li>)}</ul> : <p>{wiringStatus}</p>}{wiringCheck.issues.length > 5 && <p>추가 {wiringCheck.issues.length - 5}개 항목은 빵판의 연결 검사에서 확인할 수 있습니다.</p>}{wiringCheck.unsupported && <p>이 패키지의 물리 배치 지원이 필요합니다. 설정 변경이나 재실행으로 해결되지 않습니다.</p>}</div>}
       {samplingWarning && <div className="el-sim-sampling-warning" role="status"><p>{samplingWarning}</p><button className="el-button el-small" onClick={fitCapture}>시간·샘플 자동 맞춤</button></div>}
