@@ -138,7 +138,7 @@ for (const amplitude of [0.025, 0.05, 0.1]) {
 }
 
 // Lab 2. Preserve BC109C E/B/C numbering, single-supply bias, and feedback endpoints.
-function useBc109(circuit: Circuit) {
+function convertToBc109(circuit: Circuit) {
   const part = circuit.components.find(item => item.id === "QN")!;
   const [collector, base, emitter] = [part.pinNets["1"], part.pinNets["2"], part.pinNets["3"]];
   part.definitionId = "bjt-bc109c-philips-to18"; part.value = "BC109C"; part.pinNets = { 1: emitter, 2: base, 3: collector };
@@ -157,13 +157,13 @@ for (const mode of ["dc", "ac", "low-load"] as const) {
   add(2, `l2-voltage-${mode}`, `단일전원 UA741 · ${mode}`, circuit, config, mode === "low-load" ? [4, 5] : [1, 2, 3], ["0/+9 V", "RIN=10 kΩ, RF=100 kΩ", "22 kΩ/22 kΩ 바이어스", "100 µF 결합·바이어스 C", "100 mV peak · 1 kHz 또는 DC 단계"], mode === "low-load" ? ["DRIVE", "OUT"] : ["IN", "DRIVE"], refs, opampNotes);
 }
 for (const dc of [true, false]) {
-  const circuit = cloneTemplate("push-pull-stage"); useBc109(circuit);
+  const circuit = cloneTemplate("push-pull-stage"); convertToBc109(circuit);
   const config = configuration(circuit, "IN", 1000, dc ? 0 : 2);
   const refs = dc ? [reference("VMI DC", "dc:DRIVE", 4.5, "V", source(2, [6]), "pdf-simulation", 0.02, 0.01), reference("VMO DC", "dc:POWER_OUT", 4.526, "V", source(2, [6]), "pdf-simulation", 0.02, 0.01), reference("NPN 컬렉터 DC 전류", "current:QN:C", 0.1192e-3, "A", source(2, [7]), "pdf-simulation", 0.05, 1e-6), reference("전원 DC 전류", "supplyCurrent:VCC", 1.877e-3, "A", source(2, [7]))] : [reference("VOUT Vpp", "vpp:OUT", 2.0758, "V", source(2, [7])), reference("부하 평균 전력", "power:RL", 65.685e-3, "W", source(2, [8]))];
   add(2, `l2-pushpull-${dc ? "dc" : "2v"}`, `BC109C·BC556B 푸시풀 ${dc ? "DC" : "2 V peak"}`, circuit, config, [6, 7, 8, 9, 10], ["+9 V", "RC1/RC2=2.2 kΩ", "RE1/RE2=4.7 Ω", "RL=8.2 Ω", "1N4148 2개", "100 µF 입출력 결합 C"], ["IN", "DRIVE", "POWER_OUT", "OUT", "EN-POWER_OUT", "VCC-BN"], refs, ["보고서 평균 공급전력은 half-sine 근사식입니다. 이 검증은 부하 v(t)²/R의 시간 평균을 사용합니다.", "트랜지스터·다이오드는 축소 비선형 모델이며 실제 정격·열은 포함하지 않습니다."]);
 }
 for (const feedback of ["POWER_OUT", "DRIVE"]) {
-  const circuit = cloneTemplate("ua741-push-pull"); useBc109(circuit); remove(circuit, ["CD1"]);
+  const circuit = cloneTemplate("ua741-push-pull"); convertToBc109(circuit); remove(circuit, ["CD1"]);
   circuit.components.find(part => part.id === "RF")!.pinNets["1"] = feedback;
   const config = configuration(circuit, "IN", 1000, 0.1); config.opampModel = "educational-dynamic";
   add(2, `l2-combined-${feedback.toLowerCase()}`, `전압+전력 증폭 · ${feedback === "POWER_OUT" ? "VMO" : "VMI"} 피드백`, circuit, config, [11, 12, 13, 14, 16], ["0.1 V peak · 1 kHz", "RL=8.2 Ω", `RF 끝점 ${feedback}`], ["IN", "DRIVE", "POWER_OUT", "OUT"], feedback === "POWER_OUT" ? [reference("출력 Vpp", "vpp:OUT", 1.9637, "V", source(2, [13])), reference("부하 평균 전력", "power:RL", 58.782e-3, "W", source(2, [13]))] : [reference("VMI 피드백 출력 Vpp", "vpp:OUT", 1.022, "V", source(2, [24], true), "pdf-simulation"), reference("VMI 피드백 이득 크기", "transientGain:OUT", 5.11, "V/V", source(2, [24], true), "pdf-simulation")], opampNotes);
