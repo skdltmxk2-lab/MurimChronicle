@@ -163,6 +163,10 @@ test("fast 1 kΩ / 1 nF RC capture fitting and automatic setup respect the engin
   assert.ok(timing.limited); assert.match(timing.note, /RC.*계산량 한도/); assert.match(timing.note, /주기만 표시/);
   const fitted = { ...original, durationSeconds: timing.durationSeconds, sampleCount: timing.sampleCount };
   assert.deepEqual(fitted.source, original.source);
+  const warning = simulationSamplingWarning(fitted);
+  assert.match(warning, /반복 주파수와 전체 진폭.*판단하기 어렵/);
+  assert.match(warning, /자동 맞춤.*회로 계산 한도/);
+  assert.doesNotMatch(warning, /늘려/);
   const result = runSimulation(fast, definitions, fitted);
   assert.ok(result.nodeVoltages.OUT.every(Number.isFinite));
   const recommended = deriveSimulationRecommendation(fast, definitions);

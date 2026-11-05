@@ -198,6 +198,6 @@ export function simulationSamplingWarning(config: SimulationConfig): string {
   const step = config.durationSeconds / (config.sampleCount - 1);
   if (sources.some(source => !Number.isFinite(source.frequencyHz) || source.frequencyHz <= 0)) return "입력 주파수를 확인하세요.";
   if (sources.some(source => step > sourceSamplingLimits(source).maximumOutputStepSeconds * (1 + 1e-12))) return "샘플이 부족해 고주파 성분을 놓칠 수 있습니다. 시간 범위를 줄이거나 샘플 수를 늘리세요. 계산기는 한 주기당 최소 32개 표본을 요구합니다.";
-  if (sources.some(source => config.durationSeconds * source.frequencyHz < 2)) return "두 주기보다 짧은 시간 범위입니다. 주파수·이득 비교를 위해 표시 시간을 늘려보세요.";
+  if (sources.some(source => config.durationSeconds * source.frequencyHz < 2)) return "두 주기보다 짧은 관측 범위여서 반복 주파수와 전체 진폭을 판단하기 어렵습니다. 시간·샘플 자동 맞춤으로 회로 계산 한도에 맞는 범위를 확인하세요.";
   return "";
 }

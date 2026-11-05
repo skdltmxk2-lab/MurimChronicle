@@ -340,6 +340,7 @@ test("one-click capture fit repairs undersampling and preserves edited signals a
 test("capture fit uses actual edited RC values before dispatch and auto setup applies the same working range", () => {
   const fast = { ...circuit, components: circuit.components.map(part => part.id === "R1" ? { ...part, value: "1e3 Ω" } : part) };
   const h = harness({ circuit: fast });
+  assert.match(textIn(h.tree), /자동 설정 추천 · .*RC.*계산량 한도/);
   h.numeric("진폭", 0.037);
   h.click("시간·샘플 자동 맞춤");
   assert.match(textIn(h.tree), /RC.*계산량 한도/);
