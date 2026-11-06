@@ -102,9 +102,9 @@ export function defaultSimulationConfig(circuit: Circuit): SimulationConfig {
     const preset = /^([+-]?\d+(?:\.\d+)?)\s*V$/i.exec(setting.trim().replace(/−/g, "-"));
     return preset ? Number(preset[1]) : getPowerNetRole(circuit, net) === "negative" ? -9 : 9;
   };
-  const discreteOpamp = circuit.id.startsWith("discrete-opamp-"), lowpassTones = circuit.id === "discrete-opamp-sallen-key" && nets.includes("LPIN_HI");
+  const discreteOpamp = circuit.id.startsWith("discrete-opamp-"), lowpassTones = circuit.id === "discrete-opamp-sallen-key" && nets.includes("VNOISE");
   const extraSources: SimulationSource[] = lowpassTones ? [
-    { netId: "LPIN_HI", waveform: "sine", frequencyHz: 8000, amplitudePeak: 0.6, offset: 0, phaseDegrees: 0 },
+    { netId: "VNOISE", waveform: "sine", frequencyHz: 8000, amplitudePeak: 0.6, offset: 0, phaseDegrees: 0 },
   ] : circuit.id === "bjt-mixer" && nets.includes("LO_PLUS") && nets.includes("LO_MINUS") ? [
     { netId: "LO_PLUS", waveform: "sine", frequencyHz: 4000, amplitudePeak: 0.005, offset: 0, phaseDegrees: 0 },
     { netId: "LO_MINUS", waveform: "sine", frequencyHz: 4000, amplitudePeak: 0.005, offset: 0, phaseDegrees: 180 },
@@ -115,7 +115,7 @@ export function defaultSimulationConfig(circuit: Circuit): SimulationConfig {
   return { groundNetId, source: { netId: sourceNet, waveform: schmitt ? "triangle" : signal ? "sine" : "dc", frequencyHz, amplitudePeak: schmitt ? 4 : amplitudePeak, offset: signal ? 0 : voltage(sourceNet), phaseDegrees: 0 }, extraSources, supplies,
     opampModel: autonomous || schmitt || circuit.id === "ua741-push-pull" ? "educational-dynamic" : "ideal", startupPerturbationVolts: autonomous ? 0.001 : 0,
     ...(discreteOpamp ? { timeStepPolicy: "damp-fast-rc" as const } : {}),
-    durationSeconds: circuit.id === "wien-bridge" ? 0.003 : autonomous ? 0.004 : lowpassTones ? 0.004 : Math.min(60, 5 / frequencyHz), sampleCount: autonomous || lowpassTones ? 4096 : 1024, acStartHz: 10, acStopHz: discreteOpamp ? 1000000 : 100000, acPoints: 96 };
+    durationSeconds: circuit.id === "wien-bridge" ? 0.003 : autonomous ? 0.004 : lowpassTones ? 0.0075 : Math.min(60, 5 / frequencyHz), sampleCount: autonomous || lowpassTones ? 4096 : 1024, acStartHz: 10, acStopHz: discreteOpamp ? 1000000 : 100000, acPoints: 96 };
 }
 
 type Passive = { id: string; kind: "resistor" | "capacitor"; a: string; b: string; value: number; polarized: boolean };

@@ -67,10 +67,10 @@ const discreteOpampTemplates: Circuit[] = [
     [...supply("+9 V", true), ...input("1 kHz · 500 mV peak", "INP"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "INP")],
     [...discreteOpampNotes, "기준 전압 9 V×2 kΩ/84 kΩ≈0.21 V. 입력이 기준보다 높으면 출력은 양의 포화(약 +8.2 V), 낮으면 음의 포화(약 −8.2 V)입니다. 전환 속도는 슬루율로 제한됩니다."], discreteProvenance),
   make("discrete-opamp-sallen-key", "이산 BJT Op-Amp · Sallen-Key 2차 LPF", "fc≈1.59 kHz, K≈1.56. 두 발생기(500 Hz·8 kHz)를 2 kΩ 두 개로 합성",
-    [...discreteOpampCore(), r("R1A", "2 kΩ", "LPIN_LO", "LPA"), r("R1B", "2 kΩ", "LPIN_HI", "LPA"), r("R2", "1 kΩ", "LPA", "INP"), cap("C1", "100 nF", "LPA", "OUT"), cap("C2", "100 nF", "INP", "GND"),
+    [...discreteOpampCore(), r("R1A", "2 kΩ", "VIN", "LPA"), r("R1B", "2 kΩ", "VNOISE", "LPA"), r("R2", "1 kΩ", "LPA", "INP"), cap("C1", "100 nF", "LPA", "OUT"), cap("C2", "100 nF", "INP", "GND"),
       r("RF", "5.6 kΩ", "OUT", "INM"), r("RG", "10 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
-    [...supply("+9 V", true), ...input("500 Hz · 600 mV peak", "LPIN_LO"), port("fg2-signal", "함수발생기 2", "출력", "LPIN_HI", "8 kHz · 600 mV peak"), port("fg2-ground", "함수발생기 2", "기준", "GND"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "LPA")],
-    [...discreteOpampNotes, "R1 1 kΩ 자리를 2 kΩ 두 개의 병렬 합성(테브난 1 kΩ)으로 바꿔 두 신호를 더합니다. 각 0.6 V peak 입력은 합성 노드 기준 각 0.3 V peak에 해당합니다(myDAQ AO0·AO1 사용).", "fc=1/(2πRC)=1.59 kHz, K=1+5.6/10=1.56, Q=1/(3−K)≈0.69. 8 kHz는 통과대역 대비 약 −28 dB입니다."], discreteProvenance),
+    [...supply("+9 V", true), ...input("500 Hz · 600 mV peak", "VIN"), port("fg2-signal", "함수발생기 2", "출력", "VNOISE", "8 kHz · 600 mV peak"), port("fg2-ground", "함수발생기 2", "기준", "GND"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "VIN")],
+    [...discreteOpampNotes, "R1 1 kΩ 자리를 2 kΩ 두 개의 병렬 합성(테브난 1 kΩ)으로 바꿔 VIN(신호 500 Hz)과 VNOISE(잡음 8 kHz)를 더합니다. 각 0.6 V peak 입력은 합성 노드 기준 각 0.3 V peak에 해당합니다(myDAQ AO0·AO1 사용).", "fc=1/(2πRC)=1.59 kHz, K=1+5.6/10=1.56, Q=1/(3−K)≈0.69. 8 kHz는 통과대역 대비 약 −28 dB입니다."], discreteProvenance),
 ];
 
 export const CIRCUIT_TEMPLATES: Circuit[] = [

@@ -18,6 +18,7 @@ function load(file) {
 }
 const engine = load("src/lib/electronics/engine.ts");
 const simulation = load("src/lib/electronics/simulation.ts");
+const recommendations = load("src/lib/electronics/simulation-recommendations.ts");
 const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts");
 const { CIRCUIT_TEMPLATES: templates } = load("src/lib/electronics/templates.ts");
 const { EXPERIMENTS: experiments, COURSE_SUPPORT_SCOPE: scope } = load("src/lib/electronics/experiments.ts");
@@ -108,4 +109,29 @@ test("Sallen-Key low-pass keeps 500 Hz and suppresses 8 kHz", () => {
   assert.ok(low > 0.42 && low < 0.5, `500 Hz ${low}`);
   assert.ok(high > 0.01 && high < 0.03, `8 kHz ${high}`);
   assert.ok(20 * Math.log10((high / 0.3) / (low / 0.3)) < -25);
+});
+
+test("automatic VIN·VOUT setup picks the primary generator input and the op-amp output", () => {
+  const expected = { "discrete-opamp-noninverting": "INP", "discrete-opamp-comparator": "INP", "discrete-opamp-sallen-key": "VIN" };
+  for (const id of ids) {
+    const recommendation = recommendations.deriveSimulationRecommendation(template(id), definitions);
+    assert.equal(recommendation.sourceNetId, expected[id], `${id} source`);
+    assert.equal(recommendation.inputNetId, expected[id], `${id} VIN`);
+    assert.equal(recommendation.outputNetId, "OUT", `${id} VOUT`);
+    assert.equal(recommendation.groundNetId, "GND");
+    assert.equal(recommendation.config.timeStepPolicy, "damp-fast-rc");
+  }
+  const lowpass = recommendations.deriveSimulationRecommendation(template("discrete-opamp-sallen-key"), definitions).config;
+  assert.equal(lowpass.source.frequencyHz, 500);
+  assert.deepEqual(Array.from(lowpass.extraSources, source => `${source.netId}@${source.frequencyHz}`), ["VNOISE@8000"]);
+});
+
+test("the recommended Sallen-Key configuration runs and still separates the two tones", () => {
+  const circuit = template("discrete-opamp-sallen-key");
+  const config = recommendations.deriveSimulationRecommendation(circuit, definitions).config;
+  const result = simulation.runSimulation(circuit, definitions, config);
+  const start = config.durationSeconds / 2;
+  const low = tone(result, result.nodeVoltages.OUT, 500, start), high = tone(result, result.nodeVoltages.OUT, 8000, start);
+  assert.ok(low > 0.42 && low < 0.5, `500 Hz ${low}`);
+  assert.ok(high > 0.01 && high < 0.03, `8 kHz ${high}`);
 });

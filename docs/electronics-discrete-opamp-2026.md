@@ -15,7 +15,9 @@
 
 - `discrete-opamp-noninverting`: RF 10 kΩ, RG 1 kΩ, 1 kHz · 100 mV peak
 - `discrete-opamp-comparator`: 반전 입력 82 kΩ/2 kΩ 분압(약 0.21 V), 1 kHz · 500 mV peak
-- `discrete-opamp-sallen-key`: R=1 kΩ(입력은 2 kΩ 두 개로 두 발생기 합성), C=100 nF, RF 5.6 kΩ/RG 10 kΩ, 500 Hz + 8 kHz 각 600 mV peak
+- `discrete-opamp-sallen-key`: R=1 kΩ(입력은 2 kΩ 두 개로 두 발생기 합성), C=100 nF, RF 5.6 kΩ/RG 10 kΩ. VIN(신호 500 Hz)과 VNOISE(잡음 8 kHz) 각 600 mV peak, 기본 7.5 ms · 4096 표본
+
+세 템플릿 모두 "VIN · VOUT 자동 설정"이 기본 발생기 입력과 OUT을 고른다. LPF는 처음에 입력 노드를 `LPIN_LO`로 이름 지었다가, 자동 설정이 "LO"를 믹서 국부발진기로 읽어 8 kHz 발생기를 기본 입력으로 고르고 500 Hz를 빼 버리는 문제가 있어 `VIN`/`VNOISE`로 바꿨다. CH2 프로브도 중간 노드 대신 VIN에 둔다(중간 노드는 OUT과 출력 후보 점수가 같아 알파벳 순으로 선택됐다).
 
 ## 엔진 변경(이 템플릿을 실행하기 위한 범위)
 
