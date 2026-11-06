@@ -615,6 +615,7 @@ export function AiSearchClient() {
                                     </span>
                                     <ContentRenderer
                                       viewBoxes={false}
+                                      imagePlacement="after"
                                       contentType={(opt.contentType as "latex" | "image" | "mixed" | null) ?? "latex"}
                                       text={opt.text}
                                       image={opt.image ?? undefined}

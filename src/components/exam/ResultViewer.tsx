@@ -182,6 +182,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                       ) : selected ? (
                         <ContentRenderer
                           viewBoxes={false}
+                          imagePlacement="after"
                           contentType={selected.contentType}
                           text={`${selected.label}. ${selected.text}`}
                           image={selected.image}
@@ -200,6 +201,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                       ) : correct ? (
                         <ContentRenderer
                           viewBoxes={false}
+                          imagePlacement="after"
                           contentType={correct.contentType}
                           text={`${correct.label}. ${correct.text}`}
                           image={correct.image}

@@ -710,6 +710,7 @@ export function AdminQuestionsClient() {
                     </div>
                     <ContentRenderer
                       viewBoxes={false}
+                      imagePlacement="after"
                       contentType={opt.contentType}
                       text={opt.text}
                       image={opt.image}

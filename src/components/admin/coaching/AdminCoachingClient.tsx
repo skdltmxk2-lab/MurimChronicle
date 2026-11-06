@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type
 import { flushSync } from "react-dom";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { CoachingStudentPicker } from "@/components/admin/coaching/CoachingStudentPicker";
+import { OtherPartPicker } from "@/components/admin/coaching/OtherPartPicker";
 import { HomeworkSheetActions } from "@/components/admin/homework/HomeworkSheetActions";
 import type { HomeworkMaterial } from "@/types/homework";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -305,6 +306,10 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
   const [replacingUnitQuestionIds, setReplacingUnitQuestionIds] = useState<string[]>([]);
   const [unitSelectedQuestionIds, setUnitSelectedQuestionIds] = useState<string[]>([]);
   const [unitPdfSaving, setUnitPdfSaving] = useState(false);
+  // 자동 교체가 후보를 못 찾은 문제 id. 이 문제에만 [다른 파트에서 가져오기] 를 보여 준다.
+  const [unitNoReplacementIds, setUnitNoReplacementIds] = useState<string[]>([]);
+  // 가져오기 창이 열려 있는 문제 id(교체하려던 자리).
+  const [unitBrowseTargetId, setUnitBrowseTargetId] = useState<string | null>(null);
 
   const [twinImage, setTwinImage] = useState<UploadPage | null>(null);
   const [twinSourceText, setTwinSourceText] = useState("");
@@ -332,6 +337,16 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
     () => new Set(replacingUnitQuestionIds),
     [replacingUnitQuestionIds]
   );
+  const unitNoReplacementSet = useMemo(
+    () => new Set(unitNoReplacementIds),
+    [unitNoReplacementIds]
+  );
+  const unitBrowseTargetIndex =
+    unitBrowseTargetId && sheet?.sourceLabel === "unit-mock"
+      ? sheet.questions.findIndex((question) => question.id === unitBrowseTargetId)
+      : -1;
+  const unitBrowseTarget =
+    sheet && unitBrowseTargetIndex >= 0 ? sheet.questions[unitBrowseTargetIndex] : null;
   const relatedSelected = useMemo(
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
@@ -373,6 +388,18 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
       return next.length === current.length ? current : next;
     });
   }, [sheet, sheetSignature]);
+
+  useEffect(() => {
+    const ids =
+      sheet?.sourceLabel === "unit-mock"
+        ? new Set(sheet.questions.map((question) => question.id))
+        : new Set<string>();
+    setUnitNoReplacementIds((current) => {
+      const next = current.filter((id) => ids.has(id));
+      return next.length === current.length ? current : next;
+    });
+    setUnitBrowseTargetId((current) => (current && !ids.has(current) ? null : current));
+  }, [sheet]);
 
   function currentPerProblem(): number | null {
     return typeof perProblem === "number" && Number.isFinite(perProblem)
@@ -521,6 +548,38 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
     });
     setUnitSelectedQuestionIds((current) => current.filter((id) => id !== questionId));
     setUnitMsg("해당 문제를 현재 구성에서 삭제했습니다. 원본 DB 문제는 삭제되지 않았습니다.");
+  }
+
+  /** [다른 파트에서 가져오기] 에서 고른 문제를 교체하려던 자리에 넣는다. 거절 사유가 있으면 문자열로 돌려준다. */
+  function applyBrowsedQuestion(picked: QuestionRecord): string | null {
+    const targetId = unitBrowseTargetId;
+    if (!targetId || sheet?.sourceLabel !== "unit-mock") return "문제지가 바뀌었습니다. 창을 닫고 다시 시도해 주세요.";
+    const index = sheet.questions.findIndex((question) => question.id === targetId);
+    if (index < 0) return "교체할 자리를 현재 문제지에서 찾지 못했습니다. 창을 닫고 다시 시도해 주세요.";
+    if (sheet.questions.some((question) => question.id === picked.id)) {
+      return "이미 문제지에 있는 문제입니다. 다른 문제를 골라 주세요.";
+    }
+
+    const currentQuestionIds = sheet.questions.map((question) => question.id);
+    setSheet((current) => {
+      if (current?.sourceLabel !== "unit-mock") return current;
+      return {
+        ...current,
+        questions: current.questions.map((question, position) =>
+          position === index && question.id === targetId ? picked : question
+        ),
+      };
+    });
+    // 뺀 문제와 가져온 문제를 이력에 넣어, 이어지는 자동 교체가 같은 문제로 되돌아오지 않게 한다.
+    unitQuestionHistoryRef.current = mergeUnitMockQuestionIds(
+      unitQuestionHistoryRef.current,
+      currentQuestionIds,
+      [picked.id]
+    );
+    setUnitSelectedQuestionIds((current) => current.filter((id) => id !== targetId));
+    setUnitBrowseTargetId(null);
+    setUnitMsg(`${index + 1}번 문제를 ${picked.subject} · ${picked.unit} 문제로 바꿨습니다.`);
+    return null;
   }
 
   function toggleAllUnitQuestions() {
@@ -1013,6 +1072,8 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           )
         : generatedQuestionIds;
       setUnitSelectedQuestionIds([]);
+      setUnitNoReplacementIds([]);
+      setUnitBrowseTargetId(null);
     } catch (error) {
       setUnitMsg(error instanceof Error ? error.message : "단원별 모고 생성에 실패했습니다.");
     } finally {
@@ -1098,9 +1159,20 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
         fallbackReplacementCount += selection?.fallbackSelectedCount ?? 0;
       }
 
+      // 후보를 못 찾은 문제는 표시해 두고, 그 문제에만 [다른 파트에서 가져오기] 를 연다.
+      const unreplacedIds = targets
+        .filter(({ question }) => !replacedTargetIds.has(question.id))
+        .map(({ question }) => question.id);
+      setUnitNoReplacementIds((current) =>
+        mergeUnitMockQuestionIds(
+          current.filter((id) => !replacedTargetIds.has(id)),
+          unreplacedIds
+        )
+      );
+
       if (replacementByIndex.size === 0) {
         setUnitMsg(
-          "같은 난이도와 하위 난이도에서 아직 구성에 사용하지 않은 교체 문제를 찾지 못했습니다."
+          "같은 난이도와 하위 난이도에서 아직 구성에 사용하지 않은 교체 문제를 찾지 못했습니다. '다른 파트에서 가져오기'로 다른 단원·과목의 문제를 직접 골라 올 수 있습니다."
         );
         return;
       }
@@ -1125,7 +1197,9 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
         `문항 ${replacementByIndex.size}개를 교체했습니다.${
           fallbackReplacementCount > 0 ? ` 하위 난이도 교체 ${fallbackReplacementCount}개.` : ""
         }${
-          missingCount > 0 ? ` 후보 부족 ${missingCount}개` : ""
+          missingCount > 0
+            ? ` 후보 부족 ${missingCount}개 (해당 문제의 '다른 파트에서 가져오기'로 직접 고를 수 있습니다)`
+            : ""
         }${trackingText}${gateSummaryText(json.qualityGate)}`
       );
     } catch (error) {
@@ -2273,6 +2347,21 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
                             >
                               {isReplacing ? "교체 중..." : "이 문제 교체"}
                             </button>
+                            {unitNoReplacementSet.has(question.id) ? (
+                              <>
+                                <p className="max-w-[9rem] text-right text-[11px] font-bold leading-4 text-coral-600">
+                                  교체할 문제를 찾지 못했습니다
+                                </p>
+                                <button
+                                  type="button"
+                                  disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
+                                  onClick={() => setUnitBrowseTargetId(question.id)}
+                                  className="rounded-md border border-brand-600 bg-brand-50 px-2 py-1 text-[11px] font-black text-brand-700 transition hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  다른 파트에서 가져오기
+                                </button>
+                              </>
+                            ) : null}
                             <button
                               type="button"
                               title="원본 DB는 유지하고 현재 구성에서만 삭제"
@@ -2397,6 +2486,8 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
             replacingQuestionIds={replacingUnitQuestionIds}
             actionsDisabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving}
             statusMessage={unitMsg}
+            noReplacementIds={sheet.sourceLabel === "unit-mock" ? unitNoReplacementIds : undefined}
+            onBrowseOtherPart={sheet.sourceLabel === "unit-mock" ? setUnitBrowseTargetId : undefined}
           />
           {!homeworkMode && <PrintableAnswerSheet sheet={sheet} />}
         </>
@@ -2405,6 +2496,22 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           문제지를 만들면 이곳에 인쇄 미리보기가 표시됩니다.
         </section>
       )}
+      {sheet?.sourceLabel === "unit-mock" && unitBrowseTarget ? (
+        <OtherPartPicker
+          target={unitBrowseTarget}
+          targetNumber={unitBrowseTargetIndex + 1}
+          studentIds={unitStudents.map((student) => student.id)}
+          forHomework={homeworkMode}
+          pool={unitPool}
+          defaultOnlyUnused={unitExcludeUsed}
+          excludeIds={mergeUnitMockQuestionIds(
+            unitQuestionHistoryRef.current,
+            sheet.questions.map((question) => question.id)
+          )}
+          onPick={applyBrowsedQuestion}
+          onClose={() => setUnitBrowseTargetId(null)}
+        />
+      ) : null}
       </fieldset>
     </main>
   );
@@ -2430,7 +2537,7 @@ function QuestionPreview({ question, showAnswer }: { question: QuestionRecord; s
           {question.options.map((option) => (
             <li key={option.id} className="flex gap-2 rounded-md bg-slate-50 px-3 py-2 text-sm">
               <span className="font-black text-slate-500">{option.label}</span>
-              <ContentRenderer viewBoxes={false} contentType={option.contentType} text={option.text} image={option.image} />
+              <ContentRenderer viewBoxes={false} imagePlacement="after" contentType={option.contentType} text={option.text} image={option.image} />
             </li>
           ))}
         </ol>
@@ -2485,6 +2592,9 @@ type PrintableSheetProps = {
   replacingQuestionIds?: string[];
   actionsDisabled?: boolean;
   statusMessage?: string;
+  /** 자동 교체가 후보를 못 찾은 문제 id. 이 문제에만 [다른 파트에서 가져오기] 를 보여 준다. */
+  noReplacementIds?: string[];
+  onBrowseOtherPart?: (questionId: string) => void;
 };
 
 function PrintableSheet({
@@ -2494,13 +2604,16 @@ function PrintableSheet({
   onRemoveQuestion,
   replacingQuestionIds,
   actionsDisabled = false,
-  statusMessage
+  statusMessage,
+  noReplacementIds,
+  onBrowseOtherPart
 }: PrintableSheetProps) {
   const pages = chunk(sheet.questions, QUESTIONS_PER_PRINT_PAGE);
   // The composition list sits far above this preview, so the same per-question
   // actions are offered here to avoid scrolling back up to swap one problem.
   const canEditQuestions = Boolean(onReplaceQuestion || onRemoveQuestion);
   const replacingSet = new Set(replacingQuestionIds ?? []);
+  const noReplacementSet = new Set(noReplacementIds ?? []);
   return (
     <section data-homework-question-count={sheet.questions.length} className="coaching-print-area coaching-question-print-area mt-6">
       {canEditQuestions && statusMessage ? (
@@ -2552,6 +2665,7 @@ function PrintableSheet({
                                 <span className="coaching-print-option-label font-black text-slate-600">{option.label}</span>
                                 <ContentRenderer
                                   viewBoxes={false}
+                                  imagePlacement="after"
                                   contentType={option.contentType}
                                   text={option.text}
                                   image={option.image}
@@ -2576,6 +2690,21 @@ function PrintableSheet({
                               >
                                 {replacingSet.has(question.id) ? "교체 중..." : "이 문제 교체"}
                               </button>
+                            ) : null}
+                            {onBrowseOtherPart && noReplacementSet.has(question.id) ? (
+                              <>
+                                <span className="mr-auto text-[11px] font-bold text-coral-600">
+                                  교체할 문제를 찾지 못했습니다
+                                </span>
+                                <button
+                                  type="button"
+                                  disabled={actionsDisabled}
+                                  onClick={() => onBrowseOtherPart(question.id)}
+                                  className="rounded-md border border-brand-600 bg-brand-50 px-2 py-1 text-[11px] font-black text-brand-700 transition hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  다른 파트에서 가져오기
+                                </button>
+                              </>
                             ) : null}
                             {onRemoveQuestion ? (
                               <button

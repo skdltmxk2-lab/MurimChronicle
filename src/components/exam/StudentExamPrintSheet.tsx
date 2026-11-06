@@ -73,6 +73,7 @@ export function StudentExamPrintSheet({
                               <span className="student-exam-print-option-label">{option.label}</span>
                               <ContentRenderer
                                 viewBoxes={false}
+                                imagePlacement="after"
                                 contentType={option.contentType}
                                 text={option.text}
                                 image={option.image}

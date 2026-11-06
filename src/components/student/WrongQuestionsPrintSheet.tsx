@@ -139,6 +139,7 @@ export function WrongQuestionsPrintSheet({ items }: { items: WrongPrintItem[] })
                                 <span className="student-wrong-print-option-label">{option.label}</span>
                                 <ContentRenderer
                                   viewBoxes={false}
+                                  imagePlacement="after"
                                   contentType={option.contentType ?? "latex"}
                                   text={option.text}
                                   image={option.image}

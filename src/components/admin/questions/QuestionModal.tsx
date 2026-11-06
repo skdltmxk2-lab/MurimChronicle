@@ -628,6 +628,7 @@ export function QuestionModal({ mode, question, onClose, onSave }: QuestionModal
                     >
                       <ContentRenderer
                         viewBoxes={false}
+                        imagePlacement="after"
                         contentType={option.contentType}
                         text={`${option.label}. ${option.text || "보기"}`}
                         image={option.image}
