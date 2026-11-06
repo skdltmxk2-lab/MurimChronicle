@@ -36,7 +36,7 @@ function netName(value: unknown, label: string): string {
 
 /** Strict JSON boundary, shared by browser workers and the HTTP API. No coercion. */
 export function parseSimulationConfig(value: unknown): SimulationConfig {
-  const item = object(value, ["groundNetId", "source", "supplies", "durationSeconds", "sampleCount", "acStartHz", "acStopHz", "acPoints"], "시뮬레이션 설정", ["extraSources", "opampModel", "startupPerturbationVolts"]);
+  const item = object(value, ["groundNetId", "source", "supplies", "durationSeconds", "sampleCount", "acStartHz", "acStopHz", "acPoints"], "시뮬레이션 설정", ["extraSources", "opampModel", "startupPerturbationVolts", "timeStepPolicy"]);
   const parseSource = (value: unknown): SimulationSource => {
     const source = object(value, ["netId", "waveform", "frequencyHz", "amplitudePeak", "offset"], "입력 신호", ["phaseDegrees", "dutyCyclePercent", "modulationFrequencyHz", "modulationDepth"]);
     if (!["sine", "square", "triangle", "dc", "pulse", "sawtooth", "am", "dsb"].includes(source.waveform as string)) fail("지원하지 않는 입력 파형입니다.");
@@ -53,11 +53,13 @@ export function parseSimulationConfig(value: unknown): SimulationConfig {
   if (!Array.isArray(item.supplies) || item.supplies.length > 8) fail("독립 DC 전원은 최대 8개입니다.");
   if (item.extraSources !== undefined && (!Array.isArray(item.extraSources) || item.extraSources.length > 3)) fail("추가 입력 신호는 최대 3개입니다.");
   if (item.opampModel !== undefined && !["ideal", "educational-dynamic"].includes(item.opampModel as string)) fail("지원하지 않는 연산증폭기 모델입니다.");
+  if (item.timeStepPolicy !== undefined && item.timeStepPolicy !== "damp-fast-rc") fail("지원하지 않는 내부 시간 간격 정책입니다.");
   const config: SimulationConfig = {
     groundNetId: netName(item.groundNetId, "기준 접지"),
     source: parseSource(item.source), extraSources: (item.extraSources as unknown[] | undefined ?? []).map(parseSource),
     opampModel: item.opampModel === "educational-dynamic" ? "educational-dynamic" : "ideal",
     startupPerturbationVolts: item.startupPerturbationVolts === undefined ? 0 : finite(item.startupPerturbationVolts, 0, 0.01, "시동 외란 전압"),
+    ...(item.timeStepPolicy === "damp-fast-rc" ? { timeStepPolicy: "damp-fast-rc" as const } : {}),
     supplies: item.supplies.map((value, index) => { const supply = object(value, ["netId", "voltage"], `DC 전원 ${index + 1}`); return { netId: netName(supply.netId, "전원 노드"), voltage: finite(supply.voltage, -1e4, 1e4, "전원 전압") }; }),
     durationSeconds: finite(item.durationSeconds, 1e-9, 60, "시간 범위"), sampleCount: finite(item.sampleCount, 32, 4096, "출력 표본 수", true),
     acStartHz: finite(item.acStartHz, 0.001, 1e9, "AC 시작 주파수"), acStopHz: finite(item.acStopHz, 0.001, 1e9, "AC 끝 주파수"), acPoints: finite(item.acPoints, 2, 512, "AC 주파수 점 수", true),
@@ -100,7 +102,10 @@ export function defaultSimulationConfig(circuit: Circuit): SimulationConfig {
     const preset = /^([+-]?\d+(?:\.\d+)?)\s*V$/i.exec(setting.trim().replace(/−/g, "-"));
     return preset ? Number(preset[1]) : getPowerNetRole(circuit, net) === "negative" ? -9 : 9;
   };
-  const extraSources: SimulationSource[] = circuit.id === "bjt-mixer" && nets.includes("LO_PLUS") && nets.includes("LO_MINUS") ? [
+  const discreteOpamp = circuit.id.startsWith("discrete-opamp-"), lowpassTones = circuit.id === "discrete-opamp-sallen-key" && nets.includes("LPIN_HI");
+  const extraSources: SimulationSource[] = lowpassTones ? [
+    { netId: "LPIN_HI", waveform: "sine", frequencyHz: 8000, amplitudePeak: 0.6, offset: 0, phaseDegrees: 0 },
+  ] : circuit.id === "bjt-mixer" && nets.includes("LO_PLUS") && nets.includes("LO_MINUS") ? [
     { netId: "LO_PLUS", waveform: "sine", frequencyHz: 4000, amplitudePeak: 0.005, offset: 0, phaseDegrees: 0 },
     { netId: "LO_MINUS", waveform: "sine", frequencyHz: 4000, amplitudePeak: 0.005, offset: 0, phaseDegrees: 180 },
   ] : [];
@@ -109,7 +114,8 @@ export function defaultSimulationConfig(circuit: Circuit): SimulationConfig {
   const schmitt = circuit.id.startsWith("schmitt-"), autonomous = ["wien-bridge", "relaxation-oscillator"].includes(circuit.id);
   return { groundNetId, source: { netId: sourceNet, waveform: schmitt ? "triangle" : signal ? "sine" : "dc", frequencyHz, amplitudePeak: schmitt ? 4 : amplitudePeak, offset: signal ? 0 : voltage(sourceNet), phaseDegrees: 0 }, extraSources, supplies,
     opampModel: autonomous || schmitt || circuit.id === "ua741-push-pull" ? "educational-dynamic" : "ideal", startupPerturbationVolts: autonomous ? 0.001 : 0,
-    durationSeconds: circuit.id === "wien-bridge" ? 0.003 : autonomous ? 0.004 : Math.min(60, 5 / frequencyHz), sampleCount: autonomous ? 4096 : 1024, acStartHz: 10, acStopHz: 100000, acPoints: 96 };
+    ...(discreteOpamp ? { timeStepPolicy: "damp-fast-rc" as const } : {}),
+    durationSeconds: circuit.id === "wien-bridge" ? 0.003 : autonomous ? 0.004 : lowpassTones ? 0.004 : Math.min(60, 5 / frequencyHz), sampleCount: autonomous || lowpassTones ? 4096 : 1024, acStartHz: 10, acStopHz: discreteOpamp ? 1000000 : 100000, acPoints: 96 };
 }
 
 type Passive = { id: string; kind: "resistor" | "capacitor"; a: string; b: string; value: number; polarized: boolean };
@@ -236,7 +242,10 @@ function simulationTimePlan(model: ReturnType<typeof prepare>, config: Simulatio
     if (conductance) minTau = Math.min(minTau, cap.value / conductance);
   }
   const opampStep = dynamicOpamps && opamps.length ? positiveFeedback ? 0.5 / (TAU * EDUCATIONAL_OPAMP.gainBandwidthHz) : 1e-6 : Infinity;
-  const maximumStep = Math.min(dynamicSignals.length ? Math.min(...samplingLimits.map(limit => limit.maximumInternalStepSeconds), minTau / 100) : outputStep, opampStep, dynamicOpamps && opamps.length ? minTau / 100 : Infinity);
+  // The default resolves each RC estimate. The opt-in policy keeps only the source
+  // sampling limits, so backward Euler damps faster RC modes instead of tracing them.
+  const rcStep = config.timeStepPolicy === "damp-fast-rc" ? Infinity : minTau / 100;
+  const maximumStep = Math.min(dynamicSignals.length ? Math.min(...samplingLimits.map(limit => limit.maximumInternalStepSeconds), rcStep) : outputStep, opampStep, dynamicOpamps && opamps.length ? rcStep : Infinity);
   const maximumOutputStep = Math.min(...samplingLimits.map(limit => limit.maximumOutputStepSeconds));
   const subdivisions = Math.max(1, Math.ceil(outputStep / maximumStep));
   const totalSteps = subdivisions * (config.sampleCount - 1);
@@ -480,6 +489,7 @@ export function runSimulation(circuit: Circuit, definitions: ComponentDefinition
   if (transformers.length) warnings.push(IDEAL_TRANSFORMER_WARNING);
   if (nonlinear.devices.length) warnings.push("BJT·MOSFET·다이오드는 교육용 비선형 모델입니다. 제조사 SPICE의 기생 커패시턴스·온도·항복·정격 모델이 아니며 Newton 잔차와 전압 변화가 모두 수렴한 결과만 표시합니다.");
   if (circuit.id === "mos-current-mirror") warnings.push("전류 미러의 DRAIN 전원 기본값 3 V는 자료의 0~6 V sweep 중간값으로 선택한 시작 설정입니다. 실제 목표·계측 조건에 맞게 바꾸세요.");
+  if (config.timeStepPolicy === "damp-fast-rc") warnings.push("내부 시간 간격 정책 damp-fast-rc: 입력 표본 한도만 지키고 빠른 RC 시상수(예: 보상 커패시터와 작은 직렬 저항)는 후진 오일러로 감쇠시켜 건너뜁니다. 수십 ns 이하의 과도 성분은 실제보다 매끄럽게 보일 수 있습니다.");
   if (circuit.id === "bjt-mixer") warnings.push("LO 기본값은 각 5 mV peak, 0°/180°의 대칭 구동입니다. 자료의 B1−B2 차동 입력은 실제 연결과 부하에서 다시 확인하세요.");
   if (config.source.waveform === "dc" && config.source.amplitudePeak) warnings.push("DC 파형에서는 피크 진폭을 사용하지 않고 오프셋 전압만 인가합니다.");
   if (dynamicSignals.some(source => ["square", "pulse", "sawtooth"].includes(source.waveform))) warnings.push("구형파·펄스·톱니파는 상승·하강 시간이 0인 이상적 발생기입니다. 주기당 출력 32표본/내부 128단계, 펄스의 짧은 high/low 구간당 출력 4표본/내부 16단계 이상을 요구하지만 무한 고조파·실제 발생기의 대역폭과 에지는 재현하지 않습니다.");

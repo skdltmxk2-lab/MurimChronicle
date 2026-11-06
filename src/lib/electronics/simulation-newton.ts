@@ -80,11 +80,24 @@ export function createNewtonSolver(devices: NonlinearDevice[], index: Map<string
     const zero = new Float64Array(rhs.length);
     try { return solve(base, rhs, zero); }
     catch (error) { if (!(error instanceof NewtonConvergenceError)) throw error; }
-    let state: Float64Array = zero;
     // Temporary conductance is a numerical continuation aid only. The accepted
     // final operating point must solve the original circuit with gmin exactly 0.
-    for (let step = 0; step <= 10; step++) state = solve(base, Float64Array.from(rhs, value => value * step / 10), state, 60, 1e-7);
-    for (const gmin of [1e-9, 1e-11, 0]) state = solve(base, rhs, state, 60, gmin);
+    try {
+      let state: Float64Array = zero;
+      for (let step = 0; step <= 10; step++) state = solve(base, Float64Array.from(rhs, value => value * step / 10), state, 60, 1e-7);
+      for (const gmin of [1e-9, 1e-11, 0]) state = solve(base, rhs, state, 60, gmin);
+      return state;
+    } catch (error) { if (!(error instanceof NewtonConvergenceError)) throw error; }
+    // High-gain multistage loops (e.g. a discrete BJT op-amp) can need finer,
+    // adaptive source stepping. Runs only after the fixed schedule above failed,
+    // and the result must still converge at the original sources with gmin = 0.
+    let state: Float64Array = zero, fraction = 0, increment = 0.02;
+    while (fraction < 1) {
+      const next = Math.min(1, fraction + increment);
+      try { state = solve(base, Float64Array.from(rhs, value => value * next), state, 80, 1e-7); fraction = next; increment = Math.min(0.1, increment * 1.5); }
+      catch (error) { if (!(error instanceof NewtonConvergenceError)) throw error; increment /= 4; if (increment < 1e-5) throw error; }
+    }
+    for (const gmin of [1e-8, 1e-9, 1e-10, 1e-11, 1e-12, 0]) state = solve(base, rhs, state, 80, gmin);
     return state;
   };
   return { solve, operatingPoint, linearize };

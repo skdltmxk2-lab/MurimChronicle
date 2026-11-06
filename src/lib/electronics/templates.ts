@@ -33,6 +33,46 @@ const powerTemplates: Circuit[] = [
   make("ua741-push-pull", "단일전원 741 + 푸시풀", "중간 기준전압과 출력단을 포함한 음의 피드백", [...pushPullCore(), c("U1", "opamp-ua741cn-st-dip8", "UA741CN", ["U1_OPEN_1", "SUM", "VREF", "GND", "U1_OPEN_5", "DRIVE", "VCC", "U1_OPEN_8"]), r("RREF1", "22 kΩ", "VCC", "VREF"), r("RREF2", "22 kΩ", "VREF", "GND"), el("CREF", "100 µF", "VREF", "GND"), el("CIN", "100 µF", "INPUT_AC", "IN"), r("RIN", "10 kΩ", "INPUT_AC", "SUM"), r("RF", "100 kΩ", "POWER_OUT", "SUM"), cap("CD1", "100 nF", "VCC", "GND")], [...supply(), ...input("1 kHz · 5 mV peak부터 저진폭 확인"), ...probe(), port("drive-probe", "오실로스코프", "CH2 프로브", "DRIVE")], ["741의 4번 핀은 GND이고 7번은 +9 V입니다. VREF는 중간 바이어스이며 접지와 연결하지 않습니다.", "피드백은 커패시터 전의 POWER_OUT에서 가져옵니다. DRIVE로 옮기는 실험은 별도 변형입니다.", "루프 안정성·출력전류·소모전력·741 입력범위는 아직 검증하지 않았습니다. 작은 신호에서 동작점을 확인하는 예제입니다.", "BC109C 원부품 대신 BC549C를 쓴 일반 예제로, 수업 원회로·이득 목표를 만족하는 최종 설계가 아닙니다."], "실험 2 전압+전력 증폭 회로군 참고. 단일전원·피드백 위치를 명시한 일반 예제, 성능 검증 전."),
  ];
 
+/**
+ * 2026 design project: discrete BJT op-amp built from the Lab1~5 blocks.
+ * Input pair + tail source (Lab5), PNP CE gain stage with Miller Cc + Rz (Lab1),
+ * diode bias (Lab2) and complementary push-pull output (Lab2). The core is shared;
+ * only the feedback/application network changes between the three templates.
+ */
+const formed109 = (id: string, collector: string, base: string, emitter: string): CircuitComponent => ({ ...c(id, "bjt-bc109c-philips-to18", "BC109C", [emitter, base, collector]), physicalProfile: "bc109c-to18-formed-v1" });
+const pnp556 = (id: string, collector: string, base: string, emitter: string) => c(id, "bjt-bc556b-onsemi-to92", "BC556B", [collector, base, emitter]);
+const discreteOpampCore = () => [
+  formed109("Q1", "C1", "INM", "E12"), formed109("Q2", "C2", "INP", "E12"), formed109("Q3", "E12", "B3", "E3"),
+  r("RC1", "1 kΩ", "VCC", "C1"), r("RC2", "1 kΩ", "VCC", "C2"), r("RB1", "82 kΩ", "GND", "B3"), r("RB2", "22 kΩ", "B3", "VEE"), r("REE", "1 kΩ", "E3", "VEE"),
+  pnp556("Q4", "N5", "C2", "VCC"), r("RZ", "47 Ω", "C2", "NZ"), cap("CC", "1 nF", "NZ", "N5"),
+  c("D1", "diode-1n4148-vishay-do35", "1N4148", ["N5", "NM"]), c("D2", "diode-1n4148-vishay-do35", "1N4148", ["NM", "N6"]), r("RL2", "10 kΩ", "N6", "VEE"),
+  formed109("Q5", "VCC", "N5", "E5"), pnp556("Q6", "VEE", "N6", "E6"), r("RE5", "100 Ω", "E5", "OUT"), r("RE6", "100 Ω", "E6", "OUT"),
+  ...decoupling(),
+];
+const discreteOpampNotes = [
+  "블록 구성: Q1·Q2 차동쌍 + Q3 전류원(Lab5), Q4 PNP 공통이미터 이득단과 Miller 보상 CC 1 nF + RZ 47 Ω(Lab1), D1·D2 바이어스(Lab2), Q5·Q6 푸시풀 출력단(Lab2). INP(Q2 베이스)가 비반전, INM(Q1 베이스)이 반전 입력입니다.",
+  "BC109C 4개는 TO-18 성형 프로필로 배치합니다. 필요 수량은 NPN 4·PNP 2·1N4148 2이며 키트 재고는 실물로 확인합니다. RZ 47 Ω이 없으면 100 Ω 두 개를 병렬로 씁니다.",
+  "±9 V 기준값입니다. myDAQ ±15 V로 쓰면 RB2를 12 kΩ으로 바꿔 꼬리 전류를 약 1.2 mA로 유지합니다.",
+  "이득단·출력단까지 꽂은 뒤에는 피드백을 연결한 상태로 전원을 넣습니다. 개방루프 DC는 입력 오프셋이 약 2500배 증폭되어 포화합니다(비교기 예제는 의도된 포화).",
+  "수치 결과는 교육용 Ebers–Moll 모델(Early 효과·접합 용량 없음)과 damp-fast-rc 시간 정책의 근사입니다. 독립 ngspice(공개 근사 모델) 기준 개방루프 이득 약 2500, 단위이득 주파수 약 1.7 MHz, 슬루율 약 0.5 V/µs이며 실측으로 확인해야 합니다.",
+];
+const discreteProvenance = "2026 설계과제 공지(Lab1~5 회로 기반 Op-Amp 설계)에 맞춘 사용자 설계안. 수업 원회로나 정답이 아니며 실물 성능은 미검증입니다.";
+const discreteOpampTemplates: Circuit[] = [
+  make("discrete-opamp-noninverting", "이산 BJT Op-Amp · 비반전 증폭기 ×11", "Lab1~5 블록으로 만든 Op-Amp에 RF 10 kΩ/RG 1 kΩ 피드백",
+    [...discreteOpampCore(), r("RF", "10 kΩ", "OUT", "INM"), r("RG", "1 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
+    [...supply("+9 V", true), ...input("1 kHz · 100 mV peak", "INP"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "INP")],
+    [...discreteOpampNotes, "이상 이득 1+RF/RG=11, 유한 개방루프 이득을 넣으면 약 10.95입니다. 부하 RL 10 kΩ은 계측 입력 대신 둔 기준 부하입니다."], discreteProvenance),
+  make("discrete-opamp-comparator", "이산 BJT Op-Amp · 비교기", "개방루프, 반전 입력에 82 kΩ/2 kΩ 분압 기준 약 0.21 V",
+    [...discreteOpampCore(), r("RV1", "82 kΩ", "VCC", "INM"), r("RV2", "2 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
+    [...supply("+9 V", true), ...input("1 kHz · 500 mV peak", "INP"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "INP")],
+    [...discreteOpampNotes, "기준 전압 9 V×2 kΩ/84 kΩ≈0.21 V. 입력이 기준보다 높으면 출력은 양의 포화(약 +8.2 V), 낮으면 음의 포화(약 −8.2 V)입니다. 전환 속도는 슬루율로 제한됩니다."], discreteProvenance),
+  make("discrete-opamp-sallen-key", "이산 BJT Op-Amp · Sallen-Key 2차 LPF", "fc≈1.59 kHz, K≈1.56. 두 발생기(500 Hz·8 kHz)를 2 kΩ 두 개로 합성",
+    [...discreteOpampCore(), r("R1A", "2 kΩ", "LPIN_LO", "LPA"), r("R1B", "2 kΩ", "LPIN_HI", "LPA"), r("R2", "1 kΩ", "LPA", "INP"), cap("C1", "100 nF", "LPA", "OUT"), cap("C2", "100 nF", "INP", "GND"),
+      r("RF", "5.6 kΩ", "OUT", "INM"), r("RG", "10 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
+    [...supply("+9 V", true), ...input("500 Hz · 600 mV peak", "LPIN_LO"), port("fg2-signal", "함수발생기 2", "출력", "LPIN_HI", "8 kHz · 600 mV peak"), port("fg2-ground", "함수발생기 2", "기준", "GND"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "LPA")],
+    [...discreteOpampNotes, "R1 1 kΩ 자리를 2 kΩ 두 개의 병렬 합성(테브난 1 kΩ)으로 바꿔 두 신호를 더합니다. 각 0.6 V peak 입력은 합성 노드 기준 각 0.3 V peak에 해당합니다(myDAQ AO0·AO1 사용).", "fc=1/(2πRC)=1.59 kHz, K=1+5.6/10=1.56, Q=1/(3−K)≈0.69. 8 kHz는 통과대역 대비 약 −28 dB입니다."], discreteProvenance),
+];
+
 export const CIRCUIT_TEMPLATES: Circuit[] = [
   make("divider", "저항 분압기", "두 저항의 중간 전압을 확인하는 기본 회로", [r("R1", "10 kΩ", "VCC", "OUT"), r("R2", "10 kΩ", "OUT", "GND")], [...supply("+5 V"), ...probe()], ["같은 저항을 사용할 때 무부하 출력은 전원 전압의 절반입니다. 계측기 입력저항에 따른 부하 효과는 별도입니다."]),
   make("rc-lowpass", "RC 저역통과 필터", "실험 0의 RC 계측에 사용할 기본 연결", [r("R1", "62 kΩ", "IN", "OUT"), cap("C1", "1 nF", "OUT", "GND")], [...input("1 kHz · 1 Vpp"), ...probe(), port("osc-input", "오실로스코프", "CH2 프로브", "IN")], ["출력은 커패시터 양단입니다. 저항 양단 측정은 별도의 차동 계측 연결이 필요합니다."], "실험 0 자료의 R=62 kΩ, C=1 nF 조건을 반영한 기본 RC 예제. 계측기 연결 변형은 별도 검수."),
@@ -49,4 +89,5 @@ export const CIRCUIT_TEMPLATES: Circuit[] = [
   make("mos-differential", "MOS 전류미러 + 차동 증폭기", "4개의 nMOS, 두 입력 바이어스 및 단일 출력", [r("RREF", "220 Ω", "VCC", "BIAS"), mos("MREF", "GND", "BIAS", "BIAS"), mos("MTAIL", "GND", "BIAS", "TAIL"), mos("M1", "TAIL", "G1", "D1"), mos("M2", "TAIL", "G2", "D2"), r("RD1", "200 Ω", "VCC", "D1"), r("RD2", "200 Ω", "VCC", "D2"), r("RG11", "10 kΩ", "VCC", "G1"), r("RG12", "10 kΩ", "G1", "GND"), r("RG21", "10 kΩ", "VCC", "G2"), r("RG22", "10 kΩ", "G2", "GND"), cap("CIN1", "1 µF", "IN", "G1"), cap("CIN2", "1 µF", "G2", "GND"), el("COUT", "10 µF", "D1", "OUT"), r("RL", "10 kΩ", "OUT", "GND")], [...supply("+6 V"), ...input("10 kHz · 50 mV peak"), ...probe()], ["정확한 목표 전류는 RREF 조정과 실물 MOS 매칭에 달려 있습니다.", "원문 회로와 시뮬레이션 그림의 RL 연결이 충돌해 이 예제는 출력 커플링 뒤 부하를 명시적으로 선택했습니다."], "실험 3 회로군 참고. 원문 충돌 항목 검수 전인 일반 배선 예제."),
   make("bjt-mixer", "BJT 믹서 — 커패시터 LO 예제", "3개의 BJT, RF 입력과 대칭 LO 입력", [bjt("Q1", "OUT1", "B1", "TAIL"), bjt("Q2", "OUT2", "B2", "TAIL"), bjt("Q3", "TAIL", "B3", "E3"), r("RC1", "10 kΩ", "VCC", "OUT1"), r("RC2", "10 kΩ", "VCC", "OUT2"), r("RB31", "82 kΩ", "VCC", "B3"), r("RB32", "12 kΩ", "B3", "GND"), r("RE", "1 kΩ", "E3", "GND"), el("CE", "100 µF", "E3", "GND"), el("CRF", "100 µF", "B3", "RF"), r("RB11", "62 kΩ", "VCC", "B1"), r("RB12", "30 kΩ", "B1", "GND"), r("RB21", "62 kΩ", "VCC", "B2"), r("RB22", "30 kΩ", "B2", "GND"), cap("CLO1", "1 µF", "LO_PLUS", "B1"), cap("CLO2", "1 µF", "LO_MINUS", "B2")], [...supply(), port("rf", "RF 발생기", "출력", "RF", "1 kHz · 10 mV peak"), port("rf-gnd", "RF 발생기", "기준", "GND"), port("lo1", "대칭 LO 발생기", "+위상", "LO_PLUS", "4 kHz · B1−B2 차동 진폭 10 mV로 조정"), port("lo2", "대칭 LO 발생기", "−위상", "LO_MINUS", "4 kHz · 180° 반대 위상"), port("lo-gnd", "대칭 LO 발생기", "기준", "GND"), port("out1", "오실로스코프", "CH1 프로브", "OUT1"), port("out2", "오실로스코프", "CH2 프로브", "OUT2"), port("osc-gnd", "오실로스코프", "공통 기준", "GND")], ["일반 배치 예제로 BC549C를 사용합니다. 수업/프로젝트의 BC109C를 무검증 대체한 최종 설계가 아닙니다.", "LO 입력은 서로 반대 위상의 두 단자입니다. 실제 발생기 채널 수와 구동 방법을 확인해야 합니다.", "출력은 CH1−CH2입니다. OUT1과 OUT2를 점퍼로 연결하거나 한 출력을 접지하지 않습니다.", "2025 프로젝트의 3 kHz 성분 이득 >15와 키트 제한은 이 예제로 보증하지 않습니다. 저항값을 검증·설계해야 합니다."], "실험 5 BJT 믹서 및 2025 프로젝트의 트랜스 제외 조건을 참고한 일반 예제. 원본 BC109C·실물/성능 검수 전."),
   ...powerTemplates,
+  ...discreteOpampTemplates,
 ];

@@ -23,6 +23,14 @@ export type SimulationConfig = {
   extraSources?: SimulationSource[];
   opampModel?: "ideal" | "educational-dynamic";
   startupPerturbationVolts?: number;
+  /**
+   * Internal transient step policy. Omitted (default) resolves every RC estimate
+   * with 100 steps per time constant. "damp-fast-rc" lets backward Euler step over
+   * very fast RC estimates (e.g. a Miller capacitor with a small series resistor)
+   * while still honoring the source sampling limits; such fast transients are
+   * numerically damped. Opt-in only.
+   */
+  timeStepPolicy?: "damp-fast-rc";
   supplies: { netId: string; voltage: number }[];
   durationSeconds: number;
   sampleCount: number;
