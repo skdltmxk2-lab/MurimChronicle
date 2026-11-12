@@ -5,6 +5,7 @@ import { flushSync } from "react-dom";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { CoachingStudentPicker } from "@/components/admin/coaching/CoachingStudentPicker";
 import { OtherPartPicker } from "@/components/admin/coaching/OtherPartPicker";
+import { usePrintPagination } from "@/components/admin/coaching/usePrintPagination";
 import { HomeworkSheetActions } from "@/components/admin/homework/HomeworkSheetActions";
 import type { HomeworkMaterial } from "@/types/homework";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -257,12 +258,6 @@ async function clipboardFileFromData(clipboard: DataTransfer): Promise<File | nu
   return new File([blob], "clipboard-image", { type: blob.type || "image/png" });
 }
 
-function chunk<T>(values: T[], size: number): T[][] {
-  const chunks: T[][] = [];
-  for (let i = 0; i < values.length; i += size) chunks.push(values.slice(i, i + size));
-  return chunks;
-}
-
 async function ensureOk<T>(res: Response): Promise<T> {
   const json = (await res.json().catch(() => null)) as ({ ok?: boolean; message?: string } & T) | null;
   if (!res.ok || json?.ok === false || !json) {
@@ -322,6 +317,14 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
   const [sheet, setSheet] = useState<PrintSheet | null>(null);
   const [printMode, setPrintMode] = useState<PrintMode>("questions");
   const [questionPageHeaders, setQuestionPageHeaders] = useState<string[]>([]);
+  // 문제지 페이지 수는 문항 높이로 정해진다(긴 문항이 있으면 한 장에 6개가 안 들어간다).
+  // 실제 구성은 PrintableSheet 가 재서 알려 주고, 그 전에는 6문항 기준 추정치를 쓴다.
+  const [printLayout, setPrintLayout] = useState({ pageCount: 0, pending: false });
+  const handlePrintLayoutChange = useCallback((next: { pageCount: number; pending: boolean }) => {
+    setPrintLayout((current) =>
+      current.pageCount === next.pageCount && current.pending === next.pending ? current : next
+    );
+  }, []);
 
   const unitTotalCount = useMemo(
     () =>
@@ -351,7 +354,9 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
     () => relatedGroups.flatMap((group) => group.matches.map((match) => match.question)),
     [relatedGroups]
   );
-  const questionPageCount = sheet ? Math.ceil(sheet.questions.length / QUESTIONS_PER_PRINT_PAGE) : 0;
+  const questionPageCount = sheet
+    ? printLayout.pageCount || Math.ceil(sheet.questions.length / QUESTIONS_PER_PRINT_PAGE)
+    : 0;
   const sheetSignature = useMemo(
     () =>
       sheet
@@ -376,9 +381,21 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
     );
   }, [sheet]);
 
+  // 새 문제지(문항 구성이 바뀐 경우 포함)면 머릿말을 비운다.
   useEffect(() => {
     setQuestionPageHeaders(Array.from({ length: questionPageCount }, () => ""));
-  }, [questionPageCount, sheetSignature]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 구성이 같은 채 페이지 수만 바뀐 경우는 아래에서 따로 맞춘다.
+  }, [sheetSignature]);
+
+  // 같은 문제지에서 페이지 수만 바뀐 경우(긴 문항 때문에 높이를 재고 난 뒤, 그림이 늦게 떠서
+  // 다시 쟀을 때 등)에는 이미 입력한 머릿말을 지우지 않고 쪽 수에 맞춰 늘리거나 줄인다.
+  useEffect(() => {
+    setQuestionPageHeaders((current) =>
+      current.length === questionPageCount
+        ? current
+        : Array.from({ length: questionPageCount }, (_, index) => current[index] ?? "")
+    );
+  }, [questionPageCount]);
 
   useEffect(() => {
     setUnitSelectedQuestionIds((current) => {
@@ -1665,6 +1682,8 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
           .coaching-print-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            /* 행을 페이지 높이에 고정해 한 단이 길어도 옆 단 문항을 아래로 밀지 않게 한다(printGeometryCss 참고). */
+            grid-template-rows: minmax(0, 1fr);
             column-gap: 0;
             flex: 1 1 auto;
             height: auto;
@@ -1786,13 +1805,15 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
+                disabled={printLayout.pending}
                 onClick={() => saveSheetPdf("questions")}
                 className="rounded-md bg-ink px-4 py-2 text-xs font-black text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
               >
-                문제지 PDF 저장
+                {printLayout.pending ? "페이지 구성 중..." : "문제지 PDF 저장"}
               </button>
               <button
                 type="button"
+                disabled={printLayout.pending}
                 onClick={() => saveSheetPdf("answers")}
                 className="rounded-md border border-line bg-white px-4 py-2 text-xs font-black text-slate-600 hover:border-brand-600 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
@@ -2473,7 +2494,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
 
       </section>
 
-      {sheet?.sourceLabel === "unit-mock" && <HomeworkSheetActions sheet={sheet} pageHeaders={questionPageHeaders} getWorkspace={() => workspaceRef.current} disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving} onBusyChange={setHomeworkSaving} onSaved={onHomeworkSaved} invalidatedMaterialId={invalidatedHomeworkMaterialId} />}
+      {sheet?.sourceLabel === "unit-mock" && <HomeworkSheetActions sheet={sheet} pageHeaders={questionPageHeaders} getWorkspace={() => workspaceRef.current} disabled={unitLoading || replacingUnitQuestionIds.length > 0 || unitPdfSaving || printLayout.pending} onBusyChange={setHomeworkSaving} onSaved={onHomeworkSaved} invalidatedMaterialId={invalidatedHomeworkMaterialId} />}
       {sheet ? (
         <>
           <PrintableSheet
@@ -2488,6 +2509,7 @@ export function AdminCoachingClient({ homeworkMode = false, onHomeworkSaved, inv
             statusMessage={unitMsg}
             noReplacementIds={sheet.sourceLabel === "unit-mock" ? unitNoReplacementIds : undefined}
             onBrowseOtherPart={sheet.sourceLabel === "unit-mock" ? setUnitBrowseTargetId : undefined}
+            onLayoutChange={handlePrintLayoutChange}
           />
           {!homeworkMode && <PrintableAnswerSheet sheet={sheet} />}
         </>
@@ -2595,6 +2617,8 @@ type PrintableSheetProps = {
   /** 자동 교체가 후보를 못 찾은 문제 id. 이 문제에만 [다른 파트에서 가져오기] 를 보여 준다. */
   noReplacementIds?: string[];
   onBrowseOtherPart?: (questionId: string) => void;
+  /** 페이지 구성이 정해지거나 바뀔 때마다 쪽 수와 확정 여부를 알린다. */
+  onLayoutChange?: (layout: { pageCount: number; pending: boolean }) => void;
 };
 
 function PrintableSheet({
@@ -2606,22 +2630,36 @@ function PrintableSheet({
   actionsDisabled = false,
   statusMessage,
   noReplacementIds,
-  onBrowseOtherPart
+  onBrowseOtherPart,
+  onLayoutChange
 }: PrintableSheetProps) {
-  const pages = chunk(sheet.questions, QUESTIONS_PER_PRINT_PAGE);
+  // 한 장은 2단 × 최대 3문항이지만, 그림이나 선지가 긴 문항이 몰리면 실제 높이를 재서
+  // 안 들어가는 문항을 다음 단·장으로 넘긴다(예전에는 6개씩 끊어서 맨 아래가 잘렸다).
+  const areaRef = useRef<HTMLElement | null>(null);
+  const layout = usePrintPagination({ areaRef, questions: sheet.questions, pageHeaders });
+  const pages = layout.pages;
+  useEffect(() => {
+    onLayoutChange?.({ pageCount: pages.length, pending: layout.pending });
+  }, [onLayoutChange, pages.length, layout.pending]);
   // The composition list sits far above this preview, so the same per-question
   // actions are offered here to avoid scrolling back up to swap one problem.
   const canEditQuestions = Boolean(onReplaceQuestion || onRemoveQuestion);
   const replacingSet = new Set(replacingQuestionIds ?? []);
   const noReplacementSet = new Set(noReplacementIds ?? []);
   return (
-    <section data-homework-question-count={sheet.questions.length} className="coaching-print-area coaching-question-print-area mt-6">
+    <section ref={areaRef} data-homework-question-count={sheet.questions.length} className="coaching-print-area coaching-question-print-area mt-6">
       {canEditQuestions && statusMessage ? (
         <p className="admin-screen-only mb-3 rounded-md bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">
           {statusMessage}
         </p>
       ) : null}
-      {pages.map((questions, pageIndex) => {
+      {layout.oversize.length > 0 ? (
+        <p className="admin-screen-only mb-3 rounded-md bg-coral-50 px-3 py-2 text-xs font-bold text-coral-600">
+          {layout.oversize.map((index) => `${index + 1}번`).join(", ")} 문항은 한 칸에 다 들어가지 않을 만큼 길어 인쇄하면 일부가 잘립니다.
+          {canEditQuestions ? " 다른 문제로 교체하거나 삭제해 주세요." : ""}
+        </p>
+      ) : null}
+      {pages.map((page, pageIndex) => {
         const headerText = (pageHeaders[pageIndex] ?? "").trim();
         return (
           <div
@@ -2641,15 +2679,16 @@ function PrintableSheet({
             {headerText ? <div className="coaching-page-custom-header">{headerText}</div> : null}
             <div className="coaching-print-grid">
               <div className="coaching-print-divider" aria-hidden="true" />
-              {[questions.slice(0, 3), questions.slice(3, 6)].map((columnQuestions, columnIndex) => (
+              {[page.left, page.right].map((columnIndices, columnIndex) => (
                 <div
                   key={columnIndex}
                   className={`coaching-print-column ${
                     columnIndex === 0 ? "coaching-print-column-left" : "coaching-print-column-right"
                   }`}
                 >
-                  {columnQuestions.map((question, index) => {
-                    const questionNumber = pageIndex * QUESTIONS_PER_PRINT_PAGE + columnIndex * 3 + index + 1;
+                  {columnIndices.map((questionIndex) => {
+                    const question = sheet.questions[questionIndex];
+                    const questionNumber = questionIndex + 1;
                     return (
                       <div key={question.id} data-homework-question-number={questionNumber} className="coaching-print-question px-3 py-2">
                         <div className="coaching-print-question-body flex items-start gap-2">
