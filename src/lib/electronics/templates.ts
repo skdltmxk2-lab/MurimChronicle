@@ -48,10 +48,10 @@ const pnp556 = (id: string, collector: string, base: string, emitter: string) =>
 const discreteOpampCore = () => [
   formed109("Q1", "C1", "INM", "E12"), formed109("Q2", "C2", "INP", "E12"), formed109("Q3", "E12", "B3", "E3"),
   r("RC1", "1 kΩ", "VCC", "C1"), r("RC2", "1 kΩ", "VCC", "C2"), r("RB1", "82 kΩ", "GND", "B3"), r("RB2", "22 kΩ", "B3", "VEE"), r("REE", "1 kΩ", "E3", "VEE"),
-  pnp556("Q4", "N5", "C2", "VCC"), r("RZ", "47 Ω", "C2", "NZ"), cap("CC", "1 nF", "NZ", "N5"),
+  pnp556("Q4", "N5", "C2", "VCC"), r("RZ", "50 Ω", "C2", "NZ"), cap("CC", "1 nF", "NZ", "N5"),
   c("D1", "diode-1n4148-vishay-do35", "1N4148", ["N5", "NM"]), c("D2", "diode-1n4148-vishay-do35", "1N4148", ["NM", "N6"]), r("RL2", "10 kΩ", "N6", "VEE"),
   formed109("Q5", "VCC", "N5", "E5"), pnp556("Q6", "VEE", "N6", "E6"), r("RE5", "100 Ω", "E5", "OUT"), r("RE6", "100 Ω", "E6", "OUT"),
-  ...decoupling(),
+  cap("CD1", "0.22 µF", "VCC", "GND"), cap("CD2", "0.22 µF", "VEE", "GND"),
 ];
 /** NI myDAQ screw terminals. The ELVISmx FGEN drives AO0 only; two tones use the ARB on AO0 and AO1. AI0−/AI1− go to AGND. */
 const fromSupplyBlock = (): InstrumentConnection[] => [
@@ -66,8 +66,8 @@ const mydaqScope = (inputNet: string): InstrumentConnection[] => [
 ];
 const discreteOpampNotes = [
   "myDAQ만 사용합니다. 전원은 ‘myDAQ ±9 V 전원부’ 예제의 VP9·VN9·GND를 이 보드의 +9 V(VCC)·−9 V(VEE)·GND 레일에 연결합니다. 입력은 AO0(·AO1), 측정은 AI0(입력, 사이트 CH1)·AI1(출력, 사이트 CH2)이며 AI0−·AI1−는 AGND에 연결합니다. 두 채널을 함께 측정하면 채널당 최대 샘플률은 절반(100 kS/s)입니다.",
-  "블록 구성: Q1·Q2 차동쌍 + Q3 전류원(Lab5), Q4 PNP 공통이미터 이득단과 Miller 보상 CC 1 nF + RZ 47 Ω(Lab1), D1·D2 바이어스(Lab2), Q5·Q6 푸시풀 출력단(Lab2). INP(Q2 베이스)가 비반전, INM(Q1 베이스)이 반전 입력입니다.",
-  "BC109C 4개는 TO-18 성형 프로필로 배치합니다. 필요 수량은 Op-Amp에 NPN 4·PNP 2·1N4148 2, 전원부에 NPN 1·PNP 1이며 키트 재고는 실물로 확인합니다. RZ 47 Ω이 없으면 100 Ω 두 개를 병렬로 씁니다.",
+  "블록 구성: Q1·Q2 차동쌍 + Q3 전류원(Lab5), Q4 PNP 공통이미터 이득단과 Miller 보상 CC 1 nF + RZ 50 Ω(Lab1), D1·D2 바이어스(Lab2), Q5·Q6 푸시풀 출력단(Lab2). INP(Q2 베이스)가 비반전, INM(Q1 베이스)이 반전 입력입니다.",
+  "BC109C 4개는 TO-18 성형 프로필로 배치합니다. 부품 값은 수업 실험 부품 목록 2세트 안에서 골랐습니다(RZ 50 Ω, CD1·CD2 0.22 µF). Op-Amp에 NPN 4·PNP 2·1N4148 2, 전원부에 NPN 1·PNP 1이 들어가 BC109C 5개·BC556B 3개가 필요합니다.",
   "myDAQ ±15 V를 이 보드에 직접 넣지 않습니다. 비교기처럼 출력이 −14 V까지 내려가면 Q5(BC109C)에 약 29 V가 걸려 VCEO 20 V를 넘습니다. ±9 V에서는 최대 약 17.3 V입니다.",
   "이득단·출력단까지 꽂은 뒤에는 피드백을 연결한 상태로 전원을 넣습니다. 개방루프 DC는 입력 오프셋이 약 2500배 증폭되어 포화합니다(비교기 예제는 의도된 포화).",
   "이 보드의 계산은 VCC·VEE를 전원부 출력값 ±9 V로 고정합니다. 전원부 자체(약 ±9.0 V)는 ‘myDAQ ±9 V 전원부’ 예제에서 따로 계산합니다. 수치 결과는 교육용 Ebers–Moll 모델(Early 효과·접합 용량 없음)과 damp-fast-rc 시간 정책의 근사입니다. 독립 ngspice(공개 근사 모델) 기준 개방루프 이득 약 2500, 단위이득 주파수 약 1.7 MHz, 슬루율 약 0.5 V/µs이며 실측으로 확인해야 합니다.",
@@ -75,15 +75,15 @@ const discreteOpampNotes = [
 const discreteProvenance = "2026 설계과제 공지(Lab1~5 회로 기반 Op-Amp 설계)에 맞춘 사용자 설계안, myDAQ 단독 구성. 수업 원회로나 정답이 아니며 실물 성능은 미검증입니다.";
 const mydaqSupplyTemplate = (): Circuit => {
   const circuit = make("discrete-opamp-mydaq-supply", "myDAQ ±9 V 전원부 (Op-Amp용)", "myDAQ +15V·−15V 단자에서 이미터 팔로워 두 개로 VP9≈+9 V, VN9≈−9 V를 만듭니다",
-    [formed109("QRP", "VCC", "BRP", "VP9"), r("RRP1", "12 kΩ", "VCC", "BRP"), r("RRP2", "22 kΩ", "BRP", "GND"), cap("CRP", "100 nF", "BRP", "GND"),
-      pnp556("QRN", "VEE", "BRN", "VN9"), r("RRN1", "22 kΩ", "GND", "BRN"), r("RRN2", "12 kΩ", "BRN", "VEE"), cap("CRN", "100 nF", "BRN", "GND"),
-      r("RTP", "3.9 kΩ", "VP9", "GND"), r("RTN", "3.9 kΩ", "VN9", "GND")],
+    [formed109("QRP", "VCC", "BRP", "VP9"), r("RRP1", "12 kΩ", "VCC", "BRP"), r("RRP2", "22 kΩ", "BRP", "GND"), cap("CRP", "1 nF", "BRP", "GND"),
+      pnp556("QRN", "VEE", "BRN", "VN9"), r("RRN1", "22 kΩ", "GND", "BRN"), r("RRN2", "12 kΩ", "BRN", "VEE"), cap("CRN", "1 nF", "BRN", "GND"),
+      r("RTP", "6.8 kΩ", "VP9", "GND"), r("RTN", "6.8 kΩ", "VN9", "GND")],
     [port("mydaq-p15", "myDAQ 전원", "+15V 단자", "VCC", "+15 V"), port("mydaq-agnd", "myDAQ 전원", "AGND", "GND", "0 V"), port("mydaq-n15", "myDAQ 전원", "−15V 단자", "VEE", "−15 V"),
       port("osc-input", "myDAQ 오실로스코프", "AI0+ (사이트 CH1 · +9 V)", "VP9"), port("osc-input-ref", "myDAQ 오실로스코프", "AI0− · AGND", "GND"),
       port("osc-tip", "myDAQ 오실로스코프", "AI1+ (사이트 CH2 · −9 V)", "VN9"), port("osc-ground", "myDAQ 오실로스코프", "AI1− · AGND", "GND")],
     ["myDAQ +15V·−15V·AGND 단자만 씁니다. 이 보드의 +15 V(VCC)·−15 V(VEE) 레일은 myDAQ 전원이고, 출력 VP9·VN9를 Op-Amp 보드의 +9 V·−9 V 레일에 연결합니다. GND는 myDAQ AGND와 Op-Amp 보드 GND를 함께 묶습니다. AI 범위가 ±10 V라 ±15 V 레일은 AI로 재지 않습니다(DMM 사용).",
-      "분압: 15 V×22 kΩ/34 kΩ≈9.71 V가 QRP·QRN 베이스에 걸리고, VBE 약 0.68 V만큼 낮아진(음전원은 높아진) 약 ±9.0 V가 출력됩니다. CRP·CRN 100 nF는 myDAQ 전원 잡음을 거릅니다.",
-      "RTP·RTN 3.9 kΩ은 Op-Amp가 레일마다 끄는 약 2.3 mA를 대신하는 시험 부하입니다. 먼저 이 상태로 VP9·VN9를 확인한 뒤 시험 부하를 빼고 Op-Amp 보드에 연결합니다. 3.9 kΩ이 없으면 4.7 kΩ이나 10 kΩ으로 시험해도 됩니다.",
+      "분압: 15 V×22 kΩ/34 kΩ≈9.71 V가 QRP·QRN 베이스에 걸리고, VBE 약 0.68 V만큼 낮아진(음전원은 높아진) 약 ±9.0 V가 출력됩니다. CRP·CRN 1 nF는 베이스를 고주파에서 접지해 myDAQ 전원의 빠른 잡음을 거릅니다.",
+      "RTP·RTN 6.8 kΩ은 시험 부하(레일당 약 1.3 mA)입니다. 먼저 이 상태로 VP9·VN9를 확인한 뒤 시험 부하를 빼고 Op-Amp 보드에 연결합니다. Op-Amp를 연결하면 레일당 약 2.3 mA가 흐릅니다.",
       "AO 단자를 전원으로 쓰지 않는 이유: AO는 채널당 최대 2 mA라 Op-Amp 전류를 감당하지 못하고 전압이 처집니다. ±15 V 단자는 각각 32 mA까지 공급합니다.",
       "소비전력: Op-Amp 하나를 연결하면 ±15 V에서 각각 약 2.6 mA(약 80 mW)입니다. myDAQ 전원·AO·DIO 합계 한도는 500 mW(typical), 최소 100 mW입니다.",
       "myDAQ ±15 V가 14.0~15.3 V로 변하면 출력은 약 ±8.4~±9.2 V로 따라 변합니다(ngspice 공개 근사 모델). QRP·QRN은 VCE가 약 6 V라 다른 소신호 NPN·PNP로 바꿔도 됩니다."], discreteProvenance);
@@ -101,13 +101,13 @@ const discreteOpampTemplates: Circuit[] = [
     [...discreteOpampCore(), r("RV1", "82 kΩ", "VCC", "INM"), r("RV2", "2 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
     [...fromSupplyBlock(), ...mydaqGenerator("myDAQ FGEN", "AO0", "INP", "1 kHz · 1 Vpp"), ...mydaqScope("INP")],
     [...discreteOpampNotes, "FGEN: 사인파, 1 kHz, 1 Vpp(500 mV peak). 기준 전압 9 V×2 kΩ/84 kΩ≈0.21 V. 입력이 기준보다 높으면 출력은 양의 포화(약 +8.2 V), 낮으면 음의 포화(약 −8.3 V)이며 myDAQ AI 범위 ±10 V 안입니다. 전환 속도는 슬루율로 제한됩니다."], discreteProvenance),
-  make("discrete-opamp-sallen-key", "이산 BJT Op-Amp · Sallen-Key 2차 LPF (myDAQ)", "fc≈1.59 kHz, K≈1.56. AO0(500 Hz)·AO1(8 kHz)을 2 kΩ 두 개로 합성. 전원 ±9 V 전원부, 측정 AI0·AI1",
+  make("discrete-opamp-sallen-key", "이산 BJT Op-Amp · Sallen-Key 2차 LPF (myDAQ)", "fc≈1.59 kHz, K≈1.51. AO0(500 Hz)·AO1(8 kHz)을 2 kΩ 두 개로 합성. 전원 ±9 V 전원부, 측정 AI0·AI1",
     [...discreteOpampCore(), r("R1A", "2 kΩ", "VIN", "LPA"), r("R1B", "2 kΩ", "VNOISE", "LPA"), r("R2", "1 kΩ", "LPA", "INP"), cap("C1", "100 nF", "LPA", "OUT"), cap("C2", "100 nF", "INP", "GND"),
-      r("RF", "5.6 kΩ", "OUT", "INM"), r("RG", "10 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
+      r("RF", "5.1 kΩ", "OUT", "INM"), r("RG", "10 kΩ", "INM", "GND"), r("RL", "10 kΩ", "OUT", "GND")],
     [...fromSupplyBlock(), ...mydaqGenerator("myDAQ ARB", "AO0", "VIN", "500 Hz · 1.2 Vpp"), ...mydaqGenerator("myDAQ ARB", "AO1", "VNOISE", "8 kHz · 1.2 Vpp", "fg2"), ...mydaqScope("VIN")],
     [...discreteOpampNotes, "ELVISmx FGEN은 AO0 하나만 쓰므로 두 신호는 ARB(임의 파형 발생기)로 냅니다. AO0=500 Hz, AO1=8 kHz 사인파를 각각 1.2 Vpp로 두고, 두 채널을 같은 범위(±10 V)·같은 갱신률(예: 200 kS/s)로 설정합니다.",
       "R1 1 kΩ 자리를 2 kΩ 두 개의 병렬 합성(테브난 1 kΩ)으로 바꿔 VIN(신호 500 Hz)과 VNOISE(잡음 8 kHz)를 더합니다. 각 0.6 V peak 입력은 합성 노드 기준 각 0.3 V peak에 해당하며 AO 전류는 채널당 0.5 mA 이하입니다.",
-      "fc=1/(2πRC)=1.59 kHz, K=1+5.6/10=1.56, Q=1/(3−K)≈0.69. 8 kHz는 통과대역 대비 약 −28 dB입니다."], discreteProvenance),
+      "fc=1/(2πRC)=1.59 kHz, K=1+5.1/10=1.51, Q=1/(3−K)≈0.67. 8 kHz는 통과대역 대비 약 −28 dB입니다. RF는 키트에 5.6 kΩ이 없어 5.1 kΩ을 씁니다."], discreteProvenance),
   ].map(ninePlusMinus),
 ];
 

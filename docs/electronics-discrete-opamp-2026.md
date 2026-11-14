@@ -7,11 +7,15 @@
 | 블록 | 소자 | 바탕 |
 |---|---|---|
 | 입력단 | Q1·Q2·Q3 BC109C(TO-18 성형), RC1·RC2 1 kΩ, RB1 82 kΩ, RB2 22 kΩ, REE 1 kΩ | Lab5 회로1, Lab3 차동증폭 |
-| 이득단 | Q4 BC556B, CC 1 nF + RZ 47 Ω | Lab1 CE |
+| 이득단 | Q4 BC556B, CC 1 nF + RZ 50 Ω | Lab1 CE |
 | 바이어스 | D1·D2 1N4148, RL2 10 kΩ | Lab2 회로2 |
 | 출력단 | Q5 BC109C, Q6 BC556B, RE5·RE6 100 Ω | Lab2 회로2 |
 
 Op-Amp 전원은 ±9 V이고, 실험실 장비 없이 myDAQ만 쓴다. 템플릿은 같은 코어에 응용 회로만 다르다.
+
+## 부품 키트
+
+값은 수업 "실험 부품 목록"(2022) 2세트 안에서 골랐다(조원 키트 포함). 목록에 없는 값은 바꿨다: RZ 47 Ω → 50 Ω, LPF RF 5.6 kΩ → 5.1 kΩ, Op-Amp 레일 바이패스 100 nF → 0.22 µF, 전원부 베이스 바이패스 100 nF → 1 nF, 전원부 시험 부하 3.9 kΩ → 6.8 kΩ. 테스트가 전원부 + 각 Op-Amp 보드의 부품 수를 2세트 재고와 비교한다. BC109C 5개·BC556B 3개가 필요해 키트 1세트(BC556B 2개)로는 부족하다.
 
 ## myDAQ 구성
 
@@ -23,10 +27,10 @@ Op-Amp 전원은 ±9 V이고, 실험실 장비 없이 myDAQ만 쓴다. 템플릿
 
 ±15 V를 Op-Amp에 직접 넣지 않는 이유: 비교기 포화에서 출력이 약 −14.2 V까지 내려가면 Q5(BC109C, VCEO 20 V)의 VCE가 약 29.2 V가 된다(ngspice). AO를 전원으로 쓰지 않는 이유: 채널당 2 mA 한계라 레일당 약 2.3 mA를 끄는 Op-Amp에서 전압이 처진다.
 
-- `discrete-opamp-mydaq-supply`: QRP BC109C·QRN BC556B 이미터 팔로워, 분압 12 kΩ/22 kΩ(베이스 약 ±9.71 V), 베이스 바이패스 100 nF. 출력 VP9·VN9에 시험 부하 3.9 kΩ(레일당 약 2.3 mA). 이 보드의 VCC·VEE는 myDAQ ±15 V다.
+- `discrete-opamp-mydaq-supply`: QRP BC109C·QRN BC556B 이미터 팔로워, 분압 12 kΩ/22 kΩ(베이스 약 ±9.71 V), 베이스 바이패스 1 nF. 출력 VP9·VN9에 시험 부하 6.8 kΩ(레일당 약 1.3 mA). 이 보드의 VCC·VEE는 myDAQ ±15 V다.
 - `discrete-opamp-noninverting`: RF 10 kΩ, RG 1 kΩ, FGEN AO0 1 kHz · 200 mVpp
 - `discrete-opamp-comparator`: 반전 입력 82 kΩ/2 kΩ 분압(약 0.21 V), FGEN AO0 1 kHz · 1 Vpp
-- `discrete-opamp-sallen-key`: R=1 kΩ(입력은 2 kΩ 두 개로 두 출력 합성), C=100 nF, RF 5.6 kΩ/RG 10 kΩ. ARB AO0 = VIN(신호 500 Hz), AO1 = VNOISE(잡음 8 kHz), 각 1.2 Vpp, 기본 7.5 ms · 4096 표본
+- `discrete-opamp-sallen-key`: R=1 kΩ(입력은 2 kΩ 두 개로 두 출력 합성), C=100 nF, RF 5.1 kΩ/RG 10 kΩ(K≈1.51). ARB AO0 = VIN(신호 500 Hz), AO1 = VNOISE(잡음 8 kHz), 각 1.2 Vpp, 기본 7.5 ms · 4096 표본
 
 Op-Amp 템플릿의 VCC·VEE 표시 이름은 `+9 V`·`−9 V`이고 계산에서는 이 값으로 고정한다. 전원부는 별도 템플릿에서 myDAQ ±15 V로부터 계산한다. 엔진의 배치기로는 전원부(10개)와 Op-Amp(23~28개)를 830홀 한 장에 함께 놓지 못해 템플릿을 나눴다.
 
