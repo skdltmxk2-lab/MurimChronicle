@@ -23,6 +23,8 @@ const { COMPONENT_CATALOG: definitions } = load("src/lib/electronics/catalog.ts"
 const { CIRCUIT_TEMPLATES: templates } = load("src/lib/electronics/templates.ts");
 const { EXPERIMENTS: experiments, COURSE_SUPPORT_SCOPE: scope } = load("src/lib/electronics/experiments.ts");
 const ids = ["discrete-opamp-noninverting", "discrete-opamp-comparator", "discrete-opamp-sallen-key"];
+const supplyId = "discrete-opamp-mydaq-supply";
+const allIds = [supplyId, ...ids];
 const template = id => { const circuit = templates.find(item => item.id === id); assert.ok(circuit, id); return circuit; };
 
 // Pin-net table of the shared core, written independently of templates.ts.
@@ -32,9 +34,9 @@ const CORE = {
   D1: { A: "N5", K: "NM" }, D2: { A: "NM", K: "N6" },
 };
 
-test("2026 project experiment lists the three discrete op-amp templates and a scope entry", () => {
+test("2026 project experiment lists the myDAQ supply and the three discrete op-amp templates", () => {
   const experiment = experiments.find(item => item.id === "project-2026");
-  assert.deepEqual(Array.from(experiment.templateIds), ids);
+  assert.deepEqual(Array.from(experiment.templateIds), allIds);
   assert.ok(scope.some(item => item.id === "project-2026"));
   for (const id of ids) template(id);
 });
@@ -57,7 +59,7 @@ test("core transistor and diode roles match the schematic through the catalog pi
 });
 
 test("every template places on one 830-hole board and passes the connection check in both rail modes", () => {
-  for (const id of ids) for (const railMode of ["split", "continuous"]) {
+  for (const id of allIds) for (const railMode of ["split", "continuous"]) {
     const circuit = template(id);
     const layout = engine.createLayout(circuit, definitions, { boards: 1, railMode });
     const report = engine.validateLayout(circuit, definitions, layout);
@@ -67,8 +69,49 @@ test("every template places on one 830-hole board and passes the connection chec
   }
 });
 
+test("myDAQ supply block: emitter followers on the ±15 V terminals with a 12 kΩ/22 kΩ divider", () => {
+  const circuit = template(supplyId), defs = new Map(definitions.map(item => [item.id, item]));
+  const roles = { QRP: { C: "VCC", B: "BRP", E: "VP9" }, QRN: { C: "VEE", B: "BRN", E: "VN9" } };
+  for (const [ref, map] of Object.entries(roles)) {
+    const component = circuit.components.find(item => item.id === ref), definition = defs.get(component.definitionId);
+    for (const [role, net] of Object.entries(map)) assert.equal(component.pinNets[definition.pins.find(pin => pin.label === role || pin.label.startsWith(`${role} /`)).id], net, `${ref}.${role}`);
+  }
+  assert.equal(defs.get(circuit.components.find(item => item.id === "QRP").definitionId).id, "bjt-bc109c-philips-to18");
+  assert.equal(defs.get(circuit.components.find(item => item.id === "QRN").definitionId).id, "bjt-bc556b-onsemi-to92");
+  const value = ref => circuit.components.find(item => item.id === ref);
+  assert.deepEqual([value("RRP1").value, Object.values(value("RRP1").pinNets).sort().join()], ["12 kΩ", "BRP,VCC"]);
+  assert.deepEqual([value("RRP2").value, Object.values(value("RRP2").pinNets).sort().join()], ["22 kΩ", "BRP,GND"]);
+  assert.deepEqual([value("RRN1").value, Object.values(value("RRN1").pinNets).sort().join()], ["22 kΩ", "BRN,GND"]);
+  assert.deepEqual([value("RRN2").value, Object.values(value("RRN2").pinNets).sort().join()], ["12 kΩ", "BRN,VEE"]);
+  const ports = Object.fromEntries(circuit.instruments.map(port => [port.id, port]));
+  assert.deepEqual([ports["mydaq-p15"].netId, ports["mydaq-p15"].setting, ports["mydaq-n15"].netId, ports["mydaq-n15"].setting], ["VCC", "+15 V", "VEE", "−15 V"]);
+  assert.deepEqual([circuit.netNames.VCC, circuit.netNames.VEE], ["+15 V", "−15 V"]);
+  const result = simulation.runSimulation(circuit, definitions, simulation.defaultSimulationConfig(circuit));
+  assert.ok(Math.abs(result.dc.nodeVoltages.VP9 - 9) < 0.15, `VP9 ${result.dc.nodeVoltages.VP9}`);
+  assert.ok(Math.abs(result.dc.nodeVoltages.VN9 + 9) < 0.15, `VN9 ${result.dc.nodeVoltages.VN9}`);
+  const recommendation = recommendations.deriveSimulationRecommendation(circuit, definitions);
+  assert.deepEqual([recommendation.inputNetId, recommendation.outputNetId, recommendation.groundNetId], ["VP9", "VN9", "GND"]);
+});
+
+test("op-amp boards take ±9 V from the supply block and use only myDAQ AO and AI terminals", () => {
+  const drives = { "discrete-opamp-noninverting": [["AO0", "INP"]], "discrete-opamp-comparator": [["AO0", "INP"]], "discrete-opamp-sallen-key": [["AO0", "VIN"], ["AO1", "VNOISE"]] };
+  for (const id of ids) {
+    const circuit = template(id), ports = circuit.instruments;
+    assert.deepEqual([circuit.netNames.VCC, circuit.netNames.VEE], ["+9 V", "−9 V"], id);
+    assert.ok(ports.every(port => /myDAQ|전원부/.test(port.instrument)), `${id}: ${ports.map(port => port.instrument).join()}`);
+    assert.deepEqual(Array.from(ports.filter(port => /^AO\d$/.test(port.port)), port => [port.port, port.netId]), drives[id], id);
+    const input = id.endsWith("sallen-key") ? "VIN" : "INP";
+    assert.equal(ports.find(port => port.port.startsWith("AI0+")).netId, input, id);
+    assert.equal(ports.find(port => port.port.startsWith("AI1+")).netId, "OUT", id);
+    assert.ok(ports.filter(port => /^AI\d−/.test(port.port)).every(port => port.netId === "GND"), id);
+    assert.deepEqual(Array.from(ports.filter(port => port.instrument === "±9 V 전원부"), port => `${port.netId}=${port.setting}`), ["VCC=+9 V", "GND=0 V", "VEE=−9 V"], id);
+    const config = simulation.defaultSimulationConfig(circuit);
+    assert.deepEqual(Array.from(config.supplies, supply => `${supply.netId}=${supply.voltage}`), ["VCC=9", "VEE=-9"], id);
+  }
+});
+
 test("default configuration opts into the damped fast-RC step policy only for these templates", () => {
-  for (const id of ids) assert.equal(simulation.defaultSimulationConfig(template(id)).timeStepPolicy, "damp-fast-rc");
+  for (const id of allIds) assert.equal(simulation.defaultSimulationConfig(template(id)).timeStepPolicy, "damp-fast-rc");
   assert.equal(simulation.defaultSimulationConfig(templates.find(item => item.id === "ce-amplifier")).timeStepPolicy, undefined);
   assert.throws(() => simulation.parseSimulationConfig({ ...simulation.defaultSimulationConfig(template(ids[0])), timeStepPolicy: "fast" }), /시간 간격 정책/);
 });
@@ -93,11 +136,13 @@ test("non-inverting ×11 closes the loop: gain near 1+RF/RG within the education
   assert.ok(result.warnings.some(text => text.includes("damp-fast-rc")));
 });
 
-test("comparator saturates near both rails around the 0.21 V reference", () => {
+test("comparator saturates near both rails around the 0.21 V reference, inside the myDAQ AI range and the BC109C VCEO", () => {
   const circuit = template("discrete-opamp-comparator");
   const result = simulation.runSimulation(circuit, definitions, simulation.defaultSimulationConfig(circuit));
   const out = window(result, result.nodeVoltages.OUT, 0.001);
   assert.ok(Math.max(...out) > 7.5 && Math.min(...out) < -7.5);
+  assert.ok(Math.max(...out.map(Math.abs)) < 10, "AI1 ±10 V range");
+  assert.ok(9 - Math.min(...window(result, result.nodeVoltages.E5, 0.001)) < 20, "Q5 VCE below 20 V");
   const reference = result.dc.nodeVoltages.INM;
   assert.ok(Math.abs(reference - 9 * 2 / 84) < 0.01, `reference ${reference}`);
 });
@@ -109,6 +154,10 @@ test("Sallen-Key low-pass keeps 500 Hz and suppresses 8 kHz", () => {
   assert.ok(low > 0.42 && low < 0.5, `500 Hz ${low}`);
   assert.ok(high > 0.01 && high < 0.03, `8 kHz ${high}`);
   assert.ok(20 * Math.log10((high / 0.3) / (low / 0.3)) < -25);
+  for (const [net, node] of [["VIN", "LPA"], ["VNOISE", "LPA"]]) {
+    const current = Math.max(...result.nodeVoltages[net].map((value, i) => Math.abs(value - result.nodeVoltages[node][i]) / 2000));
+    assert.ok(current < 0.002, `${net} AO current ${current}`);
+  }
 });
 
 test("automatic VIN·VOUT setup picks the primary generator input and the op-amp output", () => {
