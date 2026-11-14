@@ -48,7 +48,7 @@ const pnp556 = (id: string, collector: string, base: string, emitter: string) =>
 const discreteOpampCore = () => [
   formed109("Q1", "C1", "INM", "E12"), formed109("Q2", "C2", "INP", "E12"), formed109("Q3", "E12", "B3", "E3"),
   r("RC1", "1 kΩ", "VCC", "C1"), r("RC2", "1 kΩ", "VCC", "C2"), r("RB1", "82 kΩ", "GND", "B3"), r("RB2", "22 kΩ", "B3", "VEE"), r("REE", "1 kΩ", "E3", "VEE"),
-  pnp556("Q4", "N5", "C2", "VCC"), r("RZ", "50 Ω", "C2", "NZ"), cap("CC", "1 nF", "NZ", "N5"),
+  pnp556("Q4", "N5", "C2", "VCC"), r("RZ", "51 Ω", "C2", "NZ"), cap("CC", "1 nF", "NZ", "N5"),
   c("D1", "diode-1n4148-vishay-do35", "1N4148", ["N5", "NM"]), c("D2", "diode-1n4148-vishay-do35", "1N4148", ["NM", "N6"]), r("RL2", "10 kΩ", "N6", "VEE"),
   formed109("Q5", "VCC", "N5", "E5"), pnp556("Q6", "VEE", "N6", "E6"), r("RE5", "100 Ω", "E5", "OUT"), r("RE6", "100 Ω", "E6", "OUT"),
   cap("CD1", "0.22 µF", "VCC", "GND"), cap("CD2", "0.22 µF", "VEE", "GND"),
@@ -66,8 +66,8 @@ const mydaqScope = (inputNet: string): InstrumentConnection[] => [
 ];
 const discreteOpampNotes = [
   "myDAQ만 사용합니다. 전원은 ‘myDAQ ±9 V 전원부’ 예제의 VP9·VN9·GND를 이 보드의 +9 V(VCC)·−9 V(VEE)·GND 레일에 연결합니다. 입력은 AO0(·AO1), 측정은 AI0(입력, 사이트 CH1)·AI1(출력, 사이트 CH2)이며 AI0−·AI1−는 AGND에 연결합니다. 두 채널을 함께 측정하면 채널당 최대 샘플률은 절반(100 kS/s)입니다.",
-  "블록 구성: Q1·Q2 차동쌍 + Q3 전류원(Lab5), Q4 PNP 공통이미터 이득단과 Miller 보상 CC 1 nF + RZ 50 Ω(Lab1), D1·D2 바이어스(Lab2), Q5·Q6 푸시풀 출력단(Lab2). INP(Q2 베이스)가 비반전, INM(Q1 베이스)이 반전 입력입니다.",
-  "BC109C 4개는 TO-18 성형 프로필로 배치합니다. 부품 값은 수업 실험 부품 목록 2세트 안에서 골랐습니다(RZ 50 Ω, CD1·CD2 0.22 µF). Op-Amp에 NPN 4·PNP 2·1N4148 2, 전원부에 NPN 1·PNP 1이 들어가 BC109C 5개·BC556B 3개가 필요합니다.",
+  "블록 구성: Q1·Q2 차동쌍 + Q3 전류원(Lab5), Q4 PNP 공통이미터 이득단과 Miller 보상 CC 1 nF + RZ 51 Ω(Lab1), D1·D2 바이어스(Lab2), Q5·Q6 푸시풀 출력단(Lab2). INP(Q2 베이스)가 비반전, INM(Q1 베이스)이 반전 입력입니다.",
+  "BC109C 4개는 TO-18 성형 프로필로 배치합니다. 부품 값은 수업 실험 부품 목록 2세트 안에서 골랐습니다(RZ는 목록 표기 50 Ω, 실물 키트 51 Ω. CD1·CD2 0.22 µF). Op-Amp에 NPN 4·PNP 2·1N4148 2, 전원부에 NPN 1·PNP 1이 들어가 BC109C 5개·BC556B 3개가 필요합니다.",
   "myDAQ ±15 V를 이 보드에 직접 넣지 않습니다. 비교기처럼 출력이 −14 V까지 내려가면 Q5(BC109C)에 약 29 V가 걸려 VCEO 20 V를 넘습니다. ±9 V에서는 최대 약 17.3 V입니다.",
   "이득단·출력단까지 꽂은 뒤에는 피드백을 연결한 상태로 전원을 넣습니다. 개방루프 DC는 입력 오프셋이 약 2500배 증폭되어 포화합니다(비교기 예제는 의도된 포화).",
   "이 보드의 계산은 VCC·VEE를 전원부 출력값 ±9 V로 고정합니다. 전원부 자체(약 ±9.0 V)는 ‘myDAQ ±9 V 전원부’ 예제에서 따로 계산합니다. 수치 결과는 교육용 Ebers–Moll 모델(Early 효과·접합 용량 없음)과 damp-fast-rc 시간 정책의 근사입니다. 독립 ngspice(공개 근사 모델) 기준 개방루프 이득 약 2500, 단위이득 주파수 약 1.7 MHz, 슬루율 약 0.5 V/µs이며 실측으로 확인해야 합니다.",

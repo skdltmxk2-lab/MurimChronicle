@@ -111,7 +111,7 @@ test("op-amp boards take ±9 V from the supply block and use only myDAQ AO and A
 });
 
 // Course parts list (실험 부품 목록, 2022 edition) per kit; the team has two kits.
-const KIT = { resistor: { 4.7: 2, 8.2: 1, 50: 1, 100: 1, 200: 2, 1e3: 2, 2e3: 1, 2.2e3: 2, 5.1e3: 1, 6.8e3: 1, 10e3: 4, 12e3: 1, 22e3: 2, 30e3: 2, 33e3: 1, 62e3: 2, 82e3: 1, 100e3: 1 },
+const KIT = { resistor: { 4.7: 2, 8.2: 1, 51: 1 /* 목록 표기 50 Ω, 실물 51 Ω */, 100: 1, 200: 2, 1e3: 2, 2e3: 1, 2.2e3: 2, 5.1e3: 1, 6.8e3: 1, 10e3: 4, 12e3: 1, 22e3: 2, 30e3: 2, 33e3: 1, 62e3: 2, 82e3: 1, 100e3: 1 },
   capacitor: { 1e-9: 2, 1e-7: 1, 2.2e-7: 1, 1e-6: 2, 1e-5: 2, 1e-4: 4 },
   part: { "bjt-bc109c-philips-to18": 5, "bjt-bc556b-onsemi-to92": 2, "bjt-bc549c-onsemi-to92": 3, "diode-1n4148-vishay-do35": 3 } };
 const KITS = 2;
