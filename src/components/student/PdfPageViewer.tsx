@@ -19,7 +19,8 @@ export function PdfPageViewer({ file, title }: { file: Blob; title: string }) {
 
     async function open() {
       try {
-        const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+        const parserUrl = new URL("pdfjs-dist/legacy/build/pdf.min.mjs", import.meta.url).toString();
+        const pdfjs: typeof import("pdfjs-dist/legacy/build/pdf.mjs") = await import(/* webpackIgnore: true */ parserUrl);
         const bytes = new Uint8Array(await file.arrayBuffer());
         if (!active) return;
         pdfjs.GlobalWorkerOptions.workerSrc = new URL(
