@@ -168,14 +168,8 @@
   text-decoration: none;
 }
 
-.tz-study-school-mock-cta:hover:not(:disabled) {
+.tz-study-school-mock-cta:hover {
   background: #c7f9e0;
-}
-
-.tz-study-school-mock-cta:disabled {
-  border-color: #64736d;
-  background: #293230;
-  color: #d0dad5;
 }
 
 .tz-study-school-mock .tz-study-text-link {

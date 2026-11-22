@@ -9,6 +9,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
+import { KonkukProblemSheets } from "@/components/student/KonkukProblemSheets";
+import { KONKUK_SCHOOL_NAME } from "@/lib/exams/konkukSchoolMock";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
 import { formatQuestionStat, formatExamStat } from "@/lib/stats/displayed";
 import type { GeneratedExam } from "@/types/generatedExam";
@@ -23,14 +25,13 @@ const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
 const COUNT_OPTIONS = [10, 15, 20];
 
-const FEATURED_SCHOOL = "건국대학교";
 const SCHOOL_MOCK_SCHOOLS = [
   "서강대학교",
   "성균관대학교",
   "한양대학교",
   "중앙대학교",
   "경희대학교",
-  FEATURED_SCHOOL,
+  KONKUK_SCHOOL_NAME,
   "동국대학교",
   "이화여자대학교",
 ];
@@ -62,12 +63,6 @@ function isSubjectGeneratedExam(exam: GeneratedExam) {
 
 function isRealGeneratedExam(exam: GeneratedExam) {
   return (exam.tags ?? []).some((tag) => REAL_EXAM_TAGS.has(tag));
-}
-
-function isKonkukSchoolExam(exam: GeneratedExam) {
-  const tags = exam.tags ?? [];
-  return tags.includes("자체모고") && Boolean(exam.problems?.length)
-    && [exam.title, ...tags].some((value) => /건국대|konkuk/i.test(value));
 }
 
 function requiredTierForGeneratedExam(exam: GeneratedExam): UserTier {
@@ -147,7 +142,6 @@ export default function StudentExamsPage() {
   const [selectedMockSubject, setSelectedMockSubject] = useState<string | null>(null);
   const [selectedRealType, setSelectedRealType] = useState<RealExamType | "konkuk" | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
-  const userId = user?.id;
 
   // 무료 개방 기능: 데일리·단원별 학습·과목별 모의고사·취약유형 모의고사·커뮤니티는
   // 등급 제한 없이 로그인만 하면 이용할 수 있다 (이 페이지는 비로그인 시 early return).
@@ -160,49 +154,30 @@ export default function StudentExamsPage() {
     ? subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedMockSubject))
     : [];
   const realGeneratedExams = generatedExams.filter(isRealGeneratedExam);
-  const konkukExams = realGeneratedExams.filter(isKonkukSchoolExam);
-  const konkukOpen = konkukExams.length > 0;
   const selectedRealCategory = REAL_EXAM_TYPES.find(({ key }) => key === selectedRealType);
-  const selectedRealGeneratedExams = selectedRealType === "konkuk"
-    ? konkukExams
-    : selectedRealCategory
-      ? realGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedRealCategory.tag))
-      : [];
+  const selectedRealGeneratedExams = selectedRealCategory
+    ? realGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedRealCategory.tag))
+    : [];
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([questionRepo.countAll(), questionRepo.countByTag("daily")])
-      .then(([total, daily]) => {
+    Promise.all([questionRepo.countAll(), questionRepo.countByTag("daily"), examRepo.listGenerated()])
+      .then(([total, daily, exams]) => {
         if (cancelled) return;
         setQuestionCount(total);
         setDailyCount(daily);
+        setGeneratedExams(exams.filter((exam) => !(exam.tags ?? []).includes("weakness")));
       })
       .catch(() => {
         if (cancelled) return;
         setQuestionCount(0);
         setDailyCount(0);
+        setGeneratedExams([]);
       });
     return () => {
       cancelled = true;
     };
   }, []);
-
-  useEffect(() => {
-    setGeneratedExams([]);
-    if (!userId) return;
-    let cancelled = false;
-    examRepo.listGenerated()
-      .then((exams) => {
-        if (cancelled) return;
-        setGeneratedExams(exams.filter((exam) => !(exam.tags ?? []).includes("weakness")));
-      })
-      .catch(() => {
-        if (!cancelled) setGeneratedExams([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
 
   useEffect(() => {
     if (user?.role === "student") {
@@ -291,44 +266,33 @@ export default function StudentExamsPage() {
 
       <section className="tz-study-school-mock" aria-labelledby="tz-study-school-mock-title">
         <div className="tz-study-school-mock-heading">
-          <span className="tz-study-school-mock-badge">{konkukOpen ? "신규 오픈" : "첫 공개 예정"}</span>
+          <span className="tz-study-school-mock-badge">신규 오픈</span>
           <h2 id="tz-study-school-mock-title">학교별 모의고사</h2>
           <p>매년 11월~1월 업로드 됩니다</p>
         </div>
         <div className="tz-study-school-mock-body">
           <ul className="tz-study-school-mock-schools" aria-label="학교별 오픈 현황">
             {SCHOOL_MOCK_SCHOOLS.map((school) => (
-              <li key={school} className={school === FEATURED_SCHOOL ? "tz-study-school-mock-featured" : undefined}>
+              <li key={school} className={school === KONKUK_SCHOOL_NAME ? "tz-study-school-mock-featured" : undefined}>
                 {school}
-                <span className="sr-only">{school === FEATURED_SCHOOL && konkukOpen ? " 오픈" : " 준비 중"}</span>
+                <span className="sr-only">{school === KONKUK_SCHOOL_NAME ? " 오픈" : " 준비 중"}</span>
               </li>
             ))}
           </ul>
           <div className="tz-study-school-mock-actions">
-            {!konkukOpen ? (
-              <button type="button" className="tz-study-school-mock-cta" disabled>건국대학교 모의고사 준비 중</button>
-            ) : canRealExam ? (
+            {canRealExam ? (
               <button
                 type="button"
                 className="tz-study-school-mock-cta"
                 onClick={() => { setSelectedRealType("konkuk"); setRealExamOpen(true); }}
               >
-                {FEATURED_SCHOOL} 모의고사 보기
+                {KONKUK_SCHOOL_NAME} 모의고사 보기
               </button>
             ) : (
               <Link href="/student/pricing" className="tz-study-school-mock-cta">{tierLockMessage("pro")} 요금제 보기</Link>
             )}
             <Link href="/student/results?type=real" className="tz-study-text-link">지난 성적 보기</Link>
           </div>
-          {canRealExam && !konkukOpen && (
-            <button
-              type="button"
-              className="tz-study-text-link"
-              onClick={() => { setSelectedRealType(null); setRealExamOpen(true); }}
-            >
-              실전 모의고사 목록
-            </button>
-          )}
         </div>
       </section>
 
@@ -634,10 +598,10 @@ export default function StudentExamsPage() {
           >
             <div className="mb-5">
               <h3 className="text-xl font-bold tz-study-ink">
-                {selectedRealType === "konkuk" ? `${FEATURED_SCHOOL} 모의고사` : selectedRealCategory?.label ?? "실전 모의고사"}
+                {selectedRealType === "konkuk" ? `${KONKUK_SCHOOL_NAME} 모의고사` : selectedRealCategory?.label ?? "실전 모의고사"}
               </h3>
               <p className="mt-1 text-sm tz-study-muted">
-                {selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
+                {selectedRealType === "konkuk" ? "다운로드할 회차를 선택하세요" : selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
               </p>
             </div>
             {!selectedRealType ? (
@@ -658,7 +622,9 @@ export default function StudentExamsPage() {
                         <div className={`text-sm font-bold ${allowed ? "tz-study-ink" : "tz-study-muted"}`}>
                           {item.label}
                         </div>
-                        <div className="text-xs tz-study-muted">{item.desc}, {examCount}개</div>
+                        <div className="text-xs tz-study-muted">
+                          {item.desc}{item.key === "school" ? "" : `, ${examCount}개`}
+                        </div>
                       </div>
                       {!allowed ? (
                         <span className="shrink-0 tz-study-square tz-study-paper-3 px-2.5 py-1 text-xs font-bold tz-study-muted">
@@ -677,12 +643,23 @@ export default function StudentExamsPage() {
                   );
                 })}
               </div>
-            ) : selectedRealGeneratedExams.length === 0 ? (
-              <div className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
-                등록된 모의고사가 없습니다.
-              </div>
+            ) : selectedRealType === "konkuk" ? (
+              <KonkukProblemSheets />
             ) : (
               <div className="space-y-2">
+                {selectedRealType === "school" ? (
+                  <button
+                    type="button"
+                    className="tz-study-button tz-study-button-wide"
+                    onClick={() => setSelectedRealType("konkuk")}
+                  >
+                    {KONKUK_SCHOOL_NAME} 문제지 보기
+                  </button>
+                ) : selectedRealGeneratedExams.length === 0 && (
+                  <p className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
+                    등록된 모의고사가 없습니다.
+                  </p>
+                )}
                 {selectedRealGeneratedExams.map((exam) => (
                   <GeneratedExamOption
                     key={exam.id}
