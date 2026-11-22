@@ -1,13 +1,14 @@
 "use client";
 
 import katex from "katex";
-import { Fragment, useMemo, type ReactNode } from "react";
+import { Fragment, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { breakStatementLists, splitRenderBlocks } from "@/lib/math/viewBlocks.mjs";
 
 type KaTeXRendererProps = {
   content: string;
   className?: string;
   viewBoxes?: boolean;
+  expandWideMath?: boolean;
 };
 
 type Segment = {
@@ -16,7 +17,7 @@ type Segment = {
   display: boolean;
 };
 
-type RenderedSegment = Segment | (Segment & { html: string; overflowing?: boolean });
+type RenderedSegment = Segment | (Segment & { html: string }) | (Segment & { underline: string });
 type RenderBlock = {
   type: "normal" | "view";
   text: string;
@@ -31,6 +32,83 @@ type RawSegment = Segment & {
 
 const MATH_PATTERN = /((?<!\\)\$\$[\s\S]+?(?<!\\)\$\$|(?<!\\)\$[\s\S]+?(?<!\\)\$)/g;
 const LONG_INLINE_MATH = 160;
+const TEXT_UNDERLINE = /^\\underline\{\\text\{([^{}\\]+)\}\}$/;
+
+function ResponsiveFormula({ html, display, expandable }: { html: string; display: boolean; expandable: boolean }) {
+  const frameRef = useRef<HTMLSpanElement>(null);
+  const formulaRef = useRef<HTMLSpanElement>(null);
+  const [fit, setFit] = useState<{ width: number; height: number; scale: number } | null>(null);
+
+  useLayoutEffect(() => {
+    const container = frameRef.current?.parentElement;
+    const formula = formulaRef.current;
+    if (!container || !formula) return;
+
+    const measure = () => {
+      const available = container.clientWidth;
+      const width = formula.offsetWidth;
+      if (available <= 1 || width <= available) {
+        setFit(null);
+        return;
+      }
+
+      const scale = (available - 1) / width;
+      const height = Math.ceil(formula.offsetHeight * scale);
+      setFit((current) => current?.width === available - 1 && current.height === height && current.scale === scale
+        ? current
+        : { width: available - 1, height, scale });
+    };
+
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    observer.observe(formula);
+    return () => observer.disconnect();
+  }, [html]);
+
+  const block = display || Boolean(fit);
+
+  return (
+    <>
+      <span
+        ref={frameRef}
+        className={`cbt-math-formula max-w-full ${block ? "my-2 block text-center [&_.katex-display]:my-0" : "inline-block align-baseline"}`}
+      >
+        <span
+          className={`relative inline-block${fit ? " overflow-x-clip" : ""}`}
+          style={fit ? { width: fit.width, height: fit.height } : undefined}
+        >
+          <span
+            ref={formulaRef}
+            className="inline-block w-max"
+            style={fit ? { position: "absolute", left: 0, top: 0, transformOrigin: "top left", transform: `scale(${fit.scale})` } : undefined}
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        </span>
+      </span>
+      {expandable && fit && fit.scale < 0.7 && (
+        <details className="student-print-hide group my-2 text-sm">
+          <summary className="w-fit cursor-pointer list-none underline underline-offset-2 [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">수식 크게 보기</span>
+            <span className="hidden group-open:inline">확대 수식 접기</span>
+          </summary>
+          <div
+            className="cbt-math-expanded mt-2 max-w-full py-1 [overflow-x:auto] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            role="region"
+            aria-label="확대 수식. 좌우 방향키 또는 가로로 밀어 전체를 볼 수 있습니다."
+            tabIndex={0}
+          >
+            <span className="inline-block w-max [&_.katex-display]:my-0" dangerouslySetInnerHTML={{ __html: html }} />
+          </div>
+        </details>
+      )}
+    </>
+  );
+}
 
 function splitMath(content: string): Segment[] {
   const segments: Segment[] = [];
@@ -162,13 +240,15 @@ function renderSegments(segments: Segment[]): RenderedSegment[] {
   return segments.map((segment) => {
     if (!segment.math) return segment;
 
+    const underline = !segment.display && TEXT_UNDERLINE.exec(segment.text);
+    if (underline) return { ...segment, underline: underline[1] };
+
     const display = segment.display || segment.text.length > LONG_INLINE_MATH;
 
     try {
       return {
         ...segment,
         display,
-        overflowing: display && segment.text.length > LONG_INLINE_MATH,
         html: katex.renderToString(segment.text, {
           displayMode: display,
           throwOnError: false,
@@ -211,7 +291,7 @@ function renderTextLine(line: string, keyPrefix: string) {
   return nodes;
 }
 
-export function KaTeXRenderer({ content, className, viewBoxes = true }: KaTeXRendererProps) {
+export function KaTeXRenderer({ content, className, viewBoxes = true, expandWideMath = true }: KaTeXRendererProps) {
   const renderedBlocks = useMemo<RenderedBlock[]>(() => {
     return splitRenderBlocks(normalizeContent(content), { viewBoxes }).map((block) => ({
       ...block,
@@ -226,31 +306,8 @@ export function KaTeXRenderer({ content, className, viewBoxes = true }: KaTeXRen
 
   function renderSegmentNodes(segments: RenderedSegment[], keyPrefix: string) {
     return segments.map((segment, index) => {
-      if ("html" in segment) {
-        const Tag = segment.display ? "div" : "span";
-        // A short TeX source can still be wider than a phone (e.g. two limits).
-        // Constrain every display formula, rather than guessing from source length.
-        const displayClassName = "my-3 max-w-full overflow-x-auto overflow-y-hidden py-1";
-        return (
-          <Tag
-            key={`${keyPrefix}-${index}`}
-            className={
-              segment.display
-                ? displayClassName
-                : "inline-block max-w-full overflow-x-auto overflow-y-hidden py-1 align-middle"
-            }
-          >
-            <span
-              style={{
-                display: segment.display ? "block" : "inline-block",
-                width: "max-content",
-                minWidth: segment.display ? "100%" : undefined
-              }}
-              dangerouslySetInnerHTML={{ __html: segment.html }}
-            />
-          </Tag>
-        );
-      }
+      if ("underline" in segment) return <u key={`${keyPrefix}-${index}`} className="underline-offset-2">{segment.underline}</u>;
+      if ("html" in segment) return <ResponsiveFormula key={`${keyPrefix}-${index}`} html={segment.html} display={segment.display} expandable={expandWideMath} />;
 
       const lines = segment.text.split("\n");
       return (

@@ -396,19 +396,21 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
                 <div className="tz-exam-question-body">
-                  <ContentRenderer
-                    contentType={problem.contentType}
-                    text={problem.question}
-                    image={problem.questionImage}
-                    imageAlt={`${index + 1}번 문제`}
-                    className="text-base font-medium leading-8 text-ink"
-                  />
-                  {inkMode ? (
-                    <ScratchPad
-                      storageKey={`cbt:ink:${exam.id}:${problem.id}`}
-                      className="mt-5"
+                  <div className="tz-exam-question-stem">
+                    <ContentRenderer
+                      contentType={problem.contentType}
+                      text={problem.question}
+                      image={problem.questionImage}
+                      imageAlt={`${index + 1}번 문제`}
+                      className="text-base font-medium leading-8 text-ink"
                     />
-                  ) : null}
+                    {inkMode ? (
+                      <ScratchPad
+                        storageKey={`cbt:ink:${exam.id}:${problem.id}`}
+                        className="mt-5"
+                      />
+                    ) : null}
+                  </div>
                   <div className="tz-exam-options">
                     {(problem.questionType === "subjective"
                       || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
@@ -447,6 +449,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                             </span>
                             <ContentRenderer
                               viewBoxes={false}
+                              expandWideMath={false}
                               imagePlacement="after"
                               contentType={option.contentType}
                               text={option.text}

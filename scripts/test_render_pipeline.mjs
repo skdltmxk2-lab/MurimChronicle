@@ -183,8 +183,11 @@ console.log("React renderer uses the same box parser as the offline audit");
   check("React: option context disables boxes", !html.includes("data-view-box"), html);
   const mathHtml = renderToStaticMarkup(React.createElement(Component, { content: "$\\dfrac{1}{2}$" }));
   check("React: formulas produce real KaTeX HTML", mathHtml.includes('class="katex"'), mathHtml);
+  check("React: inline formulas avoid scrollbar wrappers", !mathHtml.includes("overflow-x-auto"), mathHtml);
+  const underlined = renderToStaticMarkup(React.createElement(Component, { content: "to $\\underline{\\text{scrutinize}}$ every clause" }));
+  check("React: plain underlines flow with surrounding text", /to <u[^>]*>scrutinize<\/u> every clause/.test(underlined), underlined);
   const displayHtml = renderToStaticMarkup(React.createElement(Component, { content: "$$T(1,0,0)=(2,1),T(2,1,0)=(2,1),T(1,-1,-1)=(5,2)$$" }));
-  check("React: short display source also scrolls in narrow columns", displayHtml.includes("overflow-x-auto"), displayHtml);
+  check("React: display formulas initially use a responsive frame without a scrollbar", displayHtml.includes("cbt-math-formula") && !displayHtml.includes("overflow-x-auto"), displayHtml);
 }
 
 console.log(failures === 0 ? "\nAll render pipeline tests passed." : `\n${failures} render pipeline test(s) failed.`);
