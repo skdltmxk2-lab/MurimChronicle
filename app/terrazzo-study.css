@@ -65,6 +65,137 @@
 .tz-study-advanced-body > p:first-child { color: var(--color-ink); font-size: .875rem; }
 .tz-study-availability { margin-top: var(--space-xs) !important; color: var(--color-accent); font-size: .75rem; }
 .tz-study-footnote { margin-top: var(--space-sm) !important; color: var(--color-muted); font-size: .75rem; }
+
+.tz-study-school-mock {
+  --school-accent: #a5f2cc;
+  --school-accent-ink: #102b20;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.65fr);
+  align-items: center;
+  gap: clamp(1.25rem, 3.5vw, 3rem);
+  margin-bottom: var(--space-xl);
+  padding: clamp(1rem, 3.2vw, 2.5rem);
+  border: 1px solid #526d63;
+  border-top: 2px solid var(--school-accent);
+  background: radial-gradient(ellipse at top left, #25483b, transparent 68%), #182322;
+  color: #f2f6f4;
+  box-shadow: 0 4px 28px #6fca9f2b;
+}
+
+.tz-study-school-mock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .75rem;
+  color: var(--school-accent);
+  font-size: .8125rem;
+  font-weight: 700;
+}
+
+.tz-study-school-mock-badge::before {
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+  background: var(--school-accent);
+  box-shadow: 0 0 12px var(--school-accent);
+  content: "";
+}
+
+.tz-study-school-mock h2 {
+  color: inherit;
+  font-size: clamp(1.625rem, 3.2vw, 2.625rem);
+  line-height: 1.15;
+  word-break: keep-all;
+}
+
+.tz-study-school-mock-heading p {
+  margin-top: .75rem;
+  color: #d0dad5;
+  font-size: .875rem;
+}
+
+.tz-study-school-mock-body {
+  min-width: 0;
+}
+
+.tz-study-school-mock-schools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+  margin: 0 0 1.125rem;
+  padding: 0;
+  list-style: none;
+}
+
+.tz-study-school-mock-schools li {
+  padding: .45rem .65rem;
+  border: 1px solid #596460;
+  background: #293230;
+  color: #c6ccca;
+  font-size: .8125rem;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.tz-study-school-mock-schools .tz-study-school-mock-featured {
+  border-color: var(--school-accent);
+  background: var(--school-accent);
+  color: var(--school-accent-ink);
+  font-weight: 700;
+  box-shadow: 0 0 16px #a5f2cc55;
+}
+
+.tz-study-school-mock-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem 1rem;
+}
+
+.tz-study-school-mock-cta {
+  display: inline-flex;
+  flex: 1 1 13rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: .65rem 1rem;
+  border: 1px solid var(--school-accent);
+  background: var(--school-accent);
+  color: var(--school-accent-ink);
+  font-size: .875rem;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.tz-study-school-mock-cta:hover:not(:disabled) {
+  background: #c7f9e0;
+}
+
+.tz-study-school-mock-cta:disabled {
+  border-color: #64736d;
+  background: #293230;
+  color: #d0dad5;
+}
+
+.tz-study-school-mock .tz-study-text-link {
+  color: #f2f6f4;
+}
+
+.tz-study-school-mock .tz-study-text-link:hover {
+  color: var(--school-accent);
+}
+
+.tz-study .tz-study-school-mock :is(a, button):focus-visible {
+  outline-color: var(--school-accent);
+}
+
+@media (max-width: 48rem) {
+  .tz-study-school-mock {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .tz-study-weakness { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xl); margin-top: var(--space-xl); padding-block: var(--space-lg); border-bottom: var(--rule-bar) solid var(--color-rule-strong, var(--color-ink)); }
 .tz-study-weakness h2 { font-size: 1.375rem; }
 .tz-study-weakness p { margin-top: var(--space-sm); color: var(--color-muted); font-size: .875rem; }
