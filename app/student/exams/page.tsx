@@ -25,15 +25,9 @@ const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 
 const COUNT_OPTIONS = [10, 15, 20];
 
-const SCHOOL_MOCK_SCHOOLS = [
-  "서강대학교",
-  "성균관대학교",
-  "한양대학교",
-  "중앙대학교",
-  "경희대학교",
-  KONKUK_SCHOOL_NAME,
-  "동국대학교",
-  "이화여자대학교",
+const SCHOOL_MOCK_ROWS = [
+  ["서강대학교", "성균관대학교", "한양대학교", "중앙대학교"],
+  ["이화여자대학교", "경희대학교", KONKUK_SCHOOL_NAME],
 ];
 
 const REAL_EXAM_TYPES = [
@@ -271,14 +265,18 @@ export default function StudentExamsPage() {
           <p>매년 11월~1월 업로드 됩니다</p>
         </div>
         <div className="tz-study-school-mock-body">
-          <ul className="tz-study-school-mock-schools" aria-label="학교별 오픈 현황">
-            {SCHOOL_MOCK_SCHOOLS.map((school) => (
-              <li key={school} className={school === KONKUK_SCHOOL_NAME ? "tz-study-school-mock-featured" : undefined}>
-                {school}
-                <span className="sr-only">{school === KONKUK_SCHOOL_NAME ? " 오픈" : " 준비 중"}</span>
-              </li>
+          <div className="tz-study-school-mock-schools" role="group" aria-label="학교별 오픈 현황">
+            {SCHOOL_MOCK_ROWS.map((schools) => (
+              <ul key={schools[0]}>
+                {schools.map((school) => (
+                  <li key={school} className={school === KONKUK_SCHOOL_NAME ? "tz-study-school-mock-featured" : undefined}>
+                    {school}
+                    <span className="sr-only">{school === KONKUK_SCHOOL_NAME ? " 오픈" : " 준비 중"}</span>
+                  </li>
+                ))}
+              </ul>
             ))}
-          </ul>
+          </div>
           <div className="tz-study-school-mock-actions">
             {canRealExam ? (
               <button

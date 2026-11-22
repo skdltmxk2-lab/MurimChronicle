@@ -119,10 +119,16 @@
 }
 
 .tz-study-school-mock-schools {
+  display: grid;
+  gap: .5rem;
+  margin-bottom: 1.125rem;
+}
+
+.tz-study-school-mock-schools ul {
   display: flex;
   flex-wrap: wrap;
   gap: .5rem;
-  margin: 0 0 1.125rem;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
@@ -187,6 +193,23 @@
 @media (max-width: 48rem) {
   .tz-study-school-mock {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 30rem) {
+  .tz-study-school-mock-schools ul {
+    gap: .3rem;
+  }
+
+  .tz-study-school-mock-schools li {
+    padding-inline: .2rem;
+    font-size: clamp(.625rem, 3.08vw, .75rem);
+  }
+}
+
+@media (max-width: 22rem) {
+  .tz-study-school-mock {
+    padding-inline: .75rem;
   }
 }
 
