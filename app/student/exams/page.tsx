@@ -600,9 +600,11 @@ export default function StudentExamsPage() {
               <h3 className="text-xl font-bold tz-study-ink">
                 {selectedRealType === "konkuk" ? `${KONKUK_SCHOOL_NAME} 모의고사` : selectedRealCategory?.label ?? "실전 모의고사"}
               </h3>
-              <p className="mt-1 text-sm tz-study-muted">
-                {selectedRealType === "konkuk" ? "다운로드할 회차를 선택하세요" : selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
-              </p>
+              {selectedRealType !== "konkuk" && (
+                <p className="mt-1 text-sm tz-study-muted">
+                  {selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
+                </p>
+              )}
             </div>
             {!selectedRealType ? (
               <div className="space-y-2">

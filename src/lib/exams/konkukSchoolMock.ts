@@ -1,5 +1,5 @@
 export const KONKUK_SCHOOL_NAME = "건국대학교";
-export const KONKUK_SCHOOL_MOCK_ROUNDS = [1, 2, 3] as const;
+export const KONKUK_SCHOOL_MOCK_ROUNDS = [1, 2, 3, 4] as const;
 
 export type KonkukSchoolMockRound = (typeof KONKUK_SCHOOL_MOCK_ROUNDS)[number];
 

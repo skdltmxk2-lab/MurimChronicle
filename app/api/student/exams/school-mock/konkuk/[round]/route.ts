@@ -17,9 +17,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ roun
     return auth.response;
   }
 
+  const fileName = round === 2 ? "round-2-v2.pdf" : `round-${round}.pdf`;
   const { data, error } = await auth.supabase.storage
     .from("homework-pdfs")
-    .download(`school-mocks/konkuk/round-${round}.pdf`);
+    .download(`school-mocks/konkuk/${fileName}`);
   if (error || !data) {
     return NextResponse.json(
       { message: "문제지를 열 수 없습니다. 잠시 후 다시 시도해 주세요." },
