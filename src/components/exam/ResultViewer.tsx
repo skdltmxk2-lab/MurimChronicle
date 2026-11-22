@@ -4,7 +4,9 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDuration } from "@/lib/exam/grading";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
+import { KONKUK_SCHOOL_MOCK_API, konkukRoundFromExamId } from "@/lib/exams/konkukSchoolMock";
 import { attemptRepo } from "@/lib/exam/storage";
+import { supabase } from "@/lib/supabase/client";
 import type { AttemptResult, MockExam } from "@/types/exam";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
@@ -14,7 +16,7 @@ import { StudentExamPrintSheet } from "@/components/exam/StudentExamPrintSheet";
 
 export function ResultViewer({ attemptId }: { attemptId: string }) {
   const [result, setResult] = useState<AttemptResult | null>(null);
-  const [exam, setExam] = useState<MockExam | null>(null);
+  const [exam, setExam] = useState<MockExam | null | undefined>(undefined);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -26,14 +28,37 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
 
   useEffect(() => {
     if (!result) return;
+    setExam(undefined);
     if (result.examSnapshot) {
       setExam(result.examSnapshot);
       return;
     }
-    examRepo.findById(result.examId).then((found) => setExam(found as MockExam | null));
+    let active = true;
+    async function loadExam(attempt: AttemptResult) {
+      const schoolRound = konkukRoundFromExamId(attempt.examId);
+      if (schoolRound === null) return examRepo.findById(attempt.examId);
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return null;
+      const query = new URLSearchParams({ attemptId: attempt.attemptId });
+      const response = await fetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}?${query}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        cache: "no-store",
+      });
+      if (!response.ok) return null;
+      const data = await response.json() as { exam?: MockExam };
+      return data.exam ?? null;
+    }
+
+    void loadExam(result).then((found) => {
+      if (active) setExam(found);
+    }).catch(() => {
+      if (active) setExam(null);
+    });
+    return () => { active = false; };
   }, [result]);
 
-  if (!loaded) {
+  if (!loaded || (result && exam === undefined)) {
     return (
       <main className="mx-auto max-w-5xl px-5 py-10">
         <div className="rounded-lg border border-line bg-white p-8 text-sm font-bold text-slate-600 shadow-soft">
@@ -63,6 +88,10 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
   }
 
   const reviewMap = new Map(result.items.map((item) => [item.problemId, item]));
+  const isSchoolMock = konkukRoundFromExamId(exam.id) !== null;
+  const scoreLabel = result.score.earnedPoints !== undefined && result.score.totalPoints !== undefined
+    ? `${result.score.earnedPoints}/${result.score.totalPoints}점`
+    : `${result.score.percent}%`;
 
   return (
     <>
@@ -77,7 +106,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
           <div className="grid grid-cols-3 gap-3 text-center">
             <div className="rounded-md bg-brand-600 px-5 py-4 text-white">
               <div className="text-xs font-bold text-white/80">점수</div>
-              <div className="mt-1 text-3xl font-black">{result.score.percent}%</div>
+              <div className="mt-1 text-3xl font-black">{scoreLabel}</div>
             </div>
             <div className="rounded-md border border-line px-5 py-4">
               <div className="text-xs font-bold text-slate-500">정답</div>
@@ -99,13 +128,15 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
           >
             문제지 PDF
           </button>
-          <button
-            type="button"
-            onClick={() => printStudentPdf({ modeClass: "student-result-print-solutions" })}
-            className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:border-brand-600 hover:text-brand-700"
-          >
-            해설 PDF
-          </button>
+          {!isSchoolMock && (
+            <button
+              type="button"
+              onClick={() => printStudentPdf({ modeClass: "student-result-print-solutions" })}
+              className="rounded-md border border-line bg-white px-4 py-2 text-sm font-black text-ink hover:border-brand-600 hover:text-brand-700"
+            >
+              해설 PDF
+            </button>
+          )}
           {result.retryHref ? (
             <Link
               href={result.retryHref}
@@ -135,9 +166,9 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
             : problem.options.find((option) => option.id === review?.selectedOptionId);
           const correct = isSubjective
             ? null
-            : problem.options.find((option) => option.id === problem.correctOptionId);
+            : problem.options.find((option) => option.id === (isSchoolMock ? review?.correctOptionId : problem.correctOptionId));
           const userText = isSubjective ? (review?.userAnswerText ?? null) : null;
-          const correctText = isSubjective ? (problem.answerText ?? "") : null;
+          const correctText = isSubjective ? ((isSchoolMock ? review?.answerText : problem.answerText) ?? "") : null;
 
           return (
             <article
@@ -213,16 +244,18 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                     </div>
                   </div>
                 </div>
-                <div data-print-card="true" className="mt-4 rounded-md border border-brand-100 bg-brand-50 p-4">
-                  <div className="text-xs font-black text-brand-700">해설</div>
-                  <ContentRenderer
-                    contentType={problem.explanationContentType}
-                    text={problem.explanation}
-                    image={problem.explanationImage}
-                    imageAlt={`${index + 1}번 해설`}
-                    className="mt-2 text-sm font-semibold leading-7 text-ink"
-                  />
-                </div>
+                {!isSchoolMock && (
+                  <div data-print-card="true" className="mt-4 rounded-md border border-brand-100 bg-brand-50 p-4">
+                    <div className="text-xs font-black text-brand-700">해설</div>
+                    <ContentRenderer
+                      contentType={problem.explanationContentType}
+                      text={problem.explanation}
+                      image={problem.explanationImage}
+                      imageAlt={`${index + 1}번 해설`}
+                      className="mt-2 text-sm font-semibold leading-7 text-ink"
+                    />
+                  </div>
+                )}
               </div>
             </article>
           );

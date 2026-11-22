@@ -36,6 +36,11 @@ export function gradeExam(params: {
   });
   const correct = items.filter((item) => item.isCorrect).length;
   const total = exam.problems.length;
+  const isWeighted = exam.problems.some((problem) => problem.points !== undefined);
+  const totalPoints = exam.problems.reduce((sum, problem) => sum + (problem.points ?? 1), 0);
+  const earnedPoints = items.reduce((sum, item, index) => (
+    item.isCorrect ? sum + (exam.problems[index].points ?? 1) : sum
+  ), 0);
 
   return {
     attemptId,
@@ -49,7 +54,8 @@ export function gradeExam(params: {
     score: {
       correct,
       total,
-      percent: total === 0 ? 0 : Math.round((correct / total) * 100)
+      percent: totalPoints === 0 ? 0 : Math.round((earnedPoints / totalPoints) * 100),
+      ...(isWeighted ? { earnedPoints, totalPoints } : {}),
     },
     items
   };

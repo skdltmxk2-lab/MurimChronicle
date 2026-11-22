@@ -1,53 +1,186 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
-import { konkukProblemSheetName } from "@/lib/exams/konkukSchoolMock";
+import { requireUser } from "@/lib/auth/requireUser";
+import { gradeExam } from "@/lib/exam/grading";
+import { konkukExamId } from "@/lib/exams/konkukSchoolMock";
+import type { AnswerMap, MockExam } from "@/types/exam";
+
+type RoundParams = { params: Promise<{ round: string }> };
 
 const NO_CACHE = { "Cache-Control": "private, no-store" };
+const ATTEMPT_ID_PATTERN = /^att-[0-9]{13}-[a-z0-9]{1,16}$/;
+const NOT_FOUND = "요청한 회차가 없습니다.";
+const OPEN_FAILED = "모의고사를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.";
+const SUBMIT_FAILED = "답안을 제출하지 못했습니다. 잠시 후 다시 시도해 주세요.";
 
-export async function GET(request: Request, { params }: { params: Promise<{ round: string }> }) {
-  const { round: roundParam } = await params;
-  if (!/^[1-9]\d{0,2}$/.test(roundParam)) {
-    return NextResponse.json({ message: "요청한 회차가 없습니다." }, { status: 404, headers: NO_CACHE });
+function json(value: object, status = 200) {
+  return NextResponse.json(value, { status, headers: NO_CACHE });
+}
+
+async function readRound(params: RoundParams["params"]) {
+  const { round } = await params;
+  return /^[1-9]\d{0,2}$/.test(round) ? Number(round) : null;
+}
+
+async function loadExam(supabase: SupabaseClient, round: number) {
+  const { data, error } = await supabase
+    .from("school_mock_problem_sheets")
+    .select("exam")
+    .eq("school_code", "konkuk")
+    .eq("round", round)
+    .maybeSingle();
+
+  if (error) return { response: json({ message: OPEN_FAILED }, 503) };
+  const exam = data?.exam as MockExam | null | undefined;
+  if (!exam) return { response: json({ message: NOT_FOUND }, 404) };
+  if (exam.id !== konkukExamId(round) || !Array.isArray(exam.problems) || exam.problems.length !== 40) {
+    return { response: json({ message: OPEN_FAILED }, 503) };
   }
-  const round = Number(roundParam);
 
+  const normalized: MockExam = {
+    ...exam,
+    timeLimitSec: 3600,
+    problems: exam.problems.map((problem, index) => ({
+      ...problem,
+      points: index < 20 ? 2 : 3,
+    })),
+  };
+  return { exam: normalized };
+}
+
+function studentExam(exam: MockExam): MockExam {
+  return {
+    id: exam.id,
+    title: exam.title,
+    description: exam.description,
+    mode: exam.mode,
+    timeLimitSec: exam.timeLimitSec,
+    tags: exam.tags,
+    problems: exam.problems.map((problem) => ({
+      id: problem.id,
+      subject: problem.subject,
+      unit: problem.unit,
+      concept: problem.concept,
+      difficulty: problem.difficulty,
+      question: problem.question,
+      contentType: problem.contentType,
+      questionImage: problem.questionImage,
+      questionType: problem.questionType,
+      points: problem.points,
+      options: problem.options.map((option) => ({
+        id: option.id,
+        label: option.label,
+        text: option.text,
+        contentType: option.contentType,
+        image: option.image,
+      })),
+      correctOptionId: "",
+      explanation: "",
+    })),
+  };
+}
+
+async function findAttempt(supabase: SupabaseClient, userId: string, examId: string, attemptId: string) {
+  return supabase
+    .from("exam_attempts")
+    .select("result")
+    .eq("user_id", userId)
+    .eq("exam_id", examId)
+    .eq("attempt_id", attemptId)
+    .maybeSingle();
+}
+
+export async function GET(request: Request, { params }: RoundParams) {
+  const round = await readRound(params);
+  if (round === null) return json({ message: NOT_FOUND }, 404);
+
+  const attemptId = new URL(request.url).searchParams.get("attemptId");
+  const auth = attemptId === null ? await requireTier(request, "pro") : await requireUser(request);
+  if (!auth.ok) {
+    auth.response.headers.set("Cache-Control", NO_CACHE["Cache-Control"]);
+    return auth.response;
+  }
+
+  if (attemptId !== null) {
+    if (!ATTEMPT_ID_PATTERN.test(attemptId)) return json({ message: "응시 기록을 찾을 수 없습니다." }, 404);
+    const { data, error } = await findAttempt(auth.supabase, auth.userId, konkukExamId(round), attemptId);
+    if (error) return json({ message: OPEN_FAILED }, 503);
+    if (!data) return json({ message: "응시 기록을 찾을 수 없습니다." }, 404);
+  }
+
+  const found = await loadExam(auth.supabase, round);
+  if (found.response) return found.response;
+  return json({ exam: studentExam(found.exam) });
+}
+
+function parseSubmission(body: unknown) {
+  if (!body || typeof body !== "object") return null;
+  const { attemptId, answers, elapsedSec } = body as Record<string, unknown>;
+  if (typeof attemptId !== "string" || !ATTEMPT_ID_PATTERN.test(attemptId)) return null;
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
+  if (typeof elapsedSec !== "number" || !Number.isSafeInteger(elapsedSec) || elapsedSec < 0) return null;
+  return { attemptId, answers, elapsedSec };
+}
+
+function validatedAnswers(exam: MockExam, answers: object): AnswerMap | null {
+  const problems = new Map(exam.problems.map((problem) => [problem.id, problem]));
+  const entries = Object.entries(answers);
+  for (const [problemId, value] of entries) {
+    const problem = problems.get(problemId);
+    if (typeof value !== "string" || !problem) return null;
+    if (problem.questionType === "subjective") {
+      if (value.length > 1000) return null;
+    } else if (!problem.options.some((option) => option.id === value)) {
+      return null;
+    }
+  }
+  return Object.fromEntries(entries);
+}
+
+export async function POST(request: Request, { params }: RoundParams) {
+  const round = await readRound(params);
+  if (round === null) return json({ message: NOT_FOUND }, 404);
   const auth = await requireTier(request, "pro");
   if (!auth.ok) {
     auth.response.headers.set("Cache-Control", NO_CACHE["Cache-Control"]);
     return auth.response;
   }
 
-  const { data: sheet, error: catalogError } = await auth.supabase
-    .from("school_mock_problem_sheets")
-    .select("object_name")
-    .eq("school_code", "konkuk")
-    .eq("round", round)
-    .maybeSingle();
-  if (!catalogError && !sheet) {
-    return NextResponse.json({ message: "요청한 회차가 없습니다." }, { status: 404, headers: NO_CACHE });
-  }
-  if (catalogError || !sheet || !new RegExp(`^round-${round}(-v[1-9][0-9]*)?\\.pdf$`).test(sheet.object_name)) {
-    return NextResponse.json(
-      { message: "문제지를 열 수 없습니다. 잠시 후 다시 시도해 주세요." },
-      { status: 503, headers: NO_CACHE },
-    );
-  }
-  const { data, error } = await auth.supabase.storage
-    .from("homework-pdfs")
-    .download(`school-mocks/konkuk/${sheet.object_name}`);
-  if (error || !data) {
-    return NextResponse.json(
-      { message: "문제지를 열 수 없습니다. 잠시 후 다시 시도해 주세요." },
-      { status: 503, headers: NO_CACHE },
-    );
-  }
+  const submission = parseSubmission(await request.json().catch(() => null));
+  if (!submission) return json({ message: "답안 형식이 올바르지 않습니다." }, 400);
+  const { attemptId, elapsedSec } = submission;
+  const { data: existing, error: readError } = await findAttempt(auth.supabase, auth.userId, konkukExamId(round), attemptId);
+  if (readError) return json({ message: SUBMIT_FAILED }, 503);
+  if (existing) return json({ result: existing.result });
 
-  return new Response(data, {
-    headers: {
-      ...NO_CACHE,
-      "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="konkuk-mock-${round}.pdf"; filename*=UTF-8''${encodeURIComponent(konkukProblemSheetName(round))}`,
-      "X-Content-Type-Options": "nosniff",
-    },
+  const found = await loadExam(auth.supabase, round);
+  if (found.response) return found.response;
+  const { exam } = found;
+  const answers = validatedAnswers(exam, submission.answers);
+  if (!answers) return json({ message: "답안에 올바르지 않은 문항 또는 선택지가 있습니다." }, 400);
+
+  const result = gradeExam({
+    exam,
+    answers,
+    attemptId,
+    elapsedSec: Math.min(elapsedSec, exam.timeLimitSec),
+    retryHref: "/student/exams/" + exam.id,
   });
+  delete result.examSnapshot;
+
+  const { error } = await auth.supabase.from("exam_attempts").insert({
+    attempt_id: attemptId,
+    user_id: auth.userId,
+    exam_id: exam.id,
+    result,
+  });
+  if (error?.code === "23505") {
+    const { data: stored, error: retryError } = await findAttempt(auth.supabase, auth.userId, exam.id, attemptId);
+    if (retryError) return json({ message: SUBMIT_FAILED }, 503);
+    if (stored) return json({ result: stored.result });
+    return json({ message: SUBMIT_FAILED }, 409);
+  }
+  if (error) return json({ message: SUBMIT_FAILED }, 503);
+  return json({ result });
 }

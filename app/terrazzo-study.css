@@ -225,10 +225,6 @@
 .tz-study-modal-layer { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: center; align-items: center; padding: var(--space-lg); background: var(--color-overlay, color-mix(in srgb, var(--color-paper) 80%, transparent)); }
 .tz-study-modal { width: 100%; max-width: 480px; max-height: calc(100dvh - var(--space-xl)); overflow-y: auto; padding: var(--space-lg); border: var(--rule-bar) solid var(--color-rule-strong, var(--color-ink)); background: var(--color-plate); color: var(--color-ink); box-shadow: var(--shadow-card); }
 .tz-study-modal-wide { max-width: 560px; }
-.tz-study-modal:has(.tz-study-school-mock-viewer) { max-width: 840px; }
-.tz-study-school-mock-page { max-height: 60dvh; overflow: auto; overscroll-behavior: contain; background: var(--color-paper-2); }
-.tz-study-school-mock-page canvas:not([hidden]) { display: block; width: 100%; height: auto; }
-.tz-study-school-mock-page canvas[hidden] { display: none; }
 .tz-study-modal h3 { font-size: 1.5rem; }
 .tz-study-modal button { min-height: 44px; border-radius: 0; }
 .tz-study-modal article { border: 0; border-bottom: 1px solid var(--color-rule); background: transparent; }

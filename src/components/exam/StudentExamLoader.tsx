@@ -1,33 +1,69 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { adminFetch } from "@/lib/api/adminFetch";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
+import { KONKUK_SCHOOL_MOCK_API, konkukRoundFromExamId } from "@/lib/exams/konkukSchoolMock";
 import { useAuth } from "@/lib/auth/AuthContext";
-import type { MockExam } from "@/types/exam";
+import { canUseTier } from "@/lib/auth/tierGuard";
+import type { AnswerMap, AttemptResult, MockExam } from "@/types/exam";
 import { ExamRunner } from "@/components/exam/ExamRunner";
 
 export function StudentExamLoader({ examId }: { examId: string }) {
   const { user, authChecked } = useAuth();
   const [exam, setExam] = useState<MockExam | null | undefined>(undefined);
+  const [loadError, setLoadError] = useState("");
+  const schoolRound = konkukRoundFromExamId(examId);
+  const schoolLocked = schoolRound !== null && !canUseTier(user, "pro");
 
   useEffect(() => {
     if (!authChecked) return;
-    if (!user) {
+    if (!user || schoolLocked) {
       setExam(undefined);
       return;
     }
     let cancelled = false;
+    const controller = new AbortController();
 
     setExam(undefined);
-    examRepo.findById(examId).then((found) => {
-      if (!cancelled) setExam(found as MockExam | null);
+    setLoadError("");
+    const loadExam = schoolRound === null ? examRepo.findById(examId) : (async () => {
+      const response = await adminFetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}`, {
+        signal: controller.signal,
+        cache: "no-store",
+      });
+      if (response.status === 404) return null;
+      if (!response.ok) throw new Error("시험을 불러오지 못했습니다.");
+      const data = await response.json() as { exam: MockExam };
+      return data.exam;
+    })();
+    loadExam.then((found) => { if (!cancelled) setExam(found); }).catch(() => {
+      if (!cancelled) {
+        setExam(null);
+        setLoadError("시험을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      }
     });
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [authChecked, user, examId]);
+  }, [authChecked, user, examId, schoolRound, schoolLocked]);
+
+  const submitSchoolAttempt = useCallback(async (input: {
+    attemptId: string;
+    answers: AnswerMap;
+    elapsedSec: number;
+  }) => {
+    const response = await adminFetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}`, {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    const data = await response.json().catch(() => null) as { result?: AttemptResult; message?: string } | null;
+    if (!response.ok || !data?.result) throw new Error(data?.message ?? "시험을 제출하지 못했습니다.");
+    return data.result;
+  }, [schoolRound]);
 
   if (!authChecked) {
     return (
@@ -59,6 +95,18 @@ export function StudentExamLoader({ examId }: { examId: string }) {
     );
   }
 
+  if (schoolLocked) {
+    return (
+      <main className="tz-study tz-study-guest">
+        <section className="tz-study-login">
+          <h1>PRO 전용 모의고사입니다</h1>
+          <p>건국대학교 모의고사는 PRO 등급 이상에서 응시할 수 있습니다.</p>
+          <Link href="/student/exams" className="tz-study-button tz-study-button-quiet">시험 목록으로</Link>
+        </section>
+      </main>
+    );
+  }
+
   if (exam === undefined) {
     return (
       <main className="mx-auto max-w-5xl px-5 py-10">
@@ -73,9 +121,9 @@ export function StudentExamLoader({ examId }: { examId: string }) {
     return (
       <main className="mx-auto max-w-5xl px-5 py-10">
         <section className="rounded-lg border border-line bg-white p-6 shadow-soft">
-          <h1 className="text-xl font-black text-ink">시험을 찾을 수 없습니다</h1>
+          <h1 className="text-xl font-black text-ink">{loadError ? "시험을 열 수 없습니다" : "시험을 찾을 수 없습니다"}</h1>
           <p className="mt-2 text-sm text-slate-600">
-            존재하지 않는 시험이거나 다른 브라우저에서 생성된 시험입니다.
+            {loadError || "존재하지 않는 시험이거나 다른 브라우저에서 생성된 시험입니다."}
           </p>
           <Link
             href="/student/exams"
@@ -88,5 +136,13 @@ export function StudentExamLoader({ examId }: { examId: string }) {
     );
   }
 
-  return <ExamRunner exam={exam} retryHref={`/student/exams/${exam.id}`} />;
+  return (
+    <ExamRunner
+      key={exam.id}
+      exam={exam}
+      retryHref={`/student/exams/${exam.id}`}
+      enablePaperLayout={schoolRound !== null}
+      submitAttempt={schoolRound !== null ? submitSchoolAttempt : undefined}
+    />
+  );
 }

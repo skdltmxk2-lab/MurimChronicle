@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import type { AnswerMap, MockExam } from "@/types/exam";
+import type { AnswerMap, AttemptResult, MockExam } from "@/types/exam";
 import { gradeExam, formatDuration } from "@/lib/exam/grading";
 import { attemptRepo, createAttemptId } from "@/lib/exam/storage";
 import { ContentRenderer } from "@/components/content/ContentRenderer";
@@ -12,18 +12,30 @@ import { StudentExamPrintSheet } from "@/components/exam/StudentExamPrintSheet";
 import { printStudentPdf } from "@/lib/print/studentPrint";
 
 type QuestionFilter = "all" | "unanswered" | "answered";
+type PaperLayout = "single" | "double";
+
+const PAPER_LAYOUT_KEY = "cbt:exam-paper-layout";
+
+type ExamRunnerProps = {
+  exam: MockExam;
+  retryHref?: string;
+  enablePaperLayout?: boolean;
+  submitAttempt?: (input: { attemptId: string; answers: AnswerMap; elapsedSec: number }) => Promise<AttemptResult>;
+};
 
 function hasStoredAnswer(answers: AnswerMap, problemId: string) {
   const value = answers[problemId];
   return typeof value === "string" && value.trim().length > 0;
 }
 
-export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: string }) {
+export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitAttempt }: ExamRunnerProps) {
   const router = useRouter();
   const [answers, setAnswers] = useState<AnswerMap>({});
   const [elapsedSec, setElapsedSec] = useState(0);
   const [loaded, setLoaded] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [inkMode, setInkMode] = useState(false);
+  const [paperLayout, setPaperLayout] = useState<PaperLayout>("single");
   const [questionFilter, setQuestionFilter] = useState<QuestionFilter>("all");
   const answersRef = useRef<AnswerMap>({});
   const elapsedRef = useRef(0);
@@ -72,19 +84,25 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
       }
 
       submittedRef.current = true;
+      if (submitAttempt) setSubmitting(true);
       try {
         const attemptId = attemptIdRef.current ?? createAttemptId(exam.id);
         attemptIdRef.current = attemptId;
-        const result = gradeExam({
-          exam,
-          answers: answersRef.current,
-          attemptId,
-          elapsedSec: Math.min(elapsedRef.current, exam.timeLimitSec),
-          retryHref
-        });
+        const elapsedSec = Math.min(elapsedRef.current, exam.timeLimitSec);
+        const answers = answersRef.current;
 
-        await attemptRepo.saveResult(result);
-        await attemptRepo.clearAnswers(exam.id);
+        if (submitAttempt) {
+          const result = await submitAttempt({ attemptId, answers, elapsedSec });
+          if (result.attemptId !== attemptId || result.examId !== exam.id) {
+            throw new Error("Unexpected saved exam result");
+          }
+          // The result is already persisted. A blocked browser cache should not undo the submission.
+          await attemptRepo.clearAnswers(exam.id).catch(() => {});
+        } else {
+          const result = gradeExam({ exam, answers, attemptId, elapsedSec, retryHref });
+          await attemptRepo.saveResult(result);
+          await attemptRepo.clearAnswers(exam.id);
+        }
         // 취약유형 모의고사는 별도 리포트 페이지로 진입
         if (exam.id.startsWith("weakness-")) {
           router.push(`/student/exams/weakness/report/${attemptId}`);
@@ -94,14 +112,13 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
       } catch (error) {
         // 저장·이동 중 실패하면 제출 플래그를 되돌린다.
         // true로 남겨두면 다시 제출할 수도, 이탈 경고를 받을 수도 없어 시험 화면에 갇힌다.
-        // 서버 동기화 실패는 saveResult가 자체적으로 삼키므로 여기까지 오지 않는다.
-        // 즉 여기 도달했다면 채점 자체가 실패한 것이라, 원인을 네트워크로 단정하지 않는다.
         submittedRef.current = false;
+        if (submitAttempt) setSubmitting(false);
         console.error("[exam] submit failed", error);
         window.alert("제출을 완료하지 못했습니다.\n잠시 후 다시 제출해 주세요.");
       }
     },
-    [exam, retryHref, router]
+    [exam, retryHref, router, submitAttempt]
   );
 
   useEffect(() => {
@@ -136,6 +153,15 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
       setInkMode(false);
     }
   }, [exam.id]);
+
+  useEffect(() => {
+    if (!enablePaperLayout) return;
+    try {
+      setPaperLayout(window.localStorage.getItem(PAPER_LAYOUT_KEY) === "double" ? "double" : "single");
+    } catch {
+      setPaperLayout("single");
+    }
+  }, [enablePaperLayout]);
 
   useEffect(() => {
     if (!loaded) return;
@@ -214,6 +240,15 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
     });
   }
 
+  function changePaperLayout(layout: PaperLayout) {
+    setPaperLayout(layout);
+    try {
+      window.localStorage.setItem(PAPER_LAYOUT_KEY, layout);
+    } catch {
+      // The layout can still be changed during this visit.
+    }
+  }
+
   async function exitWithoutSubmit() {
     const keepDraft = window.confirm(
       "임시 저장 후 나갈까요?\n확인: 지금까지 고른 답안을 유지합니다.\n취소: 답안 삭제 여부를 다시 선택합니다."
@@ -240,7 +275,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
 
   return (
     <>
-    <main className="student-screen-only student-print-root tz-exam" aria-busy={!loaded}>
+    <main className="student-screen-only student-print-root tz-exam" aria-busy={!loaded || submitting}>
       <section className="student-print-card tz-exam-toolbar">
         <div className="tz-exam-toolbar-top">
           <div className="tz-exam-title">
@@ -276,6 +311,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               type="button"
               onClick={exitWithoutSubmit}
               className="tz-exam-action"
+              disabled={submitting}
             >
               나가기
             </button>
@@ -283,8 +319,9 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               type="button"
               onClick={() => void submitExam(false)}
               className="tz-exam-action tz-exam-action-primary"
+              disabled={submitting}
             >
-              제출
+              {submitting ? "제출 중…" : "제출"}
             </button>
           </div>
         </div>
@@ -306,6 +343,26 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               </button>
             ))}
           </div>
+          {enablePaperLayout && (
+            <div className="tz-exam-layout-options tz-exam-tabs" role="group" aria-label="시험지 보기 방식">
+              <button
+                type="button"
+                className="tz-exam-tab"
+                aria-pressed={paperLayout === "single"}
+                onClick={() => changePaperLayout("single")}
+              >
+                한 열 보기
+              </button>
+              <button
+                type="button"
+                className="tz-exam-tab"
+                aria-pressed={paperLayout === "double"}
+                onClick={() => changePaperLayout("double")}
+              >
+                두 열 보기
+              </button>
+            </div>
+          )}
           <p className="text-xs font-bold text-slate-500">
             답안은 자동 저장됩니다. 나가기는 임시 저장을 유지할 수 있습니다.
           </p>
@@ -313,7 +370,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
       </section>
 
       <div className="tz-exam-grid">
-        <section className="tz-exam-paper">
+        <section className="tz-exam-paper" data-paper-layout={enablePaperLayout ? paperLayout : undefined}>
           {visibleProblemEntries.length === 0 ? (
             <div className="tz-exam-empty">
               <h2 className="text-lg font-black text-ink">현재 필터에 해당하는 문제가 없습니다</h2>
@@ -365,6 +422,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                           inputMode="text"
                           autoComplete="off"
                           spellCheck={false}
+                          disabled={submitting}
                           value={selected ?? ""}
                           onChange={(e) => setSubjectiveAnswer(problem.id, e.target.value)}
                           placeholder="답을 입력하세요"
@@ -378,6 +436,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
                           <button
                             key={option.id}
                             type="button"
+                            disabled={submitting}
                             onClick={() => pickAnswer(problem.id, option.id)}
                             className="tz-exam-option" aria-pressed={isSelected}
                           >
@@ -409,6 +468,7 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               type="button"
               onClick={exitWithoutSubmit}
               className="tz-exam-action"
+              disabled={submitting}
             >
               학습 종료
             </button>
@@ -416,8 +476,9 @@ export function ExamRunner({ exam, retryHref }: { exam: MockExam; retryHref?: st
               type="button"
               onClick={() => void submitExam(false)}
               className="tz-exam-action tz-exam-action-primary"
+              disabled={submitting}
             >
-              제출하고 채점하기
+              {submitting ? "제출 중…" : "제출하고 채점하기"}
             </button>
           </div>
         </section>

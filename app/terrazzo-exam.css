@@ -26,6 +26,7 @@ body:has(.tz-exam) .tz-header__nav { display: none; }
 .tz-exam-tab:not([aria-pressed="true"]):hover { background: var(--color-paper-2); }
 .tz-exam-grid { display: grid; grid-template-columns: minmax(0, 1fr) 200px; gap: var(--space-xl); align-items: start; }
 .tz-exam-paper { min-width: 0; }
+.tz-exam-layout-options { display: none; }
 .tz-exam-question { margin-bottom: var(--space-xl); border: var(--rule-bar) solid var(--color-rule-strong); background: var(--color-plate); box-shadow: var(--shadow-card); scroll-margin-top: var(--space-lg); }
 .tz-exam-question-head { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-sm); border-bottom: 1px solid var(--color-rule); padding: var(--space-md) var(--space-lg); }
 .tz-exam-number { min-width: 28px; color: var(--color-ink); font: 700 1.5rem/1.2 var(--font-display); }
@@ -55,6 +56,20 @@ body:has(.tz-exam) .tz-header__nav { display: none; }
 .tz-exam-end > button:last-child { flex: 2; }
 .tz-exam-mobile-nav { display: none; }
 .tz-exam-empty { padding: var(--space-xl); text-align: center; color: var(--color-muted); }
+@media screen and (min-width: 48rem) {
+  .tz-exam-layout-options { display: inline-flex; flex: none; }
+  .tz-exam-paper[data-paper-layout="double"] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-lg);
+  }
+  .tz-exam-paper[data-paper-layout="double"] > .tz-exam-question { min-width: 0; margin-bottom: 0; }
+  .tz-exam-paper[data-paper-layout="double"] .tz-exam-question-head,
+  .tz-exam-paper[data-paper-layout="double"] .tz-exam-question-body { padding-inline: var(--space-md); }
+  .tz-exam-paper[data-paper-layout="double"] .tz-exam-option { min-width: 0; padding: var(--space-sm); }
+  .tz-exam-paper[data-paper-layout="double"] > :is(.tz-exam-empty, .tz-exam-end) { grid-column: 1 / -1; }
+}
 @media (max-width: 72rem) { .tz-exam-toolbar-top { flex-direction: column; } .tz-exam-actions { justify-content: flex-start; } }
 @media (max-width: 60rem) {
   .tz-exam { padding: var(--space-lg) var(--space-md) var(--space-4xl); }

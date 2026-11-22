@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
-import { KonkukProblemSheets } from "@/components/student/KonkukProblemSheets";
+import { KonkukExamPicker } from "@/components/student/KonkukExamPicker";
 import { KONKUK_SCHOOL_NAME } from "@/lib/exams/konkukSchoolMock";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
 import { formatQuestionStat, formatExamStat } from "@/lib/stats/displayed";
@@ -30,17 +30,6 @@ const SCHOOL_MOCK_ROWS = [
   ["이화여자대학교", "경희대학교", KONKUK_SCHOOL_NAME],
 ];
 
-const REAL_EXAM_TYPES = [
-  { key: "past", label: "기출기반 모의고사", desc: "역대 기출 문제 기반", tag: "기출유형" },
-  { key: "school", label: "학교별 모의고사", desc: "학교별 출제 경향 반영", tag: "자체모고" },
-  { key: "finalA", label: "파이널 모의고사 A", desc: "실전 난이도", tag: "유형3" },
-  { key: "finalB", label: "파이널 모의고사 B", desc: "최고 난이도", tag: "유형4" },
-] as const;
-
-type RealExamType = (typeof REAL_EXAM_TYPES)[number]["key"];
-
-const REAL_EXAM_TAGS = new Set<string>(REAL_EXAM_TYPES.map(({ tag }) => tag));
-
 function getTodayStr(): string {
   const d = new Date();
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
@@ -55,10 +44,6 @@ function isSubjectGeneratedExam(exam: GeneratedExam) {
   return (exam.tags ?? []).includes("과목별모의고사");
 }
 
-function isRealGeneratedExam(exam: GeneratedExam) {
-  return (exam.tags ?? []).some((tag) => REAL_EXAM_TAGS.has(tag));
-}
-
 function requiredTierForGeneratedExam(exam: GeneratedExam): UserTier {
   const tags = exam.tags ?? [];
   // 과목별 모의고사는 무료 개방. 실전 모의고사(기출유형·자체모고·파이널)는 PRO 전용.
@@ -68,32 +53,17 @@ function requiredTierForGeneratedExam(exam: GeneratedExam): UserTier {
 
 function GeneratedExamOption({
   exam,
-  accent,
   allowed,
   lockLabel,
   onStart,
 }: {
   exam: GeneratedExam;
-  accent: "orange" | "mint";
   allowed: boolean;
   lockLabel: string;
   onStart: () => void;
 }) {
-  const color =
-    accent === "orange"
-      ? {
-          hover: "tz-study-hover-line tz-study-hover-paper",
-          button: "tz-study-ink-fill tz-study-hover-ink",
-          text: "tz-study-accent",
-        }
-      : {
-          hover: "tz-study-hover-line tz-study-hover-paper",
-          button: "tz-study-ink-fill tz-study-hover-ink",
-          text: "tz-study-accent",
-        };
-
   return (
-    <article className={`tz-study-square border tz-study-line px-4 py-3 ${allowed ? color.hover : "tz-study-paper-2"}`}>
+    <article className={`tz-study-square border tz-study-line px-4 py-3 ${allowed ? "tz-study-hover-line tz-study-hover-paper" : "tz-study-paper-2"}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <h4 className={`text-sm font-bold ${allowed ? "tz-study-ink" : "tz-study-muted"}`}>
@@ -107,7 +77,7 @@ function GeneratedExamOption({
           <button
             type="button"
             onClick={onStart}
-            className={`shrink-0 tz-study-square px-3 py-2 text-xs font-bold tz-study-on-ink ${color.button}`}
+            className="shrink-0 tz-study-square px-3 py-2 text-xs font-bold tz-study-on-ink tz-study-ink-fill tz-study-hover-ink"
           >
             시작
           </button>
@@ -131,10 +101,9 @@ export default function StudentExamsPage() {
   const [pickedSubject, setPickedSubject] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [unitTestCount, setUnitTestCount] = useState(10);
-  const [realExamOpen, setRealExamOpen] = useState(false);
+  const [schoolExamOpen, setSchoolExamOpen] = useState(false);
   const [subjectExamOpen, setSubjectExamOpen] = useState(false);
   const [selectedMockSubject, setSelectedMockSubject] = useState<string | null>(null);
-  const [selectedRealType, setSelectedRealType] = useState<RealExamType | "konkuk" | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
 
   // 무료 개방 기능: 데일리·단원별 학습·과목별 모의고사·취약유형 모의고사·커뮤니티는
@@ -146,11 +115,6 @@ export default function StudentExamsPage() {
   const subjectGeneratedExams = generatedExams.filter(isSubjectGeneratedExam);
   const selectedSubjectGeneratedExams = selectedMockSubject
     ? subjectGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedMockSubject))
-    : [];
-  const realGeneratedExams = generatedExams.filter(isRealGeneratedExam);
-  const selectedRealCategory = REAL_EXAM_TYPES.find(({ key }) => key === selectedRealType);
-  const selectedRealGeneratedExams = selectedRealCategory
-    ? realGeneratedExams.filter((exam) => (exam.tags ?? []).includes(selectedRealCategory.tag))
     : [];
 
   useEffect(() => {
@@ -282,9 +246,9 @@ export default function StudentExamsPage() {
               <button
                 type="button"
                 className="tz-study-school-mock-cta"
-                onClick={() => { setSelectedRealType("konkuk"); setRealExamOpen(true); }}
+                onClick={() => setSchoolExamOpen(true)}
               >
-                {KONKUK_SCHOOL_NAME} 모의고사 보기
+                {KONKUK_SCHOOL_NAME} 모의고사 응시하기
               </button>
             ) : (
               <Link href="/student/pricing" className="tz-study-school-mock-cta">{tierLockMessage("pro")} 요금제 보기</Link>
@@ -545,7 +509,6 @@ export default function StudentExamsPage() {
                       <GeneratedExamOption
                         key={exam.id}
                         exam={exam}
-                        accent="orange"
                         allowed={canUseTier(user, requiredTierForGeneratedExam(exam))}
                         lockLabel={tierLockMessage(requiredTierForGeneratedExam(exam))}
                         onStart={() => {
@@ -584,119 +547,28 @@ export default function StudentExamsPage() {
         </div>
       )}
 
-      {/* 실전 모의고사 선택 모달 */}
-      {realExamOpen && (
-        <div
-          className="tz-study-modal-layer"
-          onClick={() => setRealExamOpen(false)}
-        >
+      {schoolExamOpen && (
+        <div className="tz-study-modal-layer" onClick={() => setSchoolExamOpen(false)}>
           <div
             className="tz-study-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="school-exam-picker-title"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(event) => { if (event.key === "Escape") setSchoolExamOpen(false); }}
           >
             <div className="mb-5">
-              <h3 className="text-xl font-bold tz-study-ink">
-                {selectedRealType === "konkuk" ? `${KONKUK_SCHOOL_NAME} 모의고사` : selectedRealCategory?.label ?? "실전 모의고사"}
-              </h3>
-              {selectedRealType !== "konkuk" && (
-                <p className="mt-1 text-sm tz-study-muted">
-                  {selectedRealType ? "응시할 모의고사를 선택하세요" : "응시할 모의고사 종류를 선택하세요"}
-                </p>
-              )}
+              <h3 id="school-exam-picker-title">{KONKUK_SCHOOL_NAME} 모의고사</h3>
+              <p className="mt-1 text-sm tz-study-muted">응시할 회차를 선택하세요.</p>
             </div>
-            {!selectedRealType ? (
-              <div className="space-y-2">
-                {REAL_EXAM_TYPES.map((item) => {
-                  const allowed = canRealExam;
-                  const examCount = realGeneratedExams.filter((exam) => (exam.tags ?? []).includes(item.tag)).length;
-                  return (
-                    <div
-                      key={item.key}
-                      className={`flex items-center justify-between tz-study-square border px-4 py-3 ${
-                        allowed
-                          ? "tz-study-line tz-study-hover-line tz-study-hover-paper"
-                          : "tz-study-line tz-study-paper-2"
-                      }`}
-                    >
-                      <div className="min-w-0 pr-3">
-                        <div className={`text-sm font-bold ${allowed ? "tz-study-ink" : "tz-study-muted"}`}>
-                          {item.label}
-                        </div>
-                        <div className="text-xs tz-study-muted">
-                          {item.desc}{item.key === "school" ? "" : `, ${examCount}개`}
-                        </div>
-                      </div>
-                      {!allowed ? (
-                        <span className="shrink-0 tz-study-square tz-study-paper-3 px-2.5 py-1 text-xs font-bold tz-study-muted">
-                          {tierLockMessage("pro")}
-                        </span>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setSelectedRealType(item.key)}
-                          className="shrink-0 tz-study-square tz-study-ink-fill px-3 py-1.5 text-xs font-bold tz-study-on-ink tz-study-hover-ink"
-                        >
-                          보기
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ) : selectedRealType === "konkuk" ? (
-              <KonkukProblemSheets />
-            ) : (
-              <div className="space-y-2">
-                {selectedRealType === "school" ? (
-                  <button
-                    type="button"
-                    className="tz-study-button tz-study-button-wide"
-                    onClick={() => setSelectedRealType("konkuk")}
-                  >
-                    {KONKUK_SCHOOL_NAME} 문제지 보기
-                  </button>
-                ) : selectedRealGeneratedExams.length === 0 && (
-                  <p className="tz-study-square border tz-study-line tz-study-paper-2 p-5 text-center text-sm font-bold tz-study-muted">
-                    등록된 모의고사가 없습니다.
-                  </p>
-                )}
-                {selectedRealGeneratedExams.map((exam) => (
-                  <GeneratedExamOption
-                    key={exam.id}
-                    exam={exam}
-                    accent="mint"
-                    allowed={canUseTier(user, requiredTierForGeneratedExam(exam))}
-                    lockLabel={tierLockMessage(requiredTierForGeneratedExam(exam))}
-                    onStart={() => {
-                      setRealExamOpen(false);
-                      setSelectedRealType(null);
-                      router.push(`/student/exams/${exam.id}`);
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-            <div className="mt-4 flex gap-2">
-              {selectedRealType ? (
-                <button
-                  type="button"
-                  onClick={() => setSelectedRealType(null)}
-                  className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-ink tz-study-hover-paper"
-                >
-                  종류 선택
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => {
-                  setRealExamOpen(false);
-                  setSelectedRealType(null);
-                }}
-                className="flex-1 tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
-              >
-                닫기
-              </button>
-            </div>
+            <KonkukExamPicker />
+            <button
+              type="button"
+              onClick={() => setSchoolExamOpen(false)}
+              className="mt-4 w-full tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}

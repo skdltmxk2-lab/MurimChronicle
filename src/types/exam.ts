@@ -29,6 +29,7 @@ export type Problem = {
   contentType?: ContentType;
   questionImage?: string;
   questionType?: QuestionType;
+  points?: number;
   options: ProblemOption[];
   correctOptionId: string;
   answerText?: string; // 단답형 정답 (LaTeX 가능)
@@ -64,6 +65,8 @@ export type AttemptScore = {
   correct: number;
   total: number;
   percent: number;
+  earnedPoints?: number;
+  totalPoints?: number;
 };
 
 export type AttemptResult = {
