@@ -18,6 +18,10 @@ export function schoolMockExamId(school: SchoolMockCode, round: number) {
   return `school-${school}-${round}`;
 }
 
+export function schoolMockProblemSheetName(school: SchoolMockCode, round: number) {
+  return `${SCHOOL_MOCK_NAMES[school]} 모의고사 ${round}회 문제지.pdf`;
+}
+
 export function schoolMockFromExamId(examId: string): { school: SchoolMockCode; round: number } | null {
   const match = /^school-([a-z]+)-([1-9]\d{0,2})$/.exec(examId);
   return match && isSchoolMockCode(match[1]) ? { school: match[1], round: Number(match[2]) } : null;
