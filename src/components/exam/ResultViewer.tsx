@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { formatDuration } from "@/lib/exam/grading";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
-import { KONKUK_SCHOOL_MOCK_API, konkukRoundFromExamId } from "@/lib/exams/konkukSchoolMock";
+import { schoolMockApi, schoolMockFromExamId } from "@/lib/exams/schoolMock";
 import { attemptRepo } from "@/lib/exam/storage";
 import { supabase } from "@/lib/supabase/client";
 import type { AttemptResult, MockExam } from "@/types/exam";
@@ -35,13 +35,13 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
     }
     let active = true;
     async function loadExam(attempt: AttemptResult) {
-      const schoolRound = konkukRoundFromExamId(attempt.examId);
-      if (schoolRound === null) return examRepo.findById(attempt.examId);
+      const schoolExam = schoolMockFromExamId(attempt.examId);
+      if (!schoolExam) return examRepo.findById(attempt.examId);
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return null;
       const query = new URLSearchParams({ attemptId: attempt.attemptId });
-      const response = await fetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}?${query}`, {
+      const response = await fetch(`${schoolMockApi(schoolExam.school)}/${schoolExam.round}?${query}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
         cache: "no-store",
       });
@@ -88,7 +88,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
   }
 
   const reviewMap = new Map(result.items.map((item) => [item.problemId, item]));
-  const isSchoolMock = konkukRoundFromExamId(exam.id) !== null;
+  const isSchoolMock = schoolMockFromExamId(exam.id) !== null;
   const scoreLabel = result.score.earnedPoints !== undefined && result.score.totalPoints !== undefined
     ? `${result.score.earnedPoints}/${result.score.totalPoints}점`
     : `${result.score.percent}%`;

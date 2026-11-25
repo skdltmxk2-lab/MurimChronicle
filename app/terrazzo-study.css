@@ -144,12 +144,16 @@
 }
 
 .tz-study-school-mock-schools .tz-study-school-mock-featured {
+  position: relative;
   border-color: var(--school-accent);
   background: var(--school-accent);
   color: var(--school-accent-ink);
   font-weight: 700;
   box-shadow: 0 0 16px #a5f2cc55;
 }
+
+.tz-study-school-mock-chip::after { position: absolute; inset: 0; content: ""; }
+.tz-study-school-mock-chip:hover { text-decoration: underline; text-underline-offset: 3px; }
 
 .tz-study-school-mock-actions {
   display: flex;

@@ -55,7 +55,10 @@ export function gradeExam(params: {
       correct,
       total,
       percent: totalPoints === 0 ? 0 : Math.round((earnedPoints / totalPoints) * 100),
-      ...(isWeighted ? { earnedPoints, totalPoints } : {}),
+      ...(isWeighted ? {
+        earnedPoints: Number(earnedPoints.toFixed(6)),
+        totalPoints: Number(totalPoints.toFixed(6)),
+      } : {}),
     },
     items
   };

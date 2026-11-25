@@ -411,7 +411,10 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                       />
                     ) : null}
                   </div>
-                  <div className="tz-exam-options">
+                  <div
+                    className="tz-exam-options"
+                    data-extended-options={enablePaperLayout && problem.options.length > 5 ? true : undefined}
+                  >
                     {(problem.questionType === "subjective"
                       || ((problem.options?.length ?? 0) === 0 && (problem.answerText ?? "").length > 0)) ? (
                       <div className="tz-exam-answer-input">

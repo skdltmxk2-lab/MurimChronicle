@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
-import { konkukExamId } from "@/lib/exams/konkukSchoolMock";
+import { isSchoolMockCode, schoolMockExamId } from "@/lib/exams/schoolMock";
 
 const headers = { "Cache-Control": "private, no-store" };
 
-export async function GET(request: Request) {
+export async function GET(request: Request, { params }: { params: Promise<{ school: string }> }) {
+  const { school } = await params;
+  if (!isSchoolMockCode(school)) {
+    return NextResponse.json({ message: "요청한 학교가 없습니다." }, { status: 404, headers });
+  }
+
   const auth = await requireTier(request, "pro");
   if (!auth.ok) {
     auth.response.headers.set("Cache-Control", headers["Cache-Control"]);
@@ -14,7 +19,7 @@ export async function GET(request: Request) {
   const { data, error } = await auth.supabase
     .from("school_mock_problem_sheets")
     .select("round,title:exam->>title")
-    .eq("school_code", "konkuk")
+    .eq("school_code", school)
     .not("exam", "is", null)
     .order("round");
   if (error) {
@@ -26,6 +31,6 @@ export async function GET(request: Request) {
 
   const exams = (data ?? [])
     .filter(({ title }) => typeof title === "string" && title.trim().length > 0)
-    .map(({ round, title }) => ({ round, id: konkukExamId(round), title }));
+    .map(({ round, title }) => ({ round, id: schoolMockExamId(school, round), title }));
   return NextResponse.json({ exams }, { headers });
 }

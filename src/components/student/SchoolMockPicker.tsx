@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
-import { KONKUK_SCHOOL_MOCK_API } from "@/lib/exams/konkukSchoolMock";
+import { schoolMockApi, type SchoolMockCode } from "@/lib/exams/schoolMock";
 
 type ExamRound = { id: string; title: string; round: number };
 
-export function KonkukExamPicker() {
+export function SchoolMockPicker({ school }: { school: SchoolMockCode }) {
   const [exams, setExams] = useState<ExamRound[] | null>(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -17,7 +17,7 @@ export function KonkukExamPicker() {
 
     async function loadExams() {
       try {
-        const response = await adminFetch(KONKUK_SCHOOL_MOCK_API, { signal: controller.signal, cache: "no-store" });
+        const response = await adminFetch(schoolMockApi(school), { signal: controller.signal, cache: "no-store" });
         if (!response.ok) throw new Error("School exams unavailable");
         const data = await response.json() as { exams: ExamRound[] };
         if (!Array.isArray(data.exams)) throw new Error("School exams unavailable");
@@ -29,7 +29,7 @@ export function KonkukExamPicker() {
 
     void loadExams();
     return () => controller.abort();
-  }, [retry]);
+  }, [school, retry]);
 
   if (failed) {
     return (

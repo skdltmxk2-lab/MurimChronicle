@@ -9,8 +9,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier, tierLockMessage } from "@/lib/auth/tierGuard";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { WelcomeScreen } from "@/components/exam/WelcomeScreen";
-import { KonkukExamPicker } from "@/components/student/KonkukExamPicker";
-import { KONKUK_SCHOOL_NAME } from "@/lib/exams/konkukSchoolMock";
+import { SchoolMockPicker } from "@/components/student/SchoolMockPicker";
+import { SCHOOL_MOCK_NAMES, isSchoolMockCode, type SchoolMockCode } from "@/lib/exams/schoolMock";
 import { SUBJECTS, SUBJECT_UNITS } from "@/lib/taxonomy";
 import { formatQuestionStat, formatExamStat } from "@/lib/stats/displayed";
 import type { GeneratedExam } from "@/types/generatedExam";
@@ -27,8 +27,9 @@ const COUNT_OPTIONS = [10, 15, 20];
 
 const SCHOOL_MOCK_ROWS = [
   ["서강대학교", "성균관대학교", "한양대학교", "중앙대학교"],
-  ["이화여자대학교", "경희대학교", KONKUK_SCHOOL_NAME],
+  ["ewha", "kyunghee", "konkuk"],
 ];
+const AVAILABLE_SCHOOLS = Object.keys(SCHOOL_MOCK_NAMES).filter(isSchoolMockCode);
 
 function getTodayStr(): string {
   const d = new Date();
@@ -101,7 +102,7 @@ export default function StudentExamsPage() {
   const [pickedSubject, setPickedSubject] = useState<string | null>(null);
   const [selectedUnits, setSelectedUnits] = useState<string[]>([]);
   const [unitTestCount, setUnitTestCount] = useState(10);
-  const [schoolExamOpen, setSchoolExamOpen] = useState(false);
+  const [mockSchool, setMockSchool] = useState<SchoolMockCode | null>(null);
   const [subjectExamOpen, setSubjectExamOpen] = useState(false);
   const [selectedMockSubject, setSelectedMockSubject] = useState<string | null>(null);
   const [generatedExams, setGeneratedExams] = useState<GeneratedExam[]>([]);
@@ -232,12 +233,19 @@ export default function StudentExamsPage() {
           <div className="tz-study-school-mock-schools" role="group" aria-label="학교별 오픈 현황">
             {SCHOOL_MOCK_ROWS.map((schools) => (
               <ul key={schools[0]}>
-                {schools.map((school) => (
-                  <li key={school} className={school === KONKUK_SCHOOL_NAME ? "tz-study-school-mock-featured" : undefined}>
-                    {school}
-                    <span className="sr-only">{school === KONKUK_SCHOOL_NAME ? " 오픈" : " 준비 중"}</span>
-                  </li>
-                ))}
+                {schools.map((school) => {
+                  const available = isSchoolMockCode(school);
+                  const name = available ? SCHOOL_MOCK_NAMES[school] : school;
+                  return (
+                    <li key={school} className={available ? "tz-study-school-mock-featured" : undefined}>
+                      {available && canRealExam ? (
+                        <button type="button" className="tz-study-school-mock-chip" onClick={() => setMockSchool(school)} aria-label={`${name} 모의고사 선택`}>
+                          {name}
+                        </button>
+                      ) : <>{name}<span className="sr-only">{available ? " 오픈" : " 준비 중"}</span></>}
+                    </li>
+                  );
+                })}
               </ul>
             ))}
           </div>
@@ -246,9 +254,9 @@ export default function StudentExamsPage() {
               <button
                 type="button"
                 className="tz-study-school-mock-cta"
-                onClick={() => setSchoolExamOpen(true)}
+                onClick={() => setMockSchool("ewha")}
               >
-                {KONKUK_SCHOOL_NAME} 모의고사 응시하기
+                학교별 모의고사 응시하기
               </button>
             ) : (
               <Link href="/student/pricing" className="tz-study-school-mock-cta">{tierLockMessage("pro")} 요금제 보기</Link>
@@ -547,24 +555,37 @@ export default function StudentExamsPage() {
         </div>
       )}
 
-      {schoolExamOpen && (
-        <div className="tz-study-modal-layer" onClick={() => setSchoolExamOpen(false)}>
+      {mockSchool && (
+        <div className="tz-study-modal-layer" onClick={() => setMockSchool(null)}>
           <div
             className="tz-study-modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="school-exam-picker-title"
             onClick={(e) => e.stopPropagation()}
-            onKeyDown={(event) => { if (event.key === "Escape") setSchoolExamOpen(false); }}
+            onKeyDown={(event) => { if (event.key === "Escape") setMockSchool(null); }}
           >
             <div className="mb-5">
-              <h3 id="school-exam-picker-title">{KONKUK_SCHOOL_NAME} 모의고사</h3>
+              <h3 id="school-exam-picker-title">{SCHOOL_MOCK_NAMES[mockSchool]} 모의고사</h3>
               <p className="mt-1 text-sm tz-study-muted">응시할 회차를 선택하세요.</p>
             </div>
-            <KonkukExamPicker />
+            <div className="mb-3 flex flex-wrap gap-2" role="group" aria-label="응시할 학교">
+              {AVAILABLE_SCHOOLS.map((school) => (
+                <button
+                  key={school}
+                  type="button"
+                  onClick={() => setMockSchool(school)}
+                  aria-pressed={mockSchool === school}
+                  className={`tz-study-square border px-3 text-sm font-bold ${mockSchool === school ? "tz-study-ink-fill tz-study-on-ink" : "tz-study-line tz-study-ink tz-study-hover-paper"}`}
+                >
+                  {SCHOOL_MOCK_NAMES[school]}
+                </button>
+              ))}
+            </div>
+            <SchoolMockPicker key={mockSchool} school={mockSchool} />
             <button
               type="button"
-              onClick={() => setSchoolExamOpen(false)}
+              onClick={() => setMockSchool(null)}
               className="mt-4 w-full tz-study-square border tz-study-line py-3 text-sm font-bold tz-study-muted tz-study-hover-paper"
             >
               닫기

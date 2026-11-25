@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth/requireUser";
+import { isSchoolMockCode } from "@/lib/exams/schoolMock";
 import type { AttemptResult } from "@/types/exam";
 
 function isAttemptResult(value: unknown): value is AttemptResult {
@@ -30,7 +31,8 @@ export async function POST(request: Request) {
   if (!isAttemptResult(result)) {
     return NextResponse.json({ ok: false, message: "시험 결과 형식이 올바르지 않습니다." }, { status: 400 });
   }
-  if (result.examId.startsWith("school-konkuk-")) {
+  const school = /^school-([^-]+)-/.exec(result.examId)?.[1];
+  if (school && isSchoolMockCode(school)) {
     return NextResponse.json({ ok: false, message: "학교별 모의고사 응시 화면에서 답안을 제출해 주세요." }, { status: 400 });
   }
 

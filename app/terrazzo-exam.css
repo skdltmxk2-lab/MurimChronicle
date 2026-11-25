@@ -58,6 +58,9 @@ body:has(.tz-exam) .tz-header__nav { display: none; }
 .tz-exam-empty { padding: var(--space-xl); text-align: center; color: var(--color-muted); }
 @media screen and (min-width: 48rem) {
   .tz-exam-layout-options { display: inline-flex; flex: none; }
+  .tz-exam-paper[data-paper-layout="single"] .tz-exam-options[data-extended-options="true"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .tz-exam-paper[data-paper-layout="double"] {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -116,6 +119,11 @@ body:has(.tz-exam) .tz-header__nav { display: none; }
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: subgrid;
     }
+  }
+}
+@media screen and (min-width: 75rem) {
+  .tz-exam-paper[data-paper-layout="double"] .tz-exam-options[data-extended-options="true"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 72rem) { .tz-exam-toolbar-top { flex-direction: column; } .tz-exam-actions { justify-content: flex-start; } }

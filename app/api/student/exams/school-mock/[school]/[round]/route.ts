@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 import { requireTier } from "@/lib/auth/requireTier";
 import { requireUser } from "@/lib/auth/requireUser";
 import { gradeExam } from "@/lib/exam/grading";
-import { konkukExamId } from "@/lib/exams/konkukSchoolMock";
+import { isSchoolMockCode, schoolMockExamId, type SchoolMockCode } from "@/lib/exams/schoolMock";
 import type { AnswerMap, MockExam } from "@/types/exam";
 
-type RoundParams = { params: Promise<{ round: string }> };
+type RoundParams = { params: Promise<{ school: string; round: string }> };
 
 const NO_CACHE = { "Cache-Control": "private, no-store" };
 const ATTEMPT_ID_PATTERN = /^att-[0-9]{13}-[a-z0-9]{1,16}$/;
@@ -18,33 +18,44 @@ function json(value: object, status = 200) {
   return NextResponse.json(value, { status, headers: NO_CACHE });
 }
 
-async function readRound(params: RoundParams["params"]) {
-  const { round } = await params;
-  return /^[1-9]\d{0,2}$/.test(round) ? Number(round) : null;
+async function readExamAddress(params: RoundParams["params"]) {
+  const { school, round } = await params;
+  if (!isSchoolMockCode(school) || !/^[1-9]\d{0,2}$/.test(round)) return null;
+  return { school, round: Number(round) };
 }
 
-async function loadExam(supabase: SupabaseClient, round: number) {
+async function loadExam(supabase: SupabaseClient, school: SchoolMockCode, round: number) {
   const { data, error } = await supabase
     .from("school_mock_problem_sheets")
     .select("exam")
-    .eq("school_code", "konkuk")
+    .eq("school_code", school)
     .eq("round", round)
     .maybeSingle();
 
   if (error) return { response: json({ message: OPEN_FAILED }, 503) };
   const exam = data?.exam as MockExam | null | undefined;
   if (!exam) return { response: json({ message: NOT_FOUND }, 404) };
-  if (exam.id !== konkukExamId(round) || !Array.isArray(exam.problems) || exam.problems.length !== 40) {
+  if (exam.id !== schoolMockExamId(school, round) || !Array.isArray(exam.problems) || exam.problems.length === 0) {
+    return { response: json({ message: OPEN_FAILED }, 503) };
+  }
+
+  const validDuration = Number.isSafeInteger(exam.timeLimitSec) && exam.timeLimitSec > 0;
+  const isKonkuk = school === "konkuk";
+  if ((!validDuration && !isKonkuk) || (isKonkuk && exam.problems.length !== 40)) {
+    return { response: json({ message: OPEN_FAILED }, 503) };
+  }
+  if (exam.problems.some((problem) => !problem || !Array.isArray(problem.options)
+    || (problem.points !== undefined && (!Number.isFinite(problem.points) || problem.points <= 0)))) {
     return { response: json({ message: OPEN_FAILED }, 503) };
   }
 
   const normalized: MockExam = {
     ...exam,
-    timeLimitSec: 3600,
-    problems: exam.problems.map((problem, index) => ({
+    timeLimitSec: validDuration ? exam.timeLimitSec : 3600,
+    problems: isKonkuk ? exam.problems.map((problem, index) => ({
       ...problem,
-      points: index < 20 ? 2 : 3,
-    })),
+      points: problem.points ?? (index < 20 ? 2 : 3),
+    })) : exam.problems,
   };
   return { exam: normalized };
 }
@@ -92,8 +103,9 @@ async function findAttempt(supabase: SupabaseClient, userId: string, examId: str
 }
 
 export async function GET(request: Request, { params }: RoundParams) {
-  const round = await readRound(params);
-  if (round === null) return json({ message: NOT_FOUND }, 404);
+  const address = await readExamAddress(params);
+  if (!address) return json({ message: NOT_FOUND }, 404);
+  const { school, round } = address;
 
   const attemptId = new URL(request.url).searchParams.get("attemptId");
   const auth = attemptId === null ? await requireTier(request, "pro") : await requireUser(request);
@@ -104,12 +116,12 @@ export async function GET(request: Request, { params }: RoundParams) {
 
   if (attemptId !== null) {
     if (!ATTEMPT_ID_PATTERN.test(attemptId)) return json({ message: "응시 기록을 찾을 수 없습니다." }, 404);
-    const { data, error } = await findAttempt(auth.supabase, auth.userId, konkukExamId(round), attemptId);
+    const { data, error } = await findAttempt(auth.supabase, auth.userId, schoolMockExamId(school, round), attemptId);
     if (error) return json({ message: OPEN_FAILED }, 503);
     if (!data) return json({ message: "응시 기록을 찾을 수 없습니다." }, 404);
   }
 
-  const found = await loadExam(auth.supabase, round);
+  const found = await loadExam(auth.supabase, school, round);
   if (found.response) return found.response;
   return json({ exam: studentExam(found.exam) });
 }
@@ -139,8 +151,9 @@ function validatedAnswers(exam: MockExam, answers: object): AnswerMap | null {
 }
 
 export async function POST(request: Request, { params }: RoundParams) {
-  const round = await readRound(params);
-  if (round === null) return json({ message: NOT_FOUND }, 404);
+  const address = await readExamAddress(params);
+  if (!address) return json({ message: NOT_FOUND }, 404);
+  const { school, round } = address;
   const auth = await requireTier(request, "pro");
   if (!auth.ok) {
     auth.response.headers.set("Cache-Control", NO_CACHE["Cache-Control"]);
@@ -150,11 +163,11 @@ export async function POST(request: Request, { params }: RoundParams) {
   const submission = parseSubmission(await request.json().catch(() => null));
   if (!submission) return json({ message: "답안 형식이 올바르지 않습니다." }, 400);
   const { attemptId, elapsedSec } = submission;
-  const { data: existing, error: readError } = await findAttempt(auth.supabase, auth.userId, konkukExamId(round), attemptId);
+  const { data: existing, error: readError } = await findAttempt(auth.supabase, auth.userId, schoolMockExamId(school, round), attemptId);
   if (readError) return json({ message: SUBMIT_FAILED }, 503);
   if (existing) return json({ result: existing.result });
 
-  const found = await loadExam(auth.supabase, round);
+  const found = await loadExam(auth.supabase, school, round);
   if (found.response) return found.response;
   const { exam } = found;
   const answers = validatedAnswers(exam, submission.answers);

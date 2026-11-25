@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { adminFetch } from "@/lib/api/adminFetch";
 import { examRepo } from "@/lib/exams/generatedExamRepository";
-import { KONKUK_SCHOOL_MOCK_API, konkukRoundFromExamId } from "@/lib/exams/konkukSchoolMock";
+import { SCHOOL_MOCK_NAMES, schoolMockApi, schoolMockFromExamId } from "@/lib/exams/schoolMock";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { canUseTier } from "@/lib/auth/tierGuard";
 import type { AnswerMap, AttemptResult, MockExam } from "@/types/exam";
@@ -14,8 +14,9 @@ export function StudentExamLoader({ examId }: { examId: string }) {
   const { user, authChecked } = useAuth();
   const [exam, setExam] = useState<MockExam | null | undefined>(undefined);
   const [loadError, setLoadError] = useState("");
-  const schoolRound = konkukRoundFromExamId(examId);
-  const schoolLocked = schoolRound !== null && !canUseTier(user, "pro");
+  const schoolExam = schoolMockFromExamId(examId);
+  const schoolExamUrl = schoolExam ? `${schoolMockApi(schoolExam.school)}/${schoolExam.round}` : null;
+  const schoolLocked = schoolExam !== null && !canUseTier(user, "pro");
 
   useEffect(() => {
     if (!authChecked) return;
@@ -28,8 +29,8 @@ export function StudentExamLoader({ examId }: { examId: string }) {
 
     setExam(undefined);
     setLoadError("");
-    const loadExam = schoolRound === null ? examRepo.findById(examId) : (async () => {
-      const response = await adminFetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}`, {
+    const loadExam = schoolExamUrl === null ? examRepo.findById(examId) : (async () => {
+      const response = await adminFetch(schoolExamUrl, {
         signal: controller.signal,
         cache: "no-store",
       });
@@ -49,21 +50,22 @@ export function StudentExamLoader({ examId }: { examId: string }) {
       cancelled = true;
       controller.abort();
     };
-  }, [authChecked, user, examId, schoolRound, schoolLocked]);
+  }, [authChecked, user, examId, schoolExamUrl, schoolLocked]);
 
   const submitSchoolAttempt = useCallback(async (input: {
     attemptId: string;
     answers: AnswerMap;
     elapsedSec: number;
   }) => {
-    const response = await adminFetch(`${KONKUK_SCHOOL_MOCK_API}/${schoolRound}`, {
+    if (!schoolExamUrl) throw new Error("학교별 모의고사를 찾을 수 없습니다.");
+    const response = await adminFetch(schoolExamUrl, {
       method: "POST",
       body: JSON.stringify(input),
     });
     const data = await response.json().catch(() => null) as { result?: AttemptResult; message?: string } | null;
     if (!response.ok || !data?.result) throw new Error(data?.message ?? "시험을 제출하지 못했습니다.");
     return data.result;
-  }, [schoolRound]);
+  }, [schoolExamUrl]);
 
   if (!authChecked) {
     return (
@@ -95,12 +97,12 @@ export function StudentExamLoader({ examId }: { examId: string }) {
     );
   }
 
-  if (schoolLocked) {
+  if (schoolLocked && schoolExam) {
     return (
       <main className="tz-study tz-study-guest">
         <section className="tz-study-login">
           <h1>PRO 전용 모의고사입니다</h1>
-          <p>건국대학교 모의고사는 PRO 등급 이상에서 응시할 수 있습니다.</p>
+          <p>{SCHOOL_MOCK_NAMES[schoolExam.school]} 모의고사는 PRO 등급 이상에서 응시할 수 있습니다.</p>
           <Link href="/student/exams" className="tz-study-button tz-study-button-quiet">시험 목록으로</Link>
         </section>
       </main>
@@ -141,8 +143,8 @@ export function StudentExamLoader({ examId }: { examId: string }) {
       key={exam.id}
       exam={exam}
       retryHref={`/student/exams/${exam.id}`}
-      enablePaperLayout={schoolRound !== null}
-      submitAttempt={schoolRound !== null ? submitSchoolAttempt : undefined}
+      enablePaperLayout={schoolExam !== null}
+      submitAttempt={schoolExam !== null ? submitSchoolAttempt : undefined}
     />
   );
 }
