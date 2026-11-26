@@ -1,4 +1,8 @@
 export const SCHOOL_MOCK_NAMES = {
+  sogang: "서강대학교",
+  skku: "성균관대학교",
+  hanyang: "한양대학교",
+  cau: "중앙대학교",
   ewha: "이화여자대학교",
   kyunghee: "경희대학교",
   konkuk: "건국대학교",

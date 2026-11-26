@@ -26,7 +26,7 @@ const SUBJECT_UNIT_MAP: Record<string, readonly string[]> = SUBJECT_UNITS;
 const COUNT_OPTIONS = [10, 15, 20];
 
 const SCHOOL_MOCK_ROWS = [
-  ["서강대학교", "성균관대학교", "한양대학교", "중앙대학교"],
+  ["sogang", "skku", "hanyang", "cau"],
   ["ewha", "kyunghee", "konkuk"],
 ];
 const AVAILABLE_SCHOOLS = Object.keys(SCHOOL_MOCK_NAMES).filter(isSchoolMockCode);

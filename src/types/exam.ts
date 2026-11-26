@@ -21,6 +21,7 @@ export type ProblemOption = {
 
 export type Problem = {
   id: string;
+  sourceNumber?: number;
   subject: string;
   unit: string;
   concept: string;

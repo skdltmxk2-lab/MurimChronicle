@@ -160,6 +160,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
       <section className="mt-5 space-y-4">
         {exam.problems.map((problem, index) => {
           const review = reviewMap.get(problem.id);
+          const number = problem.sourceNumber ?? index + 1;
           const isSubjective = problem.questionType === "subjective";
           const selected = isSubjective
             ? null
@@ -178,7 +179,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
             >
               <div className="flex flex-wrap items-center gap-2 border-b border-line px-5 py-4">
                 <span className="rounded-md bg-slate-900 px-3 py-1.5 text-sm font-black text-white">
-                  {index + 1}
+                  {problem.sourceNumber !== undefined && problem.subject + " "}{number}
                 </span>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-black ${
@@ -197,7 +198,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                   contentType={problem.contentType}
                   text={problem.question}
                   image={problem.questionImage}
-                  imageAlt={`${index + 1}번 문제`}
+                  imageAlt={`${number}번 문제`}
                   className="text-base font-semibold leading-8 text-ink"
                 />
                 <div className="mt-4 grid gap-3 md:grid-cols-2">
@@ -251,7 +252,7 @@ export function ResultViewer({ attemptId }: { attemptId: string }) {
                       contentType={problem.explanationContentType}
                       text={problem.explanation}
                       image={problem.explanationImage}
-                      imageAlt={`${index + 1}번 해설`}
+                      imageAlt={`${number}번 해설`}
                       className="mt-2 text-sm font-semibold leading-7 text-ink"
                     />
                   </div>

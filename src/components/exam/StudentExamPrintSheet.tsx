@@ -50,11 +50,14 @@ export function StudentExamPrintSheet({
                 }`}
               >
                 {columnQuestions.map((problem, index) => {
-                  const questionNumber = pageIndex * QUESTIONS_PER_PRINT_PAGE + columnIndex * 3 + index + 1;
+                  const questionNumber = problem.sourceNumber
+                    ?? pageIndex * QUESTIONS_PER_PRINT_PAGE + columnIndex * 3 + index + 1;
                   return (
                     <div key={problem.id} className="student-exam-print-question">
                       <div className="student-exam-print-question-body">
-                        <span className="student-exam-print-question-number">{questionNumber}.</span>
+                        <span className="student-exam-print-question-number">
+                          {problem.sourceNumber !== undefined && problem.subject + " "}{questionNumber}.
+                        </span>
                         <ContentRenderer
                           contentType={problem.contentType}
                           text={problem.question}

@@ -51,6 +51,8 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
     [answers, exam.problems]
   );
   const remainingSec = Math.max(exam.timeLimitSec - elapsedSec, 0);
+  const hasRepeatedNumbers = new Set(exam.problems.map((problem, index) => problem.sourceNumber ?? index + 1)).size
+    < exam.problems.length;
   const visibleProblemEntries = useMemo(
     () =>
       exam.problems
@@ -69,10 +71,12 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
       if (submittedRef.current) return;
       if (!force) {
         const unanswered = exam.problems
-          .map((problem, index) => ({ problem, number: index + 1 }))
+          .map((problem, index) => ({ problem, number: problem.sourceNumber ?? index + 1 }))
           .filter(({ problem }) => !hasStoredAnswer(answersRef.current, problem.id));
         if (unanswered.length > 0) {
-          const preview = unanswered.slice(0, 12).map(({ number }) => number).join(", ");
+          const preview = unanswered.slice(0, 12).map(({ problem, number }) => (
+            hasRepeatedNumbers ? problem.subject + " " + number : number
+          )).join(", ");
           const suffix = unanswered.length > 12 ? "..." : "";
           const ok = window.confirm(
             `미응답 ${unanswered.length}문항이 있습니다.\n${preview}${suffix}\n그래도 제출하고 채점할까요?`
@@ -118,7 +122,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
         window.alert("제출을 완료하지 못했습니다.\n잠시 후 다시 제출해 주세요.");
       }
     },
-    [exam, retryHref, router, submitAttempt]
+    [exam, hasRepeatedNumbers, retryHref, router, submitAttempt]
   );
 
   useEffect(() => {
@@ -273,6 +277,24 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
     router.push("/student/exams");
   }
 
+  const questionLinks = exam.problems.map((problem, index) => {
+    const answered = hasStoredAnswer(answers, problem.id);
+    const number = problem.sourceNumber ?? index + 1;
+    const subject = hasRepeatedNumbers ? problem.subject + " " : "";
+    return (
+      <a
+        key={problem.id}
+        href={`#${problem.id}`}
+        className="tz-exam-jump"
+        data-answered={answered}
+        aria-label={`${subject}${number}번 문제, ${answered ? "응답 완료" : "미응답"}`}
+      >
+        {hasRepeatedNumbers && <span className="tz-exam-jump-subject">{problem.subject}</span>}
+        {number}
+      </a>
+    );
+  });
+
   return (
     <>
     <main className="student-screen-only student-print-root tz-exam" aria-busy={!loaded || submitting}>
@@ -379,6 +401,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
           ) : null}
           {visibleProblemEntries.map(({ problem, index }) => {
             const selected = answers[problem.id];
+            const number = problem.sourceNumber ?? index + 1;
             return (
               <article
                 key={problem.id}
@@ -387,11 +410,14 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
               >
                 <div className="tz-exam-question-head">
                   <span className="tz-exam-number">
-                    {index + 1}
+                    {number}
                   </span>
                   <span className="tz-exam-subject">
                     {problem.subject}
                   </span>
+                  {enablePaperLayout && problem.sourceNumber !== undefined && problem.points !== undefined && (
+                    <span className="tz-exam-subject">{problem.points}점</span>
+                  )}
                   {/* 단원·개념 태그는 응시 중엔 숨김 (정답 힌트 방지). 결과/해설 화면에선 노출. */}
                   <DifficultyBadge difficulty={problem.difficulty} />
                 </div>
@@ -401,7 +427,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                       contentType={problem.contentType}
                       text={problem.question}
                       image={problem.questionImage}
-                      imageAlt={`${index + 1}번 문제`}
+                      imageAlt={`${number}번 문제`}
                       className="text-base font-medium leading-8 text-ink"
                     />
                     {inkMode ? (
@@ -424,7 +450,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                         <input
                           id={`answer-${problem.id}`}
                           type="text"
-                          inputMode="text"
+                          inputMode={enablePaperLayout ? "numeric" : "text"}
                           autoComplete="off"
                           spellCheck={false}
                           disabled={submitting}
@@ -457,7 +483,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
                               contentType={option.contentType}
                               text={option.text}
                               image={option.image}
-                              imageAlt={`${index + 1}번 ${option.label}번 보기`}
+                              imageAlt={`${number}번 ${option.label}번 보기`}
                               className="min-w-0 pt-0.5 text-sm font-medium leading-6 text-ink"
                             />
                           </button>
@@ -492,18 +518,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
         <aside className="student-print-hide tz-exam-navigator">
           <h2>문항 이동</h2>
           <div className="tz-exam-numbers">
-            {exam.problems.map((problem, index) => {
-              const answered = hasStoredAnswer(answers, problem.id);
-              return (
-                <a
-                  key={problem.id}
-                  href={`#${problem.id}`}
-                  className="tz-exam-jump" data-answered={answered} aria-label={`${index + 1}번 문제, ${answered ? "응답 완료" : "미응답"}`}
-                >
-                  {index + 1}
-                </a>
-              );
-            })}
+            {questionLinks}
           </div>
           <div className="tz-exam-progress" role="progressbar" aria-label="응답 진행률" aria-valuenow={answeredCount} aria-valuemin={0} aria-valuemax={exam.problems.length}>
             <div
@@ -524,18 +539,7 @@ export function ExamRunner({ exam, retryHref, enablePaperLayout = false, submitA
           </div>
         </div>
         <div className="tz-exam-mobile-numbers">
-          {exam.problems.map((problem, index) => {
-            const answered = hasStoredAnswer(answers, problem.id);
-            return (
-              <a
-                key={problem.id}
-                href={`#${problem.id}`}
-                className="tz-exam-jump" data-answered={answered} aria-label={`${index + 1}번 문제, ${answered ? "응답 완료" : "미응답"}`}
-              >
-                {index + 1}
-              </a>
-            );
-          })}
+          {questionLinks}
         </div>
       </nav>
     </main>

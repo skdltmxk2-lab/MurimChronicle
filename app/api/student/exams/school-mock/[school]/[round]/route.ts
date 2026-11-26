@@ -70,6 +70,7 @@ function studentExam(exam: MockExam): MockExam {
     tags: exam.tags,
     problems: exam.problems.map((problem) => ({
       id: problem.id,
+      sourceNumber: problem.sourceNumber,
       subject: problem.subject,
       unit: problem.unit,
       concept: problem.concept,
